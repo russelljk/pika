@@ -1,0 +1,1995 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		4620C4B30DE74C9F00DE098B /* g-all */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4620C4BA0DE74CC800DE098B /* Build configuration list for PBXAggregateTarget "g-all" */;
+			buildPhases = (
+			);
+			dependencies = (
+				4620C4B70DE74CA600DE098B /* PBXTargetDependency */,
+				4662358A0DEC846A00543092 /* PBXTargetDependency */,
+				4620C4B90DE74CAA00DE098B /* PBXTargetDependency */,
+			);
+			name = "g-all";
+			productName = "g-all";
+		};
+		46FBE8760E00517D00015215 /* g-basics */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 46FBE8870E00519D00015215 /* Build configuration list for PBXAggregateTarget "g-basics" */;
+			buildPhases = (
+			);
+			dependencies = (
+				46FBE87D0E00518B00015215 /* PBXTargetDependency */,
+				46FBE87F0E00518F00015215 /* PBXTargetDependency */,
+			);
+			name = "g-basics";
+			productName = "g-basics";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		4620C4B20DE74C9000DE098B /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
+		4620C4E40DE7514200DE098B /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 4620C4E30DE7514200DE098B /* config.h */; };
+		46240E310DFEEE730034B181 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
+		46240E3A0DFEEF080034B181 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46240E390DFEEF080034B181 /* Cocoa.framework */; };
+		46240E3E0DFEEF200034B181 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46240E3D0DFEEF200034B181 /* OpenGL.framework */; };
+		46240E540DFEEF7C0034B181 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46240E410DFEEF7C0034B181 /* Game.cpp */; };
+		46240E550DFEEF7C0034B181 /* Game.h in Headers */ = {isa = PBXBuildFile; fileRef = 46240E420DFEEF7C0034B181 /* Game.h */; };
+		46240E560DFEEF7C0034B181 /* Game.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46240E430DFEEF7C0034B181 /* Game.mm */; };
+		46240E590DFEEF7C0034B181 /* Game_Events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46240E460DFEEF7C0034B181 /* Game_Events.cpp */; };
+		46240E5A0DFEEF7C0034B181 /* Game_Events.h in Headers */ = {isa = PBXBuildFile; fileRef = 46240E470DFEEF7C0034B181 /* Game_Events.h */; };
+		46240E5D0DFEEF7C0034B181 /* Game_Timestep.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46240E4A0DFEEF7C0034B181 /* Game_Timestep.cpp */; };
+		46240E5E0DFEEF7C0034B181 /* Game_Timestep.h in Headers */ = {isa = PBXBuildFile; fileRef = 46240E4B0DFEEF7C0034B181 /* Game_Timestep.h */; };
+		466235810DEC83CE00543092 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
+		46886C520E02DD8A00DA609B /* Game_Surface.h in Headers */ = {isa = PBXBuildFile; fileRef = 46886C500E02DD8A00DA609B /* Game_Surface.h */; };
+		46886C530E02DD8A00DA609B /* Game_Surface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46886C510E02DD8A00DA609B /* Game_Surface.cpp */; };
+		46886C770E02E01900DA609B /* Game_video.h in Headers */ = {isa = PBXBuildFile; fileRef = 46886C750E02E01900DA609B /* Game_video.h */; };
+		46886C780E02E01900DA609B /* Game_video.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46886C760E02E01900DA609B /* Game_video.cpp */; };
+		46886D2D0E02F0D200DA609B /* glSDL.c in Sources */ = {isa = PBXBuildFile; fileRef = 46886D2B0E02F0D200DA609B /* glSDL.c */; };
+		46886D2E0E02F0D200DA609B /* glSDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 46886D2C0E02F0D200DA609B /* glSDL.h */; };
+		46FBE80F0E004A2700015215 /* Game_Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FBE80E0E004A2700015215 /* Game_Rect.cpp */; };
+		46FBE8120E004ABB00015215 /* Game_Rect.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FBE8110E004ABB00015215 /* Game_Rect.h */; };
+		7F99390A0F1EE3FF0029C501 /* dlmalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389C0F1EE3FF0029C501 /* dlmalloc.c */; };
+		7F99390B0F1EE3FF0029C501 /* PArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389D0F1EE3FF0029C501 /* PArray.cpp */; };
+		7F99390C0F1EE3FF0029C501 /* PArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F99389E0F1EE3FF0029C501 /* PArray.h */; };
+		7F99390D0F1EE3FF0029C501 /* PAst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389F0F1EE3FF0029C501 /* PAst.cpp */; };
+		7F99390E0F1EE3FF0029C501 /* PAst.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938A00F1EE3FF0029C501 /* PAst.h */; };
+		7F99390F0F1EE3FF0029C501 /* PBasic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938A10F1EE3FF0029C501 /* PBasic.cpp */; };
+		7F9939100F1EE3FF0029C501 /* PBasic.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938A20F1EE3FF0029C501 /* PBasic.h */; };
+		7F9939110F1EE3FF0029C501 /* PBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938A30F1EE3FF0029C501 /* PBuffer.h */; };
+		7F9939120F1EE3FF0029C501 /* PByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938A40F1EE3FF0029C501 /* PByteArray.cpp */; };
+		7F9939130F1EE3FF0029C501 /* PByteArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938A50F1EE3FF0029C501 /* PByteArray.h */; };
+		7F9939140F1EE3FF0029C501 /* PByteOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938A60F1EE3FF0029C501 /* PByteOrder.h */; };
+		7F9939150F1EE3FF0029C501 /* PClassInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938A70F1EE3FF0029C501 /* PClassInfo.cpp */; };
+		7F9939160F1EE3FF0029C501 /* PClassInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938A80F1EE3FF0029C501 /* PClassInfo.h */; };
+		7F9939170F1EE3FF0029C501 /* PCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938A90F1EE3FF0029C501 /* PCollector.cpp */; };
+		7F9939180F1EE3FF0029C501 /* PCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938AA0F1EE3FF0029C501 /* PCollector.h */; };
+		7F9939190F1EE3FF0029C501 /* PCompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938AB0F1EE3FF0029C501 /* PCompiler.cpp */; };
+		7F99391A0F1EE3FF0029C501 /* PCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938AC0F1EE3FF0029C501 /* PCompiler.h */; };
+		7F99391B0F1EE3FF0029C501 /* PConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938AD0F1EE3FF0029C501 /* PConfig.h */; };
+		7F99391C0F1EE3FF0029C501 /* PContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938AE0F1EE3FF0029C501 /* PContext.cpp */; };
+		7F99391D0F1EE3FF0029C501 /* PContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938AF0F1EE3FF0029C501 /* PContext.h */; };
+		7F99391E0F1EE3FF0029C501 /* PContext_Ops.inl in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B00F1EE3FF0029C501 /* PContext_Ops.inl */; };
+		7F99391F0F1EE3FF0029C501 /* PContext_Ops_Arith.inl in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B10F1EE3FF0029C501 /* PContext_Ops_Arith.inl */; };
+		7F9939200F1EE3FF0029C501 /* PContext_Ops_Call.inl in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B20F1EE3FF0029C501 /* PContext_Ops_Call.inl */; };
+		7F9939210F1EE3FF0029C501 /* PContext_Ops_Std.inl in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B30F1EE3FF0029C501 /* PContext_Ops_Std.inl */; };
+		7F9939220F1EE3FF0029C501 /* PContext_Run.inl in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B40F1EE3FF0029C501 /* PContext_Run.inl */; };
+		7F9939230F1EE3FF0029C501 /* PDebugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938B50F1EE3FF0029C501 /* PDebugger.cpp */; };
+		7F9939240F1EE3FF0029C501 /* PDebugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B60F1EE3FF0029C501 /* PDebugger.h */; };
+		7F9939250F1EE3FF0029C501 /* PDef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938B70F1EE3FF0029C501 /* PDef.cpp */; };
+		7F9939260F1EE3FF0029C501 /* PDef.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938B80F1EE3FF0029C501 /* PDef.h */; };
+		7F9939270F1EE3FF0029C501 /* PEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938B90F1EE3FF0029C501 /* PEngine.cpp */; };
+		7F9939280F1EE3FF0029C501 /* PEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938BA0F1EE3FF0029C501 /* PEngine.h */; };
+		7F9939290F1EE3FF0029C501 /* PEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938BB0F1EE3FF0029C501 /* PEnumerator.cpp */; };
+		7F99392A0F1EE3FF0029C501 /* PEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938BC0F1EE3FF0029C501 /* PEnumerator.h */; };
+		7F99392B0F1EE3FF0029C501 /* PError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938BD0F1EE3FF0029C501 /* PError.cpp */; };
+		7F99392C0F1EE3FF0029C501 /* PError.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938BE0F1EE3FF0029C501 /* PError.h */; };
+		7F99392D0F1EE3FF0029C501 /* PFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938BF0F1EE3FF0029C501 /* PFile.cpp */; };
+		7F99392E0F1EE3FF0029C501 /* PFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938C00F1EE3FF0029C501 /* PFile.h */; };
+		7F99392F0F1EE3FF0029C501 /* PFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938C10F1EE3FF0029C501 /* PFunction.cpp */; };
+		7F9939300F1EE3FF0029C501 /* PFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938C20F1EE3FF0029C501 /* PFunction.h */; };
+		7F9939310F1EE3FF0029C501 /* PGenCode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938C30F1EE3FF0029C501 /* PGenCode.cpp */; };
+		7F9939320F1EE3FF0029C501 /* PHooks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938C40F1EE3FF0029C501 /* PHooks.cpp */; };
+		7F9939330F1EE3FF0029C501 /* PHooks.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938C50F1EE3FF0029C501 /* PHooks.h */; };
+		7F9939340F1EE3FF0029C501 /* Pika.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938C60F1EE3FF0029C501 /* Pika.cpp */; };
+		7F9939350F1EE3FF0029C501 /* Pika.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938C70F1EE3FF0029C501 /* Pika.h */; };
+		7F9939360F1EE3FF0029C501 /* PImport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938C80F1EE3FF0029C501 /* PImport.cpp */; };
+		7F9939370F1EE3FF0029C501 /* PInstruction.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938C90F1EE3FF0029C501 /* PInstruction.h */; };
+		7F9939380F1EE3FF0029C501 /* PLineInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938CA0F1EE3FF0029C501 /* PLineInfo.h */; };
+		7F9939390F1EE3FF0029C501 /* PLiteralPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938CB0F1EE3FF0029C501 /* PLiteralPool.cpp */; };
+		7F99393A0F1EE3FF0029C501 /* PLiteralPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938CC0F1EE3FF0029C501 /* PLiteralPool.h */; };
+		7F99393B0F1EE3FF0029C501 /* PLocalsObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938CD0F1EE3FF0029C501 /* PLocalsObject.cpp */; };
+		7F99393C0F1EE3FF0029C501 /* PLocalsObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938CE0F1EE3FF0029C501 /* PLocalsObject.h */; };
+		7F99393D0F1EE3FF0029C501 /* PMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938CF0F1EE3FF0029C501 /* PMemory.cpp */; };
+		7F99393E0F1EE3FF0029C501 /* PMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938D00F1EE3FF0029C501 /* PMemory.h */; };
+		7F99393F0F1EE3FF0029C501 /* PMemPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938D10F1EE3FF0029C501 /* PMemPool.cpp */; };
+		7F9939400F1EE3FF0029C501 /* PMemPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938D20F1EE3FF0029C501 /* PMemPool.h */; };
+		7F9939410F1EE3FF0029C501 /* PModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938D30F1EE3FF0029C501 /* PModule.cpp */; };
+		7F9939420F1EE3FF0029C501 /* PModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938D40F1EE3FF0029C501 /* PModule.h */; };
+		7F9939430F1EE3FF0029C501 /* PNativeBind.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938D50F1EE3FF0029C501 /* PNativeBind.cpp */; };
+		7F9939440F1EE3FF0029C501 /* PNativeBind.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938D60F1EE3FF0029C501 /* PNativeBind.h */; };
+		7F9939450F1EE3FF0029C501 /* PNativeConstMethodDecls.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938D70F1EE3FF0029C501 /* PNativeConstMethodDecls.h */; };
+		7F9939460F1EE3FF0029C501 /* PNativeMethod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938D80F1EE3FF0029C501 /* PNativeMethod.cpp */; };
+		7F9939470F1EE3FF0029C501 /* PNativeMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938D90F1EE3FF0029C501 /* PNativeMethod.h */; };
+		7F9939480F1EE3FF0029C501 /* PNativeMethodDecls.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938DA0F1EE3FF0029C501 /* PNativeMethodDecls.h */; };
+		7F9939490F1EE3FF0029C501 /* PNativeStaticMethodDecls.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938DB0F1EE3FF0029C501 /* PNativeStaticMethodDecls.h */; };
+		7F99394A0F1EE3FF0029C501 /* PObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938DC0F1EE3FF0029C501 /* PObject.cpp */; };
+		7F99394B0F1EE3FF0029C501 /* PObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938DD0F1EE3FF0029C501 /* PObject.h */; };
+		7F99394C0F1EE3FF0029C501 /* PObjectEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938DE0F1EE3FF0029C501 /* PObjectEnumerator.h */; };
+		7F99394D0F1EE3FF0029C501 /* POpcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938DF0F1EE3FF0029C501 /* POpcode.cpp */; };
+		7F99394E0F1EE3FF0029C501 /* POpcode.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938E10F1EE3FF0029C501 /* POpcode.h */; };
+		7F99394F0F1EE3FF0029C501 /* PPackage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938E20F1EE3FF0029C501 /* PPackage.cpp */; };
+		7F9939500F1EE3FF0029C501 /* PPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938E30F1EE3FF0029C501 /* PPackage.h */; };
+		7F9939510F1EE3FF0029C501 /* PParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938E40F1EE3FF0029C501 /* PParser.cpp */; };
+		7F9939520F1EE3FF0029C501 /* PParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938E50F1EE3FF0029C501 /* PParser.h */; };
+		7F9939530F1EE3FF0029C501 /* PPlatform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938E60F1EE3FF0029C501 /* PPlatform.cpp */; };
+		7F9939540F1EE3FF0029C501 /* PPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938E70F1EE3FF0029C501 /* PPlatform.h */; };
+		7F9939550F1EE3FF0029C501 /* PPlatformPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938E80F1EE3FF0029C501 /* PPlatformPosix.cpp */; };
+		7F9939570F1EE3FF0029C501 /* PProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938EA0F1EE3FF0029C501 /* PProfiler.h */; };
+		7F9939580F1EE3FF0029C501 /* PProperty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938EB0F1EE3FF0029C501 /* PProperty.cpp */; };
+		7F9939590F1EE3FF0029C501 /* PProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938EC0F1EE3FF0029C501 /* PProperty.h */; };
+		7F99395A0F1EE3FF0029C501 /* PRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938ED0F1EE3FF0029C501 /* PRandom.cpp */; };
+		7F99395B0F1EE3FF0029C501 /* PRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938EE0F1EE3FF0029C501 /* PRandom.h */; };
+		7F99395C0F1EE3FF0029C501 /* PRegExpr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938EF0F1EE3FF0029C501 /* PRegExpr.cpp */; };
+		7F99395D0F1EE3FF0029C501 /* PRegExpr.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F00F1EE3FF0029C501 /* PRegExpr.h */; };
+		7F99395E0F1EE3FF0029C501 /* PScript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F10F1EE3FF0029C501 /* PScript.cpp */; };
+		7F99395F0F1EE3FF0029C501 /* PScript.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F20F1EE3FF0029C501 /* PScript.h */; };
+		7F9939600F1EE3FF0029C501 /* PString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F30F1EE3FF0029C501 /* PString.cpp */; };
+		7F9939610F1EE3FF0029C501 /* PString.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F40F1EE3FF0029C501 /* PString.h */; };
+		7F9939620F1EE3FF0029C501 /* PStringTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F50F1EE3FF0029C501 /* PStringTable.cpp */; };
+		7F9939630F1EE3FF0029C501 /* PStringTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F60F1EE3FF0029C501 /* PStringTable.h */; };
+		7F9939640F1EE3FF0029C501 /* PSymbolTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F70F1EE3FF0029C501 /* PSymbolTable.cpp */; };
+		7F9939650F1EE3FF0029C501 /* PSymbolTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F80F1EE3FF0029C501 /* PSymbolTable.h */; };
+		7F9939660F1EE3FF0029C501 /* PSystemLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F90F1EE3FF0029C501 /* PSystemLib.cpp */; };
+		7F9939670F1EE3FF0029C501 /* PTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938FA0F1EE3FF0029C501 /* PTable.cpp */; };
+		7F9939680F1EE3FF0029C501 /* PTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938FB0F1EE3FF0029C501 /* PTable.h */; };
+		7F9939690F1EE3FF0029C501 /* PTokenDef.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938FD0F1EE3FF0029C501 /* PTokenDef.h */; };
+		7F99396A0F1EE3FF0029C501 /* PTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938FE0F1EE3FF0029C501 /* PTokenizer.cpp */; };
+		7F99396B0F1EE3FF0029C501 /* PTokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938FF0F1EE3FF0029C501 /* PTokenizer.h */; };
+		7F99396C0F1EE3FF0029C501 /* PType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939000F1EE3FF0029C501 /* PType.cpp */; };
+		7F99396D0F1EE3FF0029C501 /* PType.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9939010F1EE3FF0029C501 /* PType.h */; };
+		7F99396E0F1EE3FF0029C501 /* PUserData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939020F1EE3FF0029C501 /* PUserData.cpp */; };
+		7F99396F0F1EE3FF0029C501 /* PUserData.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9939030F1EE3FF0029C501 /* PUserData.h */; };
+		7F9939700F1EE3FF0029C501 /* PUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9939040F1EE3FF0029C501 /* PUtil.h */; };
+		7F9939710F1EE3FF0029C501 /* PValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939050F1EE3FF0029C501 /* PValue.cpp */; };
+		7F9939720F1EE3FF0029C501 /* PValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9939060F1EE3FF0029C501 /* PValue.h */; };
+		7F9939730F1EE3FF0029C501 /* PValueEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939070F1EE3FF0029C501 /* PValueEnumerator.cpp */; };
+		7F9939740F1EE3FF0029C501 /* PValueEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9939080F1EE3FF0029C501 /* PValueEnumerator.h */; };
+		7F9939750F1EE3FF0029C501 /* PWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939090F1EE3FF0029C501 /* PWorld.cpp */; };
+		7F9939770F1EE4910029C501 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939760F1EE4910029C501 /* Main.cpp */; };
+		7FA639460F02F61300F9FF67 /* expat.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639400F02F61300F9FF67 /* expat.h */; };
+		7FA639470F02F61300F9FF67 /* xmlparse.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639410F02F61300F9FF67 /* xmlparse.c */; };
+		7FA639480F02F61300F9FF67 /* xmlrole.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639420F02F61300F9FF67 /* xmlrole.c */; };
+		7FA639490F02F61300F9FF67 /* xmltok.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639430F02F61300F9FF67 /* xmltok.c */; };
+		7FA6394A0F02F61300F9FF67 /* xmltok_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639440F02F61300F9FF67 /* xmltok_impl.c */; };
+		7FA6394B0F02F61300F9FF67 /* xmltok_ns.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639450F02F61300F9FF67 /* xmltok_ns.c */; };
+		7FA6395B0F02F66E00F9FF67 /* expat_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA6395A0F02F66E00F9FF67 /* expat_config.h */; };
+		7FA639780F03DE0200F9FF67 /* ascii.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA6396E0F03DE0200F9FF67 /* ascii.h */; };
+		7FA639790F03DE0200F9FF67 /* asciitab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA6396F0F03DE0200F9FF67 /* asciitab.h */; };
+		7FA6397A0F03DE0200F9FF67 /* iasciitab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639700F03DE0200F9FF67 /* iasciitab.h */; };
+		7FA6397B0F03DE0200F9FF67 /* internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639710F03DE0200F9FF67 /* internal.h */; };
+		7FA6397C0F03DE0200F9FF67 /* latin1tab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639720F03DE0200F9FF67 /* latin1tab.h */; };
+		7FA6397D0F03DE0200F9FF67 /* nametab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639730F03DE0200F9FF67 /* nametab.h */; };
+		7FA6397E0F03DE0200F9FF67 /* utf8tab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639740F03DE0200F9FF67 /* utf8tab.h */; };
+		7FA6397F0F03DE0200F9FF67 /* xmlrole.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639750F03DE0200F9FF67 /* xmlrole.h */; };
+		7FA639800F03DE0200F9FF67 /* xmltok.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639760F03DE0200F9FF67 /* xmltok.h */; };
+		7FA639810F03DE0200F9FF67 /* xmltok_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639770F03DE0200F9FF67 /* xmltok_impl.h */; };
+		7FDCB8D30F1FBC3300E7EB19 /* PCurses.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */; };
+		7FDCB8D40F1FBC3300E7EB19 /* PCurses.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */; };
+		7FDCB94B0F21101F00E7EB19 /* PConfig_Borland.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4620C4B60DE74CA600DE098B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4620C3B90DE74B7500DE098B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4620C3D80DE74C0800DE098B;
+			remoteInfo = libgekko;
+		};
+		4620C4B80DE74CAA00DE098B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4620C3B90DE74B7500DE098B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4620C3CE0DE74BC300DE098B;
+			remoteInfo = g;
+		};
+		466235890DEC846A00543092 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4620C3B90DE74B7500DE098B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4662357D0DEC839000543092;
+			remoteInfo = gcurses;
+		};
+		46FBE87C0E00518B00015215 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4620C3B90DE74B7500DE098B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4620C3D80DE74C0800DE098B;
+			remoteInfo = libgekko;
+		};
+		46FBE87E0E00518F00015215 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4620C3B90DE74B7500DE098B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4620C3CE0DE74BC300DE098B;
+			remoteInfo = "g-interpreter";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4620C3CF0DE74BC300DE098B /* pika */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pika; sourceTree = BUILT_PRODUCTS_DIR; };
+		4620C3D90DE74C0800DE098B /* libpika.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpika.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4620C4E30DE7514200DE098B /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		46240E380DFEEE730034B181 /* libpikagame.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikagame.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		46240E390DFEEF080034B181 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		46240E3D0DFEEF200034B181 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		46240E410DFEEF7C0034B181 /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game.cpp; path = ../game/Game.cpp; sourceTree = SOURCE_ROOT; };
+		46240E420DFEEF7C0034B181 /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game.h; path = ../game/Game.h; sourceTree = SOURCE_ROOT; };
+		46240E430DFEEF7C0034B181 /* Game.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Game.mm; path = ../game/Game.mm; sourceTree = SOURCE_ROOT; };
+		46240E460DFEEF7C0034B181 /* Game_Events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Events.cpp; path = ../game/Game_Events.cpp; sourceTree = SOURCE_ROOT; };
+		46240E470DFEEF7C0034B181 /* Game_Events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Events.h; path = ../game/Game_Events.h; sourceTree = SOURCE_ROOT; };
+		46240E4A0DFEEF7C0034B181 /* Game_Timestep.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Timestep.cpp; path = ../game/Game_Timestep.cpp; sourceTree = SOURCE_ROOT; };
+		46240E4B0DFEEF7C0034B181 /* Game_Timestep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Timestep.h; path = ../game/Game_Timestep.h; sourceTree = SOURCE_ROOT; };
+		4651E6E70DFB071D00B70498 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO; path = ../TODO; sourceTree = SOURCE_ROOT; };
+		4662357E0DEC839000543092 /* libpikacurses.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikacurses.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		46886C500E02DD8A00DA609B /* Game_Surface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Surface.h; path = ../game/Game_Surface.h; sourceTree = SOURCE_ROOT; };
+		46886C510E02DD8A00DA609B /* Game_Surface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Surface.cpp; path = ../game/Game_Surface.cpp; sourceTree = SOURCE_ROOT; };
+		46886C750E02E01900DA609B /* Game_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_video.h; path = ../game/Game_video.h; sourceTree = SOURCE_ROOT; };
+		46886C760E02E01900DA609B /* Game_video.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_video.cpp; path = ../game/Game_video.cpp; sourceTree = SOURCE_ROOT; };
+		46886D2B0E02F0D200DA609B /* glSDL.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glSDL.c; path = ../game/glSDL.c; sourceTree = SOURCE_ROOT; };
+		46886D2C0E02F0D200DA609B /* glSDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glSDL.h; path = ../game/glSDL.h; sourceTree = SOURCE_ROOT; };
+		46FBE80E0E004A2700015215 /* Game_Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Rect.cpp; path = ../game/Game_Rect.cpp; sourceTree = SOURCE_ROOT; };
+		46FBE8110E004ABB00015215 /* Game_Rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Rect.h; path = ../game/Game_Rect.h; sourceTree = SOURCE_ROOT; };
+		7F99389C0F1EE3FF0029C501 /* dlmalloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dlmalloc.c; path = ../libpika/dlmalloc.c; sourceTree = SOURCE_ROOT; };
+		7F99389D0F1EE3FF0029C501 /* PArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PArray.cpp; path = ../libpika/PArray.cpp; sourceTree = SOURCE_ROOT; };
+		7F99389E0F1EE3FF0029C501 /* PArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PArray.h; path = ../libpika/PArray.h; sourceTree = SOURCE_ROOT; };
+		7F99389F0F1EE3FF0029C501 /* PAst.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PAst.cpp; path = ../libpika/PAst.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938A00F1EE3FF0029C501 /* PAst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PAst.h; path = ../libpika/PAst.h; sourceTree = SOURCE_ROOT; };
+		7F9938A10F1EE3FF0029C501 /* PBasic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PBasic.cpp; path = ../libpika/PBasic.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938A20F1EE3FF0029C501 /* PBasic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PBasic.h; path = ../libpika/PBasic.h; sourceTree = SOURCE_ROOT; };
+		7F9938A30F1EE3FF0029C501 /* PBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PBuffer.h; path = ../libpika/PBuffer.h; sourceTree = SOURCE_ROOT; };
+		7F9938A40F1EE3FF0029C501 /* PByteArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PByteArray.cpp; path = ../libpika/PByteArray.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938A50F1EE3FF0029C501 /* PByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PByteArray.h; path = ../libpika/PByteArray.h; sourceTree = SOURCE_ROOT; };
+		7F9938A60F1EE3FF0029C501 /* PByteOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PByteOrder.h; path = ../libpika/PByteOrder.h; sourceTree = SOURCE_ROOT; };
+		7F9938A70F1EE3FF0029C501 /* PClassInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PClassInfo.cpp; path = ../libpika/PClassInfo.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938A80F1EE3FF0029C501 /* PClassInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PClassInfo.h; path = ../libpika/PClassInfo.h; sourceTree = SOURCE_ROOT; };
+		7F9938A90F1EE3FF0029C501 /* PCollector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCollector.cpp; path = ../libpika/PCollector.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938AA0F1EE3FF0029C501 /* PCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCollector.h; path = ../libpika/PCollector.h; sourceTree = SOURCE_ROOT; };
+		7F9938AB0F1EE3FF0029C501 /* PCompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCompiler.cpp; path = ../libpika/PCompiler.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938AC0F1EE3FF0029C501 /* PCompiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCompiler.h; path = ../libpika/PCompiler.h; sourceTree = SOURCE_ROOT; };
+		7F9938AD0F1EE3FF0029C501 /* PConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig.h; path = ../libpika/PConfig.h; sourceTree = SOURCE_ROOT; };
+		7F9938AE0F1EE3FF0029C501 /* PContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PContext.cpp; path = ../libpika/PContext.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938AF0F1EE3FF0029C501 /* PContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PContext.h; path = ../libpika/PContext.h; sourceTree = SOURCE_ROOT; };
+		7F9938B00F1EE3FF0029C501 /* PContext_Ops.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PContext_Ops.inl; path = ../libpika/PContext_Ops.inl; sourceTree = SOURCE_ROOT; };
+		7F9938B10F1EE3FF0029C501 /* PContext_Ops_Arith.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PContext_Ops_Arith.inl; path = ../libpika/PContext_Ops_Arith.inl; sourceTree = SOURCE_ROOT; };
+		7F9938B20F1EE3FF0029C501 /* PContext_Ops_Call.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PContext_Ops_Call.inl; path = ../libpika/PContext_Ops_Call.inl; sourceTree = SOURCE_ROOT; };
+		7F9938B30F1EE3FF0029C501 /* PContext_Ops_Std.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PContext_Ops_Std.inl; path = ../libpika/PContext_Ops_Std.inl; sourceTree = SOURCE_ROOT; };
+		7F9938B40F1EE3FF0029C501 /* PContext_Run.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PContext_Run.inl; path = ../libpika/PContext_Run.inl; sourceTree = SOURCE_ROOT; };
+		7F9938B50F1EE3FF0029C501 /* PDebugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PDebugger.cpp; path = ../libpika/PDebugger.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938B60F1EE3FF0029C501 /* PDebugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDebugger.h; path = ../libpika/PDebugger.h; sourceTree = SOURCE_ROOT; };
+		7F9938B70F1EE3FF0029C501 /* PDef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PDef.cpp; path = ../libpika/PDef.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938B80F1EE3FF0029C501 /* PDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDef.h; path = ../libpika/PDef.h; sourceTree = SOURCE_ROOT; };
+		7F9938B90F1EE3FF0029C501 /* PEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PEngine.cpp; path = ../libpika/PEngine.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938BA0F1EE3FF0029C501 /* PEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PEngine.h; path = ../libpika/PEngine.h; sourceTree = SOURCE_ROOT; };
+		7F9938BB0F1EE3FF0029C501 /* PEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PEnumerator.cpp; path = ../libpika/PEnumerator.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938BC0F1EE3FF0029C501 /* PEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PEnumerator.h; path = ../libpika/PEnumerator.h; sourceTree = SOURCE_ROOT; };
+		7F9938BD0F1EE3FF0029C501 /* PError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PError.cpp; path = ../libpika/PError.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938BE0F1EE3FF0029C501 /* PError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PError.h; path = ../libpika/PError.h; sourceTree = SOURCE_ROOT; };
+		7F9938BF0F1EE3FF0029C501 /* PFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PFile.cpp; path = ../libpika/PFile.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938C00F1EE3FF0029C501 /* PFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PFile.h; path = ../libpika/PFile.h; sourceTree = SOURCE_ROOT; };
+		7F9938C10F1EE3FF0029C501 /* PFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PFunction.cpp; path = ../libpika/PFunction.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938C20F1EE3FF0029C501 /* PFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PFunction.h; path = ../libpika/PFunction.h; sourceTree = SOURCE_ROOT; };
+		7F9938C30F1EE3FF0029C501 /* PGenCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PGenCode.cpp; path = ../libpika/PGenCode.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938C40F1EE3FF0029C501 /* PHooks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PHooks.cpp; path = ../libpika/PHooks.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938C50F1EE3FF0029C501 /* PHooks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PHooks.h; path = ../libpika/PHooks.h; sourceTree = SOURCE_ROOT; };
+		7F9938C60F1EE3FF0029C501 /* Pika.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Pika.cpp; path = ../libpika/Pika.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938C70F1EE3FF0029C501 /* Pika.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pika.h; path = ../libpika/Pika.h; sourceTree = SOURCE_ROOT; };
+		7F9938C80F1EE3FF0029C501 /* PImport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PImport.cpp; path = ../libpika/PImport.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938C90F1EE3FF0029C501 /* PInstruction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PInstruction.h; path = ../libpika/PInstruction.h; sourceTree = SOURCE_ROOT; };
+		7F9938CA0F1EE3FF0029C501 /* PLineInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PLineInfo.h; path = ../libpika/PLineInfo.h; sourceTree = SOURCE_ROOT; };
+		7F9938CB0F1EE3FF0029C501 /* PLiteralPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PLiteralPool.cpp; path = ../libpika/PLiteralPool.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938CC0F1EE3FF0029C501 /* PLiteralPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PLiteralPool.h; path = ../libpika/PLiteralPool.h; sourceTree = SOURCE_ROOT; };
+		7F9938CD0F1EE3FF0029C501 /* PLocalsObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PLocalsObject.cpp; path = ../libpika/PLocalsObject.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938CE0F1EE3FF0029C501 /* PLocalsObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PLocalsObject.h; path = ../libpika/PLocalsObject.h; sourceTree = SOURCE_ROOT; };
+		7F9938CF0F1EE3FF0029C501 /* PMemory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PMemory.cpp; path = ../libpika/PMemory.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938D00F1EE3FF0029C501 /* PMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PMemory.h; path = ../libpika/PMemory.h; sourceTree = SOURCE_ROOT; };
+		7F9938D10F1EE3FF0029C501 /* PMemPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PMemPool.cpp; path = ../libpika/PMemPool.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938D20F1EE3FF0029C501 /* PMemPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PMemPool.h; path = ../libpika/PMemPool.h; sourceTree = SOURCE_ROOT; };
+		7F9938D30F1EE3FF0029C501 /* PModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PModule.cpp; path = ../libpika/PModule.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938D40F1EE3FF0029C501 /* PModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PModule.h; path = ../libpika/PModule.h; sourceTree = SOURCE_ROOT; };
+		7F9938D50F1EE3FF0029C501 /* PNativeBind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNativeBind.cpp; path = ../libpika/PNativeBind.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938D60F1EE3FF0029C501 /* PNativeBind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeBind.h; path = ../libpika/PNativeBind.h; sourceTree = SOURCE_ROOT; };
+		7F9938D70F1EE3FF0029C501 /* PNativeConstMethodDecls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeConstMethodDecls.h; path = ../libpika/PNativeConstMethodDecls.h; sourceTree = SOURCE_ROOT; };
+		7F9938D80F1EE3FF0029C501 /* PNativeMethod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNativeMethod.cpp; path = ../libpika/PNativeMethod.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938D90F1EE3FF0029C501 /* PNativeMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeMethod.h; path = ../libpika/PNativeMethod.h; sourceTree = SOURCE_ROOT; };
+		7F9938DA0F1EE3FF0029C501 /* PNativeMethodDecls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeMethodDecls.h; path = ../libpika/PNativeMethodDecls.h; sourceTree = SOURCE_ROOT; };
+		7F9938DB0F1EE3FF0029C501 /* PNativeStaticMethodDecls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeStaticMethodDecls.h; path = ../libpika/PNativeStaticMethodDecls.h; sourceTree = SOURCE_ROOT; };
+		7F9938DC0F1EE3FF0029C501 /* PObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PObject.cpp; path = ../libpika/PObject.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938DD0F1EE3FF0029C501 /* PObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PObject.h; path = ../libpika/PObject.h; sourceTree = SOURCE_ROOT; };
+		7F9938DE0F1EE3FF0029C501 /* PObjectEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PObjectEnumerator.h; path = ../libpika/PObjectEnumerator.h; sourceTree = SOURCE_ROOT; };
+		7F9938DF0F1EE3FF0029C501 /* POpcode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = POpcode.cpp; path = ../libpika/POpcode.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938E00F1EE3FF0029C501 /* POpcode.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = POpcode.def; path = ../libpika/POpcode.def; sourceTree = SOURCE_ROOT; };
+		7F9938E10F1EE3FF0029C501 /* POpcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = POpcode.h; path = ../libpika/POpcode.h; sourceTree = SOURCE_ROOT; };
+		7F9938E20F1EE3FF0029C501 /* PPackage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PPackage.cpp; path = ../libpika/PPackage.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938E30F1EE3FF0029C501 /* PPackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PPackage.h; path = ../libpika/PPackage.h; sourceTree = SOURCE_ROOT; };
+		7F9938E40F1EE3FF0029C501 /* PParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PParser.cpp; path = ../libpika/PParser.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938E50F1EE3FF0029C501 /* PParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PParser.h; path = ../libpika/PParser.h; sourceTree = SOURCE_ROOT; };
+		7F9938E60F1EE3FF0029C501 /* PPlatform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PPlatform.cpp; path = ../libpika/PPlatform.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938E70F1EE3FF0029C501 /* PPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PPlatform.h; path = ../libpika/PPlatform.h; sourceTree = SOURCE_ROOT; };
+		7F9938E80F1EE3FF0029C501 /* PPlatformPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PPlatformPosix.cpp; path = ../libpika/PPlatformPosix.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938EA0F1EE3FF0029C501 /* PProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PProfiler.h; path = ../libpika/PProfiler.h; sourceTree = SOURCE_ROOT; };
+		7F9938EB0F1EE3FF0029C501 /* PProperty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PProperty.cpp; path = ../libpika/PProperty.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938EC0F1EE3FF0029C501 /* PProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PProperty.h; path = ../libpika/PProperty.h; sourceTree = SOURCE_ROOT; };
+		7F9938ED0F1EE3FF0029C501 /* PRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PRandom.cpp; path = ../libpika/PRandom.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938EE0F1EE3FF0029C501 /* PRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRandom.h; path = ../libpika/PRandom.h; sourceTree = SOURCE_ROOT; };
+		7F9938EF0F1EE3FF0029C501 /* PRegExpr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PRegExpr.cpp; path = ../libpika/PRegExpr.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938F00F1EE3FF0029C501 /* PRegExpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRegExpr.h; path = ../libpika/PRegExpr.h; sourceTree = SOURCE_ROOT; };
+		7F9938F10F1EE3FF0029C501 /* PScript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PScript.cpp; path = ../libpika/PScript.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938F20F1EE3FF0029C501 /* PScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PScript.h; path = ../libpika/PScript.h; sourceTree = SOURCE_ROOT; };
+		7F9938F30F1EE3FF0029C501 /* PString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PString.cpp; path = ../libpika/PString.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938F40F1EE3FF0029C501 /* PString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PString.h; path = ../libpika/PString.h; sourceTree = SOURCE_ROOT; };
+		7F9938F50F1EE3FF0029C501 /* PStringTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PStringTable.cpp; path = ../libpika/PStringTable.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938F60F1EE3FF0029C501 /* PStringTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PStringTable.h; path = ../libpika/PStringTable.h; sourceTree = SOURCE_ROOT; };
+		7F9938F70F1EE3FF0029C501 /* PSymbolTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PSymbolTable.cpp; path = ../libpika/PSymbolTable.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938F80F1EE3FF0029C501 /* PSymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSymbolTable.h; path = ../libpika/PSymbolTable.h; sourceTree = SOURCE_ROOT; };
+		7F9938F90F1EE3FF0029C501 /* PSystemLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PSystemLib.cpp; path = ../libpika/PSystemLib.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938FA0F1EE3FF0029C501 /* PTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PTable.cpp; path = ../libpika/PTable.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938FB0F1EE3FF0029C501 /* PTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PTable.h; path = ../libpika/PTable.h; sourceTree = SOURCE_ROOT; };
+		7F9938FC0F1EE3FF0029C501 /* PToken.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = PToken.def; path = ../libpika/PToken.def; sourceTree = SOURCE_ROOT; };
+		7F9938FD0F1EE3FF0029C501 /* PTokenDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PTokenDef.h; path = ../libpika/PTokenDef.h; sourceTree = SOURCE_ROOT; };
+		7F9938FE0F1EE3FF0029C501 /* PTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PTokenizer.cpp; path = ../libpika/PTokenizer.cpp; sourceTree = SOURCE_ROOT; };
+		7F9938FF0F1EE3FF0029C501 /* PTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PTokenizer.h; path = ../libpika/PTokenizer.h; sourceTree = SOURCE_ROOT; };
+		7F9939000F1EE3FF0029C501 /* PType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PType.cpp; path = ../libpika/PType.cpp; sourceTree = SOURCE_ROOT; };
+		7F9939010F1EE3FF0029C501 /* PType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PType.h; path = ../libpika/PType.h; sourceTree = SOURCE_ROOT; };
+		7F9939020F1EE3FF0029C501 /* PUserData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PUserData.cpp; path = ../libpika/PUserData.cpp; sourceTree = SOURCE_ROOT; };
+		7F9939030F1EE3FF0029C501 /* PUserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PUserData.h; path = ../libpika/PUserData.h; sourceTree = SOURCE_ROOT; };
+		7F9939040F1EE3FF0029C501 /* PUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PUtil.h; path = ../libpika/PUtil.h; sourceTree = SOURCE_ROOT; };
+		7F9939050F1EE3FF0029C501 /* PValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PValue.cpp; path = ../libpika/PValue.cpp; sourceTree = SOURCE_ROOT; };
+		7F9939060F1EE3FF0029C501 /* PValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PValue.h; path = ../libpika/PValue.h; sourceTree = SOURCE_ROOT; };
+		7F9939070F1EE3FF0029C501 /* PValueEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PValueEnumerator.cpp; path = ../libpika/PValueEnumerator.cpp; sourceTree = SOURCE_ROOT; };
+		7F9939080F1EE3FF0029C501 /* PValueEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PValueEnumerator.h; path = ../libpika/PValueEnumerator.h; sourceTree = SOURCE_ROOT; };
+		7F9939090F1EE3FF0029C501 /* PWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PWorld.cpp; path = ../libpika/PWorld.cpp; sourceTree = SOURCE_ROOT; };
+		7F9939760F1EE4910029C501 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../pikac/Main.cpp; sourceTree = SOURCE_ROOT; };
+		7F9939840F1EE5E90029C501 /* foo.pika */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pika; name = foo.pika; path = ../scripts/foo.pika; sourceTree = SOURCE_ROOT; };
+		7FA639360F02F56900F9FF67 /* libexpat.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libexpat.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FA639400F02F61300F9FF67 /* expat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = expat.h; path = ../expat/lib/expat.h; sourceTree = SOURCE_ROOT; };
+		7FA639410F02F61300F9FF67 /* xmlparse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmlparse.c; path = ../expat/lib/xmlparse.c; sourceTree = SOURCE_ROOT; };
+		7FA639420F02F61300F9FF67 /* xmlrole.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmlrole.c; path = ../expat/lib/xmlrole.c; sourceTree = SOURCE_ROOT; };
+		7FA639430F02F61300F9FF67 /* xmltok.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmltok.c; path = ../expat/lib/xmltok.c; sourceTree = SOURCE_ROOT; };
+		7FA639440F02F61300F9FF67 /* xmltok_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmltok_impl.c; path = ../expat/lib/xmltok_impl.c; sourceTree = SOURCE_ROOT; };
+		7FA639450F02F61300F9FF67 /* xmltok_ns.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmltok_ns.c; path = ../expat/lib/xmltok_ns.c; sourceTree = SOURCE_ROOT; };
+		7FA6395A0F02F66E00F9FF67 /* expat_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = expat_config.h; path = ../expat/osx/expat_config.h; sourceTree = SOURCE_ROOT; };
+		7FA6396E0F03DE0200F9FF67 /* ascii.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ascii.h; path = ../expat/lib/ascii.h; sourceTree = SOURCE_ROOT; };
+		7FA6396F0F03DE0200F9FF67 /* asciitab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = asciitab.h; path = ../expat/lib/asciitab.h; sourceTree = SOURCE_ROOT; };
+		7FA639700F03DE0200F9FF67 /* iasciitab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iasciitab.h; path = ../expat/lib/iasciitab.h; sourceTree = SOURCE_ROOT; };
+		7FA639710F03DE0200F9FF67 /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = internal.h; path = ../expat/lib/internal.h; sourceTree = SOURCE_ROOT; };
+		7FA639720F03DE0200F9FF67 /* latin1tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = latin1tab.h; path = ../expat/lib/latin1tab.h; sourceTree = SOURCE_ROOT; };
+		7FA639730F03DE0200F9FF67 /* nametab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nametab.h; path = ../expat/lib/nametab.h; sourceTree = SOURCE_ROOT; };
+		7FA639740F03DE0200F9FF67 /* utf8tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utf8tab.h; path = ../expat/lib/utf8tab.h; sourceTree = SOURCE_ROOT; };
+		7FA639750F03DE0200F9FF67 /* xmlrole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmlrole.h; path = ../expat/lib/xmlrole.h; sourceTree = SOURCE_ROOT; };
+		7FA639760F03DE0200F9FF67 /* xmltok.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmltok.h; path = ../expat/lib/xmltok.h; sourceTree = SOURCE_ROOT; };
+		7FA639770F03DE0200F9FF67 /* xmltok_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmltok_impl.h; path = ../expat/lib/xmltok_impl.h; sourceTree = SOURCE_ROOT; };
+		7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCurses.cpp; path = ../curses/PCurses.cpp; sourceTree = SOURCE_ROOT; };
+		7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCurses.h; path = ../curses/PCurses.h; sourceTree = SOURCE_ROOT; };
+		7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_Borland.h; path = ../libpika/PConfig_Borland.h; sourceTree = SOURCE_ROOT; };
+		7FDCB94E0F21108800E7EB19 /* PConfig_VisualStudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_VisualStudio.h; path = ../libpika/PConfig_VisualStudio.h; sourceTree = SOURCE_ROOT; };
+		7FDCB9530F21110100E7EB19 /* PConfig_GCC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_GCC.h; path = ../libpika/PConfig_GCC.h; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4620C3CD0DE74BC300DE098B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4620C4B20DE74C9000DE098B /* libpika.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4620C3D70DE74C0800DE098B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46240E300DFEEE730034B181 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46240E310DFEEE730034B181 /* libpika.dylib in Frameworks */,
+				46240E3A0DFEEF080034B181 /* Cocoa.framework in Frameworks */,
+				46240E3E0DFEEF200034B181 /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4662357C0DEC839000543092 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				466235810DEC83CE00543092 /* libpika.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7FA639340F02F56900F9FF67 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4620C3B70DE74B7500DE098B = {
+			isa = PBXGroup;
+			children = (
+				7FA639680F03DDB400F9FF67 /* expat */,
+				4651E6E70DFB071D00B70498 /* TODO */,
+				4620C4E30DE7514200DE098B /* config.h */,
+				46240E2A0DFEEE640034B181 /* Game */,
+				466235820DEC83D800543092 /* curses */,
+				4620C3CA0DE74B9900DE098B /* scripts */,
+				4620C3C90DE74B8B00DE098B /* libpika */,
+				4620C3CB0DE74BA100DE098B /* pikac */,
+				4620C3D00DE74BC300DE098B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4620C3C90DE74B8B00DE098B /* libpika */ = {
+			isa = PBXGroup;
+			children = (
+				4682DAB10E17EC7700B52D6B /* inline */,
+				4682DAB00E17EC7000B52D6B /* include */,
+				4682DAAF0E17EC6700B52D6B /* source */,
+				4682DAAD0E17EAA200B52D6B /* malloc */,
+			);
+			name = libpika;
+			sourceTree = "<group>";
+		};
+		4620C3CA0DE74B9900DE098B /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				7F9939840F1EE5E90029C501 /* foo.pika */,
+			);
+			name = scripts;
+			sourceTree = "<group>";
+		};
+		4620C3CB0DE74BA100DE098B /* pikac */ = {
+			isa = PBXGroup;
+			children = (
+				7F9939760F1EE4910029C501 /* Main.cpp */,
+			);
+			name = pikac;
+			sourceTree = "<group>";
+		};
+		4620C3D00DE74BC300DE098B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4620C3CF0DE74BC300DE098B /* pika */,
+				4620C3D90DE74C0800DE098B /* libpika.dylib */,
+				4662357E0DEC839000543092 /* libpikacurses.dylib */,
+				46240E380DFEEE730034B181 /* libpikagame.dylib */,
+				7FA639360F02F56900F9FF67 /* libexpat.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		46240E2A0DFEEE640034B181 /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				7F3539EC0E646DE700A80314 /* glSDL */,
+				7F3539EB0E646DDA00A80314 /* Headers */,
+				7F3539EA0E646DCC00A80314 /* Source */,
+				7F3539D60E646DBC00A80314 /* Frameworks */,
+			);
+			name = Game;
+			sourceTree = "<group>";
+		};
+		466235820DEC83D800543092 /* curses */ = {
+			isa = PBXGroup;
+			children = (
+				7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */,
+				7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */,
+			);
+			name = curses;
+			sourceTree = "<group>";
+		};
+		4682DAAD0E17EAA200B52D6B /* malloc */ = {
+			isa = PBXGroup;
+			children = (
+				7F99389C0F1EE3FF0029C501 /* dlmalloc.c */,
+			);
+			name = malloc;
+			sourceTree = "<group>";
+		};
+		4682DAAF0E17EC6700B52D6B /* source */ = {
+			isa = PBXGroup;
+			children = (
+				7F99389D0F1EE3FF0029C501 /* PArray.cpp */,
+				7F99389F0F1EE3FF0029C501 /* PAst.cpp */,
+				7F9938A10F1EE3FF0029C501 /* PBasic.cpp */,
+				7F9938A40F1EE3FF0029C501 /* PByteArray.cpp */,
+				7F9938A70F1EE3FF0029C501 /* PClassInfo.cpp */,
+				7F9938A90F1EE3FF0029C501 /* PCollector.cpp */,
+				7F9938AB0F1EE3FF0029C501 /* PCompiler.cpp */,
+				7F9938AE0F1EE3FF0029C501 /* PContext.cpp */,
+				7F9938B50F1EE3FF0029C501 /* PDebugger.cpp */,
+				7F9938B70F1EE3FF0029C501 /* PDef.cpp */,
+				7F9938B90F1EE3FF0029C501 /* PEngine.cpp */,
+				7F9938BB0F1EE3FF0029C501 /* PEnumerator.cpp */,
+				7F9938BD0F1EE3FF0029C501 /* PError.cpp */,
+				7F9938BF0F1EE3FF0029C501 /* PFile.cpp */,
+				7F9938C10F1EE3FF0029C501 /* PFunction.cpp */,
+				7F9938C30F1EE3FF0029C501 /* PGenCode.cpp */,
+				7F9938C40F1EE3FF0029C501 /* PHooks.cpp */,
+				7F9938C60F1EE3FF0029C501 /* Pika.cpp */,
+				7F9938C80F1EE3FF0029C501 /* PImport.cpp */,
+				7F9938CB0F1EE3FF0029C501 /* PLiteralPool.cpp */,
+				7F9938CD0F1EE3FF0029C501 /* PLocalsObject.cpp */,
+				7F9938CF0F1EE3FF0029C501 /* PMemory.cpp */,
+				7F9938D10F1EE3FF0029C501 /* PMemPool.cpp */,
+				7F9938D30F1EE3FF0029C501 /* PModule.cpp */,
+				7F9938D50F1EE3FF0029C501 /* PNativeBind.cpp */,
+				7F9938D80F1EE3FF0029C501 /* PNativeMethod.cpp */,
+				7F9938DC0F1EE3FF0029C501 /* PObject.cpp */,
+				7F9938DF0F1EE3FF0029C501 /* POpcode.cpp */,
+				7F9938E20F1EE3FF0029C501 /* PPackage.cpp */,
+				7F9938E40F1EE3FF0029C501 /* PParser.cpp */,
+				7F9938E60F1EE3FF0029C501 /* PPlatform.cpp */,
+				7F9938E80F1EE3FF0029C501 /* PPlatformPosix.cpp */,
+				7F9938EB0F1EE3FF0029C501 /* PProperty.cpp */,
+				7F9938ED0F1EE3FF0029C501 /* PRandom.cpp */,
+				7F9938EF0F1EE3FF0029C501 /* PRegExpr.cpp */,
+				7F9938F10F1EE3FF0029C501 /* PScript.cpp */,
+				7F9938F30F1EE3FF0029C501 /* PString.cpp */,
+				7F9938F50F1EE3FF0029C501 /* PStringTable.cpp */,
+				7F9938F70F1EE3FF0029C501 /* PSymbolTable.cpp */,
+				7F9938F90F1EE3FF0029C501 /* PSystemLib.cpp */,
+				7F9938FA0F1EE3FF0029C501 /* PTable.cpp */,
+				7F9938FE0F1EE3FF0029C501 /* PTokenizer.cpp */,
+				7F9939000F1EE3FF0029C501 /* PType.cpp */,
+				7F9939020F1EE3FF0029C501 /* PUserData.cpp */,
+				7F9939050F1EE3FF0029C501 /* PValue.cpp */,
+				7F9939070F1EE3FF0029C501 /* PValueEnumerator.cpp */,
+				7F9939090F1EE3FF0029C501 /* PWorld.cpp */,
+			);
+			name = source;
+			sourceTree = "<group>";
+		};
+		4682DAB00E17EC7000B52D6B /* include */ = {
+			isa = PBXGroup;
+			children = (
+				7FDCB9530F21110100E7EB19 /* PConfig_GCC.h */,
+				7FDCB94E0F21108800E7EB19 /* PConfig_VisualStudio.h */,
+				7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */,
+				7F99389E0F1EE3FF0029C501 /* PArray.h */,
+				7F9938A00F1EE3FF0029C501 /* PAst.h */,
+				7F9938A20F1EE3FF0029C501 /* PBasic.h */,
+				7F9938A30F1EE3FF0029C501 /* PBuffer.h */,
+				7F9938A50F1EE3FF0029C501 /* PByteArray.h */,
+				7F9938A60F1EE3FF0029C501 /* PByteOrder.h */,
+				7F9938A80F1EE3FF0029C501 /* PClassInfo.h */,
+				7F9938AA0F1EE3FF0029C501 /* PCollector.h */,
+				7F9938AC0F1EE3FF0029C501 /* PCompiler.h */,
+				7F9938AD0F1EE3FF0029C501 /* PConfig.h */,
+				7F9938AF0F1EE3FF0029C501 /* PContext.h */,
+				7F9938B60F1EE3FF0029C501 /* PDebugger.h */,
+				7F9938B80F1EE3FF0029C501 /* PDef.h */,
+				7F9938BA0F1EE3FF0029C501 /* PEngine.h */,
+				7F9938BC0F1EE3FF0029C501 /* PEnumerator.h */,
+				7F9938BE0F1EE3FF0029C501 /* PError.h */,
+				7F9938C00F1EE3FF0029C501 /* PFile.h */,
+				7F9938C20F1EE3FF0029C501 /* PFunction.h */,
+				7F9938C50F1EE3FF0029C501 /* PHooks.h */,
+				7F9938C70F1EE3FF0029C501 /* Pika.h */,
+				7F9938C90F1EE3FF0029C501 /* PInstruction.h */,
+				7F9938CA0F1EE3FF0029C501 /* PLineInfo.h */,
+				7F9938CC0F1EE3FF0029C501 /* PLiteralPool.h */,
+				7F9938CE0F1EE3FF0029C501 /* PLocalsObject.h */,
+				7F9938D00F1EE3FF0029C501 /* PMemory.h */,
+				7F9938D20F1EE3FF0029C501 /* PMemPool.h */,
+				7F9938D40F1EE3FF0029C501 /* PModule.h */,
+				7F9938D60F1EE3FF0029C501 /* PNativeBind.h */,
+				7F9938D70F1EE3FF0029C501 /* PNativeConstMethodDecls.h */,
+				7F9938D90F1EE3FF0029C501 /* PNativeMethod.h */,
+				7F9938DA0F1EE3FF0029C501 /* PNativeMethodDecls.h */,
+				7F9938DB0F1EE3FF0029C501 /* PNativeStaticMethodDecls.h */,
+				7F9938DD0F1EE3FF0029C501 /* PObject.h */,
+				7F9938DE0F1EE3FF0029C501 /* PObjectEnumerator.h */,
+				7F9938E10F1EE3FF0029C501 /* POpcode.h */,
+				7F9938E30F1EE3FF0029C501 /* PPackage.h */,
+				7F9938E50F1EE3FF0029C501 /* PParser.h */,
+				7F9938E70F1EE3FF0029C501 /* PPlatform.h */,
+				7F9938EA0F1EE3FF0029C501 /* PProfiler.h */,
+				7F9938EC0F1EE3FF0029C501 /* PProperty.h */,
+				7F9938EE0F1EE3FF0029C501 /* PRandom.h */,
+				7F9938F00F1EE3FF0029C501 /* PRegExpr.h */,
+				7F9938F20F1EE3FF0029C501 /* PScript.h */,
+				7F9938F40F1EE3FF0029C501 /* PString.h */,
+				7F9938F60F1EE3FF0029C501 /* PStringTable.h */,
+				7F9938F80F1EE3FF0029C501 /* PSymbolTable.h */,
+				7F9938FB0F1EE3FF0029C501 /* PTable.h */,
+				7F9938FD0F1EE3FF0029C501 /* PTokenDef.h */,
+				7F9938FF0F1EE3FF0029C501 /* PTokenizer.h */,
+				7F9939010F1EE3FF0029C501 /* PType.h */,
+				7F9939030F1EE3FF0029C501 /* PUserData.h */,
+				7F9939040F1EE3FF0029C501 /* PUtil.h */,
+				7F9939060F1EE3FF0029C501 /* PValue.h */,
+				7F9939080F1EE3FF0029C501 /* PValueEnumerator.h */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		4682DAB10E17EC7700B52D6B /* inline */ = {
+			isa = PBXGroup;
+			children = (
+				7F9938B00F1EE3FF0029C501 /* PContext_Ops.inl */,
+				7F9938B10F1EE3FF0029C501 /* PContext_Ops_Arith.inl */,
+				7F9938B20F1EE3FF0029C501 /* PContext_Ops_Call.inl */,
+				7F9938B30F1EE3FF0029C501 /* PContext_Ops_Std.inl */,
+				7F9938B40F1EE3FF0029C501 /* PContext_Run.inl */,
+				7F9938E00F1EE3FF0029C501 /* POpcode.def */,
+				7F9938FC0F1EE3FF0029C501 /* PToken.def */,
+			);
+			name = inline;
+			sourceTree = "<group>";
+		};
+		7F3539D60E646DBC00A80314 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				46240E3D0DFEEF200034B181 /* OpenGL.framework */,
+				46240E390DFEEF080034B181 /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7F3539EA0E646DCC00A80314 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				46240E410DFEEF7C0034B181 /* Game.cpp */,
+				46240E430DFEEF7C0034B181 /* Game.mm */,
+				46240E460DFEEF7C0034B181 /* Game_Events.cpp */,
+				46240E4A0DFEEF7C0034B181 /* Game_Timestep.cpp */,
+				46FBE80E0E004A2700015215 /* Game_Rect.cpp */,
+				46886C510E02DD8A00DA609B /* Game_Surface.cpp */,
+				46886C760E02E01900DA609B /* Game_video.cpp */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		7F3539EB0E646DDA00A80314 /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				46240E420DFEEF7C0034B181 /* Game.h */,
+				46240E470DFEEF7C0034B181 /* Game_Events.h */,
+				46240E4B0DFEEF7C0034B181 /* Game_Timestep.h */,
+				46FBE8110E004ABB00015215 /* Game_Rect.h */,
+				46886C500E02DD8A00DA609B /* Game_Surface.h */,
+				46886C750E02E01900DA609B /* Game_video.h */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
+		7F3539EC0E646DE700A80314 /* glSDL */ = {
+			isa = PBXGroup;
+			children = (
+				46886D2B0E02F0D200DA609B /* glSDL.c */,
+				46886D2C0E02F0D200DA609B /* glSDL.h */,
+			);
+			name = glSDL;
+			sourceTree = "<group>";
+		};
+		7FA639680F03DDB400F9FF67 /* expat */ = {
+			isa = PBXGroup;
+			children = (
+				7FA639830F03DE0D00F9FF67 /* src */,
+				7FA639820F03DE0700F9FF67 /* inc */,
+			);
+			name = expat;
+			sourceTree = "<group>";
+		};
+		7FA639820F03DE0700F9FF67 /* inc */ = {
+			isa = PBXGroup;
+			children = (
+				7FA6396E0F03DE0200F9FF67 /* ascii.h */,
+				7FA6396F0F03DE0200F9FF67 /* asciitab.h */,
+				7FA639400F02F61300F9FF67 /* expat.h */,
+				7FA6395A0F02F66E00F9FF67 /* expat_config.h */,
+				7FA639700F03DE0200F9FF67 /* iasciitab.h */,
+				7FA639710F03DE0200F9FF67 /* internal.h */,
+				7FA639720F03DE0200F9FF67 /* latin1tab.h */,
+				7FA639730F03DE0200F9FF67 /* nametab.h */,
+				7FA639740F03DE0200F9FF67 /* utf8tab.h */,
+				7FA639750F03DE0200F9FF67 /* xmlrole.h */,
+				7FA639760F03DE0200F9FF67 /* xmltok.h */,
+				7FA639770F03DE0200F9FF67 /* xmltok_impl.h */,
+			);
+			name = inc;
+			sourceTree = "<group>";
+		};
+		7FA639830F03DE0D00F9FF67 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				7FA639410F02F61300F9FF67 /* xmlparse.c */,
+				7FA639420F02F61300F9FF67 /* xmlrole.c */,
+				7FA639430F02F61300F9FF67 /* xmltok.c */,
+				7FA639440F02F61300F9FF67 /* xmltok_impl.c */,
+				7FA639450F02F61300F9FF67 /* xmltok_ns.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4620C3D50DE74C0800DE098B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4620C4E40DE7514200DE098B /* config.h in Headers */,
+				7F99390C0F1EE3FF0029C501 /* PArray.h in Headers */,
+				7F99390E0F1EE3FF0029C501 /* PAst.h in Headers */,
+				7F9939100F1EE3FF0029C501 /* PBasic.h in Headers */,
+				7F9939110F1EE3FF0029C501 /* PBuffer.h in Headers */,
+				7F9939130F1EE3FF0029C501 /* PByteArray.h in Headers */,
+				7F9939140F1EE3FF0029C501 /* PByteOrder.h in Headers */,
+				7F9939160F1EE3FF0029C501 /* PClassInfo.h in Headers */,
+				7F9939180F1EE3FF0029C501 /* PCollector.h in Headers */,
+				7F99391A0F1EE3FF0029C501 /* PCompiler.h in Headers */,
+				7F99391B0F1EE3FF0029C501 /* PConfig.h in Headers */,
+				7F99391D0F1EE3FF0029C501 /* PContext.h in Headers */,
+				7F99391E0F1EE3FF0029C501 /* PContext_Ops.inl in Headers */,
+				7F99391F0F1EE3FF0029C501 /* PContext_Ops_Arith.inl in Headers */,
+				7F9939200F1EE3FF0029C501 /* PContext_Ops_Call.inl in Headers */,
+				7F9939210F1EE3FF0029C501 /* PContext_Ops_Std.inl in Headers */,
+				7F9939220F1EE3FF0029C501 /* PContext_Run.inl in Headers */,
+				7F9939240F1EE3FF0029C501 /* PDebugger.h in Headers */,
+				7F9939260F1EE3FF0029C501 /* PDef.h in Headers */,
+				7F9939280F1EE3FF0029C501 /* PEngine.h in Headers */,
+				7F99392A0F1EE3FF0029C501 /* PEnumerator.h in Headers */,
+				7F99392C0F1EE3FF0029C501 /* PError.h in Headers */,
+				7F99392E0F1EE3FF0029C501 /* PFile.h in Headers */,
+				7F9939300F1EE3FF0029C501 /* PFunction.h in Headers */,
+				7F9939330F1EE3FF0029C501 /* PHooks.h in Headers */,
+				7F9939350F1EE3FF0029C501 /* Pika.h in Headers */,
+				7F9939370F1EE3FF0029C501 /* PInstruction.h in Headers */,
+				7F9939380F1EE3FF0029C501 /* PLineInfo.h in Headers */,
+				7F99393A0F1EE3FF0029C501 /* PLiteralPool.h in Headers */,
+				7F99393C0F1EE3FF0029C501 /* PLocalsObject.h in Headers */,
+				7F99393E0F1EE3FF0029C501 /* PMemory.h in Headers */,
+				7F9939400F1EE3FF0029C501 /* PMemPool.h in Headers */,
+				7F9939420F1EE3FF0029C501 /* PModule.h in Headers */,
+				7F9939440F1EE3FF0029C501 /* PNativeBind.h in Headers */,
+				7F9939450F1EE3FF0029C501 /* PNativeConstMethodDecls.h in Headers */,
+				7F9939470F1EE3FF0029C501 /* PNativeMethod.h in Headers */,
+				7F9939480F1EE3FF0029C501 /* PNativeMethodDecls.h in Headers */,
+				7F9939490F1EE3FF0029C501 /* PNativeStaticMethodDecls.h in Headers */,
+				7F99394B0F1EE3FF0029C501 /* PObject.h in Headers */,
+				7F99394C0F1EE3FF0029C501 /* PObjectEnumerator.h in Headers */,
+				7F99394E0F1EE3FF0029C501 /* POpcode.h in Headers */,
+				7F9939500F1EE3FF0029C501 /* PPackage.h in Headers */,
+				7F9939520F1EE3FF0029C501 /* PParser.h in Headers */,
+				7F9939540F1EE3FF0029C501 /* PPlatform.h in Headers */,
+				7F9939570F1EE3FF0029C501 /* PProfiler.h in Headers */,
+				7F9939590F1EE3FF0029C501 /* PProperty.h in Headers */,
+				7F99395B0F1EE3FF0029C501 /* PRandom.h in Headers */,
+				7F99395D0F1EE3FF0029C501 /* PRegExpr.h in Headers */,
+				7F99395F0F1EE3FF0029C501 /* PScript.h in Headers */,
+				7F9939610F1EE3FF0029C501 /* PString.h in Headers */,
+				7F9939630F1EE3FF0029C501 /* PStringTable.h in Headers */,
+				7F9939650F1EE3FF0029C501 /* PSymbolTable.h in Headers */,
+				7F9939680F1EE3FF0029C501 /* PTable.h in Headers */,
+				7F9939690F1EE3FF0029C501 /* PTokenDef.h in Headers */,
+				7F99396B0F1EE3FF0029C501 /* PTokenizer.h in Headers */,
+				7F99396D0F1EE3FF0029C501 /* PType.h in Headers */,
+				7F99396F0F1EE3FF0029C501 /* PUserData.h in Headers */,
+				7F9939700F1EE3FF0029C501 /* PUtil.h in Headers */,
+				7F9939720F1EE3FF0029C501 /* PValue.h in Headers */,
+				7F9939740F1EE3FF0029C501 /* PValueEnumerator.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46240E2C0DFEEE730034B181 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46240E550DFEEF7C0034B181 /* Game.h in Headers */,
+				46240E5A0DFEEF7C0034B181 /* Game_Events.h in Headers */,
+				46240E5E0DFEEF7C0034B181 /* Game_Timestep.h in Headers */,
+				46FBE8120E004ABB00015215 /* Game_Rect.h in Headers */,
+				46886C520E02DD8A00DA609B /* Game_Surface.h in Headers */,
+				46886C770E02E01900DA609B /* Game_video.h in Headers */,
+				46886D2E0E02F0D200DA609B /* glSDL.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4662357A0DEC839000543092 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FDCB8D40F1FBC3300E7EB19 /* PCurses.h in Headers */,
+				7FDCB94B0F21101F00E7EB19 /* PConfig_Borland.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7FA639320F02F56900F9FF67 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FA639460F02F61300F9FF67 /* expat.h in Headers */,
+				7FA6395B0F02F66E00F9FF67 /* expat_config.h in Headers */,
+				7FA639780F03DE0200F9FF67 /* ascii.h in Headers */,
+				7FA639790F03DE0200F9FF67 /* asciitab.h in Headers */,
+				7FA6397A0F03DE0200F9FF67 /* iasciitab.h in Headers */,
+				7FA6397B0F03DE0200F9FF67 /* internal.h in Headers */,
+				7FA6397C0F03DE0200F9FF67 /* latin1tab.h in Headers */,
+				7FA6397D0F03DE0200F9FF67 /* nametab.h in Headers */,
+				7FA6397E0F03DE0200F9FF67 /* utf8tab.h in Headers */,
+				7FA6397F0F03DE0200F9FF67 /* xmlrole.h in Headers */,
+				7FA639800F03DE0200F9FF67 /* xmltok.h in Headers */,
+				7FA639810F03DE0200F9FF67 /* xmltok_impl.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4620C3CE0DE74BC300DE098B /* pika */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4620C3D40DE74BC300DE098B /* Build configuration list for PBXNativeTarget "pika" */;
+			buildPhases = (
+				4620C3CC0DE74BC300DE098B /* Sources */,
+				4620C3CD0DE74BC300DE098B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = pika;
+			productName = g;
+			productReference = 4620C3CF0DE74BC300DE098B /* pika */;
+			productType = "com.apple.product-type.tool";
+		};
+		4620C3D80DE74C0800DE098B /* libpika */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4620C4AE0DE74C4500DE098B /* Build configuration list for PBXNativeTarget "libpika" */;
+			buildPhases = (
+				4620C3D50DE74C0800DE098B /* Headers */,
+				4620C3D60DE74C0800DE098B /* Sources */,
+				4620C3D70DE74C0800DE098B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libpika;
+			productName = libgekko;
+			productReference = 4620C3D90DE74C0800DE098B /* libpika.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		46240E2B0DFEEE730034B181 /* game lib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46240E320DFEEE730034B181 /* Build configuration list for PBXNativeTarget "game lib" */;
+			buildPhases = (
+				46240E2C0DFEEE730034B181 /* Headers */,
+				46240E2E0DFEEE730034B181 /* Sources */,
+				46240E300DFEEE730034B181 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "game lib";
+			productName = curses;
+			productReference = 46240E380DFEEE730034B181 /* libpikagame.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		4662357D0DEC839000543092 /* libpikacurses */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 466235830DEC83D800543092 /* Build configuration list for PBXNativeTarget "libpikacurses" */;
+			buildPhases = (
+				4662357A0DEC839000543092 /* Headers */,
+				4662357B0DEC839000543092 /* Sources */,
+				4662357C0DEC839000543092 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libpikacurses;
+			productName = curses;
+			productReference = 4662357E0DEC839000543092 /* libpikacurses.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		7FA639350F02F56900F9FF67 /* expat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7FA6393D0F02F58700F9FF67 /* Build configuration list for PBXNativeTarget "expat" */;
+			buildPhases = (
+				7FA639320F02F56900F9FF67 /* Headers */,
+				7FA639330F02F56900F9FF67 /* Sources */,
+				7FA639340F02F56900F9FF67 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = expat;
+			productName = expat;
+			productReference = 7FA639360F02F56900F9FF67 /* libexpat.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4620C3B90DE74B7500DE098B /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 4620C3BC0DE74B7500DE098B /* Build configuration list for PBXProject "Pika" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 0;
+			mainGroup = 4620C3B70DE74B7500DE098B;
+			productRefGroup = 4620C3D00DE74BC300DE098B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4620C4B30DE74C9F00DE098B /* g-all */,
+				4620C3CE0DE74BC300DE098B /* pika */,
+				4620C3D80DE74C0800DE098B /* libpika */,
+				4662357D0DEC839000543092 /* libpikacurses */,
+				46240E2B0DFEEE730034B181 /* game lib */,
+				46FBE8760E00517D00015215 /* g-basics */,
+				7FA639350F02F56900F9FF67 /* expat */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4620C3CC0DE74BC300DE098B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F9939770F1EE4910029C501 /* Main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4620C3D60DE74C0800DE098B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F99390A0F1EE3FF0029C501 /* dlmalloc.c in Sources */,
+				7F99390B0F1EE3FF0029C501 /* PArray.cpp in Sources */,
+				7F99390D0F1EE3FF0029C501 /* PAst.cpp in Sources */,
+				7F99390F0F1EE3FF0029C501 /* PBasic.cpp in Sources */,
+				7F9939120F1EE3FF0029C501 /* PByteArray.cpp in Sources */,
+				7F9939150F1EE3FF0029C501 /* PClassInfo.cpp in Sources */,
+				7F9939170F1EE3FF0029C501 /* PCollector.cpp in Sources */,
+				7F9939190F1EE3FF0029C501 /* PCompiler.cpp in Sources */,
+				7F99391C0F1EE3FF0029C501 /* PContext.cpp in Sources */,
+				7F9939230F1EE3FF0029C501 /* PDebugger.cpp in Sources */,
+				7F9939250F1EE3FF0029C501 /* PDef.cpp in Sources */,
+				7F9939270F1EE3FF0029C501 /* PEngine.cpp in Sources */,
+				7F9939290F1EE3FF0029C501 /* PEnumerator.cpp in Sources */,
+				7F99392B0F1EE3FF0029C501 /* PError.cpp in Sources */,
+				7F99392D0F1EE3FF0029C501 /* PFile.cpp in Sources */,
+				7F99392F0F1EE3FF0029C501 /* PFunction.cpp in Sources */,
+				7F9939310F1EE3FF0029C501 /* PGenCode.cpp in Sources */,
+				7F9939320F1EE3FF0029C501 /* PHooks.cpp in Sources */,
+				7F9939340F1EE3FF0029C501 /* Pika.cpp in Sources */,
+				7F9939360F1EE3FF0029C501 /* PImport.cpp in Sources */,
+				7F9939390F1EE3FF0029C501 /* PLiteralPool.cpp in Sources */,
+				7F99393B0F1EE3FF0029C501 /* PLocalsObject.cpp in Sources */,
+				7F99393D0F1EE3FF0029C501 /* PMemory.cpp in Sources */,
+				7F99393F0F1EE3FF0029C501 /* PMemPool.cpp in Sources */,
+				7F9939410F1EE3FF0029C501 /* PModule.cpp in Sources */,
+				7F9939430F1EE3FF0029C501 /* PNativeBind.cpp in Sources */,
+				7F9939460F1EE3FF0029C501 /* PNativeMethod.cpp in Sources */,
+				7F99394A0F1EE3FF0029C501 /* PObject.cpp in Sources */,
+				7F99394D0F1EE3FF0029C501 /* POpcode.cpp in Sources */,
+				7F99394F0F1EE3FF0029C501 /* PPackage.cpp in Sources */,
+				7F9939510F1EE3FF0029C501 /* PParser.cpp in Sources */,
+				7F9939530F1EE3FF0029C501 /* PPlatform.cpp in Sources */,
+				7F9939550F1EE3FF0029C501 /* PPlatformPosix.cpp in Sources */,
+				7F9939580F1EE3FF0029C501 /* PProperty.cpp in Sources */,
+				7F99395A0F1EE3FF0029C501 /* PRandom.cpp in Sources */,
+				7F99395C0F1EE3FF0029C501 /* PRegExpr.cpp in Sources */,
+				7F99395E0F1EE3FF0029C501 /* PScript.cpp in Sources */,
+				7F9939600F1EE3FF0029C501 /* PString.cpp in Sources */,
+				7F9939620F1EE3FF0029C501 /* PStringTable.cpp in Sources */,
+				7F9939640F1EE3FF0029C501 /* PSymbolTable.cpp in Sources */,
+				7F9939660F1EE3FF0029C501 /* PSystemLib.cpp in Sources */,
+				7F9939670F1EE3FF0029C501 /* PTable.cpp in Sources */,
+				7F99396A0F1EE3FF0029C501 /* PTokenizer.cpp in Sources */,
+				7F99396C0F1EE3FF0029C501 /* PType.cpp in Sources */,
+				7F99396E0F1EE3FF0029C501 /* PUserData.cpp in Sources */,
+				7F9939710F1EE3FF0029C501 /* PValue.cpp in Sources */,
+				7F9939730F1EE3FF0029C501 /* PValueEnumerator.cpp in Sources */,
+				7F9939750F1EE3FF0029C501 /* PWorld.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46240E2E0DFEEE730034B181 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46240E540DFEEF7C0034B181 /* Game.cpp in Sources */,
+				46240E560DFEEF7C0034B181 /* Game.mm in Sources */,
+				46240E590DFEEF7C0034B181 /* Game_Events.cpp in Sources */,
+				46240E5D0DFEEF7C0034B181 /* Game_Timestep.cpp in Sources */,
+				46FBE80F0E004A2700015215 /* Game_Rect.cpp in Sources */,
+				46886C530E02DD8A00DA609B /* Game_Surface.cpp in Sources */,
+				46886C780E02E01900DA609B /* Game_video.cpp in Sources */,
+				46886D2D0E02F0D200DA609B /* glSDL.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4662357B0DEC839000543092 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FDCB8D30F1FBC3300E7EB19 /* PCurses.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7FA639330F02F56900F9FF67 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FA639470F02F61300F9FF67 /* xmlparse.c in Sources */,
+				7FA639480F02F61300F9FF67 /* xmlrole.c in Sources */,
+				7FA639490F02F61300F9FF67 /* xmltok.c in Sources */,
+				7FA6394A0F02F61300F9FF67 /* xmltok_impl.c in Sources */,
+				7FA6394B0F02F61300F9FF67 /* xmltok_ns.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4620C4B70DE74CA600DE098B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4620C3D80DE74C0800DE098B /* libpika */;
+			targetProxy = 4620C4B60DE74CA600DE098B /* PBXContainerItemProxy */;
+		};
+		4620C4B90DE74CAA00DE098B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4620C3CE0DE74BC300DE098B /* pika */;
+			targetProxy = 4620C4B80DE74CAA00DE098B /* PBXContainerItemProxy */;
+		};
+		4662358A0DEC846A00543092 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4662357D0DEC839000543092 /* libpikacurses */;
+			targetProxy = 466235890DEC846A00543092 /* PBXContainerItemProxy */;
+		};
+		46FBE87D0E00518B00015215 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4620C3D80DE74C0800DE098B /* libpika */;
+			targetProxy = 46FBE87C0E00518B00015215 /* PBXContainerItemProxy */;
+		};
+		46FBE87F0E00518F00015215 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4620C3CE0DE74BC300DE098B /* pika */;
+			targetProxy = 46FBE87E0E00518F00015215 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		4620C3BA0DE74B7500DE098B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = Debug;
+		};
+		4620C3BB0DE74B7500DE098B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_32_BIT)";
+				COPY_PHASE_STRIP = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = Release;
+		};
+		4620C3D20DE74BC300DE098B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				INSTALL_PATH = "@executable_path";
+				PREBINDING = NO;
+				PRODUCT_NAME = pika;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		4620C3D30DE74BC300DE098B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				INSTALL_PATH = "@executable_path";
+				PREBINDING = NO;
+				PRODUCT_NAME = pika;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		4620C3DA0DE74C0800DE098B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpcre";
+				PREBINDING = NO;
+				PRODUCT_NAME = libpika;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		4620C3DB0DE74C0800DE098B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = "";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpcre";
+				PREBINDING = NO;
+				PRODUCT_NAME = libpika;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		4620C4B40DE74C9F00DE098B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "g-all";
+			};
+			name = Debug;
+		};
+		4620C4B50DE74C9F00DE098B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "g-all";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		46240E330DFEEE730034B181 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = libpika;
+				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+				);
+				PREBINDING = NO;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = game;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		46240E340DFEEE730034B181 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = libpika;
+				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+				);
+				PREBINDING = NO;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = game;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+				ZERO_LINK = YES;
+			};
+			name = "Real Debug";
+		};
+		46240E350DFEEE730034B181 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = libpika;
+				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+				);
+				PREBINDING = NO;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = game;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		46240E360DFEEE730034B181 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = libpika;
+				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+				);
+				PREBINDING = NO;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = game;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+				ZERO_LINK = NO;
+			};
+			name = "Release 64";
+		};
+		46240E370DFEEE730034B181 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = libpika;
+				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+				);
+				PREBINDING = NO;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = game;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		4662357F0DEC839000543092 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = libpika;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lncurses";
+				PREBINDING = NO;
+				PRODUCT_NAME = curses;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		466235800DEC839000543092 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = libpika;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = s;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lncurses";
+				PREBINDING = NO;
+				PRODUCT_NAME = curses;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		466235A60DEC85BA00543092 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				GCC_AUTO_VECTORIZATION = NO;
+				GCC_ENABLE_SSE3_EXTENSIONS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = NO;
+				GCC_MODEL_PPC64 = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_STRICT_ALIASING = NO;
+				GCC_UNROLL_LOOPS = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				SDKROOT = "";
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = "Release 64";
+		};
+		466235A70DEC85BA00543092 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "g-all";
+				ZERO_LINK = NO;
+			};
+			name = "Release 64";
+		};
+		466235A80DEC85BA00543092 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				INSTALL_PATH = "@executable_path";
+				PREBINDING = NO;
+				PRODUCT_NAME = pika;
+				ZERO_LINK = NO;
+			};
+			name = "Release 64";
+		};
+		466235A90DEC85BA00543092 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = "";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpcre";
+				PREBINDING = NO;
+				PRODUCT_NAME = libpika;
+				ZERO_LINK = NO;
+			};
+			name = "Release 64";
+		};
+		466235AA0DEC85BA00543092 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = libpika;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lncurses";
+				PREBINDING = NO;
+				PRODUCT_NAME = curses;
+				ZERO_LINK = NO;
+			};
+			name = "Release 64";
+		};
+		466235AB0DEC863200543092 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc64,
+					ppc,
+					i386,
+					x86_64,
+				);
+				COPY_PHASE_STRIP = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = Deployment;
+		};
+		466235AC0DEC863200543092 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "g-all";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		466235AD0DEC863200543092 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				INSTALL_PATH = "@executable_path";
+				PREBINDING = NO;
+				PRODUCT_NAME = pika;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		466235AE0DEC863200543092 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = "";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpcre";
+				PREBINDING = NO;
+				PRODUCT_NAME = libpika;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		466235AF0DEC863200543092 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = libpika;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lncurses";
+				PREBINDING = NO;
+				PRODUCT_NAME = curses;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		46B31C580DF1DFDF00013A98 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = "Real Debug";
+		};
+		46B31C590DF1DFDF00013A98 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "g-all";
+			};
+			name = "Real Debug";
+		};
+		46B31C5A0DF1DFDF00013A98 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				INSTALL_PATH = "@executable_path";
+				PREBINDING = NO;
+				PRODUCT_NAME = pika;
+				ZERO_LINK = YES;
+			};
+			name = "Real Debug";
+		};
+		46B31C5B0DF1DFDF00013A98 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpcre";
+				PREBINDING = NO;
+				PRODUCT_NAME = libpika;
+				ZERO_LINK = YES;
+			};
+			name = "Real Debug";
+		};
+		46B31C5C0DF1DFDF00013A98 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = libpika;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				INSTALL_PATH = "@executable_path";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lncurses";
+				PREBINDING = NO;
+				PRODUCT_NAME = curses;
+				ZERO_LINK = YES;
+			};
+			name = "Real Debug";
+		};
+		46FBE8770E00517D00015215 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "g-basics";
+			};
+			name = Debug;
+		};
+		46FBE8780E00517D00015215 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "g-basics";
+			};
+			name = "Real Debug";
+		};
+		46FBE8790E00517D00015215 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "g-basics";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		46FBE87A0E00517D00015215 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "g-basics";
+			};
+			name = "Release 64";
+		};
+		46FBE87B0E00517D00015215 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "g-basics";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		7FA639370F02F56900F9FF67 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = expat;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = Debug;
+		};
+		7FA639380F02F56900F9FF67 /* Real Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = expat;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = "Real Debug";
+		};
+		7FA639390F02F56900F9FF67 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = expat;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		7FA6393A0F02F56900F9FF67 /* Release 64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = expat;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+			};
+			name = "Release 64";
+		};
+		7FA6393B0F02F56900F9FF67 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = expat;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-unused-parameter",
+					"-Wno-switch",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4620C3BC0DE74B7500DE098B /* Build configuration list for PBXProject "Pika" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4620C3BA0DE74B7500DE098B /* Debug */,
+				46B31C580DF1DFDF00013A98 /* Real Debug */,
+				4620C3BB0DE74B7500DE098B /* Release */,
+				466235A60DEC85BA00543092 /* Release 64 */,
+				466235AB0DEC863200543092 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4620C3D40DE74BC300DE098B /* Build configuration list for PBXNativeTarget "pika" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4620C3D20DE74BC300DE098B /* Debug */,
+				46B31C5A0DF1DFDF00013A98 /* Real Debug */,
+				4620C3D30DE74BC300DE098B /* Release */,
+				466235A80DEC85BA00543092 /* Release 64 */,
+				466235AD0DEC863200543092 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4620C4AE0DE74C4500DE098B /* Build configuration list for PBXNativeTarget "libpika" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4620C3DA0DE74C0800DE098B /* Debug */,
+				46B31C5B0DF1DFDF00013A98 /* Real Debug */,
+				4620C3DB0DE74C0800DE098B /* Release */,
+				466235A90DEC85BA00543092 /* Release 64 */,
+				466235AE0DEC863200543092 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4620C4BA0DE74CC800DE098B /* Build configuration list for PBXAggregateTarget "g-all" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4620C4B40DE74C9F00DE098B /* Debug */,
+				46B31C590DF1DFDF00013A98 /* Real Debug */,
+				4620C4B50DE74C9F00DE098B /* Release */,
+				466235A70DEC85BA00543092 /* Release 64 */,
+				466235AC0DEC863200543092 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		46240E320DFEEE730034B181 /* Build configuration list for PBXNativeTarget "game lib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46240E330DFEEE730034B181 /* Debug */,
+				46240E340DFEEE730034B181 /* Real Debug */,
+				46240E350DFEEE730034B181 /* Release */,
+				46240E360DFEEE730034B181 /* Release 64 */,
+				46240E370DFEEE730034B181 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		466235830DEC83D800543092 /* Build configuration list for PBXNativeTarget "libpikacurses" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4662357F0DEC839000543092 /* Debug */,
+				46B31C5C0DF1DFDF00013A98 /* Real Debug */,
+				466235800DEC839000543092 /* Release */,
+				466235AA0DEC85BA00543092 /* Release 64 */,
+				466235AF0DEC863200543092 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		46FBE8870E00519D00015215 /* Build configuration list for PBXAggregateTarget "g-basics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46FBE8770E00517D00015215 /* Debug */,
+				46FBE8780E00517D00015215 /* Real Debug */,
+				46FBE8790E00517D00015215 /* Release */,
+				46FBE87A0E00517D00015215 /* Release 64 */,
+				46FBE87B0E00517D00015215 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7FA6393D0F02F58700F9FF67 /* Build configuration list for PBXNativeTarget "expat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7FA639370F02F56900F9FF67 /* Debug */,
+				7FA639380F02F56900F9FF67 /* Real Debug */,
+				7FA639390F02F56900F9FF67 /* Release */,
+				7FA6393A0F02F56900F9FF67 /* Release 64 */,
+				7FA6393B0F02F56900F9FF67 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4620C3B90DE74B7500DE098B /* Project object */;
+}

@@ -1,0 +1,106 @@
+/*
+ *  PModule.cpp
+ *  See Copyright Notice in Pika.h
+ */
+#include "Pika.h"
+#include "PModule.h"
+#include "PString.h"
+#include "PPlatform.h"
+
+namespace pika
+{
+PIKA_IMPL(Module)
+
+Module::Module(Engine* eng, Type* moduleType,
+        String* name, String* p, String* load_nm, String* ver)
+        : ThisSuper(eng, moduleType, name, eng->GetWorld()),
+        path(p),
+        entryname(load_nm),
+        entry(0),    
+        handle(0)       
+{
+    Initialize(ver);
+}
+
+Module::~Module() { ASSERT(!this->handle); }
+
+bool Module::Finalize()
+{
+    this->path = 0;
+    this->entryname = 0;
+    this->entry = 0;
+    return false;
+}
+
+void Module::Initialize(String* ver)
+{
+    this->entry = 0;
+
+    if (this->path && this->path->GetLength() != 0)
+    {
+        this->handle = Pika_OpenShared(this->path->GetBuffer());
+    
+        if (this->handle)
+        {
+            // TODO: Pika_VersionFn from an unknown dll is not safe.
+            
+            Pika_VersionFn ver_fn = (Pika_VersionFn)Pika_GetSymbolAddress(this->handle, ver->GetBuffer());
+                        
+            // Under Mac OS, Windows or any OS where filenames are case insensitive -- failure to 
+            // find the version function usually means the case of the library name is wrong
+            // (ie import 'FileSys' instead of import 'filesys'). 
+            
+            if (!ver_fn)
+            {
+                RaiseException("Could not determine version of module %s.\nMake sure that you provided the correct name and path (case sensitive.)", 
+                name->GetBuffer());
+            }
+            else if (StrCmp(ver_fn(), PIKA_VERSION_STR) != 0) // TODO: limit the length of the StrCmp.
+            {
+                RaiseException("Incorrect version for module %s. Required version %s.", this->name->GetBuffer(), PIKA_VERSION_STR);
+            }
+            
+            this->entry = (ModuleEntry_t)Pika_GetSymbolAddress(this->handle, this->entryname->GetBuffer());
+        }
+    }
+}
+
+void Module::Shutdown()
+{
+    if (this->handle)
+    {
+        Pika_CloseShared(this->handle);
+        this->handle = 0;
+    }
+}
+
+Module* Module::Create(Engine* eng, String* name, String* path, String* fun, String* ver)
+{
+    Module* nl = 0;
+    PIKA_NEW(Module, nl, (eng, eng->Module_Type, name, path, fun, ver));
+    eng->AddModule(nl);
+    eng->AddToGC(nl);
+    return nl;
+}
+
+Object* Module::Clone() { return 0; }
+
+void Module::MarkRefs(Collector* c)
+{
+    ThisSuper::MarkRefs(c);
+
+    if (this->path)     this->path->Mark(c);        
+    if (this->entryname) this->entryname->Mark(c);
+}
+
+bool Module::IsLoaded() const
+{
+    return this->handle != 0;
+}
+
+}//namespace pika
+
+
+
+
+

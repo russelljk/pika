@@ -1,0 +1,1098 @@
+------------------------------------------------------------------------
+r41 | russell | 2007-12-25 18:05:22 -0600 (Tue, 25 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_PlatformPosix.cpp
+   M /pika/trunk/libpika/Pika_Table.h
+   M /pika/trunk/libpika/Pika_Token.def
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Dec-25-07
+------------------------------------------------------------------------
+r40 | russell | 2007-12-23 13:10:48 -0600 (Sun, 23 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Token.def
+   M /pika/trunk/libpika/Pika_Value.cpp
+   M /pika/trunk/libpika/Pika_Value.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Dec-23-07-1
+------------------------------------------------------------------------
+r39 | russell | 2007-12-22 16:30:56 -0600 (Sat, 22 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Token.def
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Fixed with var scope decl
+------------------------------------------------------------------------
+r38 | russell | 2007-12-22 13:16:05 -0600 (Sat, 22 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/libpika/Pika_Token.def
+
+Dec-22-07-v2
+------------------------------------------------------------------------
+r37 | russell | 2007-12-22 13:15:19 -0600 (Sat, 22 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Ops_Call.cpp
+   M /pika/trunk/libpika/Pika_Context_Ops_Std.cpp
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_Opcode.cpp
+   M /pika/trunk/libpika/Pika_Opcode.def
+   M /pika/trunk/libpika/Pika_Opcode.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Parser.h
+   M /pika/trunk/libpika/Pika_TokenDef.h
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_Tokenizer.h
+   M /pika/trunk/libpika/Pika_Type.cpp
+   M /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Dec-22-07
+------------------------------------------------------------------------
+r36 | russell | 2007-12-18 14:36:07 -0600 (Tue, 18 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context_Ops_Call.cpp
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.h
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_Tokenizer.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Change LexicalEnv behaviour. Moved default values into Function class.
+------------------------------------------------------------------------
+r35 | russell | 2007-12-18 09:45:55 -0600 (Tue, 18 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/scripts/foo.pika
+
+Changing Lexical Environment behaviours
+------------------------------------------------------------------------
+r34 | russell | 2007-12-17 16:10:47 -0600 (Mon, 17 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   M /pika/trunk/libpika/Pika_Error.cpp
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+AA
+------------------------------------------------------------------------
+r33 | russell | 2007-12-16 13:51:54 -0600 (Sun, 16 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Ops.cpp
+   M /pika/trunk/libpika/Pika_Context_Ops_Arith.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Move some opcode into methods to reduce the size of Context::Run
+------------------------------------------------------------------------
+r32 | russell | 2007-12-15 18:33:57 -0600 (Sat, 15 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika.h
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Ops_Call.cpp
+   M /pika/trunk/libpika/Pika_Context_Ops_Std.cpp
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   M /pika/trunk/libpika/Pika_Error.h
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Hooks.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.h
+   M /pika/trunk/libpika/Pika_Opcode.def
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_Package.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_Type.cpp
+   M /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/libpika/Pika_Value.cpp
+   M /pika/trunk/libpika/Pika_Value.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Locals->LexicalEnv
+------------------------------------------------------------------------
+r31 | russell | 2007-12-14 13:44:58 -0600 (Fri, 14 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/curses/PikaCurses.cpp
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_Basic.cpp
+   M /pika/trunk/libpika/Pika_Basic.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Ops_Arith.cpp
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   M /pika/trunk/libpika/Pika_Engine.cpp
+   M /pika/trunk/libpika/Pika_Engine.h
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_Hooks.h
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_NativeMethod.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Table.cpp
+   M /pika/trunk/libpika/Pika_Table.h
+   M /pika/trunk/libpika/Pika_Type.cpp
+   M /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/libpika/Pika_Value.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Commit before adding tuples.
+------------------------------------------------------------------------
+r30 | russell | 2007-12-12 13:52:47 -0600 (Wed, 12 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/game
+   A /pika/trunk/game/Game.cpp
+   A /pika/trunk/game/Game.h
+   A /pika/trunk/game/Game.mm
+   A /pika/trunk/game/GameState.cpp
+   A /pika/trunk/game/GameState.h
+   A /pika/trunk/game/GameSurface.cpp
+   A /pika/trunk/game/GameSurface.h
+   A /pika/trunk/game/Game_Display.cpp
+   A /pika/trunk/game/Game_Display.h
+   A /pika/trunk/game/Game_Events.cpp
+   A /pika/trunk/game/Game_Events.h
+   A /pika/trunk/game/Game_Timestep.cpp
+   A /pika/trunk/game/Game_Timestep.h
+   A /pika/trunk/game/PikaGame.cpp
+   A /pika/trunk/game/PikaGame.h
+   A /pika/trunk/game/PikaGame_OpenGL.cpp
+   A /pika/trunk/game/PikaGame_OpenGL.h
+   A /pika/trunk/game/SDLMain.h
+   A /pika/trunk/game/SDLMain.m
+   M /pika/trunk/libpika/Pika_Compiler.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context_Ops.cpp
+   A /pika/trunk/libpika/Pika_Context_Ops_Arith.cpp (from /pika/trunk/libpika/Pika_Context_Ops_Arith.inl:29)
+   D /pika/trunk/libpika/Pika_Context_Ops_Arith.inl
+   M /pika/trunk/libpika/Pika_Context_Run.cpp
+   A /pika/trunk/macosx/config.h
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+
+cleaning dir structure
+------------------------------------------------------------------------
+r29 | russell | 2007-12-12 13:43:17 -0600 (Wed, 12 Dec 2007) | 1 line
+Changed paths:
+   D /pika/trunk/libpika/Pika_Context_Operations.cpp
+   A /pika/trunk/libpika/Pika_Context_Ops.cpp (from /pika/trunk/libpika/Pika_Context_Operations.cpp:28)
+
+Renamed Operations to Ops
+------------------------------------------------------------------------
+r28 | russell | 2007-12-12 13:42:32 -0600 (Wed, 12 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/libpika/Pika_Context_Operations.cpp (from /pika/trunk/libpika/Pika_Context_Operations.inl:27)
+   D /pika/trunk/libpika/Pika_Context_Operations.inl
+   A /pika/trunk/libpika/Pika_Context_Ops_Call.cpp (from /pika/trunk/libpika/Pika_Context_Ops_Call.inl:27)
+   D /pika/trunk/libpika/Pika_Context_Ops_Call.inl
+   D /pika/trunk/libpika/Pika_Context_Ops_Standard.inl
+   A /pika/trunk/libpika/Pika_Context_Ops_Std.cpp (from /pika/trunk/libpika/Pika_Context_Ops_Standard.inl:27)
+   A /pika/trunk/libpika/Pika_Context_Run.cpp (from /pika/trunk/libpika/Pika_Context_Run.inl:27)
+   D /pika/trunk/libpika/Pika_Context_Run.inl
+
+Renamed inl to cpp
+------------------------------------------------------------------------
+r25 | russell | 2007-12-12 10:36:49 -0600 (Wed, 12 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Collector.h
+   M /pika/trunk/libpika/Pika_Engine.cpp
+   M /pika/trunk/libpika/Pika_Engine.h
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+
+Commit before register vm test.
+------------------------------------------------------------------------
+r24 | russell | 2007-12-11 21:02:49 -0600 (Tue, 11 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/libpika/Pika_Engine.cpp (from /pika/trunk/libpika/Pika_Runtime.cpp:23)
+   A /pika/trunk/libpika/Pika_Engine.h (from /pika/trunk/libpika/Pika_Runtime.h:23)
+   D /pika/trunk/libpika/Pika_Runtime.cpp
+   D /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+
+Nothing Much.
+------------------------------------------------------------------------
+r23 | russell | 2007-12-11 20:59:26 -0600 (Tue, 11 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/curses/PikaCurses.cpp
+   M /pika/trunk/libpika/Pika.h
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_Basic.cpp
+   M /pika/trunk/libpika/Pika_Basic.h
+   M /pika/trunk/libpika/Pika_Buffer.h
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_ByteArray.h
+   M /pika/trunk/libpika/Pika_ClassInfo.cpp
+   M /pika/trunk/libpika/Pika_Collector.cpp
+   M /pika/trunk/libpika/Pika_Collector.h
+   M /pika/trunk/libpika/Pika_Compiler.cpp
+   M /pika/trunk/libpika/Pika_Compiler.h
+   M /pika/trunk/libpika/Pika_Config.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Operations.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Arith.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Call.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Standard.inl
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Debugger.h
+   M /pika/trunk/libpika/Pika_Enumerator.cpp
+   M /pika/trunk/libpika/Pika_Enumerator.h
+   M /pika/trunk/libpika/Pika_Error.cpp
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_File.h
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Hooks.h
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_Instruction.h
+   M /pika/trunk/libpika/Pika_LiteralPool.cpp
+   M /pika/trunk/libpika/Pika_LiteralPool.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.h
+   M /pika/trunk/libpika/Pika_MemPool.h
+   M /pika/trunk/libpika/Pika_Memory.h
+   M /pika/trunk/libpika/Pika_Module.cpp
+   M /pika/trunk/libpika/Pika_Module.h
+   M /pika/trunk/libpika/Pika_NativeBind.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.h
+   M /pika/trunk/libpika/Pika_NativeMethod.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Opcode.def
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_Package.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Parser.h
+   M /pika/trunk/libpika/Pika_Property.cpp
+   M /pika/trunk/libpika/Pika_Property.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_String.h
+   M /pika/trunk/libpika/Pika_StringTable.cpp
+   M /pika/trunk/libpika/Pika_StringTable.h
+   M /pika/trunk/libpika/Pika_SymbolTable.cpp
+   M /pika/trunk/libpika/Pika_SymbolTable.h
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Table.cpp
+   M /pika/trunk/libpika/Pika_Table.h
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_Tokenizer.h
+   M /pika/trunk/libpika/Pika_Type.cpp
+   M /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Userdata.h
+   M /pika/trunk/libpika/Pika_Util.h
+   M /pika/trunk/libpika/Pika_Value.h
+   M /pika/trunk/libpika/Pika_ValueEnumerator.cpp
+   M /pika/trunk/libpika/Pika_ValueEnumerator.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/random/PikaRandom.cpp
+   M /pika/trunk/random/PikaRandom.h
+   M /pika/trunk/regexp/PikaRegExp.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Rename Runtime->Engine.
+------------------------------------------------------------------------
+r22 | russell | 2007-12-08 22:12:58 -0600 (Sat, 08 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_ByteArray.h
+   M /pika/trunk/libpika/Pika_Collector.cpp
+   M /pika/trunk/libpika/Pika_Collector.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Debugger.h
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_File.h
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Instruction.h
+   M /pika/trunk/libpika/Pika_LiteralPool.cpp
+   M /pika/trunk/libpika/Pika_LiteralPool.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.h
+   M /pika/trunk/libpika/Pika_Module.cpp
+   M /pika/trunk/libpika/Pika_Module.h
+   M /pika/trunk/libpika/Pika_NativeBind.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Opcode.def
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_Package.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Property.cpp
+   M /pika/trunk/libpika/Pika_Property.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Type.cpp
+   M /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Userdata.h
+   M /pika/trunk/libpika/Pika_ValueEnumerator.cpp
+   M /pika/trunk/libpika/Pika_ValueEnumerator.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+
+Small Changes.
+------------------------------------------------------------------------
+r21 | russell | 2007-12-08 16:49:47 -0600 (Sat, 08 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Buffer.h
+   M /pika/trunk/libpika/Pika_ClassInfo.cpp
+   M /pika/trunk/libpika/Pika_ClassInfo.h
+   M /pika/trunk/libpika/Pika_Collector.cpp
+   M /pika/trunk/libpika/Pika_Collector.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Enumerator.cpp
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_Module.cpp
+   M /pika/trunk/libpika/Pika_Module.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Property.cpp
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Changed behaviour of import.
+------------------------------------------------------------------------
+r20 | russell | 2007-12-07 17:18:12 -0600 (Fri, 07 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/ChangeLog
+   M /pika/trunk/Makefile
+   M /pika/trunk/configure.ac
+   M /pika/trunk/curses/PikaCurses.cpp
+   M /pika/trunk/libpika/Makefile
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Config.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Ops_Call.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Standard.inl
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Hooks.h
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_Memory.cpp
+   M /pika/trunk/libpika/Pika_Memory.h
+   M /pika/trunk/libpika/Pika_Module.cpp
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_PlatformPosix.cpp
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_SymbolTable.cpp
+   M /pika/trunk/libpika/config.h.in
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Makefile
+   M /pika/trunk/scripts/foo.pika
+
+Changed member names from underscore to camelCase for selected classes.
+------------------------------------------------------------------------
+r19 | russell | 2007-12-06 15:46:14 -0600 (Thu, 06 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/COPYING
+   A /pika/trunk/INSTALL
+
+Added COPYING and INSTALL
+------------------------------------------------------------------------
+r18 | russell | 2007-12-06 15:45:25 -0600 (Thu, 06 Dec 2007) | 1 line
+Changed paths:
+   D /pika/trunk/COPYING
+   D /pika/trunk/INSTALL
+
+RM COPYING and INSTALL
+------------------------------------------------------------------------
+r17 | russell | 2007-12-06 15:39:35 -0600 (Thu, 06 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+
+Formatting.
+------------------------------------------------------------------------
+r16 | russell | 2007-12-06 13:26:33 -0600 (Thu, 06 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/libpika/Pika_PlatformPosix.cpp
+   A /pika/trunk/libpika/Pika_PlatformWin32.cpp
+
+Platform files added.
+------------------------------------------------------------------------
+r15 | russell | 2007-12-06 13:25:30 -0600 (Thu, 06 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/AUTHORS
+   D /pika/trunk/CHANGELOG
+   A /pika/trunk/COPYING
+   A /pika/trunk/ChangeLog
+   A /pika/trunk/INSTALL
+   M /pika/trunk/Makefile
+   A /pika/trunk/Makefile.am
+   A /pika/trunk/NEWS
+   M /pika/trunk/README
+   A /pika/trunk/autogen.sh
+   A /pika/trunk/configure.ac
+   M /pika/trunk/libpika/Makefile
+   A /pika/trunk/libpika/Makefile.am
+   M /pika/trunk/libpika/Pika_Config.h
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_Memory.cpp
+   M /pika/trunk/libpika/Pika_Memory.h
+   M /pika/trunk/libpika/Pika_Platform.cpp
+   M /pika/trunk/libpika/Pika_Platform.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   A /pika/trunk/libpika/config.h.in
+   A /pika/trunk/ltmain.sh
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Makefile
+   A /pika/trunk/pika-cl/Makefile.am
+
+Autotools support added.
+------------------------------------------------------------------------
+r14 | russell | 2007-12-06 10:02:51 -0600 (Thu, 06 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/CHANGELOG
+   M /pika/trunk/Makefile
+   M /pika/trunk/README
+   M /pika/trunk/libpika/Makefile
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_Collector.cpp
+   M /pika/trunk/libpika/Pika_Collector.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Debugger.h
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_File.h
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_LiteralPool.cpp
+   M /pika/trunk/libpika/Pika_LiteralPool.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.h
+   M /pika/trunk/libpika/Pika_Module.cpp
+   M /pika/trunk/libpika/Pika_Module.h
+   M /pika/trunk/libpika/Pika_NativeBind.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_Package.h
+   M /pika/trunk/libpika/Pika_Platform.cpp
+   M /pika/trunk/libpika/Pika_Platform.h
+   M /pika/trunk/libpika/Pika_Property.cpp
+   M /pika/trunk/libpika/Pika_Property.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_String.h
+   M /pika/trunk/libpika/Pika_SymbolTable.cpp
+   M /pika/trunk/libpika/Pika_SymbolTable.h
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Table.cpp
+   M /pika/trunk/libpika/Pika_Type.cpp
+   M /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Userdata.h
+   M /pika/trunk/libpika/Pika_ValueEnumerator.cpp
+   M /pika/trunk/libpika/Pika_ValueEnumerator.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/pika-cl/Makefile
+   M /pika/trunk/random/Makefile
+
+Small Changes.
+------------------------------------------------------------------------
+r13 | russell | 2007-12-04 13:46:07 -0600 (Tue, 04 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Makefile
+   M /pika/trunk/libpika/Pika_Buffer.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Debugger.h
+   M /pika/trunk/libpika/Pika_Error.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.h
+   M /pika/trunk/libpika/Pika_NativeConstMethodDecls.h
+   M /pika/trunk/libpika/Pika_NativeMethodDecls.h
+   M /pika/trunk/libpika/Pika_NativeStaticMethodDecls.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Platform.cpp
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_String.h
+   M /pika/trunk/libpika/Pika_StringTable.cpp
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/peg/PikaPeg.cpp
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+updated make files. added path name methods.
+------------------------------------------------------------------------
+r12 | russell | 2007-12-03 14:18:55 -0600 (Mon, 03 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/curses
+   A /pika/trunk/curses/PikaCurses.cpp
+   A /pika/trunk/curses/PikaCurses.h
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   A /pika/trunk/peg
+   A /pika/trunk/peg/PikaPeg.cpp
+   A /pika/trunk/peg/PikaPeg.h
+   A /pika/trunk/regexp
+   A /pika/trunk/regexp/PikaRegExp.cpp
+   A /pika/trunk/regexp/PikaRegExp.h
+
+Added modules.
+------------------------------------------------------------------------
+r11 | russell | 2007-12-03 12:37:26 -0600 (Mon, 03 Dec 2007) | 1 line
+Changed paths:
+   A /pika/trunk/libpika/Pika_Type.cpp
+   A /pika/trunk/libpika/Pika_Type.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+
+Added Pika_Type h and cpp files. Previous commits omitted this so they will not compile.
+------------------------------------------------------------------------
+r10 | russell | 2007-12-02 19:30:51 -0600 (Sun, 02 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Module.h
+   M /pika/trunk/libpika/Pika_Property.cpp
+   M /pika/trunk/libpika/Pika_Property.h
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/random/PikaRandom.cpp
+
+simple changes
+------------------------------------------------------------------------
+r9 | russell | 2007-12-02 14:10:58 -0600 (Sun, 02 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_Basic.cpp
+   M /pika/trunk/libpika/Pika_Basic.h
+   M /pika/trunk/libpika/Pika_Buffer.h
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_ByteArray.h
+   M /pika/trunk/libpika/Pika_Collector.cpp
+   M /pika/trunk/libpika/Pika_Collector.h
+   M /pika/trunk/libpika/Pika_Compiler.cpp
+   M /pika/trunk/libpika/Pika_Compiler.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Operations.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Arith.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Call.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Standard.inl
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Debugger.h
+   M /pika/trunk/libpika/Pika_Enumerator.cpp
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_LiteralPool.cpp
+   M /pika/trunk/libpika/Pika_LiteralPool.h
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.h
+   M /pika/trunk/libpika/Pika_NativeBind.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_Package.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Parser.h
+   M /pika/trunk/libpika/Pika_Property.cpp
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_StringTable.cpp
+   M /pika/trunk/libpika/Pika_StringTable.h
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Table.cpp
+   M /pika/trunk/libpika/Pika_Table.h
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Userdata.h
+   M /pika/trunk/libpika/Pika_Util.h
+   M /pika/trunk/libpika/Pika_Value.cpp
+   M /pika/trunk/libpika/Pika_Value.h
+   M /pika/trunk/libpika/Pika_ValueEnumerator.cpp
+   M /pika/trunk/libpika/Pika_ValueEnumerator.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/random/PikaRandom.cpp
+   M /pika/trunk/random/PikaRandom.h
+
+Changed case of instance variables.
+------------------------------------------------------------------------
+r8 | russell | 2007-12-01 19:03:26 -0600 (Sat, 01 Dec 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_Basic.cpp
+   M /pika/trunk/libpika/Pika_Basic.h
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_Compiler.cpp
+   M /pika/trunk/libpika/Pika_Compiler.h
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_FunctionDef.h
+   M /pika/trunk/libpika/Pika_Module.cpp
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_String.h
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Userdata.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Added doc-comments for some methods. Removed unused Emitter class.
+------------------------------------------------------------------------
+r7 | russell | 2007-11-24 19:26:56 -0600 (Sat, 24 Nov 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context_Ops_Arith.inl
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_Error.cpp
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_FunctionDef.cpp
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_Memory.cpp
+   M /pika/trunk/libpika/Pika_Memory.h
+   M /pika/trunk/libpika/Pika_Package.cpp
+   M /pika/trunk/libpika/Pika_Platform.cpp
+   M /pika/trunk/libpika/Pika_Platform.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_String.h
+   M /pika/trunk/libpika/Pika_StringTable.cpp
+   M /pika/trunk/libpika/Pika_SymbolTable.cpp
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Table.cpp
+   M /pika/trunk/libpika/Pika_Table.h
+   M /pika/trunk/libpika/Pika_TokenDef.h
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_Tokenizer.h
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Userdata.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Simplified Userdata by removing NativeType and native field access.
+------------------------------------------------------------------------
+r6 | russell | 2007-11-23 09:38:14 -0600 (Fri, 23 Nov 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_Tokenizer.h
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Unified string to number parsing.
+------------------------------------------------------------------------
+r5 | russell | 2007-11-22 19:10:19 -0600 (Thu, 22 Nov 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context_Operations.inl
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_File.cpp
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Platform.cpp
+   M /pika/trunk/libpika/Pika_Platform.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_TokenDef.h
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/scripts/foo.pika
+
+Changed method names to PascalCase. Added Directory and File methods. Added Directory Enumerator.
+------------------------------------------------------------------------
+r4 | russell | 2007-11-22 11:57:53 -0600 (Thu, 22 Nov 2007) | 1 line
+Changed paths:
+   M /pika/trunk/libpika/Pika_AST.cpp
+   M /pika/trunk/libpika/Pika_AST.h
+   M /pika/trunk/libpika/Pika_Array.cpp
+   M /pika/trunk/libpika/Pika_Array.h
+   M /pika/trunk/libpika/Pika_ByteArray.cpp
+   M /pika/trunk/libpika/Pika_Context.cpp
+   M /pika/trunk/libpika/Pika_Context.h
+   M /pika/trunk/libpika/Pika_Context_Ops_Arith.inl
+   M /pika/trunk/libpika/Pika_Context_Ops_Standard.inl
+   M /pika/trunk/libpika/Pika_Context_Run.inl
+   M /pika/trunk/libpika/Pika_Debugger.cpp
+   M /pika/trunk/libpika/Pika_Debugger.h
+   M /pika/trunk/libpika/Pika_Function.cpp
+   M /pika/trunk/libpika/Pika_Function.h
+   M /pika/trunk/libpika/Pika_GenCode.cpp
+   M /pika/trunk/libpika/Pika_Import.cpp
+   M /pika/trunk/libpika/Pika_LocalsObject.cpp
+   M /pika/trunk/libpika/Pika_NativeBind.cpp
+   M /pika/trunk/libpika/Pika_NativeMethod.h
+   M /pika/trunk/libpika/Pika_Object.cpp
+   M /pika/trunk/libpika/Pika_Object.h
+   M /pika/trunk/libpika/Pika_Parser.cpp
+   M /pika/trunk/libpika/Pika_Parser.h
+   M /pika/trunk/libpika/Pika_Runtime.cpp
+   M /pika/trunk/libpika/Pika_Runtime.h
+   M /pika/trunk/libpika/Pika_Script.cpp
+   M /pika/trunk/libpika/Pika_Script.h
+   M /pika/trunk/libpika/Pika_String.cpp
+   M /pika/trunk/libpika/Pika_String.h
+   M /pika/trunk/libpika/Pika_SystemLib.cpp
+   M /pika/trunk/libpika/Pika_Table.cpp
+   M /pika/trunk/libpika/Pika_TokenDef.h
+   M /pika/trunk/libpika/Pika_Tokenizer.cpp
+   M /pika/trunk/libpika/Pika_Userdata.cpp
+   M /pika/trunk/libpika/Pika_Util.h
+   M /pika/trunk/libpika/Pika_Value.cpp
+   M /pika/trunk/libpika/Pika_Value.h
+   M /pika/trunk/libpika/Pika_World.cpp
+   M /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   M /pika/trunk/pika-cl/Main.cpp
+   M /pika/trunk/scripts/foo.pika
+
+Command Line Options Added. String API revised. Select statement parsing bugfix. Contextual keywords for in, step, downto and to.
+------------------------------------------------------------------------
+r3 | russell | 2007-11-19 18:21:17 -0600 (Mon, 19 Nov 2007) | 1 line
+Changed paths:
+   D /pika/trunk/macosx/build
+   M /pika/trunk/pika-cl/Main.cpp
+
+Remove debug folder
+------------------------------------------------------------------------
+r2 | russell | 2007-11-19 18:19:38 -0600 (Mon, 19 Nov 2007) | 1 line
+Changed paths:
+   D /pika/trunk/macosx/build/pika.build
+   M /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   M /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+
+Remove debug
+------------------------------------------------------------------------
+r1 | russell | 2007-11-19 18:07:48 -0600 (Mon, 19 Nov 2007) | 1 line
+Changed paths:
+   A /pika
+   A /pika/trunk
+   A /pika/trunk/CHANGELOG
+   A /pika/trunk/Makefile
+   A /pika/trunk/README
+   A /pika/trunk/TODO
+   A /pika/trunk/libpika
+   A /pika/trunk/libpika/Makefile
+   A /pika/trunk/libpika/Pika.cpp
+   A /pika/trunk/libpika/Pika.h
+   A /pika/trunk/libpika/Pika_AST.cpp
+   A /pika/trunk/libpika/Pika_AST.h
+   A /pika/trunk/libpika/Pika_Array.cpp
+   A /pika/trunk/libpika/Pika_Array.h
+   A /pika/trunk/libpika/Pika_Basic.cpp
+   A /pika/trunk/libpika/Pika_Basic.h
+   A /pika/trunk/libpika/Pika_Buffer.h
+   A /pika/trunk/libpika/Pika_ByteArray.cpp
+   A /pika/trunk/libpika/Pika_ByteArray.h
+   A /pika/trunk/libpika/Pika_ByteOrder.h
+   A /pika/trunk/libpika/Pika_ClassInfo.cpp
+   A /pika/trunk/libpika/Pika_ClassInfo.h
+   A /pika/trunk/libpika/Pika_Collector.cpp
+   A /pika/trunk/libpika/Pika_Collector.h
+   A /pika/trunk/libpika/Pika_Compiler.cpp
+   A /pika/trunk/libpika/Pika_Compiler.h
+   A /pika/trunk/libpika/Pika_Config.h
+   A /pika/trunk/libpika/Pika_Context.cpp
+   A /pika/trunk/libpika/Pika_Context.h
+   A /pika/trunk/libpika/Pika_Context_Operations.inl
+   A /pika/trunk/libpika/Pika_Context_Ops_Arith.inl
+   A /pika/trunk/libpika/Pika_Context_Ops_Call.inl
+   A /pika/trunk/libpika/Pika_Context_Ops_Standard.inl
+   A /pika/trunk/libpika/Pika_Context_Run.inl
+   A /pika/trunk/libpika/Pika_Debugger.cpp
+   A /pika/trunk/libpika/Pika_Debugger.h
+   A /pika/trunk/libpika/Pika_Enumerator.cpp
+   A /pika/trunk/libpika/Pika_Enumerator.h
+   A /pika/trunk/libpika/Pika_Error.cpp
+   A /pika/trunk/libpika/Pika_Error.h
+   A /pika/trunk/libpika/Pika_File.cpp
+   A /pika/trunk/libpika/Pika_File.h
+   A /pika/trunk/libpika/Pika_Function.cpp
+   A /pika/trunk/libpika/Pika_Function.h
+   A /pika/trunk/libpika/Pika_FunctionDef.cpp
+   A /pika/trunk/libpika/Pika_FunctionDef.h
+   A /pika/trunk/libpika/Pika_GenCode.cpp
+   A /pika/trunk/libpika/Pika_Hooks.cpp
+   A /pika/trunk/libpika/Pika_Hooks.h
+   A /pika/trunk/libpika/Pika_Import.cpp
+   A /pika/trunk/libpika/Pika_Instruction.h
+   A /pika/trunk/libpika/Pika_LineInfo.h
+   A /pika/trunk/libpika/Pika_LiteralPool.cpp
+   A /pika/trunk/libpika/Pika_LiteralPool.h
+   A /pika/trunk/libpika/Pika_LocalsObject.cpp
+   A /pika/trunk/libpika/Pika_LocalsObject.h
+   A /pika/trunk/libpika/Pika_MemPool.cpp
+   A /pika/trunk/libpika/Pika_MemPool.h
+   A /pika/trunk/libpika/Pika_Memory.cpp
+   A /pika/trunk/libpika/Pika_Memory.h
+   A /pika/trunk/libpika/Pika_Module.cpp
+   A /pika/trunk/libpika/Pika_Module.h
+   A /pika/trunk/libpika/Pika_NativeBind.cpp
+   A /pika/trunk/libpika/Pika_NativeBind.h
+   A /pika/trunk/libpika/Pika_NativeConstMethodDecls.h
+   A /pika/trunk/libpika/Pika_NativeMethod.cpp
+   A /pika/trunk/libpika/Pika_NativeMethod.h
+   A /pika/trunk/libpika/Pika_NativeMethodDecls.h
+   A /pika/trunk/libpika/Pika_NativeStaticMethodDecls.h
+   A /pika/trunk/libpika/Pika_Object.cpp
+   A /pika/trunk/libpika/Pika_Object.h
+   A /pika/trunk/libpika/Pika_Opcode.cpp
+   A /pika/trunk/libpika/Pika_Opcode.def
+   A /pika/trunk/libpika/Pika_Opcode.h
+   A /pika/trunk/libpika/Pika_Package.cpp
+   A /pika/trunk/libpika/Pika_Package.h
+   A /pika/trunk/libpika/Pika_Parser.cpp
+   A /pika/trunk/libpika/Pika_Parser.h
+   A /pika/trunk/libpika/Pika_Platform.cpp
+   A /pika/trunk/libpika/Pika_Platform.h
+   A /pika/trunk/libpika/Pika_Profiler.h
+   A /pika/trunk/libpika/Pika_Property.cpp
+   A /pika/trunk/libpika/Pika_Property.h
+   A /pika/trunk/libpika/Pika_Runtime.cpp
+   A /pika/trunk/libpika/Pika_Runtime.h
+   A /pika/trunk/libpika/Pika_Script.cpp
+   A /pika/trunk/libpika/Pika_Script.h
+   A /pika/trunk/libpika/Pika_String.cpp
+   A /pika/trunk/libpika/Pika_String.h
+   A /pika/trunk/libpika/Pika_StringTable.cpp
+   A /pika/trunk/libpika/Pika_StringTable.h
+   A /pika/trunk/libpika/Pika_SymbolTable.cpp
+   A /pika/trunk/libpika/Pika_SymbolTable.h
+   A /pika/trunk/libpika/Pika_SystemLib.cpp
+   A /pika/trunk/libpika/Pika_Table.cpp
+   A /pika/trunk/libpika/Pika_Table.h
+   A /pika/trunk/libpika/Pika_TokenDef.h
+   A /pika/trunk/libpika/Pika_Tokenizer.cpp
+   A /pika/trunk/libpika/Pika_Tokenizer.h
+   A /pika/trunk/libpika/Pika_Userdata.cpp
+   A /pika/trunk/libpika/Pika_Userdata.h
+   A /pika/trunk/libpika/Pika_Util.h
+   A /pika/trunk/libpika/Pika_Value.cpp
+   A /pika/trunk/libpika/Pika_Value.h
+   A /pika/trunk/libpika/Pika_ValueEnumerator.cpp
+   A /pika/trunk/libpika/Pika_ValueEnumerator.h
+   A /pika/trunk/libpika/Pika_World.cpp
+   A /pika/trunk/macosx
+   A /pika/trunk/macosx/build
+   A /pika/trunk/macosx/build/pika.build
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/categories.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/cdecls.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/decls.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/files.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/imports.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/pbxindex.header
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/protocols.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/refs.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/strings.pbxstrings
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/strings.pbxstrings/control
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/strings.pbxstrings/strings
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/subclasses.pbxbtree
+   A /pika/trunk/macosx/build/pika.build/pika.pbxindex/symbols0.pbxsymbols
+   A /pika/trunk/macosx/pika.xcodeproj
+   A /pika/trunk/macosx/pika.xcodeproj/project.pbxproj
+   A /pika/trunk/macosx/pika.xcodeproj/russell.mode1
+   A /pika/trunk/macosx/pika.xcodeproj/russell.mode1v3
+   A /pika/trunk/macosx/pika.xcodeproj/russell.mode2v3
+   A /pika/trunk/macosx/pika.xcodeproj/russell.pbxuser
+   A /pika/trunk/macosx/pika.xcodeproj/russell.perspective
+   A /pika/trunk/macosx/pika.xcodeproj/russell.perspectivev3
+   A /pika/trunk/pika-cl
+   A /pika/trunk/pika-cl/Main.cpp
+   A /pika/trunk/pika-cl/Makefile
+   A /pika/trunk/random
+   A /pika/trunk/random/Makefile
+   A /pika/trunk/random/PikaRandom.cpp
+   A /pika/trunk/random/PikaRandom.h
+   A /pika/trunk/scripts
+   A /pika/trunk/scripts/foo.pika
+   A /pika/trunk/vs2005
+   A /pika/trunk/vs2005/Pika Solution
+   A /pika/trunk/vs2005/Pika Solution/Pika Solution.sln
+   A /pika/trunk/vs2005/Pika Solution/pika
+   A /pika/trunk/vs2005/Pika Solution/pika/pika.vcproj
+   A /pika/trunk/vs2005/Pika Solution/pikaCurses
+   A /pika/trunk/vs2005/Pika Solution/pikaCurses/pikaCurses.vcproj
+   A /pika/trunk/vs2005/Pika Solution/pikac
+   A /pika/trunk/vs2005/Pika Solution/pikac/pikac.vcproj
+
+Initial import
+------------------------------------------------------------------------
