@@ -1,0 +1,27 @@
+
+class A
+    function init a
+        self.a = a
+    end
+end
+
+class B : A
+    function init a, b
+        super a
+        self.b = b
+    end
+end
+
+a = new A "hi"
+b = new B "bye", 2
+
+say a.a
+say ""
+say b.a
+say b.b
+
+say "a is A:" @@ a is A
+say "a is B:" @@ a is B
+
+say "b is A:" @@ b is A
+say "b is B:" @@ b is B

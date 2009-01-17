@@ -1,0 +1,23 @@
+
+say null    # null
+say 3       # integer
+say 1.09    # real
+
+say 0b011   # binary literal
+say 0xff    # hex literal
+say 36rPIKA # radix 36 literal, radix can be 2 - 36
+
+say 0b10001.1010    # binary real
+say 0xFF.F          # hex real
+say 36rPIKA.PIKA    # radix 36 real
+
+say "double quote"  # string literal
+say 'single quote' # string literal
+
+say( [1,  2, 3, "a", 'b'] ) # array literal
+
+o = { name: "Bob", age: 34, occupation: "World Ruler", info: [1,2,3,4] } # object literal
+
+foreach x in o
+    say x @ ": " @ o[x]
+end

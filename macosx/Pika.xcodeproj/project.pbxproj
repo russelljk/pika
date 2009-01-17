@@ -37,25 +37,7 @@
 /* Begin PBXBuildFile section */
 		4620C4B20DE74C9000DE098B /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
 		4620C4E40DE7514200DE098B /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 4620C4E30DE7514200DE098B /* config.h */; };
-		46240E310DFEEE730034B181 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
-		46240E3A0DFEEF080034B181 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46240E390DFEEF080034B181 /* Cocoa.framework */; };
-		46240E3E0DFEEF200034B181 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46240E3D0DFEEF200034B181 /* OpenGL.framework */; };
-		46240E540DFEEF7C0034B181 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46240E410DFEEF7C0034B181 /* Game.cpp */; };
-		46240E550DFEEF7C0034B181 /* Game.h in Headers */ = {isa = PBXBuildFile; fileRef = 46240E420DFEEF7C0034B181 /* Game.h */; };
-		46240E560DFEEF7C0034B181 /* Game.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46240E430DFEEF7C0034B181 /* Game.mm */; };
-		46240E590DFEEF7C0034B181 /* Game_Events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46240E460DFEEF7C0034B181 /* Game_Events.cpp */; };
-		46240E5A0DFEEF7C0034B181 /* Game_Events.h in Headers */ = {isa = PBXBuildFile; fileRef = 46240E470DFEEF7C0034B181 /* Game_Events.h */; };
-		46240E5D0DFEEF7C0034B181 /* Game_Timestep.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46240E4A0DFEEF7C0034B181 /* Game_Timestep.cpp */; };
-		46240E5E0DFEEF7C0034B181 /* Game_Timestep.h in Headers */ = {isa = PBXBuildFile; fileRef = 46240E4B0DFEEF7C0034B181 /* Game_Timestep.h */; };
 		466235810DEC83CE00543092 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
-		46886C520E02DD8A00DA609B /* Game_Surface.h in Headers */ = {isa = PBXBuildFile; fileRef = 46886C500E02DD8A00DA609B /* Game_Surface.h */; };
-		46886C530E02DD8A00DA609B /* Game_Surface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46886C510E02DD8A00DA609B /* Game_Surface.cpp */; };
-		46886C770E02E01900DA609B /* Game_video.h in Headers */ = {isa = PBXBuildFile; fileRef = 46886C750E02E01900DA609B /* Game_video.h */; };
-		46886C780E02E01900DA609B /* Game_video.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46886C760E02E01900DA609B /* Game_video.cpp */; };
-		46886D2D0E02F0D200DA609B /* glSDL.c in Sources */ = {isa = PBXBuildFile; fileRef = 46886D2B0E02F0D200DA609B /* glSDL.c */; };
-		46886D2E0E02F0D200DA609B /* glSDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 46886D2C0E02F0D200DA609B /* glSDL.h */; };
-		46FBE80F0E004A2700015215 /* Game_Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FBE80E0E004A2700015215 /* Game_Rect.cpp */; };
-		46FBE8120E004ABB00015215 /* Game_Rect.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FBE8110E004ABB00015215 /* Game_Rect.h */; };
 		7F99390A0F1EE3FF0029C501 /* dlmalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389C0F1EE3FF0029C501 /* dlmalloc.c */; };
 		7F99390B0F1EE3FF0029C501 /* PArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389D0F1EE3FF0029C501 /* PArray.cpp */; };
 		7F99390C0F1EE3FF0029C501 /* PArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F99389E0F1EE3FF0029C501 /* PArray.h */; };
@@ -164,23 +146,6 @@
 		7F9939740F1EE3FF0029C501 /* PValueEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9939080F1EE3FF0029C501 /* PValueEnumerator.h */; };
 		7F9939750F1EE3FF0029C501 /* PWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939090F1EE3FF0029C501 /* PWorld.cpp */; };
 		7F9939770F1EE4910029C501 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9939760F1EE4910029C501 /* Main.cpp */; };
-		7FA639460F02F61300F9FF67 /* expat.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639400F02F61300F9FF67 /* expat.h */; };
-		7FA639470F02F61300F9FF67 /* xmlparse.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639410F02F61300F9FF67 /* xmlparse.c */; };
-		7FA639480F02F61300F9FF67 /* xmlrole.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639420F02F61300F9FF67 /* xmlrole.c */; };
-		7FA639490F02F61300F9FF67 /* xmltok.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639430F02F61300F9FF67 /* xmltok.c */; };
-		7FA6394A0F02F61300F9FF67 /* xmltok_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639440F02F61300F9FF67 /* xmltok_impl.c */; };
-		7FA6394B0F02F61300F9FF67 /* xmltok_ns.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FA639450F02F61300F9FF67 /* xmltok_ns.c */; };
-		7FA6395B0F02F66E00F9FF67 /* expat_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA6395A0F02F66E00F9FF67 /* expat_config.h */; };
-		7FA639780F03DE0200F9FF67 /* ascii.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA6396E0F03DE0200F9FF67 /* ascii.h */; };
-		7FA639790F03DE0200F9FF67 /* asciitab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA6396F0F03DE0200F9FF67 /* asciitab.h */; };
-		7FA6397A0F03DE0200F9FF67 /* iasciitab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639700F03DE0200F9FF67 /* iasciitab.h */; };
-		7FA6397B0F03DE0200F9FF67 /* internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639710F03DE0200F9FF67 /* internal.h */; };
-		7FA6397C0F03DE0200F9FF67 /* latin1tab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639720F03DE0200F9FF67 /* latin1tab.h */; };
-		7FA6397D0F03DE0200F9FF67 /* nametab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639730F03DE0200F9FF67 /* nametab.h */; };
-		7FA6397E0F03DE0200F9FF67 /* utf8tab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639740F03DE0200F9FF67 /* utf8tab.h */; };
-		7FA6397F0F03DE0200F9FF67 /* xmlrole.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639750F03DE0200F9FF67 /* xmlrole.h */; };
-		7FA639800F03DE0200F9FF67 /* xmltok.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639760F03DE0200F9FF67 /* xmltok.h */; };
-		7FA639810F03DE0200F9FF67 /* xmltok_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FA639770F03DE0200F9FF67 /* xmltok_impl.h */; };
 		7FDCB8D30F1FBC3300E7EB19 /* PCurses.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */; };
 		7FDCB8D40F1FBC3300E7EB19 /* PCurses.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */; };
 		7FDCB94B0F21101F00E7EB19 /* PConfig_Borland.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */; };
@@ -228,26 +193,8 @@
 		4620C3CF0DE74BC300DE098B /* pika */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pika; sourceTree = BUILT_PRODUCTS_DIR; };
 		4620C3D90DE74C0800DE098B /* libpika.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpika.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4620C4E30DE7514200DE098B /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		46240E380DFEEE730034B181 /* libpikagame.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikagame.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		46240E390DFEEF080034B181 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		46240E3D0DFEEF200034B181 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
-		46240E410DFEEF7C0034B181 /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game.cpp; path = ../game/Game.cpp; sourceTree = SOURCE_ROOT; };
-		46240E420DFEEF7C0034B181 /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game.h; path = ../game/Game.h; sourceTree = SOURCE_ROOT; };
-		46240E430DFEEF7C0034B181 /* Game.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Game.mm; path = ../game/Game.mm; sourceTree = SOURCE_ROOT; };
-		46240E460DFEEF7C0034B181 /* Game_Events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Events.cpp; path = ../game/Game_Events.cpp; sourceTree = SOURCE_ROOT; };
-		46240E470DFEEF7C0034B181 /* Game_Events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Events.h; path = ../game/Game_Events.h; sourceTree = SOURCE_ROOT; };
-		46240E4A0DFEEF7C0034B181 /* Game_Timestep.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Timestep.cpp; path = ../game/Game_Timestep.cpp; sourceTree = SOURCE_ROOT; };
-		46240E4B0DFEEF7C0034B181 /* Game_Timestep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Timestep.h; path = ../game/Game_Timestep.h; sourceTree = SOURCE_ROOT; };
 		4651E6E70DFB071D00B70498 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO; path = ../TODO; sourceTree = SOURCE_ROOT; };
 		4662357E0DEC839000543092 /* libpikacurses.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikacurses.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		46886C500E02DD8A00DA609B /* Game_Surface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Surface.h; path = ../game/Game_Surface.h; sourceTree = SOURCE_ROOT; };
-		46886C510E02DD8A00DA609B /* Game_Surface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Surface.cpp; path = ../game/Game_Surface.cpp; sourceTree = SOURCE_ROOT; };
-		46886C750E02E01900DA609B /* Game_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_video.h; path = ../game/Game_video.h; sourceTree = SOURCE_ROOT; };
-		46886C760E02E01900DA609B /* Game_video.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_video.cpp; path = ../game/Game_video.cpp; sourceTree = SOURCE_ROOT; };
-		46886D2B0E02F0D200DA609B /* glSDL.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glSDL.c; path = ../game/glSDL.c; sourceTree = SOURCE_ROOT; };
-		46886D2C0E02F0D200DA609B /* glSDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glSDL.h; path = ../game/glSDL.h; sourceTree = SOURCE_ROOT; };
-		46FBE80E0E004A2700015215 /* Game_Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Game_Rect.cpp; path = ../game/Game_Rect.cpp; sourceTree = SOURCE_ROOT; };
-		46FBE8110E004ABB00015215 /* Game_Rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Game_Rect.h; path = ../game/Game_Rect.h; sourceTree = SOURCE_ROOT; };
 		7F99389C0F1EE3FF0029C501 /* dlmalloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dlmalloc.c; path = ../libpika/dlmalloc.c; sourceTree = SOURCE_ROOT; };
 		7F99389D0F1EE3FF0029C501 /* PArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PArray.cpp; path = ../libpika/PArray.cpp; sourceTree = SOURCE_ROOT; };
 		7F99389E0F1EE3FF0029C501 /* PArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PArray.h; path = ../libpika/PArray.h; sourceTree = SOURCE_ROOT; };
@@ -359,24 +306,6 @@
 		7F9939090F1EE3FF0029C501 /* PWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PWorld.cpp; path = ../libpika/PWorld.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939760F1EE4910029C501 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../pikac/Main.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939840F1EE5E90029C501 /* foo.pika */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pika; name = foo.pika; path = ../scripts/foo.pika; sourceTree = SOURCE_ROOT; };
-		7FA639360F02F56900F9FF67 /* libexpat.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libexpat.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		7FA639400F02F61300F9FF67 /* expat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = expat.h; path = ../expat/lib/expat.h; sourceTree = SOURCE_ROOT; };
-		7FA639410F02F61300F9FF67 /* xmlparse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmlparse.c; path = ../expat/lib/xmlparse.c; sourceTree = SOURCE_ROOT; };
-		7FA639420F02F61300F9FF67 /* xmlrole.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmlrole.c; path = ../expat/lib/xmlrole.c; sourceTree = SOURCE_ROOT; };
-		7FA639430F02F61300F9FF67 /* xmltok.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmltok.c; path = ../expat/lib/xmltok.c; sourceTree = SOURCE_ROOT; };
-		7FA639440F02F61300F9FF67 /* xmltok_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmltok_impl.c; path = ../expat/lib/xmltok_impl.c; sourceTree = SOURCE_ROOT; };
-		7FA639450F02F61300F9FF67 /* xmltok_ns.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmltok_ns.c; path = ../expat/lib/xmltok_ns.c; sourceTree = SOURCE_ROOT; };
-		7FA6395A0F02F66E00F9FF67 /* expat_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = expat_config.h; path = ../expat/osx/expat_config.h; sourceTree = SOURCE_ROOT; };
-		7FA6396E0F03DE0200F9FF67 /* ascii.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ascii.h; path = ../expat/lib/ascii.h; sourceTree = SOURCE_ROOT; };
-		7FA6396F0F03DE0200F9FF67 /* asciitab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = asciitab.h; path = ../expat/lib/asciitab.h; sourceTree = SOURCE_ROOT; };
-		7FA639700F03DE0200F9FF67 /* iasciitab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iasciitab.h; path = ../expat/lib/iasciitab.h; sourceTree = SOURCE_ROOT; };
-		7FA639710F03DE0200F9FF67 /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = internal.h; path = ../expat/lib/internal.h; sourceTree = SOURCE_ROOT; };
-		7FA639720F03DE0200F9FF67 /* latin1tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = latin1tab.h; path = ../expat/lib/latin1tab.h; sourceTree = SOURCE_ROOT; };
-		7FA639730F03DE0200F9FF67 /* nametab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nametab.h; path = ../expat/lib/nametab.h; sourceTree = SOURCE_ROOT; };
-		7FA639740F03DE0200F9FF67 /* utf8tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utf8tab.h; path = ../expat/lib/utf8tab.h; sourceTree = SOURCE_ROOT; };
-		7FA639750F03DE0200F9FF67 /* xmlrole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmlrole.h; path = ../expat/lib/xmlrole.h; sourceTree = SOURCE_ROOT; };
-		7FA639760F03DE0200F9FF67 /* xmltok.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmltok.h; path = ../expat/lib/xmltok.h; sourceTree = SOURCE_ROOT; };
-		7FA639770F03DE0200F9FF67 /* xmltok_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmltok_impl.h; path = ../expat/lib/xmltok_impl.h; sourceTree = SOURCE_ROOT; };
 		7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCurses.cpp; path = ../curses/PCurses.cpp; sourceTree = SOURCE_ROOT; };
 		7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCurses.h; path = ../curses/PCurses.h; sourceTree = SOURCE_ROOT; };
 		7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_Borland.h; path = ../libpika/PConfig_Borland.h; sourceTree = SOURCE_ROOT; };
@@ -400,28 +329,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		46240E300DFEEE730034B181 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				46240E310DFEEE730034B181 /* libpika.dylib in Frameworks */,
-				46240E3A0DFEEF080034B181 /* Cocoa.framework in Frameworks */,
-				46240E3E0DFEEF200034B181 /* OpenGL.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4662357C0DEC839000543092 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				466235810DEC83CE00543092 /* libpika.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7FA639340F02F56900F9FF67 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,10 +343,8 @@
 		4620C3B70DE74B7500DE098B = {
 			isa = PBXGroup;
 			children = (
-				7FA639680F03DDB400F9FF67 /* expat */,
 				4651E6E70DFB071D00B70498 /* TODO */,
 				4620C4E30DE7514200DE098B /* config.h */,
-				46240E2A0DFEEE640034B181 /* Game */,
 				466235820DEC83D800543092 /* curses */,
 				4620C3CA0DE74B9900DE098B /* scripts */,
 				4620C3C90DE74B8B00DE098B /* libpika */,
@@ -476,21 +386,8 @@
 				4620C3CF0DE74BC300DE098B /* pika */,
 				4620C3D90DE74C0800DE098B /* libpika.dylib */,
 				4662357E0DEC839000543092 /* libpikacurses.dylib */,
-				46240E380DFEEE730034B181 /* libpikagame.dylib */,
-				7FA639360F02F56900F9FF67 /* libexpat.dylib */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		46240E2A0DFEEE640034B181 /* Game */ = {
-			isa = PBXGroup;
-			children = (
-				7F3539EC0E646DE700A80314 /* glSDL */,
-				7F3539EB0E646DDA00A80314 /* Headers */,
-				7F3539EA0E646DCC00A80314 /* Source */,
-				7F3539D60E646DBC00A80314 /* Frameworks */,
-			);
-			name = Game;
 			sourceTree = "<group>";
 		};
 		466235820DEC83D800543092 /* curses */ = {
@@ -642,91 +539,6 @@
 			name = inline;
 			sourceTree = "<group>";
 		};
-		7F3539D60E646DBC00A80314 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				46240E3D0DFEEF200034B181 /* OpenGL.framework */,
-				46240E390DFEEF080034B181 /* Cocoa.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		7F3539EA0E646DCC00A80314 /* Source */ = {
-			isa = PBXGroup;
-			children = (
-				46240E410DFEEF7C0034B181 /* Game.cpp */,
-				46240E430DFEEF7C0034B181 /* Game.mm */,
-				46240E460DFEEF7C0034B181 /* Game_Events.cpp */,
-				46240E4A0DFEEF7C0034B181 /* Game_Timestep.cpp */,
-				46FBE80E0E004A2700015215 /* Game_Rect.cpp */,
-				46886C510E02DD8A00DA609B /* Game_Surface.cpp */,
-				46886C760E02E01900DA609B /* Game_video.cpp */,
-			);
-			name = Source;
-			sourceTree = "<group>";
-		};
-		7F3539EB0E646DDA00A80314 /* Headers */ = {
-			isa = PBXGroup;
-			children = (
-				46240E420DFEEF7C0034B181 /* Game.h */,
-				46240E470DFEEF7C0034B181 /* Game_Events.h */,
-				46240E4B0DFEEF7C0034B181 /* Game_Timestep.h */,
-				46FBE8110E004ABB00015215 /* Game_Rect.h */,
-				46886C500E02DD8A00DA609B /* Game_Surface.h */,
-				46886C750E02E01900DA609B /* Game_video.h */,
-			);
-			name = Headers;
-			sourceTree = "<group>";
-		};
-		7F3539EC0E646DE700A80314 /* glSDL */ = {
-			isa = PBXGroup;
-			children = (
-				46886D2B0E02F0D200DA609B /* glSDL.c */,
-				46886D2C0E02F0D200DA609B /* glSDL.h */,
-			);
-			name = glSDL;
-			sourceTree = "<group>";
-		};
-		7FA639680F03DDB400F9FF67 /* expat */ = {
-			isa = PBXGroup;
-			children = (
-				7FA639830F03DE0D00F9FF67 /* src */,
-				7FA639820F03DE0700F9FF67 /* inc */,
-			);
-			name = expat;
-			sourceTree = "<group>";
-		};
-		7FA639820F03DE0700F9FF67 /* inc */ = {
-			isa = PBXGroup;
-			children = (
-				7FA6396E0F03DE0200F9FF67 /* ascii.h */,
-				7FA6396F0F03DE0200F9FF67 /* asciitab.h */,
-				7FA639400F02F61300F9FF67 /* expat.h */,
-				7FA6395A0F02F66E00F9FF67 /* expat_config.h */,
-				7FA639700F03DE0200F9FF67 /* iasciitab.h */,
-				7FA639710F03DE0200F9FF67 /* internal.h */,
-				7FA639720F03DE0200F9FF67 /* latin1tab.h */,
-				7FA639730F03DE0200F9FF67 /* nametab.h */,
-				7FA639740F03DE0200F9FF67 /* utf8tab.h */,
-				7FA639750F03DE0200F9FF67 /* xmlrole.h */,
-				7FA639760F03DE0200F9FF67 /* xmltok.h */,
-				7FA639770F03DE0200F9FF67 /* xmltok_impl.h */,
-			);
-			name = inc;
-			sourceTree = "<group>";
-		};
-		7FA639830F03DE0D00F9FF67 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				7FA639410F02F61300F9FF67 /* xmlparse.c */,
-				7FA639420F02F61300F9FF67 /* xmlrole.c */,
-				7FA639430F02F61300F9FF67 /* xmltok.c */,
-				7FA639440F02F61300F9FF67 /* xmltok_impl.c */,
-				7FA639450F02F61300F9FF67 /* xmltok_ns.c */,
-			);
-			name = src;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -797,45 +609,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		46240E2C0DFEEE730034B181 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				46240E550DFEEF7C0034B181 /* Game.h in Headers */,
-				46240E5A0DFEEF7C0034B181 /* Game_Events.h in Headers */,
-				46240E5E0DFEEF7C0034B181 /* Game_Timestep.h in Headers */,
-				46FBE8120E004ABB00015215 /* Game_Rect.h in Headers */,
-				46886C520E02DD8A00DA609B /* Game_Surface.h in Headers */,
-				46886C770E02E01900DA609B /* Game_video.h in Headers */,
-				46886D2E0E02F0D200DA609B /* glSDL.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4662357A0DEC839000543092 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				7FDCB8D40F1FBC3300E7EB19 /* PCurses.h in Headers */,
 				7FDCB94B0F21101F00E7EB19 /* PConfig_Borland.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7FA639320F02F56900F9FF67 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7FA639460F02F61300F9FF67 /* expat.h in Headers */,
-				7FA6395B0F02F66E00F9FF67 /* expat_config.h in Headers */,
-				7FA639780F03DE0200F9FF67 /* ascii.h in Headers */,
-				7FA639790F03DE0200F9FF67 /* asciitab.h in Headers */,
-				7FA6397A0F03DE0200F9FF67 /* iasciitab.h in Headers */,
-				7FA6397B0F03DE0200F9FF67 /* internal.h in Headers */,
-				7FA6397C0F03DE0200F9FF67 /* latin1tab.h in Headers */,
-				7FA6397D0F03DE0200F9FF67 /* nametab.h in Headers */,
-				7FA6397E0F03DE0200F9FF67 /* utf8tab.h in Headers */,
-				7FA6397F0F03DE0200F9FF67 /* xmlrole.h in Headers */,
-				7FA639800F03DE0200F9FF67 /* xmltok.h in Headers */,
-				7FA639810F03DE0200F9FF67 /* xmltok_impl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -875,23 +654,6 @@
 			productReference = 4620C3D90DE74C0800DE098B /* libpika.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		46240E2B0DFEEE730034B181 /* game lib */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 46240E320DFEEE730034B181 /* Build configuration list for PBXNativeTarget "game lib" */;
-			buildPhases = (
-				46240E2C0DFEEE730034B181 /* Headers */,
-				46240E2E0DFEEE730034B181 /* Sources */,
-				46240E300DFEEE730034B181 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "game lib";
-			productName = curses;
-			productReference = 46240E380DFEEE730034B181 /* libpikagame.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		4662357D0DEC839000543092 /* libpikacurses */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 466235830DEC83D800543092 /* Build configuration list for PBXNativeTarget "libpikacurses" */;
@@ -907,23 +669,6 @@
 			name = libpikacurses;
 			productName = curses;
 			productReference = 4662357E0DEC839000543092 /* libpikacurses.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
-		7FA639350F02F56900F9FF67 /* expat */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 7FA6393D0F02F58700F9FF67 /* Build configuration list for PBXNativeTarget "expat" */;
-			buildPhases = (
-				7FA639320F02F56900F9FF67 /* Headers */,
-				7FA639330F02F56900F9FF67 /* Sources */,
-				7FA639340F02F56900F9FF67 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = expat;
-			productName = expat;
-			productReference = 7FA639360F02F56900F9FF67 /* libexpat.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
@@ -943,9 +688,7 @@
 				4620C3CE0DE74BC300DE098B /* pika */,
 				4620C3D80DE74C0800DE098B /* libpika */,
 				4662357D0DEC839000543092 /* libpikacurses */,
-				46240E2B0DFEEE730034B181 /* game lib */,
 				46FBE8760E00517D00015215 /* g-basics */,
-				7FA639350F02F56900F9FF67 /* expat */,
 			);
 		};
 /* End PBXProject section */
@@ -1014,38 +757,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		46240E2E0DFEEE730034B181 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				46240E540DFEEF7C0034B181 /* Game.cpp in Sources */,
-				46240E560DFEEF7C0034B181 /* Game.mm in Sources */,
-				46240E590DFEEF7C0034B181 /* Game_Events.cpp in Sources */,
-				46240E5D0DFEEF7C0034B181 /* Game_Timestep.cpp in Sources */,
-				46FBE80F0E004A2700015215 /* Game_Rect.cpp in Sources */,
-				46886C530E02DD8A00DA609B /* Game_Surface.cpp in Sources */,
-				46886C780E02E01900DA609B /* Game_video.cpp in Sources */,
-				46886D2D0E02F0D200DA609B /* glSDL.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4662357B0DEC839000543092 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				7FDCB8D30F1FBC3300E7EB19 /* PCurses.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7FA639330F02F56900F9FF67 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7FA639470F02F61300F9FF67 /* xmlparse.c in Sources */,
-				7FA639480F02F61300F9FF67 /* xmlrole.c in Sources */,
-				7FA639490F02F61300F9FF67 /* xmltok.c in Sources */,
-				7FA6394A0F02F61300F9FF67 /* xmltok_impl.c in Sources */,
-				7FA6394B0F02F61300F9FF67 /* xmltok_ns.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1242,149 +958,6 @@
 				ZERO_LINK = NO;
 			};
 			name = Release;
-		};
-		46240E330DFEEE730034B181 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				EXECUTABLE_PREFIX = libpika;
-				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include,
-					/opt/local/include/SDL,
-				);
-				INSTALL_PATH = "@executable_path";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-				);
-				PREBINDING = NO;
-				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
-				PRODUCT_NAME = game;
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		46240E340DFEEE730034B181 /* Real Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				EXECUTABLE_PREFIX = libpika;
-				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include,
-					/opt/local/include/SDL,
-				);
-				INSTALL_PATH = "@executable_path";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-				);
-				PREBINDING = NO;
-				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
-				PRODUCT_NAME = game;
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				ZERO_LINK = YES;
-			};
-			name = "Real Debug";
-		};
-		46240E350DFEEE730034B181 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = libpika;
-				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include,
-					/opt/local/include/SDL,
-				);
-				INSTALL_PATH = "@executable_path";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-				);
-				PREBINDING = NO;
-				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
-				PRODUCT_NAME = game;
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		46240E360DFEEE730034B181 /* Release 64 */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = libpika;
-				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include,
-					/opt/local/include/SDL,
-				);
-				INSTALL_PATH = "@executable_path";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-				);
-				PREBINDING = NO;
-				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
-				PRODUCT_NAME = game;
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				ZERO_LINK = NO;
-			};
-			name = "Release 64";
-		};
-		46240E370DFEEE730034B181 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = libpika;
-				FRAMEWORK_SEARCH_PATHS = /opt/local/Library/Frameworks;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include,
-					/opt/local/include/SDL,
-				);
-				INSTALL_PATH = "@executable_path";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-				);
-				PREBINDING = NO;
-				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
-				PRODUCT_NAME = game;
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
 		};
 		4662357F0DEC839000543092 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1781,115 +1354,6 @@
 			};
 			name = Deployment;
 		};
-		7FA639370F02F56900F9FF67 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				EXECUTABLE_PREFIX = lib;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = expat;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wno-unused-parameter",
-					"-Wno-switch",
-				);
-			};
-			name = Debug;
-		};
-		7FA639380F02F56900F9FF67 /* Real Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = expat;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wno-unused-parameter",
-					"-Wno-switch",
-				);
-			};
-			name = "Real Debug";
-		};
-		7FA639390F02F56900F9FF67 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = expat;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wno-unused-parameter",
-					"-Wno-switch",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		7FA6393A0F02F56900F9FF67 /* Release 64 */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = expat;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wno-unused-parameter",
-					"-Wno-switch",
-				);
-			};
-			name = "Release 64";
-		};
-		7FA6393B0F02F56900F9FF67 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_EXPAT_CONFIG_H;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = expat;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wno-unused-parameter",
-					"-Wno-switch",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1941,18 +1405,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		46240E320DFEEE730034B181 /* Build configuration list for PBXNativeTarget "game lib" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				46240E330DFEEE730034B181 /* Debug */,
-				46240E340DFEEE730034B181 /* Real Debug */,
-				46240E350DFEEE730034B181 /* Release */,
-				46240E360DFEEE730034B181 /* Release 64 */,
-				46240E370DFEEE730034B181 /* Deployment */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		466235830DEC83D800543092 /* Build configuration list for PBXNativeTarget "libpikacurses" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1973,18 +1425,6 @@
 				46FBE8790E00517D00015215 /* Release */,
 				46FBE87A0E00517D00015215 /* Release 64 */,
 				46FBE87B0E00517D00015215 /* Deployment */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		7FA6393D0F02F58700F9FF67 /* Build configuration list for PBXNativeTarget "expat" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7FA639370F02F56900F9FF67 /* Debug */,
-				7FA639380F02F56900F9FF67 /* Real Debug */,
-				7FA639390F02F56900F9FF67 /* Release */,
-				7FA6393A0F02F56900F9FF67 /* Release 64 */,
-				7FA6393B0F02F56900F9FF67 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

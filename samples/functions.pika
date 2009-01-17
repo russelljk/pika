@@ -1,0 +1,33 @@
+(* Functions *)
+
+# Function declaration.
+
+function foo(a, b)
+    say "foo: " @ a @@ b
+end
+
+# Call a function.
+
+foo(1, 2)
+
+# You can omit () if the first argument is on the same line as the function.
+
+foo 1, 2 # OK
+foo 1,   # OK
+    2
+
+# You can also declare functions with out paranthesis.
+
+function bar a, b
+    say "bar: " @ a @@ b
+end
+
+bar 2,3
+
+function bazz a,
+              b,
+              c
+    say "bazz: " @ a @@ b @@ c
+end
+
+bazz 3, 4, 5

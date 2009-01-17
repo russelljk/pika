@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ActivePerspectiveName</key>
-	<string>Project</string>
+	<string>Debug</string>
 	<key>AllowedModules</key>
 	<array>
 		<dict>
@@ -227,7 +227,7 @@
 			<key>Content</key>
 			<dict>
 				<key>PBXProjectModuleGUID</key>
-				<string>7FC5468C0F21186100E6343F</string>
+				<string>7FC92D430F22452800093599</string>
 				<key>PBXProjectModuleLabel</key>
 				<string>foo.pika</string>
 				<key>PBXSplitModuleInNavigatorKey</key>
@@ -235,16 +235,16 @@
 					<key>Split0</key>
 					<dict>
 						<key>PBXProjectModuleGUID</key>
-						<string>7FC546950F21186300E6343F</string>
+						<string>7FC92D4D0F22453E00093599</string>
 						<key>PBXProjectModuleLabel</key>
 						<string>foo.pika</string>
 						<key>_historyCapacity</key>
 						<integer>0</integer>
 						<key>bookmark</key>
-						<string>7FC546970F21186900E6343F</string>
+						<string>7FC92D9B0F22545100093599</string>
 						<key>history</key>
 						<array>
-							<string>7FC5468B0F21186100E6343F</string>
+							<string>7FC92D420F22452800093599</string>
 						</array>
 					</dict>
 					<key>SplitCount</key>
@@ -303,8 +303,6 @@
 			<key>Layout</key>
 			<array>
 				<dict>
-					<key>BecomeActive</key>
-					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -342,7 +340,6 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateExpansionKey</key>
 							<array>
 								<string>4620C3B70DE74B7500DE098B</string>
-								<string>46240E2A0DFEEE640034B181</string>
 								<string>466235820DEC83D800543092</string>
 								<string>4620C3CA0DE74B9900DE098B</string>
 								<string>4620C3C90DE74B8B00DE098B</string>
@@ -358,13 +355,13 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>13</integer>
-									<integer>12</integer>
+									<integer>7</integer>
+									<integer>6</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 0}, {225, 1064}}</string>
+							<string>{{0, 2}, {225, 1064}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -380,8 +377,6 @@
 							<string>MainColumn</string>
 							<real>225</real>
 						</array>
-						<key>RubberWindowFrame</key>
-						<string>0 55 1091 1123 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -427,8 +422,6 @@
 							<dict>
 								<key>Frame</key>
 								<string>{{0, 0}, {844, 0}}</string>
-								<key>RubberWindowFrame</key>
-								<string>0 55 1091 1123 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -452,8 +445,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {844, 1050}}</string>
-										<key>RubberWindowFrame</key>
-										<string>0 55 1091 1123 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -535,11 +526,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>7FC5468D0F21186300E6343F</string>
+				<string>7FC92D450F22453E00093599</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>7FC5468E0F21186300E6343F</string>
+				<string>7FC92D460F22453E00093599</string>
 				<string>7F59218B0F0F0FB1004AA469</string>
-				<string>7FC5468F0F21186300E6343F</string>
+				<string>7FC92D470F22453E00093599</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -578,6 +569,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXProjectModuleGUID</key>
@@ -589,6 +582,8 @@
 					<dict>
 						<key>Frame</key>
 						<string>{{0, 0}, {1091, 489}}</string>
+						<key>RubberWindowFrame</key>
+						<string>0 55 1091 1123 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugCLIModule</string>
@@ -663,7 +658,11 @@
 							</array>
 							<key>Frame</key>
 							<string>{{0, 294}, {546, 294}}</string>
+							<key>RubberWindowFrame</key>
+							<string>0 55 1091 1123 0 0 1920 1178 </string>
 						</dict>
+						<key>RubberWindowFrame</key>
+						<string>0 55 1091 1123 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugSessionModule</string>
@@ -686,14 +685,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>7FC546900F21186300E6343F</string>
+				<string>7FC92D480F22453E00093599</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>7FC546910F21186300E6343F</string>
-				<string>7FC546920F21186300E6343F</string>
-				<string>7FC546930F21186300E6343F</string>
-				<string>7FC546940F21186300E6343F</string>
-				<string>7FC546870F21185F00E6343F</string>
+				<string>7FC92D490F22453E00093599</string>
+				<string>7FC92D4A0F22453E00093599</string>
+				<string>7FC92D4B0F22453E00093599</string>
+				<string>7FC92D4C0F22453E00093599</string>
+				<string>7FC92D400F22452500093599</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>
@@ -702,7 +701,7 @@
 	<key>PerspectivesBarVisible</key>
 	<true/>
 	<key>PinnedNavigatorIdentifier</key>
-	<string>7FC5468C0F21186100E6343F</string>
+	<string>7FC92D430F22452800093599</string>
 	<key>ShelfIsVisible</key>
 	<false/>
 	<key>SourceDescription</key>
@@ -710,7 +709,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>253827177.331121</real>
+	<real>253908049.679131</real>
 	<key>ToolbarDisplayMode</key>
 	<integer>1</integer>
 	<key>ToolbarIsVisible</key>
@@ -725,8 +724,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>/Users/russellkyle/Pika/macosx/Pika.xcodeproj</string>
-		<string>7FC5468C0F21186100E6343F</string>
+		<string>/Users/russellkyle/Code/pika/trunk/macosx/Pika.xcodeproj</string>
+		<string>7FC92D430F22452800093599</string>
 	</array>
 	<key>WindowString</key>
 	<string>0 55 1091 1123 0 0 1920 1178 </string>
