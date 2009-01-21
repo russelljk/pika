@@ -4,7 +4,7 @@
  */
 #include "Pika.h"
 
-extern char* Pika_rindex(const char * str, int idx); // needed by: Pika_ConvertDotName
+extern const char* Pika_rindex(const char * str, int idx); // needed by: Pika_ConvertDotName
 
 String* Pika_ConvertDotName(Engine* eng, String* path)
 {

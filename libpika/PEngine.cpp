@@ -381,7 +381,7 @@ void Engine::AddEnvPath(const char* var)
     GCPAUSE_NORUN(this);
     
     char* path = 0;
-    char* next_pos = 0;
+    const char* next_pos = 0;
     int m, n;
     const char delim = ':';
     

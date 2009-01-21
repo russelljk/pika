@@ -331,7 +331,7 @@ static int Real_toBoolean(Context* ctx, Value& self)
 
 static int Real_isnan(Context* ctx, Value& self)
 {
-    ctx->PushBool(Pika_isnan(self.val.real));
+    ctx->PushBool(Pika_isnan(self.val.real) != 0);
     return 1;
 }
 

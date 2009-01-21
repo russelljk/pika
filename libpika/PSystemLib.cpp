@@ -3,6 +3,7 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
+#include "PNativeBind.h"
 #include "PPlatform.h"
 #include <cmath>
 #include <cfloat>
@@ -415,8 +416,8 @@ void InitSystemLIB(Engine* eng)
     Package* OS_Package    = eng->OpenPackage(OS_String, World_Package, false);
     
     // Sys ---------------------------------------------------------------------
-    
-    SlotBinder<Object>(eng, OS_Package, OS_Package)
+    /*
+	SlotBinder<Object>(eng, OS_Package, OS_Package)
     .Register    ( OS_sleep,                    "sleep")
     .StaticMethod( OS_Clock,                    "clock")
     .StaticMethod( OS_System,                   "system")
@@ -440,7 +441,7 @@ void InitSystemLIB(Engine* eng)
     .Register    ( OS_fileNameOf,               "fileNameOf")
     .Register    ( OS_addPath,                  "addPath")
     ;
-    
+    */
     InitRandomAPI(Math_Package, eng);
     
     SlotBinder<Object>(eng, Math_Package, Math_Package)
@@ -461,11 +462,9 @@ void InitSystemLIB(Engine* eng)
     .StaticMethod( Math_Power,      "power")
     .StaticMethod( Log10,           "log10")
     .StaticMethod( Log,             "log")
-    .StaticMethod( Log2,            "log2")
     .StaticMethod( Floor,           "floor")
     .StaticMethod( Ceil,            "ceiling")
     .StaticMethod( Exp,             "exp")
-    .StaticMethod( Exp2,            "exp2")
     .Register    ( Math_Abs,        "abs")
     .Constant    ( PIKA_PI,        "PI")
     .Constant    ( PIKA_E,         "E")

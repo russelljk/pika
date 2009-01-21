@@ -11,8 +11,8 @@ extern int      Pika_snprintf(char* buff, size_t count, const char* fmt, ...);
 extern size_t   Pika_strhash(const char* str);
 extern size_t   Pika_strhash(const char* str, size_t len);
 extern char*    Pika_strtok(char*, const char*, char**);
-extern char*    Pika_index(const char* str, int x);
-extern char*    Pika_rindex(const char* str, int x);
+extern const char* Pika_index(const char* str, int x);
+extern const char* Pika_rindex(const char* str, int x);
 
 // ===== Platform Specific ====
 
@@ -67,7 +67,7 @@ struct Pika_regmatch
 struct Pika_regex;
 
 /* Compile the regular expression. */
-extern Pika_regex* Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode);
+extern Pika_regex*  Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode);
 extern size_t       Pika_regerror(int errcode, const Pika_regex* preg, char* errbuf, size_t errbuf_size);
 extern int          Pika_regexec(const Pika_regex* preg, const char* subj, size_t const subjlen, Pika_regmatch* pmatch, size_t const nmatch, int eflags);
 extern void         Pika_regfree(Pika_regex* preg);

@@ -12,6 +12,8 @@
 #   include <windows.h>
 #endif
 
+#pragma comment(lib, "Winmm.lib") // timeGetTime
+
 #if defined(PIKA_BORLANDC)
 #   include <dir.h>
 #   define _finddata_t                      ffblk
@@ -20,7 +22,7 @@
 #   define _findclose(srchHandle)           0
 #endif
 
-void Soda_Sleep(u4 msecs)
+void Pika_Sleep(u4 msecs)
 {
     Sleep(msecs);
 }
@@ -29,35 +31,35 @@ struct TimePeriod
 {
     TimePeriod() 
     { 
-        end_period = (::timeBeginPeriod(1) != TIMERR_NOERROR); 
+        end_period = (timeBeginPeriod(1) != TIMERR_NOERROR); 
     }
     
     ~TimePeriod()
     {
         if (end_period)
-          ::timeEndPeriod(1); 
+          timeEndPeriod(1); 
     }
     bool end_period;
 };
 
 static TimePeriod sTimePeriod;
 
-unsigned long Soda_Milliseconds()
+unsigned long Pika_Milliseconds()
 {
-    return ::timeGetTime();
+    return timeGetTime();
 }
 
-bool Soda_CreateDirectory(const char* pathName)
+bool Pika_CreateDirectory(const char* pathName)
 {
     return CreateDirectory(pathName, 0) != 0;
 }
 
-bool Soda_RemoveDirectory(const char* pathName)
+bool Pika_RemoveDirectory(const char* pathName)
 {
     return RemoveDirectory(pathName) != 0;
 }
 
-bool Soda_DeleteFile(const char* filename, bool evenReadOnly)
+bool Pika_DeleteFile(const char* filename, bool evenReadOnly)
 {
     if (evenReadOnly)
         SetFileAttributes(filename, FILE_ATTRIBUTE_NORMAL);
@@ -65,7 +67,7 @@ bool Soda_DeleteFile(const char* filename, bool evenReadOnly)
     return DeleteFile(filename) != 0;
 }
 
-bool Soda_MoveFile(const char* src, const char* dest, bool canReplace)
+bool Pika_MoveFile(const char* src, const char* dest, bool canReplace)
 {
     u4 flags = MOVEFILE_COPY_ALLOWED;
 
@@ -75,36 +77,36 @@ bool Soda_MoveFile(const char* src, const char* dest, bool canReplace)
     return MoveFileEx(src, dest, MOVEFILE_COPY_ALLOWED) != 0;
 }
 
-bool Soda_CopyFile(const char* src, const char* dest, bool canReplace)
+bool Pika_CopyFile(const char* src, const char* dest, bool canReplace)
 {
     return CopyFile(src, dest, !canReplace) != 0;
 }
 
-bool Soda_SetCurrentDirectory(const char* dir)
+bool Pika_SetCurrentDirectory(const char* dir)
 {
     return SetCurrentDirectory(dir) != 0;
 }
 
-bool Soda_GetCurrentDirectory(char* buff, size_t len)
+bool Pika_GetCurrentDirectory(char* buff, size_t len)
 {
     return GetCurrentDirectory((DWORD)len, buff) != 0;
 }
 
-char* Soda_GetCurrentDirectory()
+char* Pika_GetCurrentDirectory()
 {
-    char* buff = (char*)Soda_malloc(sizeof(char) * (PIKA_MAX_PATH + 1));
+    char* buff = (char*)Pika_malloc(sizeof(char) * (PIKA_MAX_PATH + 1));
 
-    if (Soda_GetCurrentDirectory(buff, PIKA_MAX_PATH))
+    if (Pika_GetCurrentDirectory(buff, PIKA_MAX_PATH))
         return buff;
     return 0;
 }
 
-bool Soda_FileExists(const char* filename)
+bool Pika_FileExists(const char* filename)
 {
     return GetFileAttributes(filename) != INVALID_FILE_ATTRIBUTES;
 }
 
-bool Soda_IsFile(const char* filename)
+bool Pika_IsFile(const char* filename)
 {
     DWORD attr = GetFileAttributes(filename);
 
@@ -117,7 +119,7 @@ bool Soda_IsFile(const char* filename)
     return true;
 }
 
-bool Soda_IsDirectory(const char* filename)
+bool Pika_IsDirectory(const char* filename)
 {
     DWORD attr = GetFileAttributes(filename);
 
@@ -130,25 +132,25 @@ bool Soda_IsDirectory(const char* filename)
     return false;
 }
 
-bool Soda_GetFullPath(const char* pathname, char* dest, size_t destlen)
+bool Pika_GetFullPath(const char* pathname, char* dest, size_t destlen)
 {
     if (!pathname || !dest || !destlen)
         return false;
     return GetFullPathName(pathname, (DWORD)destlen, dest, 0) != 0;
 }
 
-char* Soda_GetFullPath(const char* pathname)
+char* Pika_GetFullPath(const char* pathname)
 {
     if (!pathname)
         return NULL;
 
-    char* res = (char*)Soda_malloc(PIKA_MAX_PATH * sizeof(char));
+    char* res = (char*)Pika_malloc(PIKA_MAX_PATH * sizeof(char));
     if (!res)
         return NULL;
 
     if (GetFullPathName(pathname, (DWORD)PIKA_MAX_PATH, res, 0) == 0)
     {
-        Soda_free(res);
+        Pika_free(res);
         return NULL;
     }
     return res;
@@ -167,22 +169,22 @@ char* Soda_GetFullPath(const char* pathname)
  *
  * This software is supplied "as is" without express or implied warranty.
  */
-struct Soda_DirectoryEntry
+struct Pika_DirectoryEntry
 {
     char* Name;
 };
 
-struct Soda_Directory
+struct Pika_Directory
 {
     long                handle; // -1 for failed rewind
     struct _finddata_t  info;
-    Soda_DirectoryEntry result; // Name null iff first time
+    Pika_DirectoryEntry result; // Name null iff first time
     char*               name;   // null-terminated char string
 };
 
-Soda_Directory* Soda_OpenDirectory(const char* name)
+Pika_Directory* Pika_OpenDirectory(const char* name)
 {
-    Soda_Directory* dir = 0;
+    Pika_Directory* dir = 0;
 
     if (name && name[0])
     {
@@ -191,8 +193,8 @@ Soda_Directory* Soda_OpenDirectory(const char* name)
         /* search pattern must end with suitable wildcard */
         const char* all = strchr("/\\", name[base_length - 1]) ? "*" : "/*";
 
-        if (((dir = (Soda_Directory*) Soda_malloc(sizeof * dir)) != 0) &&
-            ((dir->name = (char*) Soda_malloc(base_length + strlen(all) + 1)) != 0))
+        if (((dir = (Pika_Directory*) Pika_malloc(sizeof * dir)) != 0) &&
+            ((dir->name = (char*) Pika_malloc(base_length + strlen(all) + 1)) != 0))
         {
             strcat(strcpy(dir->name, name), all);
 
@@ -202,14 +204,14 @@ Soda_Directory* Soda_OpenDirectory(const char* name)
             }
             else /* rollback */
             {
-                Soda_free(dir->name);
-                Soda_free(dir);
+                Pika_free(dir->name);
+                Pika_free(dir);
                 dir = 0;
             }
         }
         else /* rollback */
         {
-            Soda_free(dir);
+            Pika_free(dir);
             dir   = 0;
             errno = ENOMEM;
         }
@@ -222,7 +224,7 @@ Soda_Directory* Soda_OpenDirectory(const char* name)
     return dir;
 }
 
-int Soda_CloseDirectory(Soda_Directory* dir)
+int Pika_CloseDirectory(Pika_Directory* dir)
 {
     int result = -1;
 
@@ -233,8 +235,8 @@ int Soda_CloseDirectory(Soda_Directory* dir)
             result = _findclose(dir->handle);
         }
 
-        Soda_free(dir->name);
-        Soda_free(dir);
+        Pika_free(dir->name);
+        Pika_free(dir);
     }
 
     if (result == -1) /* map all errors to EBADF */
@@ -245,9 +247,9 @@ int Soda_CloseDirectory(Soda_Directory* dir)
     return result;
 }
 
-const char* Soda_ReadDirectoryEntry(Soda_Directory* dir)
+const char* Pika_ReadDirectoryEntry(Pika_Directory* dir)
 {
-    Soda_DirectoryEntry* result = 0;
+    Pika_DirectoryEntry* result = 0;
 
     if (dir && dir->handle != -1)
     {
@@ -270,7 +272,7 @@ const char* Soda_ReadDirectoryEntry(Soda_Directory* dir)
     return result ? result->Name : NULL;
 }
 
-void Soda_RewindDirectory(Soda_Directory* dir)
+void Pika_RewindDirectory(Pika_Directory* dir)
 {
     if (dir && dir->handle != -1)
     {
@@ -286,18 +288,25 @@ void Soda_RewindDirectory(Soda_Directory* dir)
 
 // Shared Library Functions ========================================================================
 
-intptr_t Soda_OpenShared(const char* path)
+intptr_t Pika_OpenShared(const char* path)
 {
     return (intptr_t)LoadLibraryEx(path, 0, 0);
 }
 
-bool Soda_CloseShared(intptr_t handle)
+bool Pika_CloseShared(intptr_t handle)
 {
     return FreeLibrary((HMODULE)handle) ? true : false;
 }
 
-void* Soda_GetSymbolAddress(intptr_t handle, const char* symbol)
+void* Pika_GetSymbolAddress(intptr_t handle, const char* symbol)
 {
     return (void*)GetProcAddress((HMODULE)handle, symbol);
 }
 
+Pika_regex* Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode) {return 0;}
+
+size_t Pika_regerror(int errcode, const Pika_regex* preg, char* errbuf, size_t errbuf_size) {return 0;}
+
+int Pika_regexec(const Pika_regex* preg, const char* subj, size_t const subjlen, Pika_regmatch* pmatch, size_t const nmatch, int eflags) {return 0;}
+
+void Pika_regfree(Pika_regex* preg) {}

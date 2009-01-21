@@ -211,13 +211,11 @@ PIKA_FORCE_INLINE preal_t Ceil(preal_t x)   { return ceil(x); }
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return cos(x); }
 PIKA_FORCE_INLINE preal_t Cosh(preal_t x)   { return cosh(x); }
 PIKA_FORCE_INLINE preal_t Exp(preal_t x)    { return exp(x); }
-PIKA_FORCE_INLINE preal_t Exp2(preal_t x)   { return exp2(x); }
 PIKA_FORCE_INLINE preal_t Floor(preal_t x)  { return floor(x); }
 PIKA_FORCE_INLINE preal_t Mod(preal_t x,
                               preal_t y)    { return fmod(x, y); }
 PIKA_FORCE_INLINE preal_t Log(preal_t x)    { return log(x); }
 PIKA_FORCE_INLINE preal_t Log10(preal_t x)  { return log10(x); }
-PIKA_FORCE_INLINE preal_t Log2(preal_t x)   { return log2(x); }
 PIKA_FORCE_INLINE preal_t Pow(preal_t x,
                               preal_t y)    { return pow(x, y); }
 PIKA_FORCE_INLINE preal_t Sin(preal_t x)    { return sin(x); }
@@ -239,13 +237,11 @@ PIKA_FORCE_INLINE preal_t Ceil(preal_t x)   { return (preal_t)ceilf(x); }
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return (preal_t)cosf(x); }
 PIKA_FORCE_INLINE preal_t Cosh(preal_t x)   { return (preal_t)coshf(x); }
 PIKA_FORCE_INLINE preal_t Exp(preal_t x)    { return (preal_t)expf(x); }
-PIKA_FORCE_INLINE preal_t Exp2(preal_t x)   { return (preal_t)exp2f(x); }
 PIKA_FORCE_INLINE preal_t Floor(preal_t x)  { return (preal_t)floorf(x); }
 PIKA_FORCE_INLINE preal_t Mod(preal_t x, 
                               preal_t y)    { return (preal_t)fmodf(x, y);}
 PIKA_FORCE_INLINE preal_t Log(preal_t x)    { return (preal_t)logf(x); }
 PIKA_FORCE_INLINE preal_t Log10(preal_t x)  { return (preal_t)log10f(x); }
-PIKA_FORCE_INLINE preal_t Log2(preal_t x)   { return (preal_t)log2f(x); }
 PIKA_FORCE_INLINE preal_t Pow(preal_t x, 
                               preal_t y)    { return (preal_t)powf(x, y); }
 PIKA_FORCE_INLINE preal_t Sin(preal_t x)    { return (preal_t)sinf(x); }

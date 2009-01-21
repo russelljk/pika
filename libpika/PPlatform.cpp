@@ -62,24 +62,24 @@ char* Pika_strtok(char* str, const char* sep, char**)
 
 
 #if defined(HAVE_INDEX)
-extern char* Pika_index(const char* str, int idx)
+const char* Pika_index(const char* str, int idx)
 {
     return index(str, idx);
 }
 #else
-extern char* Pika_index(const char* str, int idx)
+const char* Pika_index(const char* str, int idx)
 {
     return strchr(str, idx);
 }
 #endif
 
 #if defined(HAVE_RINDEX)
-extern char* Pika_rindex(const char* str, int idx)
+const char* Pika_rindex(const char* str, int idx)
 {
     return rindex(str, idx);
 }
 #else
-extern char* Pika_rindex(const char* str, int idx)
+const char* Pika_rindex(const char* str, int idx)
 {
     return strrchr(str, idx);
 }

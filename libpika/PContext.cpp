@@ -366,7 +366,7 @@ void Context::GrowStack(size_t min_amt)
 {
     size_t current_amt   = esp - stack;
     size_t requested_amt = min_amt + current_amt;
-    size_t doubled_amt   = current_amt * PIKA_STACK_GROWTH_RATE;
+    size_t doubled_amt   = (size_t)(current_amt * PIKA_STACK_GROWTH_RATE);
     size_t new_amt       = Max(requested_amt, doubled_amt);
     new_amt = Clamp<size_t>(new_amt, current_amt, PIKA_MAX_OPERAND_STACK);
     

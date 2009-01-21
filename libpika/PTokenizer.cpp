@@ -261,7 +261,7 @@ struct NumberParser
                 s8 exponent = (s8)exp_part * sign;
                 exponent -= fract_part;
                 
-                val *= pow((float)radix, (double)exponent);
+                val *= pow((double)radix, (double)exponent);
             }
             
             tokenVal.real = (preal_t)val;

@@ -6,6 +6,7 @@
 #include "Pika.h"
 #include "PRegExpr.h"
 #include "PPlatform.h"
+#if 0
 #include <pcre.h>
 
 /*
@@ -364,3 +365,8 @@ void InitRegExprAPI(Engine* eng)
     //RegExpr_Type->EnterMethods(RegExprFunctions, countof(RegExprFunctions));
     Pkg_World->SetSlot(RegExpr_String, RegExpr_Type);
 }
+#else
+void InitRegExprAPI(Engine* eng)
+{
+}
+#endif

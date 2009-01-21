@@ -56,6 +56,7 @@ public:
         typedef ptrdiff_t                       difference_type;
         typedef size_t                          size_type;
         typedef T&                              reference;
+		typedef const T&						const_reference;
         typedef T*                              pointer;
         typedef T                               value_type;
         
@@ -98,7 +99,7 @@ public:
         INLINE Indexer& operator-=(size_type off) { index -= off; return *this; }
         
         INLINE reference       operator* ()        { CheckValid(); return (*owner)[index];   }
-        INLINE const reference operator* () const  { CheckValid(); return (*owner)[index];   }
+        INLINE const_reference operator* () const  { CheckValid(); return (*owner)[index];   }
         
         INLINE pointer       operator->()        { CheckValid(); return  owner->PointerAt(index);  }
         INLINE const pointer operator->() const  { CheckValid(); return  owner->PointerAt(index);  }
@@ -127,6 +128,7 @@ public:
         typedef ptrdiff_t                       difference_type;
         typedef size_t                          size_type;
         typedef T&                              reference;
+		typedef const T&						const_reference;
         typedef T*                              pointer;
         typedef T                               value_type;
         
@@ -166,7 +168,7 @@ public:
         INLINE reference operator* () { return *myPtr; }
         INLINE pointer   operator->() { return  myPtr; }
         
-        INLINE const reference operator* () const  { return *myPtr; }
+        INLINE const_reference operator* () const  { return *myPtr; }
         INLINE const pointer   operator->() const  { return  myPtr; }
                 
         INLINE reference operator[](size_type off) { return  *(myPtr + off); }

@@ -37,7 +37,7 @@ static bool Pika_fgetln(FILE* fp, TStringBuffer& buff)
 {
     size_t bufsiz = PIKA_BUFSIZ;
     size_t len    = 0;
-    char*  ptr    = 0;
+    const char*  ptr    = 0;
 
     buff.Resize(bufsiz);
     buff[0] = '\0';
