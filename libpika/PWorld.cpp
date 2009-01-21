@@ -219,7 +219,10 @@ static int Integer_toString(Context* ctx, Value& self)
 
     if (argc == 1)
     {
-        radix = ctx->GetIntArg(0);
+        if (ctx->IsArgNull(0))
+            radix = 10;
+        else
+            radix = ctx->GetIntArg(0);
     }
     else if (argc != 0)
     {
