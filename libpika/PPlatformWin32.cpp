@@ -22,6 +22,11 @@
 #   define _findclose(srchHandle)           0
 #endif
 
+errno_t unsetenv(const char* name)
+{
+	return setenv(name, "");
+}
+
 void Pika_Sleep(u4 msecs)
 {
     Sleep(msecs);

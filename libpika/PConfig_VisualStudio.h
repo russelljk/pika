@@ -39,6 +39,9 @@ typedef signed   __int64                s8;
 #define PIKA_STRUCT_ALIGN(n, name)      __declspec(align(n)) struct PIKA_API name
 #define PIKA_CLASS_ALIGN(n, name)       __declspec(align(n)) class  PIKA_API name
 
+#define setenv                          _putenv_s
+extern errno_t unsetenv(const char* name);
+
 #define Pika_strcasecmp                 _stricmp
 #define Pika_vsnprintf                  _vsnprintf
 
