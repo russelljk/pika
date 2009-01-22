@@ -11,13 +11,13 @@
 #include "PPackage.h"
 #include "PNativeMethod.h"
 
-struct NativeMethodBase;
-
 extern PIKA_API int HookedFunction_Hook(Context*, Value&);
 extern PIKA_API int HookedFunction_StaticHook(Context*, Value&);
 
 namespace pika
 {
+
+struct NativeMethodBase;
 
 // NativeDef ////////////////////////////////////////////////////////////////////////
 /** The struct NativeMethodBase wrapped so that the GC can manage its lifetime. */

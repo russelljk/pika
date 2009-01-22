@@ -241,7 +241,7 @@
 						<key>_historyCapacity</key>
 						<integer>0</integer>
 						<key>bookmark</key>
-						<string>7F6CE4160F2795730068E127</string>
+						<string>7F6CE41A0F2795B90068E127</string>
 						<key>history</key>
 						<array>
 							<string>7F6CE3FF0F2795730068E127</string>
@@ -732,7 +732,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>254252403.465832</real>
+	<real>254252473.806878</real>
 	<key>ToolbarDisplayMode</key>
 	<integer>1</integer>
 	<key>ToolbarIsVisible</key>
@@ -748,8 +748,8 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>7F6CE4180F2795730068E127</string>
-		<string>/Users/russellkyle/Code/pika/trunk/macosx/Pika.xcodeproj</string>
 		<string>7FC92D430F22452800093599</string>
+		<string>/Users/russellkyle/Code/pika/trunk/macosx/Pika.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>0 55 1091 1123 0 0 1920 1178 </string>

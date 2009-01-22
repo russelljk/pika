@@ -416,7 +416,7 @@ void InitSystemLIB(Engine* eng)
     Package* OS_Package    = eng->OpenPackage(OS_String, World_Package, false);
     
     // Sys ---------------------------------------------------------------------
-    /*
+    
 	SlotBinder<Object>(eng, OS_Package, OS_Package)
     .Register    ( OS_sleep,                    "sleep")
     .StaticMethod( OS_Clock,                    "clock")
@@ -441,7 +441,7 @@ void InitSystemLIB(Engine* eng)
     .Register    ( OS_fileNameOf,               "fileNameOf")
     .Register    ( OS_addPath,                  "addPath")
     ;
-    */
+    
     InitRandomAPI(Math_Package, eng);
     
     SlotBinder<Object>(eng, Math_Package, Math_Package)
