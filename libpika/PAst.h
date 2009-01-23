@@ -10,9 +10,9 @@
 #include "PSymbolTable.h"
 
 #ifndef PIKA_NEWNODE
-#define PIKA_NEWNODE(T, p, args)        \
+#define PIKA_NEWNODE(T, p, args)         \
 do {                                     \
-    void* __v = Pika_malloc(sizeof(T)); \
+    void* __v = Pika_malloc(sizeof(T));  \
     if (__v)                             \
     {                                    \
         p = new (__v) T args;            \

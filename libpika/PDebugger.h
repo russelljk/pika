@@ -32,8 +32,8 @@ public:
 
     String* GetInstruction();
 
-    void Start();
-    void Quit();
+    void   Start();
+    void   Quit();
     pint_t GetPC();
     
     void     SetIgnore(Package*);
@@ -61,9 +61,7 @@ public:
     Function*     callFunc;
     Function*     raiseFunc;
     Function*     returnFunc;
-    Package*      ignorePkg; // Ignore debug hooks if this is the current package
-                              // (Useful if you want to dedicate one package to debugging.)
-
+    Package*      ignorePkg; // Ignore debug hooks if this is the current package. Useful if you want to have one package debug the others.
 };
 
 }
