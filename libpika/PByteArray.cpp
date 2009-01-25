@@ -30,7 +30,7 @@ public:
     }
     
     virtual bool IsValid() { return !IsAtEnd(); }
-
+    
     virtual void GetCurrent(Value& v)
     {
         if (ValidObject())
@@ -210,7 +210,7 @@ String* ByteArray::ReadString(Context* ctx)
         
         if ((pos + (size_t)len) > (size_t)GetLength())
         {
-            RaiseException("cannot read beyond length of ByteArray' buffer.");
+            RaiseException("attempt to read beyond length of a byte-array's buffer.");
         }
         res = engine->AllocString((const char*)buffer.GetAt(pos), len);
         pos += len;
@@ -232,7 +232,7 @@ u1 ByteArray::ReadByte()
 {
     if (pos >= buffer.GetSize())
     {
-        RaiseException("Attempt to read beyond ByteArray' buffer");
+        RaiseException("Attempt to read beyond byte-array's buffer.");
     }
     u1 res = buffer[pos++];
     return res;
@@ -310,11 +310,11 @@ void ByteArray::SetLength(ssize_t s)
     }
     else if (s < 0)
     {
-        RaiseException("resize ByteArray with negative length");
+        RaiseException("attempt to resize byte-array with negative length.");
     }
     else if (s > PIKA_STRING_MAX_LEN)
     {
-        RaiseException("ByteArray length to large");
+        RaiseException("byte-array's length is too large.");
     }
     else if (s == 0)
     {

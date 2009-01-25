@@ -119,8 +119,6 @@
 		7F9939590F1EE3FF0029C501 /* PProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938EC0F1EE3FF0029C501 /* PProperty.h */; };
 		7F99395A0F1EE3FF0029C501 /* PRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938ED0F1EE3FF0029C501 /* PRandom.cpp */; };
 		7F99395B0F1EE3FF0029C501 /* PRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938EE0F1EE3FF0029C501 /* PRandom.h */; };
-		7F99395C0F1EE3FF0029C501 /* PRegExpr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938EF0F1EE3FF0029C501 /* PRegExpr.cpp */; };
-		7F99395D0F1EE3FF0029C501 /* PRegExpr.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F00F1EE3FF0029C501 /* PRegExpr.h */; };
 		7F99395E0F1EE3FF0029C501 /* PScript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F10F1EE3FF0029C501 /* PScript.cpp */; };
 		7F99395F0F1EE3FF0029C501 /* PScript.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9938F20F1EE3FF0029C501 /* PScript.h */; };
 		7F9939600F1EE3FF0029C501 /* PString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9938F30F1EE3FF0029C501 /* PString.cpp */; };
@@ -277,8 +275,6 @@
 		7F9938EC0F1EE3FF0029C501 /* PProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PProperty.h; path = ../libpika/PProperty.h; sourceTree = SOURCE_ROOT; };
 		7F9938ED0F1EE3FF0029C501 /* PRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PRandom.cpp; path = ../libpika/PRandom.cpp; sourceTree = SOURCE_ROOT; };
 		7F9938EE0F1EE3FF0029C501 /* PRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRandom.h; path = ../libpika/PRandom.h; sourceTree = SOURCE_ROOT; };
-		7F9938EF0F1EE3FF0029C501 /* PRegExpr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PRegExpr.cpp; path = ../libpika/PRegExpr.cpp; sourceTree = SOURCE_ROOT; };
-		7F9938F00F1EE3FF0029C501 /* PRegExpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRegExpr.h; path = ../libpika/PRegExpr.h; sourceTree = SOURCE_ROOT; };
 		7F9938F10F1EE3FF0029C501 /* PScript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PScript.cpp; path = ../libpika/PScript.cpp; sourceTree = SOURCE_ROOT; };
 		7F9938F20F1EE3FF0029C501 /* PScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PScript.h; path = ../libpika/PScript.h; sourceTree = SOURCE_ROOT; };
 		7F9938F30F1EE3FF0029C501 /* PString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PString.cpp; path = ../libpika/PString.cpp; sourceTree = SOURCE_ROOT; };
@@ -306,6 +302,8 @@
 		7F9939090F1EE3FF0029C501 /* PWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PWorld.cpp; path = ../libpika/PWorld.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939760F1EE4910029C501 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../pikac/Main.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939840F1EE5E90029C501 /* foo.pika */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pika; name = foo.pika; path = ../scripts/foo.pika; sourceTree = SOURCE_ROOT; };
+		7F9BB0480F2CC5CD0092672E /* PRegExpr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PRegExpr.cpp; path = ../re/PRegExpr.cpp; sourceTree = SOURCE_ROOT; };
+		7F9BB0490F2CC5CD0092672E /* PRegExpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRegExpr.h; path = ../re/PRegExpr.h; sourceTree = SOURCE_ROOT; };
 		7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCurses.cpp; path = ../curses/PCurses.cpp; sourceTree = SOURCE_ROOT; };
 		7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCurses.h; path = ../curses/PCurses.h; sourceTree = SOURCE_ROOT; };
 		7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_Borland.h; path = ../libpika/PConfig_Borland.h; sourceTree = SOURCE_ROOT; };
@@ -345,6 +343,7 @@
 			children = (
 				4651E6E70DFB071D00B70498 /* TODO */,
 				4620C4E30DE7514200DE098B /* config.h */,
+				7F9BB0380F2CC4760092672E /* regexpr */,
 				466235820DEC83D800543092 /* curses */,
 				4620C3CA0DE74B9900DE098B /* scripts */,
 				4620C3C90DE74B8B00DE098B /* libpika */,
@@ -444,7 +443,6 @@
 				7F9938E80F1EE3FF0029C501 /* PPlatformPosix.cpp */,
 				7F9938EB0F1EE3FF0029C501 /* PProperty.cpp */,
 				7F9938ED0F1EE3FF0029C501 /* PRandom.cpp */,
-				7F9938EF0F1EE3FF0029C501 /* PRegExpr.cpp */,
 				7F9938F10F1EE3FF0029C501 /* PScript.cpp */,
 				7F9938F30F1EE3FF0029C501 /* PString.cpp */,
 				7F9938F50F1EE3FF0029C501 /* PStringTable.cpp */,
@@ -508,7 +506,6 @@
 				7F9938EA0F1EE3FF0029C501 /* PProfiler.h */,
 				7F9938EC0F1EE3FF0029C501 /* PProperty.h */,
 				7F9938EE0F1EE3FF0029C501 /* PRandom.h */,
-				7F9938F00F1EE3FF0029C501 /* PRegExpr.h */,
 				7F9938F20F1EE3FF0029C501 /* PScript.h */,
 				7F9938F40F1EE3FF0029C501 /* PString.h */,
 				7F9938F60F1EE3FF0029C501 /* PStringTable.h */,
@@ -537,6 +534,15 @@
 				7F9938FC0F1EE3FF0029C501 /* PToken.def */,
 			);
 			name = inline;
+			sourceTree = "<group>";
+		};
+		7F9BB0380F2CC4760092672E /* regexpr */ = {
+			isa = PBXGroup;
+			children = (
+				7F9BB0480F2CC5CD0092672E /* PRegExpr.cpp */,
+				7F9BB0490F2CC5CD0092672E /* PRegExpr.h */,
+			);
+			name = regexpr;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -593,7 +599,6 @@
 				7F9939570F1EE3FF0029C501 /* PProfiler.h in Headers */,
 				7F9939590F1EE3FF0029C501 /* PProperty.h in Headers */,
 				7F99395B0F1EE3FF0029C501 /* PRandom.h in Headers */,
-				7F99395D0F1EE3FF0029C501 /* PRegExpr.h in Headers */,
 				7F99395F0F1EE3FF0029C501 /* PScript.h in Headers */,
 				7F9939610F1EE3FF0029C501 /* PString.h in Headers */,
 				7F9939630F1EE3FF0029C501 /* PStringTable.h in Headers */,
@@ -741,7 +746,6 @@
 				7F9939550F1EE3FF0029C501 /* PPlatformPosix.cpp in Sources */,
 				7F9939580F1EE3FF0029C501 /* PProperty.cpp in Sources */,
 				7F99395A0F1EE3FF0029C501 /* PRandom.cpp in Sources */,
-				7F99395C0F1EE3FF0029C501 /* PRegExpr.cpp in Sources */,
 				7F99395E0F1EE3FF0029C501 /* PScript.cpp in Sources */,
 				7F9939600F1EE3FF0029C501 /* PString.cpp in Sources */,
 				7F9939620F1EE3FF0029C501 /* PStringTable.cpp in Sources */,

@@ -6,7 +6,7 @@
 #include "Pika.h"
 #include "PRegExpr.h"
 #include "PPlatform.h"
-#if 0
+
 #include <pcre.h>
 
 /*
@@ -346,8 +346,9 @@ void RegExpr_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(re);
 }
 
-void InitRegExprAPI(Engine* eng)
+PIKA_MODULE(re, eng, re)
 {
+    GCPAUSE(eng);
     //////////////////
     Package* Pkg_World = eng->GetWorld();
     String* RegExpr_String = eng->AllocString("RegExpr");
@@ -365,8 +366,4 @@ void InitRegExprAPI(Engine* eng)
     //RegExpr_Type->EnterMethods(RegExprFunctions, countof(RegExprFunctions));
     Pkg_World->SetSlot(RegExpr_String, RegExpr_Type);
 }
-#else
-void InitRegExprAPI(Engine* eng)
-{
-}
-#endif
+

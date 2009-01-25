@@ -248,6 +248,7 @@ public:
     
     void Setup(Context*);
     void Call(Context* ctx, u2 exretc);
+    
     static void Suspend(Context*);
     
     /**
@@ -302,8 +303,8 @@ public:
     }
     
     INLINE void Push(const Value& v) { *sp++ = v; }
-    INLINE void Push(pint_t i)         { (sp++)->Set(i); }       //!< Push the integer onto the stack.
-    INLINE void Push(preal_t r)        { (sp++)->Set(r); }       //!< Push the real onto the stack.
+    INLINE void Push(pint_t i)       { (sp++)->Set(i); }       //!< Push the integer onto the stack.
+    INLINE void Push(preal_t r)      { (sp++)->Set(r); }       //!< Push the real onto the stack.
     INLINE void Push(Enumerator* e)  { (sp++)->Set(e); }       //!< Push the Enumerator onto the stack.
     INLINE void Push(UserData* obj)  { (sp++)->Set(obj); }     //!< Push the UserData object onto the stack.
     INLINE void Push(String* str)    { (sp++)->Set(str); }     //!< Push the String onto the stack.
@@ -445,11 +446,10 @@ public:
     
     // Convert the argument to a particular type //////////////////////////////////////////////////
     
-    pint_t    ArgToInt(u2 arg);    //!< Convert an argument to an integer and return the result.
-    preal_t   ArgToReal(u2 arg);   //!< Convert an argument to a real and return the result.
+    pint_t  ArgToInt(u2 arg);    //!< Convert an argument to an integer and return the result.
+    preal_t ArgToReal(u2 arg);   //!< Convert an argument to a real and return the result.
     bool    ArgToBool(u2 arg);   //!< Convert an argument to a boolean and return the result.
-    String* ArgToString(u2 arg); //!< Convert an argument to a string and return the result.
-    
+    String* ArgToString(u2 arg); //!< Convert an argument to a string and return the result.    
     /*
     
     B : convert to boolean
@@ -475,8 +475,7 @@ public:
     
     For ParseArgsInPlace a negative char value (i.e. -'o') will allow null values.
     
-    */
-    
+    */    
     void ParseArgs(const char* args, u2 count, ...);
     void ParseArgsInPlace(const char* args, u2 count);
 };

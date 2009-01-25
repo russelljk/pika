@@ -383,7 +383,6 @@ void ObjectType_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
-extern void InitRegExprAPI(Engine*);
 extern void InitTypeAPI(Engine*);
 
 void InitObjectAPI(Engine* eng)
@@ -452,8 +451,4 @@ void InitObjectAPI(Engine* eng)
     eng->Property_Type->SetFinal(true);
     eng->Property_Type->SetAbstract(true);
     Pkg_World->SetSlot("Property", eng->Property_Type);
-    
-    // RegExpr ////////////////////////////////////////////////////////////////
-    
-    InitRegExprAPI(eng);
 }

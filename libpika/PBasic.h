@@ -25,7 +25,7 @@ class Type;
 struct NamedConstant 
 {
     const char* name;
-    pint_t       value;
+    pint_t      value;
 };
 
 #define PIKA_CONST(N, C) {  N, (pint_t)C },

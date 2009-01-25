@@ -14,14 +14,14 @@ namespace pika
  * to be created.
  *
  * Like the string objects, bytes objects can include arbitrary binary data including nulls.
- * The member variable byteorder specifies the order that bytes are read and writen. The
- * byteorder defaults to whatever the system byteorder is.
+ * The member variable 'byteorder' specifies the order that data is read and writen.
+ * 'byteorder' defaults to whatever the system byteorder is.
  *
  */
 class ByteArray : public Object
 {
     PIKA_DECL(ByteArray, Object)
-
+    
     enum EByteOrder
     {
         BO_little,
@@ -29,34 +29,34 @@ class ByteArray : public Object
     };
 protected:
     ByteArray(Engine*, Type*, u1*, size_t);
-
+    
     friend class ByteArrayEnumerator;
 public:
     virtual ~ByteArray();
-
+    
     virtual Object*     Clone();
     virtual Enumerator* GetEnumerator(String*);
     virtual String*     ToString();
     
-    virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0);
-    virtual bool GetSlot(const Value& key, Value& res);
-
-    virtual void  Rewind();
-    virtual void  SetPosition(pint_t);
-    virtual pint_t  GetPosition();
-    virtual pint_t  GetLength();
-    virtual void  SetLength(ssize_t);
+    virtual bool   SetSlot(const Value& key, Value& value, u4 attr = 0);
+    virtual bool   GetSlot(const Value& key, Value& res);
     
-    virtual void  WriteString(String* s, bool resize);    
-    virtual void  WriteReal(preal_t);
-    virtual void  WriteBoolean(bool);
-    virtual void  Write(Value);
-    virtual void  WriteInteger(pint_t);
+    virtual void   Rewind();
+    virtual void   SetPosition(pint_t);
+    virtual pint_t GetPosition();
+    virtual pint_t GetLength();
+    virtual void   SetLength(ssize_t);
+    
+    virtual void    WriteString(String* s, bool resize);    
+    virtual void    WriteReal(preal_t);
+    virtual void    WriteBoolean(bool);
+    virtual void    Write(Value);
+    virtual void    WriteInteger(pint_t);
     
     virtual String* ReadString(Context*);    
-    virtual preal_t   ReadReal();    
+    virtual preal_t ReadReal();    
     virtual bool    ReadBoolean();
-    virtual pint_t    ReadInteger();
+    virtual pint_t  ReadInteger();
     
     virtual void    Init(Context*);
     virtual Object* Slice(pint_t, pint_t);
@@ -65,17 +65,17 @@ public:
     {
         if ((endian != (pint_t)BO_little) && (endian != (pint_t)BO_big))
         {
-            RaiseException("invalid endian specified");
+            RaiseException("invalid byte order specified");
         }
         byteOrder = (EByteOrder)endian;
     }
-
+    
     INLINE pint_t  GetEndian()      const { return byteOrder; }
     INLINE bool   IsLittleEndian() const { return byteOrder == BO_little; }
     INLINE bool   IsBigEndian()    const { return byteOrder == BO_big;    }
-
+    
     static ByteArray* Create(Engine*, Type*, u1*, size_t);
-
+    
     virtual u1  ReadByte();
     virtual u2  ReadWord();
     virtual u4  ReadDword();
@@ -89,7 +89,7 @@ public:
 protected:
     virtual void  InitializeWith(u1*, size_t);
     virtual void  SmartResize(size_t sizeneeded);
-
+    
     EByteOrder  byteOrder;
     size_t      pos;
     Buffer<u1>  buffer;
