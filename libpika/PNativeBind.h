@@ -34,8 +34,8 @@ struct PIKA_API NativeDef : GCObject
 
 // HookedFunction //////////////////////////////////////////////////////////////////////////////////
 /** A Function object that directly binds a native C/C++ function, instance method, 
- *  class method to its script equivalent. 
- */
+  * class method to its script equivalent. 
+  */
 struct PIKA_API HookedFunction : Function
 {
     PIKA_DECL(HookedFunction, Function)
@@ -133,11 +133,11 @@ public:
     }
     
     /** Call this function using the given C++ object 'obj'. 
-     *  Type checking must be done before the function is called and under most circumstances 
-     *  you should not directly call this function. 
-     *
-     *  @see HookedFunction_StaticHook, HookedFunction_Hook
-     */
+      * Type checking must be done before the function is called and under most circumstances 
+      * you should not directly call this function. 
+      *
+      * @see HookedFunction_StaticHook, HookedFunction_Hook
+      */
     virtual void Invoke(void* obj, Context* ctx);
     
     /** Number of values this function will return. (Should be 1 or 0 since it binds to a native C/C++ method.) */
@@ -300,6 +300,24 @@ struct SlotBinder
             code, argc, varargs, strict, 0);
 
         Function* closure = Function::Create(engine, fn, package);
+        object->AddFunction(closure);
+        return *this;
+    }
+        
+    SlotBinder& RegisterMethod(Nativecode_t code,
+                         const char*  cname,
+                         u2           argc    = 0,
+                         bool         varargs = true,
+                         bool         strict  = false)
+    {
+        if (!object->IsDerivedFrom(Type::StaticGetClass()))
+            return Register(code, cname, argc, varargs, strict);
+        
+        String* name = engine->AllocString(cname);        
+        Def* fn = Def::CreateWith(engine, name,
+            code, argc, varargs, strict, 0);
+
+        Function* closure = InstanceMethod::Create(engine, 0, fn, package, (Type*)object);
         object->AddFunction(closure);
         return *this;
     }

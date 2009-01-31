@@ -22,7 +22,14 @@ Package::Package(Engine* eng, Type* pkgType, String* n, Package* superPkg)
         dotName(0),
         superPackage(superPkg)
 {
-    GCPAUSE_NORUN(eng); // superdot & dotName & "__package__"
+    MakeDotName();
+    SetSlot("__package__", this);
+}
+
+void Package::MakeDotName()
+{
+    Engine* eng = GetEngine();
+    GCPAUSE_NORUN(eng);
     if (superPackage)
     {
         String* supername = superPackage->dotName;
@@ -34,7 +41,6 @@ Package::Package(Engine* eng, Type* pkgType, String* n, Package* superPkg)
     {
         dotName = name;
     }    
-    SetSlot("__package__", this);
 }
 
 Package::~Package() {}

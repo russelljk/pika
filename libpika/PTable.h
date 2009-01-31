@@ -35,10 +35,10 @@ struct Slot
             attr(a)
     {}
 
-    Value key;  //<! Lookup key or name of the slot.
-    Value val;  //<! Value of the slot.
-    Slot* next; //<! Next chained slot.
-    u4    attr; //<! Bitwise or'ed attributes of the slot.
+    Value key;  //!< Lookup key or name of the slot.
+    Value val;  //!< Value of the slot.
+    Slot* next; //!< Next chained slot.
+    u4    attr; //!< Bitwise or'ed attributes of the slot.
 };
 
 /////////////////////////////////////////////// Table //////////////////////////////////////////////

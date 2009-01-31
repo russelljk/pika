@@ -621,10 +621,10 @@ INLINE void Context::BitOpBinary(const Opcode op, const OpOverride ovr, const Op
         switch (op)
         {
         case OP_bitand: band_num(a.val.integer, b.val.integer); break;
-        case OP_bitor:  bor_num(a.val.integer, b.val.integer); break;
+        case OP_bitor:  bor_num (a.val.integer, b.val.integer); break;
         case OP_bitxor: bxor_num(a.val.integer, b.val.integer); break;
-        case OP_lsh:    lsh_num(a.val.integer, b.val.integer); break;
-        case OP_rsh:    rsh_num(a.val.integer, b.val.integer); break;
+        case OP_lsh:    lsh_num (a.val.integer, b.val.integer); break;
+        case OP_rsh:    rsh_num (a.val.integer, b.val.integer); break;
         case OP_ursh:   ursh_num(a.val.integer, b.val.integer); break;
         }
         Pop();

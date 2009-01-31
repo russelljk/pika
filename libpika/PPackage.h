@@ -21,14 +21,11 @@ namespace pika
 class PIKA_API Package : public Object 
 {
     PIKA_DECL(Package, Object)
-protected:
-    String*  name;
-    String*  dotName;
-    Package* superPackage;
-    
+protected:    
     Package(Engine*, Type* type, String* name, Package* super);
-    
     Package(const Package* rhs) : ThisSuper(rhs), name(rhs->name), dotName(rhs->dotName), superPackage(rhs->superPackage) {}
+
+    void MakeDotName();
 public:
     virtual ~Package();
     
@@ -50,6 +47,10 @@ public:
     virtual bool    GetSlot(const Value& key, Value& res);
         
     void AddNative(RegisterFunction* fns, size_t count);
+protected:
+    String*  name;
+    String*  dotName;
+    Package* superPackage;
 };// Package
 
 }// pika

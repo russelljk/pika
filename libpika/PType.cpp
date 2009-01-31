@@ -390,6 +390,19 @@ static int Type_alloc(Context* ctx, Value& self)
     return 1;
 }
 
+static int Type_create(Context* ctx, Value& self)
+{
+    Engine*  eng  = ctx->GetEngine();
+    String*  name = ctx->GetStringArg(0);
+    Type*    base = ctx->GetArgT<Type>(1);
+    Package* loc  = ctx->GetArgT<Package>(2);    
+    Type*    meta = ctx->GetArgT<Type>(3);
+    Type*    res  = Type::Create(eng, name, base, base->GetNewFn(), loc, meta);
+    
+    ctx->Push(res);
+    return 1;
+}
+
 void InitTypeAPI(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -403,10 +416,15 @@ void InitTypeAPI(Engine* eng)
     
     static RegisterFunction TypeFunctions[] =
     {
-        { "newInstance", Type_alloc, 0, 1, 0 },
+        { "newInstance", Type_alloc,  0, 1, 0 },
+    };
+    
+    static RegisterFunction TypeClassMethods[] =
+    {
+         { "create", Type_create, 4, 0, 1 },
     };
     
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));
-    
+    eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));    
     Pkg_World->SetSlot("Type", eng->Type_Type);
 }

@@ -569,6 +569,7 @@ void ByteArray::Init(Context* ctx)
 
 Object* ByteArray::Slice(pint_t from, pint_t to)
 {
+    // TODO: handle negative range by reversing elements.
     ByteArray* byte_array = 0;
     
     if (from > to || from < 0 || to < 0 || to > (pint_t)buffer.GetSize())
@@ -586,6 +587,39 @@ Object* ByteArray::Slice(pint_t from, pint_t to)
         byte_array = ByteArray::Create(engine, GetType(), buffer.GetAt(from), amt);
     }
     return byte_array;
+}
+
+int ByteArray_nextBytes(Context* ctx, Value& self)
+{
+    ByteArray* ba = static_cast<ByteArray*>(self.val.object);
+    pint_t nbytes = ctx->GetIntArg(0);
+    if (nbytes > PIKA_MAX_RETC)
+    {
+        RaiseException("attempt to return too many values; limit of %u values exceeded", PIKA_MAX_RETC);
+    }
+    else if (nbytes < 0)
+    {
+        RaiseException("cannot return negative number ("PINT_FMT") of values.", nbytes);
+    }
+    else if (nbytes == 0)
+    {
+        return 0;
+    }
+    else if ((ba->GetPosition() + nbytes) >= ba->GetLength())
+    {
+        RaiseException("attempt to read ("PINT_FMT") bytes beyond the end of the byte-array.", ((ba->GetPosition() + nbytes) - ba->GetLength()) + 1);
+    }
+    else
+    {
+        u4 num = static_cast<u4>(nbytes);
+        for (u4 a = 0; a < num; ++a)
+        {
+            u1 byte = ba->ReadByte();
+            ctx->Push(byte);
+        }
+        return nbytes;
+    }
+    return 0;
 }
 
 }// pika
@@ -608,6 +642,7 @@ void InitBytesAPI(Engine* eng)
     .Method(&ByteArray::ReadBoolean,     "readBoolean")
     .Method(&ByteArray::ReadInteger,     "readInteger")
     .Method(&ByteArray::ReadReal,        "readReal")
+    .RegisterMethod(ByteArray_nextBytes,       "nextBytes")
     .MethodVA(&ByteArray::ReadString,    "readString")
     .Method(&ByteArray::Slice,           OPSLICE_STR)
     .Constant((pint_t)ByteArray::BO_big,          "BIG")

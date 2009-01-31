@@ -16,13 +16,13 @@ class Package;
 struct IHook;
 
 enum HookEvent {
-    HE_call,        //<! Bytecode function is called
-    HE_return,      //<! Return from a bytecode function call.
-    HE_yield,       //<! Context yields.
-    HE_nativeCall,  //<! C/C++ native function is called
-    HE_instruction, //<! A bytecode instruction is about to be executed.
-    HE_except,      //<! Exception has been raised.
-    HE_import,      //<! Call to import has been made.
+    HE_call,        //!< Bytecode function is called
+    HE_return,      //!< Return from a bytecode function call.
+    HE_yield,       //!< Context yields.
+    HE_nativeCall,  //!< C/C++ native function is called
+    HE_instruction, //!< A bytecode instruction is about to be executed.
+    HE_except,      //!< Exception has been raised.
+    HE_import,      //!< Call to import has been made.
     HE_max,
 };
 
@@ -71,18 +71,18 @@ struct PIKA_API IHook {
  *  be obtained from InstructionData's context field.
  */
 struct InstructionData {
-    code_t*   pc;       //<! [in] Program counter.
-    Function* function; //<! [in] Def being executed.
+    code_t*   pc;       //!< [in] Program counter.
+    Function* function; //!< [in] Def being executed.
     Context*  context;  //!< [in] Context originated from.
 };
 
 /** Data for the HE_import event. */
 
 struct ImportData {
-    String*  name;    //<! [in]  Name of the module we want to import.
-    Engine*  engine;  //<! [in]  Engine the import originated from.
-    Context* context; //<! [in]  Context the import originated from.
-    Package* result;  //<! [out] The result of the import.
+    String*  name;    //!< [in]  Name of the module we want to import.
+    Engine*  engine;  //!< [in]  Engine the import originated from.
+    Context* context; //!< [in]  Context the import originated from.
+    Package* result;  //!< [out] The result of the import.
 };
 
 }

@@ -2230,7 +2230,7 @@ Expr* Parser::DoPostfixExpression()
                 
                 Match(']');
                 
-                PIKA_NEWNODE(DotExpr, expr, (lhs, rhs));
+                PIKA_NEWNODE(IndexExpr, expr, (lhs, rhs));
                 expr->line = line;
             }
             else

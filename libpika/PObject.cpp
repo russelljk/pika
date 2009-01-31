@@ -377,9 +377,9 @@ void Object_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
-void ObjectType_NewFn(Engine* eng, Type* obj_type, Value& res)
+void TypeObj_NewFn(Engine* eng, Type* obj_type, Value& res)
 {
-    Object* obj = Type::Create(eng, eng->AllocString("Object"), 0, Object_NewFn, obj_type->GetLocation(), obj_type);
+    Object* obj = Type::Create(eng, eng->AllocString(""), 0, TypeObj_NewFn, obj_type->GetLocation(), obj_type);
     res.Set(obj);
 }
 

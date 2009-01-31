@@ -1325,18 +1325,39 @@ struct RealExpr : ConstantExpr
 
 ////////////////////////////////////////////// DotExpr /////////////////////////////////////////////
 
+/** A binary expression that seperates two expression by the '.' character. The rhe specifies 
+  * the value to get/set from the lhe.
+  *     ie  foo.bar
+  *         foo.bar.bazz
+  */
 struct DotExpr : BinaryExpr
 {
     DotExpr(Expr*, Expr*);
     
-    virtual void CalculateResources(SymbolTable* st, CompileState& cs);
-    virtual Instr* GenerateCode();
-    virtual Instr* GenerateCodeSet();
-    virtual Opcode GetOpcode() const { return OP_dotget; }
+    virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
+    virtual Instr*  GenerateCode();
+    virtual Instr*  GenerateCodeSet();
+    virtual Opcode  GetOpcode() const { return OP_dotget; }
 };
 
-//////////////////////////////////////////// DotBindExpr ///////////////////////////////////////////
+/** A binary expression where the right hand expression (rhe) is enclosed in square brackets and placed in a post-fix position
+  * relative to the left hand expression (lhe). The rhe specifies the value to get/set from the lhe.
+  *     ie  foo['bar']
+  *         foo.bar['bazz']
+  */
+struct IndexExpr : DotExpr
+{
+    IndexExpr(Expr* l, Expr* r) : DotExpr(l, r)
+    {
+    }
+    
+    //virtual Opcode GetOpcode() const { return OP_indexget; }
+};
 
+/** A dot expression in which the value being retrieved and the object it belongs to are bound together as one value.
+  *     ie  bind foo.bar
+  *         bind foo.bar.bazz
+  */
 struct DotBindExpr : DotExpr
 {
     DotBindExpr(Expr *l, Expr *r) : DotExpr(l, r) { kind = Expr::EXPR_dotbind; }
@@ -1345,8 +1366,7 @@ struct DotBindExpr : DotExpr
     virtual Instr* GenerateCodeSet();
 };
 
-///////////////////////////////////////////// FieldList ////////////////////////////////////////////
-
+/** A list of (key, value) pairs used as the elements of an object literal. */
 struct FieldList : TreeNode
 {
     FieldList(Expr* name, Expr* value) : dtarget(0), name(name), value(value), next(0) {}
@@ -1385,21 +1405,23 @@ struct FieldList : TreeNode
     FieldList* next;
 };
 
-/////////////////////////////////////////// DictionaryExpr /////////////////////////////////////////
-
+/** An object or dictionary literal. */
 struct DictionaryExpr : Expr
 {
     DictionaryExpr(FieldList* fields) : Expr(Expr::EXPR_dictionary), type_expr(0), fields(fields) {}
     
-    virtual void CalculateResources(SymbolTable* st, CompileState& cs);
-    virtual Instr* GenerateCode();
+    virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
+    virtual Instr*  GenerateCode();
     
-    Expr* type_expr;
-    FieldList* fields;
+    Expr*       type_expr;  //!< The specified type of this object.
+    FieldList*  fields;     //!< List of members for this object.
 };
 
-// ArrayExpr ///////////////////////////////////////////////////////////////////////////////////////
-
+/** An array literal consisting of comma seperated elements enclosed by square brackets. 
+  * ie  []
+  *     [1, 2, 3]       
+  *     [a, b, c, 1, 2, 3]
+  */
 struct ArrayExpr : Expr
 {
     ArrayExpr(ExprList* elements) : Expr(Expr::EXPR_array), numElements(0), elements(elements) {}
@@ -1407,8 +1429,8 @@ struct ArrayExpr : Expr
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
     
-    size_t numElements;
-    ExprList* elements;
+    size_t      numElements;    //!< Length of the array.
+    ExprList*   elements;       //!< elements of the array.
 };
 
 // ExprList ///////////////////////////////////////////////////////////////////////////////////////

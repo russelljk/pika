@@ -12,11 +12,6 @@
 
 namespace pika 
 {
-/*
-    TODO: Seperate Function from NativeFunction.
-    TODO: Add NativeClassMethod
-    TODO: Add NativeInstanceMethod
-*/
 class Def;
 class Function;
 class Package;
@@ -50,10 +45,10 @@ public:
 
     static LexicalEnv* Create(Engine*, LexicalEnv*, bool);
 
-    Value* values;    // Local variables. Points to the Context's stack if allocated = false.
-    size_t length;    // Number of lexEnv
-    bool   allocated; // If true values point to a heap allocated buffer otherwise they point to the Context's stack.
-    bool   mustClose; // Do local variables need to survive beyond the function call?
+    Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
+    size_t length;    //!< Number of lexEnv
+    bool   allocated; //!< If true values point to a heap allocated buffer otherwise they point to the Context's stack.
+    bool   mustClose; //!< Do local variables need to survive beyond the function call?
 };
 
 class PIKA_API Function : public Object 
@@ -62,7 +57,7 @@ class PIKA_API Function : public Object
 protected:
     Function(Engine*, Type*, Def*, Package*, Function*);
 public:
-    virtual ~Function();
+    virtual            ~Function();
 
     /** Create a new Function object.
      *  @param eng      [in] The Engine to create the object in
@@ -71,10 +66,10 @@ public:
      *  @param parent   [in] Optional parent of the function (for bytecode functions, may be 0.)
      *  @see Def::CreateWith, Def::Create
      */
-    static Function* Create(Engine* eng, Def* def, Package* loc, Function* parent = 0);
+    static Function*    Create(Engine* eng, Def* def, Package* loc, Function* parent = 0);
 
-    virtual void    Init(Context*);
-    virtual void    InitWithBody(String* body);
+    virtual void        Init(Context*);
+    virtual void        InitWithBody(String* body);
     
     virtual void        MarkRefs(Collector*);
     virtual Object*     Clone();
@@ -106,10 +101,10 @@ public:
     
     u4           numDefaults; //!< Default values count.
     Value*       defaults;    //!< Default values for parameters.
-    LexicalEnv*  lexEnv;
-    Def*         def;
-    Function*    parent;
-    Package*     location;
+    LexicalEnv*  lexEnv;      //!< Lexical environment for this function.
+    Def*         def;         //!< Function definition, may be shared with other functions.
+    Function*    parent;      //!< The parent function we are defined inside (for nested functions only).
+    Package*     location;    //!< Package we are declared inside of.
 };
 
 INLINE void Function::SetLocals(Context*, Value* v)
@@ -120,12 +115,7 @@ INLINE void Function::SetLocals(Context*, Value* v)
     lexEnv->Set(v, def->numLocals);
 }
 
-/*  --------------
-    InstanceMethod
-    --------------
-    An instance method that can only be called by instances of the class this
-    method belong to (including derived classes.)
-*/
+/** A function callable only by instances of the same type. */
 class PIKA_API InstanceMethod : public Function 
 {
     PIKA_DECL(InstanceMethod, Function)
@@ -143,14 +133,11 @@ public:
     static InstanceMethod* Create(Engine*, Function*, Type*);
     static InstanceMethod* Create(Engine*, Function*, Def*, Package*, Type*);
 protected:
-    Type* classtype;
+    Type* classtype; //!< The type we belong to and whose instances may call us.
 };
 
-/*  -----------
-    ClassMethod
-    -----------
-    A method bound to a single Type.
-*/
+
+/** A method bound to a single Type instance. */
 class PIKA_API ClassMethod : public Function 
 {
     PIKA_DECL(ClassMethod, Function)
@@ -165,32 +152,28 @@ public:
     
     static ClassMethod* Create(Engine*, Function*, Def*, Package*, Type*);
 protected:
-    Type* classtype;
+    Type* classtype; //!< The type we belong to and the self object we are bound to.
 };
 
-/*  -----------
-    BoundFunction
-    -----------
-    A function bound to a single object.
-*/
+/** A function bound to a single object. */
 class PIKA_API BoundFunction : public Function 
 {
     PIKA_DECL(BoundFunction, Function)
-public:
-    BoundFunction(Engine*, Type*, Function*, Value&);
-    virtual ~BoundFunction();
-
-    static BoundFunction*   Create(Engine*, Function*, Value&);
-    
-    virtual Function* GetBoundFunction() const { return closure;}
-    
-    virtual Value GetBoundSelf() const { return self; }
-    
-    virtual void BeginCall(Context*);
-    virtual void MarkRefs(Collector*);
 protected:
-    Function* closure;
-    Value self;
+    BoundFunction(Engine*, Type*, Function*, Value&);
+public:    
+    virtual              ~BoundFunction();
+
+    static BoundFunction* Create(Engine*, Function*, Value&);
+    
+    virtual Function*     GetBoundFunction() const { return closure;}
+    virtual Value         GetBoundSelf() const { return self; }
+    
+    virtual void          BeginCall(Context*);
+    virtual void          MarkRefs(Collector*);
+protected:
+    Function*   closure;    //!< The bound function.
+    Value       self;       //!< The bound <code>self</code> object.
 };
 
 } // pika

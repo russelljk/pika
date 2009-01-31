@@ -714,10 +714,58 @@ static int Basic_getType(Context* ctx, Value& self)
 
 extern void Object_NewFn(Engine*, Type*, Value&);
 extern void Package_NewFn(Engine*, Type*, Value&);
+extern void TypeObj_NewFn(Engine*, Type*, Value&);
 
 namespace pika
 {
 
+class GCPause : public Object
+{
+    PIKA_DECL(GCPause, Object)
+public:
+    GCPause(Engine* eng, Type* t)
+    : Object(eng, t)
+    {
+        this->isPaused = false;
+    }
+    
+    virtual void Pause()
+    {
+        if (!isPaused)
+        {
+            engine->GetGC()->Pause();
+            isPaused = true;
+        }
+    }
+    
+    virtual void UnPause()
+    {
+        if (isPaused)
+        {
+            engine->GetGC()->Resume();
+            isPaused = false;
+        }
+    }
+    
+    virtual bool IsPaused() { return isPaused; }
+    
+    static void onNew(Engine* eng, Type* type, Value& res);
+    virtual ~GCPause() { if (isPaused) { engine->GetGC()->Resume(); } }
+    
+    bool isPaused;
+};
+
+PIKA_IMPL(GCPause)
+
+
+
+void GCPause::onNew(Engine* eng, Type* type, Value& res)
+{
+    GCPause* cp = 0;
+    GCNEW(eng, GCPause, cp, (eng, type));
+    res.Set(cp);
+}
+    
 void Engine::InitializeWorld()
 {
     /* !!! DO NOT RE-ARRANGE WITHOUT CHECKING DEPENDENCIES !!! */
@@ -771,7 +819,7 @@ void Engine::InitializeWorld()
         Basic_Type   = Type::Create(this, AllocString("BasicObj"),  0,            0,             Pkg_World, 0);
         Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object_NewFn,  Pkg_World, 0);
         Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package_NewFn, Pkg_World, 0);
-        Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, 0,             Pkg_World, 0);        
+        Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, TypeObj_NewFn, Pkg_World, 0);        
         
         Type* TypeType_Type    = Type::Create(this, AllocString("Type Type"),     Type_Type, 0, Pkg_World, 0);
         Type* PackageType_Type = Type::Create(this, AllocString("Package Type"),  Type_Type, 0, Pkg_World, TypeType_Type);
@@ -821,12 +869,27 @@ void Engine::InitializeWorld()
         InitFileAPI    (this);
         InitBytesAPI   (this);
         
+        // GCPause /////////////////////////////////////////////////////////////////////////////////
+        
+        String* GCPause_String = AllocString("GCPause");
+        Type* GCPause_Type = Type::Create(this, GCPause_String, Object_Type, GCPause::onNew, Pkg_World, 0);
+        this->Pkg_World->SetSlot(GCPause_String, GCPause_Type);
+        
+        SlotBinder<GCPause>(this, GCPause_Type, this->Pkg_World)
+        .Method(&GCPause::Pause, "onUse")
+        .Method(&GCPause::UnPause, "onDispose")
+        .PropertyR("paused?", &GCPause::IsPaused, 0);
+        
+        // Basic - methods /////////////////////////////////////////////////////////////////////////
+        
         static RegisterProperty Basic_properties[] =
         {
             { "type",  Basic_getType,  "getType", 0, 0 },           
         };
+        
         Basic_Type->EnterProperties(Basic_properties, countof(Basic_properties));
         this->Pkg_World->SetSlot(this->AllocString("BasicObj"), this->Basic_Type);
+        
         // Error ///////////////////////////////////////////////////////////////////////////////////
         
         static RegisterFunction Error_Functions[] =
