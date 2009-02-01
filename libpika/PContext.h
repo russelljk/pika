@@ -100,9 +100,9 @@ public:
 class ContextEnum;
 
 /** A coroutine object.
- * Unlike the string objects bytes objects can be resized and modified without forcing a new object
- * to be created.
- */
+  * Unlike the string objects bytes objects can be resized and modified without forcing a new object
+  * to be created.
+  */
 class PIKA_API Context : public Object
 {
     PIKA_DECL(Context, Object)
@@ -186,13 +186,13 @@ protected:
     void GrowScopeStack();      //!< Increase the size of the scopes stack by a constant metric.
     
     /** Increase operand stack size.
-     *
-     *  @param  amt Minimum amount of Values to grow by (NOT bytes).
-     *
-     *  @warning The location of the Stack <i>may</i> change, invalidating any previous pointers or 
-     *  references into the stack. Store offsets not pointers to prevent accessing 
-     *  invalidated memory locations.
-     */
+      *
+      * @param  amt Minimum amount of Values to grow by (NOT bytes).
+      *
+      * @warning The location of the Stack <i>may</i> change, invalidating any previous pointers or 
+      * references into the stack. Store offsets not pointers to prevent accessing 
+      * invalidated memory locations.
+      */
     void GrowStack(size_t amt);
     
     /** Decode an return the byte operand of the given instruction. */
@@ -202,10 +202,10 @@ protected:
     PIKA_FORCE_INLINE u2 GetShortOperand(const code_t instr) { return PIKA_GET_SHORTOF(instr); }
     
     /** Create a new function closure at the current point in the script.
-     *  @param  def     The function definition for the closure.
-     *  @param  ret     The Value that will contain the closure.
-     *  @param  ptrself The optional pointer to the self object. Used when the function is declared with a dot-name ie <code>function foo.bar() ... end </code>.
-     */
+      * @param  def     The function definition for the closure.
+      * @param  ret     The Value that will contain the closure.
+      * @param  ptrself The optional pointer to the self object. Used when the function is declared with a dot-name ie <code>function foo.bar() ... end </code>.
+      */
     void DoClosure(Def* def, Value& ret, Value* ptrself= 0);
     
     /* These methods each execute a certain group of opcodes. They are meant to be called from Context::Run (only!)
@@ -251,31 +251,30 @@ public:
     
     static void Suspend(Context*);
     
-    /**
-     *  Sets up a function call using this Context. The call arguments should be push in order onto
-     *  the stack. Followed by the self object (or null)
-     *  and the function to be called. Native functions are called immediately. Bytecode-functions
-     *  need to be executed by calling Context::Run.
-     *
-     *  example:
-     *  <pre>
-     *  context->CheckStackSpace(N + 2);
-     *  context->Push(arg1);
-     *  ...
-     *  context->Push(argN);
-     *  context->Push(self);
-     *  context->Push(method);
-     *  if (context->SetupCall(N, false, 1))
-     *      context->Run();
-     *  Value returned = context->PopTop();
-     *  </pre>
-     *
-     *  @param argc      The number of arguments pushed on the stack
-     *  @param tailcall  Is the call a tailcall. Should not be used under normal circumstances.
-     *  @param retc      The number of expected return values. Which will be returned on the stack.
-     *
-     *  @result true if Run needs to be called because the method is a bytecode method.
-     */
+    /** Sets up a function call using this Context. The call arguments should be push in order onto
+      * the stack. Followed by the self object (or null)
+      * and the function to be called. Native functions are called immediately. Bytecode-functions
+      * need to be executed by calling Context::Run.
+      *
+      * example:
+      * <pre>
+      * context->CheckStackSpace(N + 2);
+      * context->Push(arg1);
+      * ...
+      * context->Push(argN);
+      * context->Push(self);
+      * context->Push(method);
+      * if (context->SetupCall(N, false, 1))
+      *      context->Run();
+      *  Value returned = context->PopTop();
+      *  </pre>
+      *
+      * @param argc      The number of arguments pushed on the stack
+      * @param tailcall  Is the call a tailcall. Should not be used under normal circumstances.
+      * @param retc      The number of expected return values. Which will be returned on the stack.
+      *
+      * @result true if Run needs to be called because the method is a bytecode method.
+      */
     bool SetupCall(u2 argc, bool tailcall = false, u2 retc = 1);
     
     /** Suspend with a specified Value. */
@@ -287,15 +286,15 @@ public:
     static Context* Create(Engine*, Type*);
     
     /** Checks that the specified number of values can be pushed onto the stack. If there is not
-     *  enough room the stack will grow.
-     *
-     *  @param amt      [in] The number of values to check for (not bytes.)
-     */
+      * enough room the stack will grow.
+      *
+      * @param amt      [in] The number of values to check for (not bytes.)
+      */
     void CheckStackSpace(const u4 amt);
     
     /** Allocate the specified number of values by moving the top of the stack.
-     *  Raises an Exception if sp + amt exceeds the max stack size available (PIKA_MAX_OPERAND_STACK).
-     */
+      * Raises an Exception if sp + amt exceeds the max stack size available (PIKA_MAX_OPERAND_STACK).
+      */
     INLINE void StackAlloc(u2 amt)
     {
         CheckStackSpace(amt);
@@ -315,8 +314,8 @@ public:
     INLINE void PushFalse()          { (sp++)->SetFalse(); }   //!< Push the boolean value <i>false</i> onto the stack.
     
     /** Safely Push a Value onto the stack. Supports all Push overloads.
-     *  @see Context::Push
-     */
+      * @see Context::Push
+      */
     template<typename T>
     INLINE void SafePush(T t)
     {
@@ -340,34 +339,34 @@ public:
     INLINE Value& PopTop()   { return *(--sp); }    //!< Pop and return the top Value of the stack.
     
     /** Returns a local variable of the current scope.
-     *  @param idx  [in] Index of the local variable.
-     *  @result     Reference to the local variable.
-     */
+      * @param idx  [in] Index of the local variable.
+      * @result     Reference to the local variable.
+      */
     INLINE Value& GetLocal(u4 idx) { return *(bsp + idx); }
     
     /** Returns an outer variable of the current scope.
-     *  @param idx      [in] Index of the variable.
-     *  @param depth    [in] Depth of the variable.    
-     *  @result         Reference to the outer variable.
-     */
+      * @param idx      [in] Index of the variable.
+      * @param depth    [in] Depth of the variable.    
+      * @result         Reference to the outer variable.
+      */
     Value& GetOuter(u2 idx, u1 depth);
     
     /** Set a local variable of the current scope.
-     *
-     *  @param val  [in] The Value to set the local variable to.
-     *  @param idx  [in] Index of the local variable.
-     *
-     *  @note No check is made to ensure that bsp[idx] is the location of
-     *        a local variable.
-     */
+      *
+      * @param val  [in] The Value to set the local variable to.
+      * @param idx  [in] Index of the local variable.
+      *
+      * @note No check is made to ensure that bsp[idx] is the location of
+      *       a local variable.
+      */
     INLINE void SetLocal(const Value& val, u4 idx) { *(bsp + idx) = val; }
     
     /** Set an outer variable of the current scope.
-     *
-     *  @param outer    [in] Value to set the variable to.
-     *  @param idx      [in] Index of the variable.
-     *  @param depth    [in] Depth of the variable.
-     */
+      *
+      * @param outer    [in] Value to set the variable to.
+      * @param idx      [in] Index of the variable.
+      * @param depth    [in] Depth of the variable.
+      */
     void SetOuter(const Value& outer, u2 idx, u1 depth);
     
     /** Return a pointer to just beyond the top element of the stack. */
@@ -389,8 +388,8 @@ public:
     String* GetFunctionName();
     
     /** Returns name of the current scope's package.
-     *  @param fullyQualified   [in] Determines if the name contains the full path to the package (ie: World.Foo.A instead of A).
-     */
+      * @param fullyQualified   [in] Determines if the name contains the full path to the package (ie: World.Foo.A instead of A).
+      */
     String* GetPackageName(bool fullyQualified);
     
     INLINE Package*  GetPackage()  const { return package;  }
@@ -425,10 +424,14 @@ public:
     // !!!
     //
     // A (C++) exception is raised if the argument is not the right type
-    // or it cannot be implicity converted (i.e. real to integer).
-    
-    pint_t        GetIntArg(u2 arg);      //!< Returns the integer value of the specified argument.
-    preal_t       GetRealArg(u2 arg);     //!< Returns the real value of the specified argument.
+    // or it cannot be implicity converted. Real to Integer is OK but String to Integer is not.
+    // Use Engine::ToTTTT to convert a value to type TTTT
+    // example:
+    // Value arg0 = context->GetArg(0);
+    // engine->ToIntegerExplicit(context, arg0);
+    //
+    pint_t      GetIntArg(u2 arg);      //!< Returns the integer value of the specified argument.
+    preal_t     GetRealArg(u2 arg);     //!< Returns the real value of the specified argument.
     bool        GetBoolArg(u2 arg);     //!< Returns the boolean value of the specified argument.
     String*     GetStringArg(u2 arg);   //!< Returns the string value of the specified argument.
     Object*     GetObjectArg(u2 arg);   //!< Returns the object value of the specified argument.
@@ -436,8 +439,8 @@ public:
     void*       GetUserDataArg(u2 arg, UserDataInfo* info); //!< Returns the userdata value of the specified argument.
     
     /** Returns whether the argument is null.
-     *  @note Unlike the Get*Arg functions IsArgNull will not raise an exception
-     */
+      * @note Unlike the Get*Arg functions IsArgNull will not raise an exception
+      */
     INLINE bool IsArgNull(u2 arg)
     {
         Value& v = GetArg(arg);

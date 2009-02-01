@@ -497,6 +497,9 @@ PIKA_MODULE(curses, eng, curses)
     { "VERTICAL",   A_VERTICAL   },
     };
     
+    Package* attr_Pkg = eng->OpenPackage(eng->AllocString("Attr"), curses, true); 
+    Basic::EnterConstants(attr_Pkg, CursesAttributes, countof(CursesAttributes));
+        
     // TODO: Add Function keys.
     static NamedConstant CursesKeys[] = {
     DEFINE_KEY( KEY_CODE_YES)
@@ -595,8 +598,7 @@ PIKA_MODULE(curses, eng, curses)
     DEFINE_KEY( KEY_MAX		)
     };
 
-    Package* attr_Pkg = eng->OpenPackage(eng->AllocString("Attr"), curses, true); 
-    Basic::EnterConstants(attr_Pkg, CursesAttributes, countof(CursesAttributes));
+    Basic::EnterConstants(curses, CursesKeys, countof(CursesKeys));
 
     // Curses.Colors ///////////////////////////////////////////////////////////////////////////////
     

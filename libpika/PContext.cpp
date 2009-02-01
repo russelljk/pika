@@ -77,18 +77,17 @@ void InitContextAPI(Engine* eng)
     eng->Context_Type = Type::Create(eng, Context_String, eng->Object_Type, Context_NewFn, eng->GetWorld());
     
     static RegisterFunction Context_Methods[] =
-        {
-            {"call",  Context_call,  0, 0, 1 },
-            {"setup", Context_Setup, 0, 1, 0 },
-        };
+    {
+        {"call",  Context_call,  0, 0, 1 },
+        {"setup", Context_Setup, 0, 1, 0 },
+    };
         
     SlotBinder<Context>(eng, eng->Context_Type)
-    .Constant((pint_t)Context::SUSPENDED, "   SUSPENDED")
-    .Constant((pint_t)Context::RUNNING,       "RUNNING")
-    .Constant((pint_t)Context::DEAD,          "DEAD")
-    .Constant((pint_t)Context::INVALID,       "INVALID")
+    .Constant((pint_t)Context::SUSPENDED,   "SUSPENDED")
+    .Constant((pint_t)Context::RUNNING,     "RUNNING")
+    .Constant((pint_t)Context::DEAD,        "DEAD")
+    .Constant((pint_t)Context::INVALID,     "INVALID")
     .StaticMethodVA(&Context::Suspend,      "suspend")
-    //.MethodVA(&Context::Setup,              "setup")
     .Method(&Context::IsSuspended,          "suspended?")
     .Method(&Context::IsRunning,            "running?")
     .Method(&Context::IsDead,               "dead?")
@@ -1194,11 +1193,11 @@ bool Context::SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res)
     }
     else if (!res)
     {
-        String* strname = obj->GetType()->GetName(); // TODO: TEST THAT THIS IS CORRECT.
-        RaiseException(Exception::ERROR_runtime,
-                       "Operator %s not defined for object of type %s.",
-                       engine->GetOverrideString(ovr)->GetBuffer(),
-                       strname->GetBuffer());
+        String* strname = obj->GetType()->GetName();
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Operator %s not defined for object of type %s.",
+                           engine->GetOverrideString(ovr)->GetBuffer(),
+                           strname->GetBuffer());
     }
     else
     {
@@ -1230,11 +1229,11 @@ bool Context::SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res)
     }
     else if (!res)
     {
-        String* strname = engine->emptyString; // TODO: TYPENAME
-        RaiseException(Exception::ERROR_runtime,
-                       "Operator %s not defined for object of type %s.",
-                       engine->GetOverrideString(ovr)->GetBuffer(),
-                       strname->GetBuffer());
+        String* strname = obj->GetType()->GetName();
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Operator %s not defined for object of type %s.",
+                           engine->GetOverrideString(ovr)->GetBuffer(),
+                           strname->GetBuffer());
     }
     else
     {
@@ -1252,17 +1251,16 @@ bool Context::SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res)
     
     if (GetOverrideFrom(engine, obj, ovr, meth))
     {
-        //  [  obj   ]
+        //  [  obj   ] self object
         //  [  rhs   ]
-        Value& vTop0 = Top();
-        Value& vTop1 = Top1();
-        Swap(vTop0, vTop1);   // swap lhs and rhs so that obj will be at the top of the stack.
+        // swap lhs and rhs so that obj will be at the top of the stack.
+        Swap(Top(), Top1());   
+        //  [  rhs   ] argument 0 
+        //  [  obj   ] self object
+        Push(meth);        
         //  [  rhs   ] argument 0
-        //  [  obj   ] self
-        Push(meth);
-        //  [  rhs   ] argument 0
-        //  [  obj   ] self
-        //  [ meth   ] method
+        //  [  obj   ] self object
+        //  [ meth   ] method        
         if (res)
         {
             *res = true;
@@ -1271,11 +1269,11 @@ bool Context::SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res)
     }
     else if (!res)
     {
-        String* strname = engine->emptyString; // TODO: TYPENAME
-        RaiseException(Exception::ERROR_runtime,
-                       "Operator %s not defined for object of type %s.",
-                       engine->GetOverrideString(ovr)->GetBuffer(),
-                       strname->GetBuffer());
+        String* strname = obj->GetType()->GetName();
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Operator %s not defined for object of type %s.",
+                           engine->GetOverrideString(ovr)->GetBuffer(),
+                           strname->GetBuffer());
     }
     else
     {
@@ -1305,11 +1303,11 @@ bool Context::SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res)
     }
     else if (!res)
     {
-        String* strname = engine->emptyString; // TODO: TYPENAME
-        RaiseException(Exception::ERROR_runtime,
-                       "Operator %s not defined for object of type %s.",
-                       engine->GetOverrideString(ovr)->GetBuffer(),
-                       strname->GetBuffer());
+        String* strname = obj->GetType()->GetName();
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Operator %s not defined for object of type %s.",
+                           engine->GetOverrideString(ovr)->GetBuffer(),
+                           strname->GetBuffer());
     }
     else
     {
@@ -2376,7 +2374,7 @@ void* Context::GetUserDataArg(u2 arg, UserDataInfo* info)
 
 pint_t Context::ArgToInt(u2 arg)
 {
-    Value& v = GetArg(arg);
+    Value v = GetArg(arg);
     
     if (v.tag != TAG_integer)
     {
@@ -2390,7 +2388,7 @@ pint_t Context::ArgToInt(u2 arg)
 
 preal_t Context::ArgToReal(u2 arg)
 {
-    Value& v = GetArg(arg);
+    Value v = GetArg(arg);
     
     if (v.tag != TAG_real)
     {
@@ -2404,7 +2402,7 @@ preal_t Context::ArgToReal(u2 arg)
 
 bool Context::ArgToBool(u2 arg)
 {
-    Value& v = GetArg(arg);
+    Value v = GetArg(arg);
     
     if (v.tag != TAG_boolean)
     {
@@ -2415,7 +2413,7 @@ bool Context::ArgToBool(u2 arg)
 
 String* Context::ArgToString(u2 arg)
 {
-    Value& v = GetArg(arg);
+    Value v = GetArg(arg);
     
     if (v.tag != TAG_string)
     {

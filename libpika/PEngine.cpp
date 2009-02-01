@@ -635,7 +635,7 @@ bool Engine::ToInteger(Value& v)
     {
     case TAG_null:    v.Set((pint_t)0);                      return true;
     case TAG_boolean: v.Set((pint_t)(v.val.index ? 1 : 0));  return true;
-    case TAG_integer:                                       return true;
+    case TAG_integer:                                        return true;
     case TAG_real:    v.Set((pint_t)v.val.real);             return true;
     }
     return false;
@@ -648,7 +648,7 @@ bool Engine::ToReal(Value& v)
     case TAG_null:    v.Set((preal_t)0.0);                       return true;
     case TAG_boolean: v.Set((preal_t)(v.val.index ? 1.0 : 0.0)); return true;
     case TAG_integer: v.Set((preal_t)v.val.integer);             return true;
-    case TAG_real:                                              return true;
+    case TAG_real:                                               return true;
     }
     return false;
 }
@@ -659,7 +659,7 @@ bool Engine::ToIntegerExplicit(Context* ctx, Value& v)
     {
     case TAG_null:    v.Set((pint_t)0);                      return true;
     case TAG_boolean: v.Set((pint_t)(v.val.index ? 1 : 0));  return true;
-    case TAG_integer:                                       return true;
+    case TAG_integer:                                        return true;
     case TAG_real:    v.Set((pint_t)v.val.real);             return true;
     case TAG_string:
     {
@@ -678,7 +678,7 @@ bool Engine::ToIntegerExplicit(Context* ctx, Value& v)
         
         if (res.tag != TAG_integer)
             RaiseException(Exception::ERROR_runtime, "Conversion operator %s failed.", toInteger_String->GetBuffer());
-            
+        v = res;    
         return true;
     }
     }
@@ -692,7 +692,7 @@ bool Engine::ToRealExplicit(Context* ctx, Value& v)
     case TAG_null:    v.Set((preal_t)0.0);                       return true;
     case TAG_boolean: v.Set((preal_t)(v.val.index ? 1.0 : 0.0)); return true;
     case TAG_integer: v.Set((preal_t)v.val.integer);             return true;
-    case TAG_real:                                              return true;
+    case TAG_real:                                               return true;
     case TAG_string:
     {
         preal_t r;
