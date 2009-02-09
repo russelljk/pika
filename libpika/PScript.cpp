@@ -49,34 +49,32 @@ void Script::MarkRefs(Collector* c)
     ThisSuper::MarkRefs(c);
     
     if (entryPoint) entryPoint->Mark(c);
-    if (literals)     literals->Mark(c);
-    if (context)       context->Mark(c);
-    if (arguments)   arguments->Mark(c);
+    if (literals) literals->Mark(c);
+    if (context) context->Mark(c);
+    if (arguments) arguments->Mark(c);
 }
 
 bool Script::Run(Array* args)
 {
-    if (running ||  firstRun)    return false;
+    if (running || firstRun) return false;
     if (!context || !entryPoint) return false;
-    if (context->IsInvalid())    return false;
+    if (context->IsInvalid()) return false;
     {
         GCPAUSE(engine); // pause gc
-        
+        const char* args_str = "__arguments";
         if (args)
         {
             arguments = args; // WriteBarrier unnessary bc/ of SetSlot
-            SetSlot("arguments", arguments, Slot::ATTR_protected);
+            SetSlot(args_str, arguments, Slot::ATTR_protected);
         }
         else
         {
             Value nval(NULL_VALUE);
-            SetSlot("arguments", nval, Slot::ATTR_protected);
-        }
-        
-        SetSlot("__script__",  this,       Slot::ATTR_protected);
-        SetSlot("__context__", context,    Slot::ATTR_protected);
-        SetSlot("__main__",    entryPoint, Slot::ATTR_protected);
-        
+            SetSlot(args_str, nval, Slot::ATTR_protected);
+        }        
+        SetSlot("__script",  this,       Slot::ATTR_protected);
+        SetSlot("__context", context,    Slot::ATTR_protected);
+        SetSlot("__main",    entryPoint, Slot::ATTR_protected);        
     }// resume gc
     
     context->PushNull();

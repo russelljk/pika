@@ -9,10 +9,14 @@
 #include "PUtil.h"
 #include "PError.h"
 
-#ifdef PIKA_64
-#define CLEAR_BITS() val.index = 0; // remove garbage from 64bit arch when using 32bit int and float
+#if defined(PIKA_64)
+#   if defined(PIKA_64BIT_INT) && defined (PIKA_64BIT_REAL)
+#       define CLEAR_BITS()
+#   else
+#       define CLEAR_BITS() val.index = 0
+#   endif
 #else
-#define CLEAR_BITS()
+#   define CLEAR_BITS()
 #endif
 
 namespace pika
@@ -60,17 +64,17 @@ class PIKA_API Value
 {
 public:
     INLINE Value() {}
-    INLINE explicit Value(NullEnum)      : tag(TAG_null)       { val.index = 0; }
-    INLINE explicit Value(pint_t i)        : tag(TAG_integer)    { CLEAR_BITS(); val.integer = i; }
-    INLINE explicit Value(preal_t r)       : tag(TAG_real)       { CLEAR_BITS(); val.real = r; }
-    INLINE explicit Value(Object* c)     : tag(TAG_object)     { val.object = c; }
-    INLINE explicit Value(String* s)     : tag(TAG_string)     { val.str = s; }
-    INLINE explicit Value(bool b)        : tag(TAG_boolean)    { val.index = (b) ? 1 : 0; }
-    INLINE explicit Value(size_t i)      : tag(TAG_index)      { val.index = i; }
-    INLINE explicit Value(Def* f)        : tag(TAG_def)        { val.def = f; }
-    INLINE explicit Value(Enumerator* e) : tag(TAG_enumerator) { val.enumerator = e; }
-    INLINE explicit Value(Property* p)   : tag(TAG_property)   { val.property = p; }
-    INLINE explicit Value(UserData* u)   : tag(TAG_userdata)   { val.userdata = u; }
+    INLINE  Value(NullEnum)         : tag(TAG_null)       { val.index = 0; }
+    INLINE  Value(pint_t i)         : tag(TAG_integer)    { CLEAR_BITS(); val.integer = i; }
+    INLINE  Value(preal_t r)        : tag(TAG_real)       { CLEAR_BITS(); val.real = r; }
+    INLINE  Value(Object* c)        : tag(TAG_object)     { val.object = c; }
+    INLINE  Value(String* s)        : tag(TAG_string)     { val.str = s; }
+    INLINE  Value(bool b)           : tag(TAG_boolean)    { val.index = (b) ? 1 : 0; }
+    INLINE  Value(size_t i)         : tag(TAG_index)      { val.index = i; }
+    INLINE  Value(Def* f)           : tag(TAG_def)        { val.def = f; }
+    INLINE  Value(Enumerator* e)    : tag(TAG_enumerator) { val.enumerator = e; }
+    INLINE  Value(Property* p)      : tag(TAG_property)   { val.property = p; }
+    INLINE  Value(UserData* u)      : tag(TAG_userdata)   { val.userdata = u; }
     
     INLINE bool IsBoolean()     const { return  tag == TAG_boolean; }
     INLINE bool IsNull()        const { return  tag == TAG_null; }
@@ -86,8 +90,8 @@ public:
     
     bool IsDerivedFrom(ClassInfo* c);
     
-    INLINE pint_t        GetInteger()    const { return val.integer; }
-    INLINE preal_t       GetReal()       const { return val.real; }
+    INLINE pint_t      GetInteger()    const { return val.integer; }
+    INLINE preal_t     GetReal()       const { return val.real; }
     INLINE bool        GetBoolean()    const { return val.index != 0; }
     INLINE Object*     GetObject()     const { return val.object; }
     INLINE String*     GetString()     const { return val.str; }
@@ -99,12 +103,12 @@ public:
     void* GetUserDataFast() const;
     bool  HasUserData(UserDataInfo* info) const;
     
-    INLINE void Set(pint_t i)        { tag = TAG_integer; CLEAR_BITS(); val.integer = i; }
-    INLINE void Set(preal_t r)       { tag = TAG_real;    CLEAR_BITS(); val.real    = r; }
+    INLINE void Set(pint_t i)      { tag = TAG_integer; CLEAR_BITS(); val.integer = i; }
+    INLINE void Set(preal_t r)     { tag = TAG_real;    CLEAR_BITS(); val.real    = r; }
     INLINE void Set(size_t i)      { tag = TAG_index;       val.index      = i; }
     INLINE void Set(Object* c)     { tag = TAG_object;      val.object     = c; }
     INLINE void Set(String* s)     { tag = TAG_string;      val.str        = s; }
-    INLINE void Set(Def* f)        { tag = TAG_def; val.def        = f; }
+    INLINE void Set(Def* f)        { tag = TAG_def;         val.def        = f; }
     INLINE void Set(Enumerator* e) { tag = TAG_enumerator;  val.enumerator = e; }
     INLINE void Set(Property* p)   { tag = TAG_property;    val.property   = p; }
     INLINE void Set(UserData* u)   { tag = TAG_userdata;    val.userdata   = u; }

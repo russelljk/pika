@@ -82,21 +82,6 @@ typedef Buffer<ScopeInfo>       ScopeStack;
 typedef ScopeStack::Iterator    ScopeIter;
 typedef Buffer<ExceptionBlock>  ExceptionStack;
 
-// 1 cannot yield generator inside an ensure block because it relies on the AddressStack.
-class Generator
-{
-public:
-    Generator() : closure(0) {}
-    
-    virtual ~Generator() {}
-    
-    Function*       closure;
-    ExceptionStack  exceptions; //!< check that sp is inside bsp-sp.
-    AddressStack    addresses;  //!< Don't really know if addresses were pushed.  DO NOT ALLOW A YIELD INSIDE AN ENSURE BLOCK !!!
-    ScopeInfo       scope;      //!< our scope
-    Buffer<Value>   stack;      //!< bsp-sp copied
-};
-
 class ContextEnum;
 
 /** A coroutine object.
@@ -216,6 +201,8 @@ protected:
     void    CompOpBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    ArithOpUnary (const Opcode op, const OpOverride ovr, int& numcalls);    
     void    OpSuper();
+    bool    DoPropertyGet(int& numcalls, Property* prop);
+    bool    DoPropertySet(int& numcalls, Property* prop);
     void    OpDotGet(int& numcalls, Opcode oc);
     void    OpDotSet(int& numcalls, Opcode oc);
     bool    OpUnpack(u2);

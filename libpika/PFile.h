@@ -36,11 +36,11 @@ public:
 
     virtual bool    Write(Context* ctx);
 
-    virtual pint_t   Seek(pint_t, pint_t);
-    virtual void    Flush();
-    virtual void    Rewind();
-    virtual pint_t   Goto(pint_t);
-    virtual pint_t   Move(pint_t);
+    virtual pint_t      Seek(pint_t, pint_t);
+    virtual void        Flush();
+    virtual void        Rewind();
+    virtual pint_t      SetPos(pint_t);
+    virtual pint_t      Advance(pint_t);
 
     static File* Create(Engine*, Type*);
 

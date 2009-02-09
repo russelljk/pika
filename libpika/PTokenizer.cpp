@@ -16,9 +16,9 @@ namespace pika
 
 struct KeywordDescriptor
 {
-    ETokenType ttype;
+    ETokenType  ttype;
     const char* name;
-    size_t length;
+    size_t      length;
 };
 
 static KeywordDescriptor static_keywords[] =
@@ -300,9 +300,13 @@ struct NumberParser
     T* pT;
 };
 
-// StringToNumber //////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////StringToNumber///////////////////////////////////////////
 
-StringToNumber::StringToNumber(const char* str, size_t len, bool eatwsp, bool use_html_hex, bool must_consume)
+StringToNumber::StringToNumber(const char* str,
+                               size_t      len,
+                               bool        eatwsp,
+                               bool        use_html_hex,
+                               bool        must_consume)
         : look(EOF),
         curr(str),
         buffer(str),
@@ -319,7 +323,7 @@ StringToNumber::StringToNumber(const char* str, size_t len, bool eatwsp, bool us
     {
         if (eat_white)
         {
-            EatWhitesp();
+            EatWhiteSpace();
         }
         is_number = !must_consume || (curr >= end);
     }
@@ -342,13 +346,13 @@ StringToNumber::StringToNumber(const char* str, const char* endstr, bool must_co
     {
         if (eat_white)
         {
-            EatWhitesp();
+            EatWhiteSpace();
         }
         is_number = !must_consume || (curr >= end);
     }
 }
 
-void StringToNumber::EatWhitesp()
+void StringToNumber::EatWhiteSpace()
 {
     while (IsSpace(look) && look != EOF)
     {
@@ -371,7 +375,7 @@ void StringToNumber::GetLook()
 void StringToNumber::ReadNumber()
 {
     GetLook();
-    EatWhitesp();
+    EatWhiteSpace();
     
     NumberParser<StringToNumber> numparse(this);
     numparse.ReadNumber();
@@ -400,7 +404,13 @@ void StringToNumber::ReadNumber()
     }
 }
 
-// Tokenizer ///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////IScriptStream////////////////////////////////////////////
+
+IScriptStream::~IScriptStream()
+{
+}
+
+//////////////////////////////////////////////Tokenizer/////////////////////////////////////////////
 
 Tokenizer::Tokenizer(CompileState* s, FILE* fs)
         : tokenBegin(0),
@@ -445,25 +455,7 @@ Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
     PrepKeywords();
     GetLook();
 }
-/*
-Tokenizer::Tokenizer(CompileState* s, ScriptStream* ss)
-        : tokenBegin(0),
-        state(s),
-        tokenEnd(0),
-        line(1),
-        col(1),
-        ch(1),
-        prevline(1),
-        prevcol(1),
-        prevch(1),
-        look(EOF),
-        script_stream(ss),
-        tabIndentSize(4)
-{
-    PrepKeywords();
-    GetLook();
-}
-*/
+
 void Tokenizer::PrepKeywords()
 {
     minKeywordLength = 0xFFFF;

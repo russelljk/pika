@@ -24,8 +24,6 @@ class PIKA_API Package : public Object
 protected:    
     Package(Engine*, Type* type, String* name, Package* super);
     Package(const Package* rhs) : ThisSuper(rhs), name(rhs->name), dotName(rhs->dotName), superPackage(rhs->superPackage) {}
-
-    void MakeDotName();
 public:
     virtual ~Package();
     
@@ -44,6 +42,8 @@ public:
     virtual void    SetName(String*);
     virtual void    MarkRefs(Collector*);
     virtual Object* Clone();
+    virtual bool    GetGlobal(const Value& key, Value& res);
+    virtual bool    SetGlobal(const Value& key, Value& value, u4 attr = 0);
     virtual bool    GetSlot(const Value& key, Value& res);
         
     void AddNative(RegisterFunction* fns, size_t count);

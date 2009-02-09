@@ -256,7 +256,7 @@ void CompileState::SyntaxWarning(WarningLevel level, int line, const char* forma
     va_list args;
     
     this->warnings++;
-    fprintf(stderr, "** warning %d (line %d): ", level, line);
+    fprintf(stderr, "** Syntax Warning %d (line %d): ", level, line);
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
@@ -269,7 +269,7 @@ void CompileState::SyntaxError(int line,  const char* format, ...)
     va_list args;
     
     this->errors++;
-    fprintf(stderr, "** error (line %d): ", line);
+    fprintf(stderr, "** Syntax Error (line %d): ", line);
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
@@ -282,7 +282,7 @@ void CompileState::SyntaxException(Exception::Kind k, int line, const char *msg,
     va_list args;
     
     errors++;
-    fprintf(stderr, "** error (line %d): ", line);
+    fprintf(stderr, "** Syntax Error (line %d): ", line);
     va_start(args, msg);
     vfprintf(stderr, msg, args);
     va_end(args);
@@ -293,7 +293,7 @@ void CompileState::SyntaxException(Exception::Kind k, int line, const char *msg,
 
 void CompileState::SyntaxErrorSummary()
 {
-    fprintf(stderr, "%d error(s) found.\n", this->errors);
+    fprintf(stderr, "%d error(s) found.\n",   this->errors);
     fprintf(stderr, "%d warning(s) found.\n", this->warnings);
     fflush(stderr);
 }
@@ -313,7 +313,7 @@ void Program::CalculateResources(SymbolTable* st, CompileState& cs)
     
     def->numLocals = 0;
     def->mustClose = false;
-    def->name = cs.engine->AllocString("(main)");
+    def->name = cs.engine->AllocString("__main");
     def->literals = cs.literals;
     
     index = cs.AddConstant(def);

@@ -201,7 +201,7 @@ public:
     INLINE String* GetOverrideString(OpOverride ovr) { return override_strings[ovr]; }
     
     void CallConversionFunction(Context* ctx, String* name, Object* c, Value& res);
-    
+    // TODO: explicit conv func for all
     bool    ToBoolean(Context* ctx, const Value& v);
     bool    ToInteger(Value& v);
     bool    ToIntegerExplicit(Context* ctx, Value& v);

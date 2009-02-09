@@ -77,11 +77,11 @@ public:
             char buff[2];
             buff[0] = string->buffer[currentIndex];
             buff[1] = 0;
-            c.Set(engine->AllocString(buff));
+            c = engine->AllocString(buff);
         }
         else
         {
-            c.Set((pint_t)currentIndex);
+            c = (pint_t)currentIndex;
         }
         return;
     }
@@ -345,9 +345,7 @@ bool String::GetSlot(const Value& key, Value& result)
         if ((idx >= 0) && (idx < (pint_t)length))
         {
             char buff = buffer[idx];
-            String* str = engine->AllocString(&buff, 1);
-            result.Set(str);
-//          result.Set((pint_t)buffer[idx]);
+            result = engine->AllocString(&buff, 1);
             return true;
         }
         else
@@ -473,6 +471,26 @@ public:
         return 1;
     }
     
+    static int replaceChar(Context* ctx, Value& self)
+    {
+        Engine* engine = ctx->GetEngine();
+        String* str = self.val.str;
+        String* r = ctx->GetStringArg(0);
+        String* w = ctx->GetStringArg(1);
+        if (r->GetLength() != 1 || w->GetLength() != 1)        
+            return 0;
+        char rx = r->GetBuffer()[0];
+        char wx = w->GetBuffer()[0];
+        Buffer<char> buf;
+        buf.Resize((size_t)str->GetLength());
+        Pika_memcpy(buf.GetAt(0), str->GetBuffer(), str->GetLength());
+        char* pos = 0;
+        while ((pos = strrchr(buf.GetAt(0), rx)))
+            *pos = wx;
+        ctx->Push(engine->AllocString(buf.GetAt(0), buf.GetSize()));
+        return 1;
+    }
+    
     static int toReal(Context* ctx, Value& self)
     {
         String* str = self.val.str;
@@ -515,7 +533,7 @@ public:
     static int splitAt(Context* ctx, Value& self)
     {
         String* src = self.val.str;
-        pint_t    at  = ctx->GetIntArg(0);
+        pint_t  at  = ctx->GetIntArg(0);
         size_t  len = src->GetLength();
         Engine* eng = ctx->GetEngine();
         
@@ -527,7 +545,7 @@ public:
         
         String* strb = eng->AllocString(src->GetBuffer() + (size_t)at, len - (size_t)at);
         ctx->Push(strb);
-        
+                
         return 2;
     }
     
@@ -547,8 +565,8 @@ public:
     
     static int slice(Context* ctx, Value& self)
     {
-        pint_t    from = ctx->GetIntArg(0);
-        pint_t    to   = ctx->GetIntArg(1);
+        pint_t  from = ctx->GetIntArg(0);
+        pint_t  to   = ctx->GetIntArg(1);
         String* str  = self.val.str;
         String* res  = 0;
         
@@ -751,7 +769,7 @@ public:
             Value* curr = args;
             Value* end = curr + argc;
             
-            for (size_t pos = 0;curr != end; curr++)
+            for (size_t pos = 0; curr != end; curr++)
             {
                 // copy the next string
                 String* currStr = curr->val.str;
@@ -901,7 +919,8 @@ public:
 
 static RegisterFunction StringMethods[] =
 {
-    { "toInteger",  StringApi::toInteger,   0, 1, 0 },
+    { "replaceChar",StringApi::replaceChar, 2, 0, 1 },
+    { "toInteger",  StringApi::toInteger,   0, 0, 0 },
     { "toReal",     StringApi::toReal,      0, 0, 0 },
     { "toNumber",   StringApi::toNumber,    0, 0, 0 },
     { "toLower",    StringApi::toLower,     0, 0, 0 },
@@ -921,22 +940,20 @@ static RegisterFunction StringMethods[] =
     { "toString",   StringApi::toString,    0, 0, 1 },
     { "reverse",    StringApi::reverse,     0, 0, 1 },
 };
-    
+
 static RegisterFunction StringClassMethods[] =
 {
     { "cat",        StringApi::concat,      0, 1, 0 },
-    { "catsp",      StringApi::concatSpace, 0, 1, 0 },
+    { "catSp",      StringApi::concatSpace, 0, 1, 0 },
     { "fromByte",   StringApi::fromByte,    1, 0, 1 },
 };
 
 void InitStringAPI(Engine* eng)
 {
-
     eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, 0, eng->GetWorld());
     
     eng->String_Type->SetFinal(true);
-    eng->String_Type->SetAbstract(true);
-    
+    eng->String_Type->SetAbstract(true);    
     eng->String_Type->EnterMethods(StringMethods, countof(StringMethods));
     eng->String_Type->EnterClassMethods(StringClassMethods, countof(StringClassMethods));
     

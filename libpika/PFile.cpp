@@ -291,7 +291,7 @@ pint_t File::Seek(pint_t pos, pint_t startingPoint)
     return 0;
 }
 
-pint_t File::Goto(pint_t pos)
+pint_t File::SetPos(pint_t pos)
 {
     if (handle)
     {
@@ -313,7 +313,7 @@ pint_t File::Goto(pint_t pos)
     return 0;
 }
 
-pint_t File::Move(pint_t pos)
+pint_t File::Advance(pint_t pos)
 {
     if (handle)
     {
@@ -399,29 +399,29 @@ void InitFileAPI(Engine* eng)
     File* file_stdin  = File::Create(eng, File_Type);
     
     SlotBinder<File>(eng, File_Type, eng->GetWorld())
-    .Method(&File::ToBoolean,  "toBoolean")
-    .Method(&File::Open,       "open")
-    .Method(&File::Close,      "close")
-    .Method(&File::IsEof,      "eof?")
-    .MethodVA(&File::Write,    "write")
-    .MethodVA(&File::Read,     "read")
-    .Method(&File::Seek,       "seek")
-    .Method(&File::Goto,       "goto")
-    .Method(&File::Move,       "move")
-    .Method(&File::Flush,      "flush")
-    .Method(&File::ReadLine,   "readLine")
-    .Method(&File::ReadLines,  "readLines")
-    .Method(&File::IsOpen,     "open?")
-    .Method(&File::Rewind,     "rewind")
+    .Method(&File::ToBoolean,   "toBoolean")
+    .Method(&File::Open,        "open")
+    .Method(&File::Close,       "close")
+    .Method(&File::IsEof,       "eof?")
+    .MethodVA(&File::Write,     "write")
+    .MethodVA(&File::Read,      "read")
+    .Method(&File::Seek,        "seek")
+    .Method(&File::SetPos,      "setPos")
+    .Method(&File::Advance,     "advance")
+    .Method(&File::Flush,       "flush")
+    .Method(&File::ReadLine,    "readLine")
+    .Method(&File::ReadLines,   "readLines")
+    .Method(&File::IsOpen,      "open?")
+    .Method(&File::Rewind,      "rewind")
     .Constant((pint_t)SEEK_SET, "SEEK_SET")
     .Constant((pint_t)SEEK_SET, "SEEK_BEG")
     .Constant((pint_t)SEEK_CUR, "SEEK_CUR")
     .Constant((pint_t)SEEK_END, "SEEK_END")
-    .Constant(file_stdout,     "stdout")
-    .Constant(file_stderr,     "stderr")
-    .Constant(file_stdin,      "stdin")
-    .StaticMethodVA(TempName,  "tempName")
-    .StaticMethod(File_rename, "rename")
+    .Constant(file_stdout,      "stdout")
+    .Constant(file_stderr,      "stderr")
+    .Constant(file_stdin,       "stdin")
+    .StaticMethodVA(TempName,   "tempName")
+    .StaticMethod(File_rename,  "rename")
     ;
     
     file_stdout->SetFilename(eng->AllocString("stdout"));

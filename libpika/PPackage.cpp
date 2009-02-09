@@ -22,25 +22,8 @@ Package::Package(Engine* eng, Type* pkgType, String* n, Package* superPkg)
         dotName(0),
         superPackage(superPkg)
 {
-    MakeDotName();
-    SetSlot("__package__", this);
-}
-
-void Package::MakeDotName()
-{
-    Engine* eng = GetEngine();
-    GCPAUSE_NORUN(eng);
-    if (superPackage)
-    {
-        String* supername = superPackage->dotName;
-        String* superdot  = String::Concat(supername, eng->dot_String);
-        
-        dotName = String::Concat(superdot, name);
-    }
-    else
-    {
-        dotName = name;
-    }    
+    SetName(n);
+    SetSlot("__package", this);
 }
 
 Package::~Package() {}
@@ -55,6 +38,40 @@ bool Package::GetSlot(const Value& key, Value& res)
     if (superPackage && superPackage->GetSlot(key, res))
         return true;
     return false;
+}
+
+bool Package::GetGlobal(const Value& key, Value& res)
+{
+    if (members.Get(key, res))
+        return true;
+
+    if (superPackage && superPackage->GetGlobal(key, res))
+        return true;
+    return false;
+}
+
+bool Package::SetGlobal(const Value& key, Value& val, u4 attr)
+{
+    if (!members.CanSet(key))
+    {
+        if (!(attr & Slot::ATTR_forcewrite))
+        {
+            return false;
+        }
+        else
+        {
+            attr &= ~Slot::ATTR_forcewrite;
+        }
+    }
+    if (key.IsCollectible())
+        WriteBarrier(key);
+    if (val.IsCollectible())
+        WriteBarrier(val);
+    if (!members.Set(key, val, attr))
+    {
+        return false;
+    }
+    return true;
 }
 
 void Package::AddNative(RegisterFunction* fns, size_t count)
@@ -124,7 +141,7 @@ void Package::Init(Context* ctx)
         }
         superPackage = (Package*)super;
         WriteBarrier(superPackage);
-        SetName(nstr);
+        this->SetName(nstr);
     }
     else if (argc != 0)
     {
@@ -134,17 +151,17 @@ void Package::Init(Context* ctx)
 
 void Package::SetName(String* n)
 {
-    name = n;
-    dotName = name;
-    WriteBarrier(name);
+    this->name = n;
+    this->dotName = name;
+    WriteBarrier(this->name);
     
     if (superPackage)
     {
         String*  supername = superPackage->dotName;
         String*  superdot  = String::Concat(supername, engine->AllocString("."));
         
-        dotName = String::Concat(superdot, name);
-        WriteBarrier(dotName);
+        this->dotName = String::Concat(superdot, this->name);
+        WriteBarrier(this->dotName);
     }
 }
 
@@ -189,8 +206,10 @@ static int Package_getGlobal(Context* ctx, Value& self)
     Package* pkg = self.val.package;
     Value& arg0  = ctx->GetArg(0);
     Value res(NULL_VALUE);
-    
-    if (pkg->GetSlot(arg0, res))
+
+     // TODO: call properties
+
+    if (pkg->GetGlobal(arg0, res))
     {
         ctx->Push(res);
     }
@@ -206,8 +225,10 @@ static int Package_setGlobal(Context* ctx, Value& self)
     Package* pkg  = self.val.package;
     Value&   arg0 = ctx->GetArg(0);
     Value&   arg1 = ctx->GetArg(1);
-    
-    if (pkg->GetSlot(arg0, arg1))
+
+     // TODO: call properties
+
+    if (pkg->GetGlobal(arg0, arg1))
     {
         ctx->PushTrue();
     }
@@ -234,6 +255,7 @@ static int Package_hasGlobal(Context* ctx, Value& self)
     }
     return 1;
 }
+
 static int Package_getName(Context* ctx, Value& self)
 {
     Package* pkg = self.val.package;
@@ -274,43 +296,42 @@ void InitPackageAPI(Engine* eng)
     
     Pkg_World->SetType(eng->Package_Type);
     eng->Type_Type->SetType(eng->Package_Type->GetType());
-    
-    
+        
     eng->Module_Type = Type::Create(eng,
                                     eng->AllocString("Module"),
                                     eng->Package_Type,
                                     0, Pkg_World);
+                                    
     eng->Script_Type = Type::Create(eng,
                                     eng->AllocString("Script"),
                                     eng->Package_Type,
-                                    0, Pkg_World);
-                                    
-
+                                    0, Pkg_World);                                    
+    
     static RegisterFunction Package_methods[] =
     {
-        { "getGlobal",  Package_getGlobal, 1, 0, 1 },
-        { "setGlobal",  Package_setGlobal, 2, 0, 1 },
-        { "hasGlobal",  Package_hasGlobal, 1, 0, 1 },
-        { "getName",    Package_getName,   0, 0, 1 },
+        { "getGlobal", Package_getGlobal, 1, 0, 1 },
+        { "setGlobal", Package_setGlobal, 2, 0, 1 },
+        { "hasGlobal", Package_hasGlobal, 1, 0, 1 },
+        { "getName",   Package_getName,   0, 0, 1 },
     };
     
     static RegisterFunction Package_classMethods[] =
     {
-        { "openPath",   Package_openPath, 0, 1, 0 },
+        { "openPath", Package_openPath, 0, 1, 0 },
     };
     
     static RegisterProperty Pkg_Properties[] =
     {
-        { "__parent__",     Pkg_getParent,  "getParent",    0, 0 },
-        { "__name__",       Pkg_getName,    "getName",      0, 0 },
-        { "__path__",       Pkg_getPath,    "getPath",      0, 0 },
+        { "parent", Pkg_getParent, "getParent", 0, 0 },
+        { "name",   Pkg_getName,   "getName",   0, 0 },
+        { "path",   Pkg_getPath,   "getPath",   0, 0 },
     };
     
     eng->Package_Type->EnterMethods(Package_methods, countof(Package_methods));
     eng->Package_Type->EnterClassMethods(Package_classMethods, countof(Package_classMethods));
     eng->Package_Type->EnterProperties(Pkg_Properties, countof(Pkg_Properties));
     
-    Pkg_World->SetSlot(pkgstr,   eng->Package_Type);
+    Pkg_World->SetSlot(pkgstr, eng->Package_Type);
 }
 
 

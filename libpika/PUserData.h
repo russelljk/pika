@@ -9,10 +9,10 @@ namespace pika
 {
 class UserData;
 
-typedef void (*UserData_fn)  (UserData*);
-typedef bool (*UserData_get) (UserData*,  const Value&, Value&);
-typedef bool (*UserData_set) (UserData*,  const Value&, Value&, u4 attr);
-typedef void (*UserData_mark)(Collector*, UserData*);
+typedef void (*UserData_fn)  (UserData* ud);
+typedef bool (*UserData_get) (UserData* ud, const Value& key, Value& result);
+typedef bool (*UserData_set) (UserData* ud, const Value& key, Value& value, u4 attr);
+typedef void (*UserData_mark)(Collector* c, UserData* ud);
 
 struct UserDataInfo
 {
@@ -26,10 +26,10 @@ struct UserDataInfo
 };
 
 /** An object that allows native data (including classes and structs) from an external 
- *  module to be used in pika. The module can provide its own heap allocated pointer 
- *  with CreateWithPointer. It can also let pika 'manage' the memory with CreateManaged.  
- *  Pika will allocate an aligned block at the end of the UserData object.
- */
+  * module to be used in pika. The module can provide its own heap allocated pointer 
+  * with CreateWithPointer. It can also let pika 'manage' the memory with CreateManaged.  
+  * Pika will allocate an aligned block at the end of the UserData object.
+  */
 PIKA_CLASS_ALIGN(PIKA_ALIGN, UserData) : public Basic
 {
     PIKA_DECL(UserData, Basic)
@@ -52,26 +52,26 @@ public:
     INLINE void          SetData(void* p)   { ptr = p; }    
     INLINE void*         GetData() const    { return this->ptr; }
     
-    INLINE void*         GetData(const UserDataInfo* other_info) const { return (other_info == this->info) ? this->ptr : 0; }    
+    INLINE void*         GetData(const UserDataInfo* infoType) const { return (infoType == this->info) ? this->ptr : 0; }    
     
     /** Creates a new UserData object using the given pointer (may be a C++ class or struct.)
-     *  @param eng      [in] Pointer to a valid Engine.
-     *  @param type     [in] The script type of the UserData object.
-     *  @param data     [in] Typeless pointer to an user allocated block of data.
-     *  @param info     [in] Pointer to the UserDataInfo.
-     *
-     *  @result The UserData object ready to be used inside a script.
-     */
+      * @param eng      [in] Pointer to a valid Engine.
+      * @param type     [in] The script type of the UserData object.
+      * @param data     [in] Typeless pointer to an user allocated block of data.
+      * @param info     [in] Pointer to the UserDataInfo.
+      *
+      * @result The UserData object ready to be used inside a script.
+      */
     static UserData* CreateWithPointer(Engine* eng, Type* type, void* data, UserDataInfo* info);
     
     /** Creates a new UserData object with a block at the end that contains the data (may be for a C++ class or struct.)
-     *  @param eng      [in] Pointer to a valid Engine.
-     *  @param type     [in] The script type of the UserData object.
-     *  @param length   [in] The length of the data required.
-     *  @param info     [in] Pointer to the UserDataInfo.
-     *
-     *  @result The UserData object ready to be used inside a script.
-     */
+      * @param eng      [in] Pointer to a valid Engine.
+      * @param type     [in] The script type of the UserData object.
+      * @param length   [in] The length of the data required.
+      * @param info     [in] Pointer to the UserDataInfo.
+      *
+      * @result The UserData object ready to be used inside a script.
+      */
     static UserData* CreateManaged(Engine* eng, Type* type, size_t length, UserDataInfo* info);
 };
 

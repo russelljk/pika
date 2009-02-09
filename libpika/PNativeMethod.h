@@ -21,7 +21,7 @@ namespace pika
 enum NativeVarType 
 {
     BTNull,
-    BTInt8 , BTInt16 , BTInt32 , BTInt64,
+    BTInt8,  BTInt16,  BTInt32,  BTInt64,
     BTUInt8, BTUInt16, BTUInt32, BTUInt64,
     BTSizeT, BTSSizeT,
     BTFloat, BTDouble,
@@ -36,8 +36,8 @@ enum NativeVarType
 // VarType /////////////////////////////////////////////////////////////////////////////////////////
 
 /** Binds a native function's parameter by 
- *  converting the script object into a native C++ type.
- */
+  * converting the script object into a native C++ type.
+  */
 template<typename AType>
 struct VarType
 {
@@ -249,8 +249,8 @@ struct VarType<String*>
 // RetType /////////////////////////////////////////////////////////////////////////////////////////
 
 /** Binds a native function's return value by 
- *  converting the native C++ type into a Script object.
- */
+  * converting the native C++ type into a Script object.
+  */
 template<typename AType>
 struct RetType
 {
@@ -805,21 +805,24 @@ struct VarType< Nullable<T> >
     T val;
 };
 ////////////////////////////////////////////////////////////////////////////////
-template<>                                                                                      
-struct VarType<Function*>                                                                         
-{                                                                                               
-    enum                                                                                        
-    {                                                                                           
-        eType = BTObject,                                                                       
-        eSig = 'o',                                                                             
-    };                                                                                          
-    INLINE VarType() { }                                                                        
-    INLINE VarType(Context* ctx, u2 arg) { val = ctx->GetObjectArg(arg); }                      
-    INLINE VarType(Value* args, u2 arg) { val = args[arg].val.object; }                         
-    INLINE operator Function*()                                                                   
-    {                                                                                           
-        if (!val->IsDerivedFrom(Function::StaticGetClass()))   
-        {    
+template<>
+struct VarType<Function*>
+{
+    enum
+    {
+        eType = BTObject,
+        eSig = 'o',
+    };
+    INLINE VarType() { }
+    
+    INLINE VarType(Context* ctx, u2 arg) { val = ctx->GetObjectArg(arg); }
+    
+    INLINE VarType(Value* args, u2 arg) { val = args[arg].val.object; }
+    
+    INLINE operator Function*()
+    {
+        if (!val->IsDerivedFrom(Function::StaticGetClass()))
+        {
             Value res;
             if (GetOverrideFrom(val->GetEngine(), val, OVR_call, res))
             {
@@ -827,13 +830,13 @@ struct VarType<Function*>
             }
             else
             {
-                RaiseException("Expecting %s argument\n.", Function::StaticGetClass()->GetName());
+                RaiseException(Exception::ERROR_type, "Expecting %s argument\n.", Function::StaticGetClass()->GetName());
             }
         }
-        return (Function*)val;                                                                    
-    }                                                                                           
-    Object* val;                                                                                
-};                                                                                              
+        return (Function*)val;
+    }
+    Object* val;
+};
 
 template<>
 struct RetType<Function*>
@@ -851,19 +854,19 @@ struct RetType<Function*>
 DECLARE_BINDING(Package);
 DECLARE_BINDING(Type);
 
-BIND_INT_TYPE(s1, BTInt8);
+BIND_INT_TYPE(s1, BTInt8 );
 BIND_INT_TYPE(s2, BTInt16);
 BIND_INT_TYPE(s4, BTInt32);
 BIND_INT_TYPE(s8, BTInt64);
 
-BIND_INT_TYPE(u1, BTUInt8);
+BIND_INT_TYPE(u1, BTUInt8 );
 BIND_INT_TYPE(u2, BTUInt16);
 BIND_INT_TYPE(u4, BTUInt32);
 BIND_INT_TYPE(u8, BTUInt64);
 
 // size_t and ssize_t are treated as distinct types.
 #ifdef PIKA_MAC
-BIND_INT_TYPE(size_t, BTSizeT);
+BIND_INT_TYPE(size_t,  BTSizeT );
 BIND_INT_TYPE(ssize_t, BTSSizeT);
 #endif
 

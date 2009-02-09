@@ -1605,7 +1605,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc)
                 res.SetNull();
 #   else
                 ReportRuntimeError(Exception::ERROR_runtime,
-                                   "Attemp to read global variable '%s'.",
+                                   "Attempt to read global variable '%s'.",
                                    engine->ToString(this, prop)->GetBuffer());
                 return;
 #   endif
@@ -1723,6 +1723,60 @@ void Context::OpDotGet(int& numcalls, Opcode oc)
         obj = res;
         Pop();
     }
+}
+
+bool Context::DoPropertyGet(int& numcalls, Property* prop)
+{
+    if (!prop->CanGet())
+        return false;
+    
+    Push(prop->GetGetter());
+            
+    //  [ .... ]
+    //  [ obj  ]
+    //  [ getter function ]< Top
+    
+    if (SetupCall(0))
+    {
+        ++numcalls;
+    }
+    //  Stack current   | Stack after return
+    //------------------+-------------------------------------------
+    //  [ ..... ] < Top | [ ..... ]
+    //                  | [ value ]
+    return true;
+}
+
+bool Context::DoPropertySet(int& numcalls, Property* prop)
+{
+    if (!prop->CanSet())
+        return false;
+
+    //  [ ....  ]
+    //  [ value ]
+    //  [ obj   ]
+    //          < Top
+    
+    Push(prop->GetSetter());
+                    
+    //  [ ....            ]
+    //  [ value           ]
+    //  [ obj             ]
+    //  [ setter function ]
+    //                      < Top
+    
+    if (SetupCall(1))
+    {
+        Run();
+    }
+    
+    //  [ ....  ]
+    //  [ value ]< Top
+    
+    Pop();
+    
+    //  [ .... ]< Top
+    return true;
 }
 
 bool Context::OpUnpack(u2 expected)
@@ -2374,13 +2428,14 @@ void* Context::GetUserDataArg(u2 arg, UserDataInfo* info)
 
 pint_t Context::ArgToInt(u2 arg)
 {
-    Value v = GetArg(arg);
+    Value& v = GetArg(arg);
     
     if (v.tag != TAG_integer)
     {
-        if (!engine->ToIntegerExplicit(this, v))
+        Value temp = v;
+        if (!engine->ToIntegerExplicit(this, temp))
         {
-            ArgumentTagError(arg, (ValueTag)v.tag, TAG_integer);
+            ArgumentTagError(arg, (ValueTag)temp.tag, TAG_integer);
         }
     }
     return v.val.integer;
@@ -2388,13 +2443,14 @@ pint_t Context::ArgToInt(u2 arg)
 
 preal_t Context::ArgToReal(u2 arg)
 {
-    Value v = GetArg(arg);
+    Value& v = GetArg(arg);
     
     if (v.tag != TAG_real)
     {
-        if (!engine->ToRealExplicit(this, v))
+        Value temp = v;
+        if (!engine->ToRealExplicit(this, temp))
         {
-            ArgumentTagError(arg, (ValueTag)v.tag, TAG_real);
+            ArgumentTagError(arg, (ValueTag)temp.tag, TAG_real);
         }
     }
     return v.val.real;
@@ -2402,22 +2458,24 @@ preal_t Context::ArgToReal(u2 arg)
 
 bool Context::ArgToBool(u2 arg)
 {
-    Value v = GetArg(arg);
+    Value& v = GetArg(arg);
     
     if (v.tag != TAG_boolean)
     {
-        return engine->ToBoolean(this, v);
+        Value temp = v;
+        return engine->ToBoolean(this, temp);
     }
     return v.val.index ? true : false;
 }
 
 String* Context::ArgToString(u2 arg)
 {
-    Value v = GetArg(arg);
+    Value& v = GetArg(arg);
     
     if (v.tag != TAG_string)
     {
-        return engine->ToString(this, v);
+        Value temp = v;
+        return engine->ToString(this, temp);
     }
     return v.val.str;
 }
@@ -2628,8 +2686,8 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         
         switch (a)
         {
-            /* ================ Boolean ================ */
-            
+        
+        /* Boolean */            
         case 'B':
         case 'b':
         {
@@ -2654,8 +2712,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ Enumerator ================ */
-        
+        /* Enumerator */        
         case 'E':
         case 'e':
         {
@@ -2667,8 +2724,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ Integer ================ */
-        
+        /* Integer */        
         case 'I':
         case 'i':
         {
@@ -2695,8 +2751,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ Object ================ */
-        
+        /* Object */        
         case 'O':
         case 'o':
         {
@@ -2708,8 +2763,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ Real ================ */
-        
+        /* Real */        
         case 'R':
         case 'r':
         {
@@ -2737,8 +2791,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ String ================ */
-        
+        /* String */        
         case 'S':
         case 's':
         {
@@ -2768,8 +2821,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ UserData ================ */
-        
+        /* UserData */        
         case 'U':
         case 'u':
         {
@@ -2781,10 +2833,9 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* ================ Skip ================ */
-        
-        case  'X': // skip
-        case  'x': // skip
+        /* Skip */        
+        case  'X':
+        case  'x':
             break;
         };
         
@@ -2808,7 +2859,7 @@ Context::EErrorResult Context::OpException(Exception& e)
         }
         else
         {
-            // TODO: Create an Error type hierarchy
+            // TODO: Error type hierarchy.
             switch (e.kind)
             {
             case Exception::ERROR_syntax:     engine->SyntaxError_Type->CreateInstance(thrown);     break;
@@ -2861,7 +2912,7 @@ Context::EErrorResult Context::OpException(Exception& e)
             {
                 if (scopes[a].kind == SCOPE_call && scopes[a].closure)
                 {
-                    // Make sure no scopes between the current one and the try-block
+                    // Make sure no scopes between the current one and the try block
                     // contains a native function call.
                     
                     if (scopes[a].pc == 0)

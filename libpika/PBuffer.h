@@ -33,13 +33,10 @@ namespace pika
 template<typename T>
 class Buffer
 {
-public:
-
-    /////////////////////////////////////////// Indexer ////////////////////////////////////////////
-    /**
-     *  Access the Buffer with an index. This access is slower than using a pointer based Iterator but is
-     *  much safer because the size and location of the Buffer's elements can change and the Indexer is still valid.
-     */
+public:    
+    /** Access the Buffer with an index. This access is slower than using a pointer based Iterator but is
+      * much safer because the size and location of the Buffer's elements can change and the Indexer is still valid.
+      */
     class Indexer
     {
         size_t           index;
@@ -114,10 +111,8 @@ public:
         INLINE bool	operator> (const Indexer& rhs) const { return index >  rhs.index; }
     };
     
-    /////////////////////////////////////////// Iterator ///////////////////////////////////////////
-    /**
-     *  Basic iterator that has partial compatibility with the C++ STL. 
-     */
+    /** Basic iterator that has partial compatibility with the C++ STL. 
+      */
     class Iterator
     {
         T* myPtr;
@@ -181,10 +176,8 @@ public:
         INLINE bool	operator> (const Iterator& rhs) const { return myPtr >  rhs.myPtr; }
     };
     
-    //////////////////////////////////////// ConstIterator /////////////////////////////////////////
-    /**
-     *  Basic constant iterator that has partial compatibility with the C++ STL.  
-     */
+    /** Basic constant iterator that has 'partial' compatibility with the C++ STL.  
+      */
     class ConstIterator
     {
         const T* myPtr;
@@ -413,13 +406,12 @@ public:
     
     size_t      IndexOfPointer(const T* pT)     const { return pT - elements; } 
         
-    /**
-     * When order doen't matter for the elements of an array you can use SwapAndPop to quickly erase an 
-     * element. It works by swapping the element at the given position with the last element. Then the 
-     * last element is popped of the back of the array.
-     *
-     * O(1)
-     */
+    /** When order doen't matter for the elements of an array you can use SwapAndPop to quickly erase an 
+      * element. It works by swapping the element at the given position with the last element. Then the 
+      * last element is popped of the back of the array.
+      *
+      * O(1)
+      */
     bool SwapAndPop(Iterator& iter)
     {
         size_t iteratorIndex = iter.myPtr - elements;
@@ -444,13 +436,12 @@ public:
         return true;
     }
     
-    /**
-     * Erases the element at the given position. Since every element after that position must be
-     * copied down it can be an expensive operation. If you do not care about the order of elements
-     * you can call SwapAndPop.
-     *
-     * O(n)
-     */
+    /** Erases the element at the given position. Since every element after that position must be
+      * copied down it can be an expensive operation. If you do not care about the order of elements
+      * you can call SwapAndPop.
+      *
+      * O(n)
+      */
     bool Erase(Iterator& iter)
     {
         size_t iteratorIndex = iter.myPtr - elements;

@@ -526,7 +526,7 @@ Script* Engine::Compile(String* name, Context* parent)
         yyin = 0;
     }
     
-    Script* script = Script::Create(this, str_dot_name, Pkg_World);
+    Script* script = Script::Create(this, str_dot_name, Pkg_Imports);
     scripts.Push(script);
     
     Context* context = Context::Create(this, this->Context_Type);
@@ -606,8 +606,7 @@ bool Engine::ToBoolean(Context* ctx, const Value& v)
     case TAG_def:         return true;
     case TAG_string:      return v.val.str->GetLength() != 0;
     case TAG_enumerator:  return v.val.enumerator->IsValid();
-    case TAG_property:    return true;
-    
+    case TAG_property:    return true;    
     case TAG_userdata:    return true;
     case TAG_object:
     {

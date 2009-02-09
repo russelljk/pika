@@ -30,7 +30,7 @@ protected:
     bool            firstRun;
     bool            running;
 public:
-    virtual        ~Script();
+    virtual         ~Script();
     virtual Context* GetContext() { return context; }
     virtual void     MarkRefs(Collector* c);
     virtual bool     Run(Array* arguments);

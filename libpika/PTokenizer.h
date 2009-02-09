@@ -1,6 +1,14 @@
 /*
  * PTokenizer.h
  * See Copyright Notice in Pika.h
+ *
+ * --------------------------------------------------------------------------------------
+ * classes:
+ *      StringToNumber
+ *      IScriptStream
+ *          FileScriptStream
+ *      Tokenizer
+ * --------------------------------------------------------------------------------------
  */
 #ifndef PIKA_TOKENIZER_HEADER
 #define PIKA_TOKENIZER_HEADER
@@ -12,14 +20,11 @@ namespace pika
 
 struct CompileState;
 
-// Converts a C string to an integer or floating point value. Uses the same algorithm and
-// float | int | radix formats used by the Tokenizer, the only exception is that html hex values
-// (i.e. #ffcc99) are supported.
-
-class StringToNumber
+/** Converts a C string to an integer or floating point value. Uses the same algorithm and
+  * formats as the Tokenizer, the only exception is that html hex values (#ffcc99) are supported.
+  */
+struct StringToNumber
 {
-public:
-
     StringToNumber(const char* str, size_t len, bool eatwsp = true, bool use_html_hex = true, bool must_consume = true);
     StringToNumber(const char* str, const char* end, bool must_consume = true);
     
@@ -39,15 +44,18 @@ public:
     
     INLINE          operator bool() { return IsValid(); }
 private:
-    void            EatWhitesp();    
+    void            EatWhiteSpace();    
     void            ReadNumber();
         
     int             look;
     const char*     curr;
     const char*     buffer;
     const char*     end;
-    double          real;
-    s8              integer;
+    union
+    {
+        double      real;
+        s8          integer; 
+    };
     u4              is_number:1;
     u4              is_real:1;
     u4              is_integer:1;
@@ -55,17 +63,24 @@ private:
     u4              html_hex:1;
 };
 
+/** Interface for a script's input stream. */
 struct IScriptStream
 {
-    IScriptStream() {}
+    virtual ~IScriptStream() = 0;
+    
+    /** Get and return the current character in the stream. 
+      * The position of the stream should move to the next character before this method returns. */
+    virtual int  Get() = 0;
 
-    virtual ~IScriptStream() {}
-
-    virtual int  Get()      = 0;
-    virtual int  Peek()     = 0;
-    virtual bool IsEof()    = 0;
+    /** Get and return the next character in the stream. */
+    virtual int  Peek() = 0;
+    
+    /** Returns true if we have reached the end of the stream. */
+    virtual bool IsEof() = 0;
 };
 
+/** C file based input stream. 
+  * @note Reads the entire file into a buffer. */
 struct FileScriptStream : IScriptStream
 {
     FileScriptStream(FILE* fs) : buffer(0), pos(0), bufferLength(0), stream(fs)
@@ -73,7 +88,7 @@ struct FileScriptStream : IScriptStream
         fseek(stream, 0, SEEK_END);
         long len = ftell(stream);
         rewind(stream);
-
+        
         buffer = (char*)Pika_malloc((len + 1) * sizeof(char));
         bufferLength = len;
         fread(buffer, sizeof(char), len, stream);
@@ -91,6 +106,7 @@ struct FileScriptStream : IScriptStream
     virtual bool IsEof() { return pos > bufferLength; }
 
 private:
+    // TODO: move this into tokenizer class so that other streams can use it.
     void CheckBom()
     {
         if (bufferLength >= 3)
@@ -114,6 +130,7 @@ private:
     FILE*  stream;
 };
 
+/** String based input stream. */
 struct StringScriptStream : IScriptStream
 {
     StringScriptStream(const char* buf, size_t len) 
@@ -141,8 +158,7 @@ private:
     size_t bufferLength;
 };
 
-// Tokenizer ///////////////////////////////////////////////////////////////////
-
+/** Converts a input stream into a series of tokens. */
 class Tokenizer
 {
 public:
@@ -182,7 +198,7 @@ protected:
     void            ReadControl();
     void            ReadMultiLineComment();
     void            ReadSingleLineComment();
-
+    
     size_t          tokenBegin;
     size_t          tokenEnd;
     YYSTYPE         tokenVal;

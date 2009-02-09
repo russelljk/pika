@@ -15,28 +15,31 @@ namespace pika
 #define TOKEN_DEF(XTOK, XNAME) XTOK,
 enum ETokenType
 {
-    TOK_min = 257,
+    // characters occupy positions 0 - 255
+    TOK_min = 257, 
 #   include "PToken.def"
     TOK_max
 };
 
+// Token type union
 union YYSTYPE 
 {
-    struct
+    struct 
     {
-        char*   str;
-        size_t  len;
+        char* str; // identifiers and strings
+        size_t len;
     };
-    pint_t       integer;
-    preal_t      real;
+
+    pint_t integer;  // integers
+    preal_t real;    // reals
 };
 
 struct Token2String
 {
     static const char** GetNames();
-    static const int    min;
-    static const int    max;
-    static const int    diff;
+    static const int min;
+    static const int max;
+    static const int diff;
 };
 
 }// pika

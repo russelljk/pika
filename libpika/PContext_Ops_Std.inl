@@ -30,7 +30,7 @@ PIKA_OPCODE(OP_jumpiffalse)
 {
     Value& t = PopTop();
     u2 jmppos = GetShortOperand(instr);
-
+    
     if (t.tag == TAG_boolean)
     {
         if (!t.val.index)
@@ -49,7 +49,7 @@ PIKA_OPCODE(OP_jumpiftrue)
 {
     Value& t = PopTop();
     u2 jmppos = GetShortOperand(instr);
-
+    
     if (t.tag == TAG_boolean)
     {
         if (t.val.index)
@@ -84,13 +84,13 @@ PIKA_OPCODE(OP_assert)
 }
 PIKA_NEXT()
 
-PIKA_OPCODE(OP_pushnull) 
+PIKA_OPCODE(OP_pushnull)
 {
     PushNull();
 }
 PIKA_NEXT()
 
-PIKA_OPCODE(OP_pushself) 
+PIKA_OPCODE(OP_pushself)
 {
     Push(self);
 }
@@ -149,27 +149,32 @@ PIKA_NEXT()
 PIKA_OPCODE(OP_pushglobal)
 {
     u2 index = GetShortOperand(instr);
-
+    
     const Value& name = closure->GetLiteral(index);
-#   if 0
     Value res(NULL_VALUE);
-    if (self.tag >= TAG_basic && self.val.basic->GetSlot(name, res))
+    if (package && package->GetGlobal(name, res))
     {
-        Push(res);
-    }
-    else if (package && self.val.basic != (Basic*)package && package->GetSlot(name, res))
-    {
-        Push(res);
+        if (res.tag == TAG_property)
+        {
+            Push(this->package);
+            if (DoPropertyGet(numcalls, res.val.property))
+            {
+                PIKA_NEXT()
+            }
+            else
+            {
+                ReportRuntimeError(Exception::ERROR_runtime, "Attempt to read global property.");
+            }
+        }
+        else
+        {
+            Push(res);
+        }
     }
     else
     {
-        RaiseException("Attempt to read global.");
+        ReportRuntimeError(Exception::ERROR_runtime, "Attempt to read global.");
     }
-#   endif
-    Push(this->package);
-    Push(name);
-
-    OpDotGet(numcalls, oc);
 }
 PIKA_NEXT()
 /*
@@ -180,13 +185,13 @@ PIKA_OPCODE(OP_pushmember)
 {
     u2 index = GetShortOperand(instr);
     const Value& name = closure->GetLiteral(index);
-
+    
     if (!self.IsObject())
-        RaiseException("invalid self object.\n");
-
+        ReportRuntimeError(Exception::ERROR_runtime, "invalid self object.\n");
+        
     Push(self);
     Push(name);
-
+    
     OpDotGet(numcalls, oc);
 }
 PIKA_NEXT()
@@ -198,7 +203,7 @@ PIKA_OPCODE(OP_pushouter)
 {
     u1 depth = GetByteOperand(instr);
     u2 index = GetShortOperand(instr);
-
+    
     Push(GetOuter(index, depth));
 }
 PIKA_NEXT()
@@ -216,7 +221,7 @@ PIKA_OPCODE(OP_setlocal)
 {
     Value& t = PopTop();
     u2 index = GetShortOperand(instr);
-
+    
     SetLocal(t, index);
 }
 PIKA_NEXT()
@@ -227,13 +232,33 @@ PIKA_NEXT()
 PIKA_OPCODE(OP_setglobal)
 {
     u2 index = GetShortOperand(instr);
-
+    
     const Value& name = closure->GetLiteral(index);
-
-    Push(this->package);
-    Push(name);
-
-    OpDotSet(numcalls, oc);
+    Value& val  = this->Top();
+    if (!this->package->SetGlobal(name, val))
+    {
+        Value res(NULL_VALUE);
+        if (this->package->GetGlobal(name, res) && res.tag == TAG_property)
+        {
+            this->Push(this->package);
+            if (this->DoPropertySet(numcalls, res.val.property))
+            {
+                PIKA_NEXT()
+            }
+            else
+            {
+                ReportRuntimeError(Exception::ERROR_runtime, "attempt to set global property.");
+            }
+        }
+        else
+        {
+            ReportRuntimeError(Exception::ERROR_runtime, "attempt to set global.");
+        }
+    }
+    else
+    {
+        Pop();
+    }
 }
 PIKA_NEXT()
 /*
@@ -243,15 +268,15 @@ PIKA_NEXT()
 PIKA_OPCODE(OP_setmember)
 {
     u2 index = GetShortOperand(instr);
-
+    
     if (!self.IsObject())
-        RaiseException("Invalid self object.\n");
-
+        ReportRuntimeError(Exception::ERROR_runtime, "Invalid self object.\n");
+        
     const Value& name = closure->GetLiteral(index);
-
+    
     Push( self );
     Push( name );
-
+    
     OpDotSet(numcalls, oc);
 }
 PIKA_NEXT()

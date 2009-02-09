@@ -73,13 +73,13 @@
  * (appears to) always provide a performace increase.
  */
 #   define PIKA_OPCODE(x)           lbl_##x:
-#   define PIKA_NEXT()                                 \
+#   define PIKA_NEXT()                                  \
     {                                                   \
         if (state != RUNNING)                           \
             break;                                      \
         instr = *pc++;                                  \
-        oc = PIKA_GET_OPCODEOF(instr);                 \
-        PIKA_CHECK_INSTR_HOOK()                        \
+        oc = PIKA_GET_OPCODEOF(instr);                  \
+        PIKA_CHECK_INSTR_HOOK()                         \
         goto *static_jmp_addresses[oc];  /*the jump */  \
     }
 #   define PIKA_END_DISPATCH()
@@ -96,13 +96,15 @@
  *  GCC's labels as values extension is used to dispatch instructions if present. For other
  *  compilers a standard switch based dispatch is used.
  *
- *  Any exception raised while executing the script is handled in-house if possible.
+ *  Any exception raised while executing the script is handled 'in house' if possible.
  *
  *  We try to make this as 'stackless' as possible and every attempt should be made to limit
  *  the number of times Run calls itself. 'numRuns' keeps track of the number of times
  *  Run has been called, while the local variable 'numcalls' keeps track of the number of times Run
- *  has "inlined" the call. We cannot return from Run until numcalls == 0 or an exception is thrown
- *  and cannot be handled in-place.
+ *  has 'inlined' the call. We cannot return from Run until numcalls == 0, an exception is thrown
+ *  or we yield. When we yield we must exit Run and store numcalls so that we can resume properly.
+ *  This means a context cannot yield more than once without resuming, (not a problem as long you 
+ *  do not call a yielded context).
  */
 void Context::Run()
 {

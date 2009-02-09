@@ -12,6 +12,8 @@ namespace pika
 {
 struct CompileState;
 
+/** Compiles the intermediate representation (aka the Instr class) into bytecode.
+  */
 class Compiler
 {
 public:

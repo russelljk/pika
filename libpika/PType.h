@@ -44,6 +44,9 @@ public:
     virtual bool IsInstance(Value&);
     virtual Enumerator* GetEnumerator(String*);
     
+    virtual bool GetGlobal(const Value& key, Value& result);
+    virtual bool SetGlobal(const Value& key, Value& val, u4 attr = 0);
+    
     /** Creates an new instance of this type.
      *
      *  @param inst     [out] The new instance.

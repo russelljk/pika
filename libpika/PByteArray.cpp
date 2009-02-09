@@ -615,7 +615,7 @@ int ByteArray_nextBytes(Context* ctx, Value& self)
         for (u4 a = 0; a < num; ++a)
         {
             u1 byte = ba->ReadByte();
-            ctx->Push(byte);
+            ctx->Push((pint_t)byte);
         }
         return nbytes;
     }

@@ -316,6 +316,10 @@ Type* Type::Create(Engine* eng, String* name, Type* base, Type_NewFn fn, Package
     return obj;
 }
 
+bool Type::GetGlobal(const Value& key, Value& result) {return GetSlot(key, result);}
+
+bool Type::SetGlobal(const Value& key, Value& val, u4 attr) {return SetSlot(key, val, attr);}
+
 void Type::AddSubtype(Type* subtype)
 {
     GCPAUSE_NORUN(engine);
