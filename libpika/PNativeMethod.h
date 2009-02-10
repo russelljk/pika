@@ -306,8 +306,9 @@ struct RetType<const char*>
 {
     INLINE RetType(Context* ctx, const char* s)
     {
-        // TODO: Might be a good idea to pause to GC.
-        String* str = s ? ctx->GetEngine()->AllocString(s) : ctx->GetEngine()->emptyString;
+        Engine* eng = ctx->GetEngine();
+        GCPAUSE_NORUN(eng);
+        String* str = s ? eng->AllocString(s) : eng->emptyString;
         ctx->Push(str);
     }
 };
@@ -317,8 +318,9 @@ struct RetType<char*>
 {
     INLINE RetType(Context* ctx, char* s)
     {
-        // TODO: Might be a good idea to pause to GC.
-        String* str = s ? ctx->GetEngine()->AllocString(s) : ctx->GetEngine()->emptyString;
+        Engine* eng = ctx->GetEngine();
+        GCPAUSE_NORUN(eng);
+        String* str = s ? eng->AllocString(s) : eng->emptyString;
         ctx->Push(str);
     }
 };
@@ -848,7 +850,6 @@ struct RetType<Function*>
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////
 //DECLARE_BINDING(Function);
 
 DECLARE_BINDING(Package);

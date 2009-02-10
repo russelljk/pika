@@ -19,9 +19,8 @@ namespace pika
 
 struct NativeMethodBase;
 
-// NativeDef ////////////////////////////////////////////////////////////////////////
-/** The struct NativeMethodBase wrapped so that the GC can manage its lifetime. */
-
+/** The struct NativeMethodBase wrapped so that the GC can manage its lifetime.
+  */
 struct PIKA_API NativeDef : GCObject
 {
     NativeDef(NativeMethodBase* d);
@@ -32,7 +31,6 @@ struct PIKA_API NativeDef : GCObject
     int retc;
 };
 
-// HookedFunction //////////////////////////////////////////////////////////////////////////////////
 /** A Function object that directly binds a native C/C++ function, instance method, 
   * class method to its script equivalent. 
   */
@@ -40,12 +38,12 @@ struct PIKA_API HookedFunction : Function
 {
     PIKA_DECL(HookedFunction, Function)
 public:
-    HookedFunction(Engine*      eng,
-                   Type*        ptype,                   
-                   Def*         mdef,
-                   NativeDef*   def,
-                   ClassInfo*   info,
-                   Package*     pkg);
+    HookedFunction(Engine*    eng,
+                   Type*      ptype,                   
+                   Def*       mdef,
+                   NativeDef* def,
+                   ClassInfo* info,
+                   Package*   pkg);
     
     virtual ~HookedFunction();
     
@@ -140,7 +138,9 @@ public:
       */
     virtual void Invoke(void* obj, Context* ctx);
     
-    /** Number of values this function will return. (Should be 1 or 0 since it binds to a native C/C++ method.) */
+    /** Number of values this function will return.
+      * @note Should be 1 or 0 since it binds to a native C/C++ method.
+      */
     INLINE int GetRetCount() const { return ndef->retc; }
     
     virtual String* GetDotPath();
@@ -152,8 +152,6 @@ public:
     NativeDef* ndef;
     ClassInfo* info;
 };
-
-// SlotBinder /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename AClass>
 struct SlotBinder
@@ -303,7 +301,7 @@ struct SlotBinder
         object->AddFunction(closure);
         return *this;
     }
-        
+    
     SlotBinder& RegisterMethod(Nativecode_t code,
                          const char*  cname,
                          u2           argc    = 0,
