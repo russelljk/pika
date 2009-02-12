@@ -58,19 +58,5 @@ extern intptr_t Pika_OpenShared(const char* path);
 extern bool     Pika_CloseShared(intptr_t handle);
 extern void*    Pika_GetSymbolAddress(intptr_t handle, const char* symbol);
 
-struct Pika_regmatch
-{
-    int start;
-    int end;
-};
-
-struct Pika_regex;
-
-/* Compile the regular expression. */
-extern Pika_regex*  Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode);
-extern size_t       Pika_regerror(int errcode, const Pika_regex* preg, char* errbuf, size_t errbuf_size);
-extern int          Pika_regexec(const Pika_regex* preg, const char* subj, size_t const subjlen, Pika_regmatch* pmatch, size_t const nmatch, int eflags);
-extern void         Pika_regfree(Pika_regex* preg);
-
 #endif
 

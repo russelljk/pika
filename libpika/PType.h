@@ -33,8 +33,6 @@ public:
     
     virtual ~Type();
     
-    virtual bool IsType() const { return true; }
-    
     virtual void    MarkRefs(Collector*);
     virtual Object* Clone();
     virtual String* ToString();

@@ -486,16 +486,16 @@ void Context::Run()
                 
                 Value   vobj(NULL_VALUE);
                 
-                Object* type_obj  = 0;
-                u2      elemCount = GetShortOperand(instr);
-                u2      elemDepth = elemCount * 2;
-                Value   type_val  = PopTop();
-                Value*  beg       = GetStackPtr() - elemDepth;
-                Value*  end       = GetStackPtr();
+                Type*  type_obj  = 0;
+                u2     elemCount = GetShortOperand(instr);
+                u2     elemDepth = elemCount * 2;
+                Value  type_val  = PopTop();
+                Value* beg       = GetStackPtr() - elemDepth;
+                Value* end       = GetStackPtr();
                 
                 if (type_val.IsDerivedFrom(Type::StaticGetClass()))
                 {
-                    type_obj = type_val.val.object;
+                    type_obj = type_val.val.type;
                 }
                 else if (type_val.IsNull())
                 {

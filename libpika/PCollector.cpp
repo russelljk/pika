@@ -10,8 +10,6 @@
 namespace pika
 {
 
-GCObject::~GCObject() {}
-
 void GCObject::Unlink()
 {
     if (gcprev) gcprev->gcnext = gcnext;
@@ -373,24 +371,27 @@ bool Collector::IncrementalMoveRoots(bool b)
 
 bool Collector::IncrementalScan(bool b)
 {
-    if (state != GRAY_SCAN)    
-        return IncrementalSweep(b);    
-    GCObject* next = 0;
-    while ((scan->gccolor == grays->gccolor) && STILL_ITERATING())
+    if (state != GRAY_SCAN)
+        return IncrementalSweep(b);
+    
+    while ((scan->gccolor == grays->gccolor) && // Loop while there are still objs in the gray list
+            STILL_ITERATING())                  // and while we still have some iterations left.
     {
-        next = scan->gcnext;
-        scan->MarkRefs(this);
-        scan->Unlink();
-        scan->InsertAfter(blacks);
-        scan = next;
+        GCObject* next = scan->gcnext; // Save the next object.
+        scan->MarkRefs(this);          // Mark it.
+        scan->Unlink();                // Remove it from the gray list.
+        scan->InsertAfter(blacks);     // Add it to the black list.
+        scan = next;                   // Move to the next object.
     }
-    // Time to start sweeping.
+
+    // If its time to start sweeping.
     if ((scan->gccolor != grays->gccolor))
     {
         state = SWEEP;
         sweep = whites->gcnext;
         return IncrementalSweep(b);
     }
+    // Otherwise we will finish scanning at a later time.
     iteration = 0;
     return false;
 }
@@ -398,7 +399,7 @@ bool Collector::IncrementalScan(bool b)
 void Collector::FreeAll()
 {
     // Delete all RootObjects and
-    // add their gc object to the black list.
+    // add their gc-object to the black list.
     RootObject* robj = head->next;
     while (robj != head)
     {
@@ -490,16 +491,18 @@ bool Collector::IncrementalSweep(bool b)
         sweep->Unlink();
         --numObjects;
         
-        if (sweep->IsPersistent())
+        if (sweep->IsPersistent()) // Don't free a persistent object
         {
             sweep->InsertAfter(blacks);
         }
-        else if (sweep->Finalize())
+        else if (sweep->Finalize()) // Free this object if it finalizes
         {
             FreeObject(sweep);
         }
         sweep = next;
     }
+    
+    // If we finished reset the collector
     if (sweep->gccolor != whites->gccolor)
     {
         engine->SweepStringTable();
@@ -507,6 +510,7 @@ bool Collector::IncrementalSweep(bool b)
         Reset();
         return true;
     }
+    // Otherwise we will continue at a later time.
     iteration = 0;
     return false;
 }

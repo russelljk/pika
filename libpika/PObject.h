@@ -52,11 +52,6 @@ protected:
 public:
     virtual ~Object();
     
-    // Quick identification of tyoe commonly used in the VM (Faster than IsDerivedFrom and dynamic_cast).
-    virtual bool  IsType()     const { return false; }
-    virtual bool  IsFunction() const { return false; }
-    virtual bool  IsArray()    const { return false; }
-    
     virtual Type* GetType() const { return type; }
     virtual void  SetType(Type*);
     
@@ -70,8 +65,7 @@ public:
     virtual bool  DeleteSlot(const Value& key);
     
     virtual void  MarkRefs(Collector*);
-    
-    virtual void    CreateInstance(Value&);
+
     virtual Object* Clone();
     virtual String* ToString();
     virtual void    Init(Context*);

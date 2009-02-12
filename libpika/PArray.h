@@ -38,8 +38,7 @@ public:
     virtual Object*     Clone();
     virtual Enumerator* GetEnumerator(String*);
     virtual void        Init(Context*);
-
-    virtual bool IsArray() const { return true; }
+    
     virtual String*  ToString();
     
     Array*  Slice(pint_t from, pint_t to);   //!< Returns a subset from this array.

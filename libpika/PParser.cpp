@@ -1485,7 +1485,7 @@ Stmt* Parser::DoOptionalJumpStatement(Stmt* stmt)
         return stmt;
         
     if (tstream.GetType() == TOK_if ||
-            tstream.GetType() == TOK_unless )
+        tstream.GetType() == TOK_unless )
     {
         bool unless = false;
         if (!Optional(TOK_if))
@@ -1598,9 +1598,7 @@ Expr* Parser::DoExpression()
     return DoNullSelectExpression();
 }
 
-//
-// lhs-expression ?? rhs-expression
-//
+// lhs ?? rhs
 Expr* Parser::DoNullSelectExpression()
 {
     Expr* expr = DoConditionalExpression();
@@ -1617,9 +1615,7 @@ Expr* Parser::DoNullSelectExpression()
     return expr;
 }
 
-//
-// cond-expression ? then-expression : else-expression
-//
+// cond ? expr : expr
 Expr* Parser::DoConditionalExpression()
 {
     Expr* expr = DoConcatExpression();
@@ -1659,9 +1655,8 @@ Expr* Parser::DoConcatExpression()
     }
     return expr;
 }
-//
-// lhs-expression or rhs-expression
-//
+
+// lhs or rhs
 Expr* Parser::DoLogOrExpression()
 {
     Expr* expr = DoLogXorExpression();
@@ -1679,9 +1674,8 @@ Expr* Parser::DoLogOrExpression()
     }
     return expr;
 }
-//
-// lhs-expression xor rhs-expression
-//
+
+// lhs xor rhs
 Expr* Parser::DoLogXorExpression()
 {
     Expr* expr = DoLogAndExpression();
@@ -1699,9 +1693,8 @@ Expr* Parser::DoLogXorExpression()
     }
     return expr;
 }
-//
-// lhs-expression and rhs-expression
-//
+
+// lhs and rhs
 Expr* Parser::DoLogAndExpression()
 {
     Expr* expr = DoOrExpression();
@@ -1719,9 +1712,8 @@ Expr* Parser::DoLogAndExpression()
     }
     return expr;
 }
-//
-// lhs-expression | rhs-expression
-//
+
+// lhs | rhs
 Expr* Parser::DoOrExpression()
 {
     Expr* expr = DoXorExpression();
@@ -1739,9 +1731,8 @@ Expr* Parser::DoOrExpression()
     }
     return expr;
 }
-//
-// lhs-expression ^ rhs-expression
-//
+
+// lhs ^ rhs
 Expr* Parser::DoXorExpression()
 {
     Expr* expr = DoAndExpression();
@@ -1759,9 +1750,8 @@ Expr* Parser::DoXorExpression()
     }
     return expr;
 }
-//
+
 // lhs & rhs
-//
 Expr* Parser::DoAndExpression()
 {
     Expr* expr = DoEqualExpression();
@@ -1779,13 +1769,12 @@ Expr* Parser::DoAndExpression()
     }
     return expr;
 }
-//
+
 // lhs == rhs
 // lhs != rhs
 // lhs === rhs
 // lhs !== rhs
 // lhs is rhs
-//
 Expr* Parser::DoEqualExpression()
 {
     Expr* expr = DoCompExpression();
@@ -1849,12 +1838,11 @@ Expr* Parser::DoEqualExpression()
     }
     return expr;
 }
-//
+
 // lhs < rhs
 // lhs > rhs
 // lhs <= rhs
 // lhs >= rhs
-//
 Expr* Parser::DoCompExpression()
 {
     Expr* expr = DoShiftExpression();
@@ -1892,11 +1880,10 @@ Expr* Parser::DoCompExpression()
     }
     return expr;
 }
-//
+
 // lhs << rhs
 // lhs >> rhs
 // lhs >>> rhs
-//
 Expr* Parser::DoShiftExpression()
 {
     Expr* expr = DoAddExpression();
@@ -1927,10 +1914,9 @@ Expr* Parser::DoShiftExpression()
     }
     return expr;
 }
-//
+
 // lhs + rhs
 // lhs - rhs
-//
 Expr* Parser::DoAddExpression()
 {
     Expr* expr = DoMulExpression();
@@ -1949,12 +1935,11 @@ Expr* Parser::DoAddExpression()
     }
     return expr;
 }
-//
+
 // lhs * rhs
 // lhs / rhs
 // lhs % rhs
 // lhs mod rhs
-//
 Expr* Parser::DoMulExpression()
 {
     Expr* expr = DoPrefixExpression();

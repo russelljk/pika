@@ -48,7 +48,7 @@ typedef Buffer<char> TStringBuffer;
 /* PathManager
  *
  * TODO: paths added need to be checked for consistency
- *
+ * TODO: PathManager needs to become a full script Type so that scrips can use it.
  */
 struct PIKA_API PathManager : GCObject
 {

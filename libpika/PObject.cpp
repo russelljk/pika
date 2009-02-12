@@ -49,14 +49,7 @@ void Object::MarkRefs(Collector* c)
     if (type) type->Mark(c);
 }
 
-void Object::CreateInstance(Value& v)
-{
-    Object* obj = Clone();
-    if (obj)
-    {
-        v.Set(obj);
-    }
-}
+
 
 String* Object::ToString()
 {

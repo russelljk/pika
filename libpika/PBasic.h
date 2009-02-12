@@ -22,15 +22,20 @@ class Engine;
 class Enumerator;
 class Type;
 
+
 struct NamedConstant 
 {
-    const char* name;
-    pint_t      value;
+    const char* name; // Name of the constant.
+    pint_t value;     // Integer value the constant represents.
 };
 
 #define PIKA_CONST(N, C) {  N, (pint_t)C },
 #define PIKA_ENUM(C)     { #C, (pint_t)C },
 
+/** A Basic script object that can have an associated type, slot table and 
+  * can be enumerated. By default Basic has none of these but instead provides
+  * the interface to access them. 
+  */
 class PIKA_API Basic : public GCObject
 {
     PIKA_REG(Basic)
@@ -40,10 +45,16 @@ public:
     virtual ~Basic() {}
     
     INLINE bool IsDerivedFrom(const ClassInfo *other) { return GetClassInfo()->IsDerivedFrom(other); }
-    
-    virtual Type* GetType() const = 0;
+           
     virtual ClassInfo* GetClassInfo();
     static  ClassInfo* StaticCreateClass();
+    
+    static  void EnterConstants(Basic*, NamedConstant*, size_t);
+    
+    /** Returns the Type for this Basic Object.
+      * @note   Derived classes must override.
+      */
+    virtual Type* GetType() const = 0;
     
     virtual bool GetSlot(const Value& key, Value& result) { return false; }
     virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0) { return false; }
@@ -54,17 +65,22 @@ public:
 
     virtual Enumerator* GetEnumerator(class String* enum_kind);
     
-    static void EnterConstants(Basic*, NamedConstant*, size_t);
-
     INLINE Engine* GetEngine() const { return engine; }
 
-    // Perform a write barrier between this and the passed object.
+    /** Perform a write barrier between this and the passed object.
+      * Any time a GCObject obtains a <b><i>new</i></b> reference to another GCObject it
+      * must perform a WriteBarrier to mantain the invarant that no black-list object holds a 
+      * reference to a white-list object.
+      *
+      * Most of the time this is handled for you <i>if</i> you use the SetSlot methods or
+      * any access methods like SetXXXX where XXXX is the name of a attribute.
+      */
     virtual void WriteBarrier(GCObject*);
+
+    /** Perform a write barrier between this and the passed value.
+      */
     virtual void WriteBarrier(const Value&);
     
-    // Create a new instance in response to 'new'.
-    virtual void CreateInstance(Value& v) {v.SetNull();}
-
     // specializations
     template<typename TK>
     INLINE bool GetSlot(TK key, Value& result)

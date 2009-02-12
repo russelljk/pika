@@ -84,7 +84,6 @@ public:
     
     INLINE  bool        MustClose()  const { return def->mustClose; }    
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
-    virtual bool        IsFunction() const { return true; }
     
     virtual void        BeginCall(Context*);
     virtual Value       Apply(Value&, Nullable<Array*>);

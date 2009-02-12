@@ -30,12 +30,20 @@ class Value;
 class Context;
 struct UserDataInfo;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                       ScopeKind                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 enum ScopeKind
 {
     SCOPE_call,
     SCOPE_with,
     SCOPE_package,
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                       ScopeInfo                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct ScopeInfo
 {
@@ -55,6 +63,10 @@ struct ScopeInfo
     ScopeKind    kind;
     LiteralPool* literals;
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                     ExceptionBlock                                            //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct ExceptionBlock
 {
@@ -83,6 +95,10 @@ typedef ScopeStack::Iterator    ScopeIter;
 typedef Buffer<ExceptionBlock>  ExceptionStack;
 
 class ContextEnum;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        Context                                                //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** A coroutine object.
   * Unlike the string objects bytes objects can be resized and modified without forcing a new object
@@ -113,7 +129,7 @@ public:
         PREPARED,  //!< Context has been initialized and is ready to run.
     };
         
-    enum EErrorResult
+    enum EErrRes
     {
         ER_throw,    //!< Context should re-throw the exception. Usually because there is a C++ barrier between the exception and the handler.
         ER_continue, //!< Context should continue executing.
@@ -199,18 +215,18 @@ protected:
     void    ArithOpBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    BitOpBinary  (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    CompOpBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
-    void    ArithOpUnary (const Opcode op, const OpOverride ovr, int& numcalls);    
-    void    OpSuper();
+    void    ArithOpUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
+    void    OpSuper();    
     bool    DoPropertyGet(int& numcalls, Property* prop);
-    bool    DoPropertySet(int& numcalls, Property* prop);
+    bool    DoPropertySet(int& numcalls, Property* prop);    
     void    OpDotGet(int& numcalls, Opcode oc);
-    void    OpDotSet(int& numcalls, Opcode oc);
-    bool    OpUnpack(u2);
-    bool    OpBind();
-    bool    OpCat(bool sp);
-    bool    OpIs();
-    bool    OpHas();
-    EErrorResult    OpException(Exception&);
+    void    OpDotSet(int& numcalls, Opcode oc);    
+    bool    OpUnpack(u2);    
+    bool    OpBind();    
+    bool    OpCat(bool sp);    
+    bool    OpIs();    
+    bool    OpHas();    
+    EErrRes OpException(Exception&);
         
     void    Activate();
     void    Deactivate();

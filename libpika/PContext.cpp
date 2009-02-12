@@ -2843,7 +2843,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
     }
 }
 
-Context::EErrorResult Context::OpException(Exception& e)
+Context::EErrRes Context::OpException(Exception& e)
 {
     Exception::Kind ekind = e.kind;
     

@@ -5,9 +5,7 @@
 
 #include "Pika.h"
 #include "PRegExpr.h"
-#include "PPlatform.h"
-
-#include <pcre.h>
+#include "PlatRE.h"
 
 /*
 TODO: Add GCPAUSE_NORUN to all methods that allocate >1 gcobject.
@@ -33,7 +31,6 @@ INLINE size_t IntToIndex(int const i, size_t const len)
     return ri > len ? len : ri;
 }
 
-    
 INLINE static size_t IndexOfLongestMatch(const Buffer<size_t>& matches)
 {
     size_t longest    = 0;
@@ -55,7 +52,7 @@ INLINE static size_t IndexOfLongestMatch(const Buffer<size_t>& matches)
     return longest;
 }
 
-}
+}// anonymous namspace
 
 class RegExpr : public Object
 {
@@ -100,7 +97,7 @@ public:
         {
             RaiseException(Exception::ERROR_runtime, "Attempt to compile a regular expression containing one or more NUL characters.");
         }
-        int options = PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_MULTILINE;
+        int options = PIKA_UTF8 | PIKA_NO_UTF8_CHECK | PIKA_MULTILINE;
         int errcode = 0;
 
         if (this->pattern)
@@ -173,7 +170,7 @@ public:
         
         Pika_regmatch ovector[NUM_MATCHES];
         int match = Pika_regexec(this->pattern, subj->GetBuffer(), subj->GetLength(),                              
-                              ovector, NUM_MATCHES, PCRE_NO_UTF8_CHECK);
+                              ovector, NUM_MATCHES, PIKA_NO_UTF8_CHECK);
         if (match > 0)
         {
             return true;
@@ -231,7 +228,7 @@ public:
     bool DoExec(const char* subj, size_t subjLen, Buffer<size_t>& res)
     {
         Pika_regmatch ovector[NUM_MATCHES];
-        int matchCount = Pika_regexec(this->pattern, subj, subjLen, ovector, NUM_MATCHES, PCRE_NO_UTF8_CHECK);
+        int matchCount = Pika_regexec(this->pattern, subj, subjLen, ovector, NUM_MATCHES, PIKA_NO_UTF8_CHECK);
         if (matchCount <= 0)
             return false;
         res.Resize((size_t)matchCount * 2);
@@ -265,7 +262,7 @@ public:
         {
             size_t const longest    = IndexOfLongestMatch(matches);
             size_t const matchIndex = matches[longest];
-            size_t const nextIndex  = matches[longest+1];
+            size_t const nextIndex  = matches[longest + 1];
             size_t const matchLen   = nextIndex - matchIndex;
             size_t const prevStart  = lastIndex;
             size_t const prevEnd    = lastIndex + matchIndex;
@@ -361,7 +358,7 @@ PIKA_MODULE(re, eng, re)
     .Method(&RegExpr::Test,     "test")
     .Method(&RegExpr::Compile,  "compile")
     .Method(&RegExpr::Replace,  "replace")
-    //.MethodVA(&RegExpr::Init,  "init")
+    .MethodVA(&RegExpr::Init,   "init")
     ;
     //RegExpr_Type->EnterMethods(RegExprFunctions, countof(RegExprFunctions));
     Pkg_World->SetSlot(RegExpr_String, RegExpr_Type);

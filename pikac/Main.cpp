@@ -4,8 +4,7 @@
 #include "Pika.h"
 #include <iostream>
 
-// Pika_DisplayUsage ///////////////////////////////////////////////////////////////////////////////
-
+// TODO: Specifiy arguments.
 void Pika_DisplayUsage(const char* name)
 {
     std::cerr << '\n' << PIKA_VERSION_STR", "PIKA_COPYRIGHT_STR << '\n';
@@ -14,8 +13,6 @@ void Pika_DisplayUsage(const char* name)
     
     exit(1);
 }
-
-// Pika_PrintBanner ////////////////////////////////////////////////////////////////////////////////
 
 static void Pika_PrintBanner()
 {
@@ -49,12 +46,24 @@ struct CommandLine
             if (curr[0] == '-')
 			{
                 kind = curr[1];
-                if (len > 2)
+                if (len > 2) 
 				{
-                    options = curr + 2;
+                    options = curr + 2; //skip past "-X" where X is the kind of argument
                 }
                 else
 				{
+                    // Allow a space between the kind and option
+                    int nextPos = pos + 1;
+                    if (nextPos < count)
+                    {
+                        const char* nextCurr = args[nextPos];
+                        if (nextCurr[0] != '-')
+                        {
+                            options = nextCurr;
+                            pos += 2;
+                            return;
+                        }
+                    }
                     options = 0;
                 }
             }
@@ -94,9 +103,6 @@ Array* CreateArguments(Engine* eng, const char* cstr)
     return str->Split(delm);
 }
 
-///////////////////////////////////////////////////
-// TODO: Test Argument passed from a file
-// TODO: Make sure stdin for scripts actually works
 int main(int argc, char* argv[])
 {
     if (argc == 1)
@@ -134,11 +140,11 @@ int main(int argc, char* argv[])
                 
                 switch (cl.Kind())
 				{
-                    /*
-                     * Search path specification: -pPathToSearch
-                     * -------------------------------------------------------------
-                     * Used by import to find modules and scripts.
-                     */
+                /*
+                 * Search path specification: -pPathToSearch
+                 * -------------------------------------------------------------
+                 * Used by import to find modules, scripts and open files.
+                 */
                 case 'p':
 				{
                     if ((cl.Opt() == 0))
@@ -223,5 +229,4 @@ int main(int argc, char* argv[])
             eng->Release();
         }
     }
-    return 0;
 }
