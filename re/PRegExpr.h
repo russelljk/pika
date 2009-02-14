@@ -1,7 +1,7 @@
 /*
- *  PRegExpr.h
+ *  PRegExp.h
  *  See Copyright Notice in Pika.h
  */
-#ifndef PIKAREGEXPR_HEADER
-#define PIKAREGEXPR_HEADER
+#ifndef PIKAREGEXP_HEADER
+#define PIKAREGEXP_HEADER
 #endif

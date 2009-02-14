@@ -254,8 +254,7 @@ public:
         {
             DestructRange(0, size);
             Pika_free((void*)elements);
-        }
-        elements = 0;
+        }        
     }
     
     INLINE static size_t ResizeAmt(size_t oldcap)
@@ -311,7 +310,18 @@ public:
         {
             RaiseException("Internal class Buffer: max capacity reached.");
         }
-        
+        else if (newSize == capacity)
+        {
+            return; // Nothing to do.
+        }
+        else if (newSize == 0)
+        {
+            Pika_free(elements);
+            elements = 0;
+            capacity = 0;
+            size = 0;
+        }
+            
         if (newSize < size)
         {
             DestructRange(newSize, size);
@@ -396,7 +406,8 @@ public:
         }
     }
     
-    void Clear() { Resize(0); }
+    void Clear()    { Resize(0);      }    
+    void ClearAll() { SetCapacity(0); }
     
     size_t      IndexOf(ConstIterator& iter)    const { return iter.myPtr - elements; }
     size_t      IndexOf(Iterator& iter)               { return iter.myPtr - elements; }

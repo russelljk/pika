@@ -259,6 +259,7 @@ void Engine::UnloadAllModules()
         (*iter)->Shutdown();
         Pika_delete(*iter);
     }
+    modules.Clear();
 }
 
 Package* Engine::OpenPackage(String* name, Package* where, bool overwrite_always, u4 flags)

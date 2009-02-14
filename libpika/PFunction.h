@@ -86,8 +86,9 @@ public:
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
     
     virtual void        BeginCall(Context*);
-    virtual Value       Apply(Value&, Nullable<Array*>);
-
+    
+    virtual Value       Apply(Value&, Array*);
+        
     void                SetLocals(Context*, Value*);
     
     int                 DetermineLineNumber(code_t* pc);

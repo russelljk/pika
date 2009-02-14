@@ -719,4 +719,5 @@ PIKA_MODULE(curses, eng, curses)
     
     curses->SetSlot(eng->AllocString("Window"), Window_Type);
     eng->AddBaseType(eng->AllocString(WINDOW_TYPENAME), Window_Type);
+    return curses;
 }

@@ -151,8 +151,6 @@
 		7FDCB8D40F1FBC3300E7EB19 /* PCurses.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */; };
 		7FDCB94B0F21101F00E7EB19 /* PConfig_Borland.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */; };
 		7FE85FC40F4487A5000202A3 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
-		7FE85FCC0F4487E2000202A3 /* PRegExpr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F9BB0480F2CC5CD0092672E /* PRegExpr.cpp */; };
-		7FE85FCD0F4487E2000202A3 /* PRegExpr.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F9BB0490F2CC5CD0092672E /* PRegExpr.h */; };
 		7FE85FEC0F448B86000202A3 /* PlatRE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE85FEB0F448B86000202A3 /* PlatRE.cpp */; };
 		7FE85FF30F449018000202A3 /* PlatRE.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FE85FF20F449018000202A3 /* PlatRE.h */; };
 /* End PBXBuildFile section */
@@ -319,14 +317,12 @@
 		7F9939090F1EE3FF0029C501 /* PWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PWorld.cpp; path = ../libpika/PWorld.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939760F1EE4910029C501 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../pikac/Main.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939840F1EE5E90029C501 /* foo.pika */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pika; name = foo.pika; path = ../scripts/foo.pika; sourceTree = SOURCE_ROOT; };
-		7F9BB0480F2CC5CD0092672E /* PRegExpr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PRegExpr.cpp; path = ../re/PRegExpr.cpp; sourceTree = SOURCE_ROOT; };
-		7F9BB0490F2CC5CD0092672E /* PRegExpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRegExpr.h; path = ../re/PRegExpr.h; sourceTree = SOURCE_ROOT; };
 		7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCurses.cpp; path = ../curses/PCurses.cpp; sourceTree = SOURCE_ROOT; };
 		7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCurses.h; path = ../curses/PCurses.h; sourceTree = SOURCE_ROOT; };
 		7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_Borland.h; path = ../libpika/PConfig_Borland.h; sourceTree = SOURCE_ROOT; };
 		7FDCB94E0F21108800E7EB19 /* PConfig_VisualStudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_VisualStudio.h; path = ../libpika/PConfig_VisualStudio.h; sourceTree = SOURCE_ROOT; };
 		7FDCB9530F21110100E7EB19 /* PConfig_GCC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_GCC.h; path = ../libpika/PConfig_GCC.h; sourceTree = SOURCE_ROOT; };
-		7FE85FBB0F448772000202A3 /* libpikare.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikare.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FE85FBB0F448772000202A3 /* libpikaRegExp.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikaRegExp.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FE85FEB0F448B86000202A3 /* PlatRE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlatRE.cpp; path = ../re/PlatRE.cpp; sourceTree = SOURCE_ROOT; };
 		7FE85FF20F449018000202A3 /* PlatRE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlatRE.h; path = ../re/PlatRE.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -424,7 +420,7 @@
 				4620C3D90DE74C0800DE098B /* libpika.dylib */,
 				4662357E0DEC839000543092 /* libpikacurses.dylib */,
 				7F1193950F32259F001EF550 /* libpikaffi.dylib */,
-				7FE85FBB0F448772000202A3 /* libpikare.dylib */,
+				7FE85FBB0F448772000202A3 /* libpikaRegExp.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -580,8 +576,6 @@
 			children = (
 				7FE85FF20F449018000202A3 /* PlatRE.h */,
 				7FE85FEB0F448B86000202A3 /* PlatRE.cpp */,
-				7F9BB0480F2CC5CD0092672E /* PRegExpr.cpp */,
-				7F9BB0490F2CC5CD0092672E /* PRegExpr.h */,
 			);
 			name = regexpr;
 			sourceTree = "<group>";
@@ -676,7 +670,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7FE85FCD0F4487E2000202A3 /* PRegExpr.h in Headers */,
 				7FE85FF30F449018000202A3 /* PlatRE.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -751,9 +744,9 @@
 			productReference = 7F1193950F32259F001EF550 /* libpikaffi.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		7FE85FBA0F448772000202A3 /* pikare */ = {
+		7FE85FBA0F448772000202A3 /* pikaRegExp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7FE85FC10F448791000202A3 /* Build configuration list for PBXNativeTarget "pikare" */;
+			buildConfigurationList = 7FE85FC10F448791000202A3 /* Build configuration list for PBXNativeTarget "pikaRegExp" */;
 			buildPhases = (
 				7FE85FB70F448772000202A3 /* Headers */,
 				7FE85FB80F448772000202A3 /* Sources */,
@@ -764,9 +757,9 @@
 			comments = "Regular Expression Library for Pika.\n";
 			dependencies = (
 			);
-			name = pikare;
+			name = pikaRegExp;
 			productName = pikare;
-			productReference = 7FE85FBB0F448772000202A3 /* libpikare.dylib */;
+			productReference = 7FE85FBB0F448772000202A3 /* libpikaRegExp.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
@@ -788,7 +781,7 @@
 				4662357D0DEC839000543092 /* libpikacurses */,
 				46FBE8760E00517D00015215 /* g-basics */,
 				7F1193940F32259F001EF550 /* libpikaffi */,
-				7FE85FBA0F448772000202A3 /* pikare */,
+				7FE85FBA0F448772000202A3 /* pikaRegExp */,
 			);
 		};
 /* End PBXProject section */
@@ -875,7 +868,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7FE85FCC0F4487E2000202A3 /* PRegExpr.cpp in Sources */,
 				7FE85FEC0F448B86000202A3 /* PlatRE.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -910,7 +902,7 @@
 		};
 		7FE85FD10F4487FA000202A3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7FE85FBA0F448772000202A3 /* pikare */;
+			target = 7FE85FBA0F448772000202A3 /* pikaRegExp */;
 			targetProxy = 7FE85FD00F4487FA000202A3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1573,7 +1565,7 @@
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = "-lpcre";
 				PREBINDING = NO;
-				PRODUCT_NAME = pikare;
+				PRODUCT_NAME = pikaRegExp;
 			};
 			name = Debug;
 		};
@@ -1589,7 +1581,7 @@
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = "-lpcre";
 				PREBINDING = NO;
-				PRODUCT_NAME = pikare;
+				PRODUCT_NAME = pikaRegExp;
 			};
 			name = "Real Debug";
 		};
@@ -1607,7 +1599,7 @@
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = "-lpcre";
 				PREBINDING = NO;
-				PRODUCT_NAME = pikare;
+				PRODUCT_NAME = pikaRegExp;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -1624,7 +1616,7 @@
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = "-lpcre";
 				PREBINDING = NO;
-				PRODUCT_NAME = pikare;
+				PRODUCT_NAME = pikaRegExp;
 			};
 			name = "Release 64";
 		};
@@ -1642,7 +1634,7 @@
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = "-lpcre";
 				PREBINDING = NO;
-				PRODUCT_NAME = pikare;
+				PRODUCT_NAME = pikaRegExp;
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -1734,7 +1726,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7FE85FC10F448791000202A3 /* Build configuration list for PBXNativeTarget "pikare" */ = {
+		7FE85FC10F448791000202A3 /* Build configuration list for PBXNativeTarget "pikaRegExp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7FE85FBC0F448773000202A3 /* Debug */,

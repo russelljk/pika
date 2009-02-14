@@ -75,7 +75,7 @@ static String* Pika_ConstructModuleFnName(Engine* eng, String* name, const char*
 
 /** Loads a native module from disk. 
     No check is made to ensure that the module was already loaded. */
-static Package* Pika_importModule(Context* ctx, String* name)
+static Module* Pika_importModule(Context* ctx, String* name)
 {
     Engine* eng = ctx->GetEngine();
     GCPAUSE_NORUN(eng);
@@ -92,12 +92,10 @@ static Package* Pika_importModule(Context* ctx, String* name)
     
     Module* module = Module::Create(eng, name, file_name, load_name, ver_name);
     
-    if (!module)
-        return 0;
-    if  (!module->handle || !module->entry)
+    if (!module || !module->IsLoaded())
         return 0;
     
-    module->entry(ctx->GetEngine(), module);
+    module->Run();
     
     return module;
 }
@@ -145,14 +143,14 @@ struct ModuleImportHook : IHook
             Value val(eng->loading_String);
             eng->PutImport(name, val);
             
-            Package* result = Pika_importModule(importData->context, name);
+            Module* module = Pika_importModule(importData->context, name);
             
-            if (result)
+            if (module)
             {
-                Value vmod(result);
+                Value vmod(module);
                 eng->PutImport(name, vmod);
                 
-                importData->result = result;
+                importData->result = module->ImportResult();
                 return true;
             }
         }
@@ -225,7 +223,13 @@ int Global_import(Context* ctx, Value& self)
             //
             // module was imported already or is in the process of being imported
             //
-            if (res.IsDerivedFrom(Package::StaticGetClass()))
+            if (eng->Module_Type->IsInstance(res))
+            {
+                Module* module = (Module*)res.val.object;
+                ctx->SafePush(module->ImportResult());
+                continue;
+            }
+            else if (res.IsDerivedFrom(Package::StaticGetClass()))
             {
                 //
                 // already loaded

@@ -1,10 +1,9 @@
 /*
- *  PRegExpr.cpp
+ *  PRegExp.cpp
  *  See Copyright Notice in Pika.h
  */
-
 #include "Pika.h"
-#include "PRegExpr.h"
+#include "PRegExp.h"
 #include "PlatRE.h"
 
 /*
@@ -54,13 +53,13 @@ INLINE static size_t IndexOfLongestMatch(const Buffer<size_t>& matches)
 
 }// anonymous namspace
 
-class RegExpr : public Object
+class RegExp : public Object
 {
 public:
-    PIKA_DECL(RegExpr, Object)
-    RegExpr(Engine* engine, Type* type) : Object(engine, type), pattern(0) {}
+    PIKA_DECL(RegExp, Object)
+    RegExp(Engine* engine, Type* type) : Object(engine, type), pattern(0) {}
     
-    virtual ~RegExpr()
+    virtual ~RegExp()
     {
         FreeAll();
     }
@@ -80,10 +79,10 @@ public:
         Compile(re);
     }
     
-    static RegExpr* StaticNew(Engine* eng, Type* type, String* pattern)
+    static RegExp* StaticNew(Engine* eng, Type* type, String* pattern)
     {
-        RegExpr* re;
-        GCNEW(eng, RegExpr, re, (eng, type));
+        RegExp* re;
+        GCNEW(eng, RegExp, re, (eng, type));
         if (pattern)
         {
             re->Compile(pattern);
@@ -277,7 +276,7 @@ public:
                 
                 if (total > PIKA_STRING_MAX_LEN)
                 {
-                    RaiseException("RegExpr.replace: resultant string is too large.");
+                    RaiseException("RegExp.replace: resultant string is too large.");
                 }
                 buff.Resize(total);
                 
@@ -286,7 +285,7 @@ public:
                     // We matched the empty string
                     Pika_memcpy(buff.GetAt(sz),  repBuf, repSize);
                     Pika_memcpy(buff.GetAt(sz + repSize),  subj->GetBuffer() + lastIndex, amt); // Copy the next character
-                    lastIndex++;                                                                 // and move past it. 
+                    lastIndex++;                                                                // and move past it. 
                 }
                 else
                 {
@@ -317,7 +316,7 @@ public:
             
             if (total > PIKA_STRING_MAX_LEN)
             {
-                RaiseException("RegExpr.replace: resultant string is too large.");
+                RaiseException("RegExp.replace: resultant string is too large.");
             }
             // so copy the rest from the subject's buffer.
             buff.Resize(total);
@@ -333,34 +332,35 @@ public:
     Pika_regex* pattern;
 };
 
-PIKA_IMPL(RegExpr)
+PIKA_IMPL(RegExp)
 
 }// pika
 
-void RegExpr_NewFn(Engine* eng, Type* obj_type, Value& res)
+void RegExp_NewFn(Engine* eng, Type* obj_type, Value& res)
 {
-    RegExpr* re = RegExpr::StaticNew(eng, obj_type, 0);
+    RegExp* re = RegExp::StaticNew(eng, obj_type, 0);
     res.Set(re);
 }
 
-PIKA_MODULE(re, eng, re)
+PIKA_MODULE(RegExp, eng, re)
 {
     GCPAUSE(eng);
     //////////////////
     Package* Pkg_World = eng->GetWorld();
-    String* RegExpr_String = eng->AllocString("RegExpr");
-    Type* RegExpr_Type = Type::Create(eng, RegExpr_String, eng->Object_Type, RegExpr_NewFn, Pkg_World);
+    String* RegExp_String = eng->AllocString("RegExp");
+    Type* RegExp_Type = Type::Create(eng, RegExp_String, eng->Object_Type, RegExp_NewFn, Pkg_World);
     
-    SlotBinder<RegExpr>(eng, RegExpr_Type)
-    .Method(&RegExpr::Match,    "match")
-    .Method(&RegExpr::Exec,     "exec")
-    .Method(&RegExpr::ExecOnce, "execOnce")
-    .Method(&RegExpr::Test,     "test")
-    .Method(&RegExpr::Compile,  "compile")
-    .Method(&RegExpr::Replace,  "replace")
-    .MethodVA(&RegExpr::Init,   "init")
+    SlotBinder<RegExp>(eng, RegExp_Type)
+    .Method(&RegExp::Match,    "match")
+    .Method(&RegExp::Exec,     "exec")
+    .Method(&RegExp::ExecOnce, "execOnce")
+    .Method(&RegExp::Test,     "test")
+    .Method(&RegExp::Compile,  "compile")
+    .Method(&RegExp::Replace,  "replace")
+    .MethodVA(&RegExp::Init,   "init")
     ;
-    //RegExpr_Type->EnterMethods(RegExprFunctions, countof(RegExprFunctions));
-    Pkg_World->SetSlot(RegExpr_String, RegExpr_Type);
+    //RegExp_Type->EnterMethods(RegExpFunctions, countof(RegExpFunctions));
+    re->SetSlot(RegExp_String, RegExp_Type);
+    return RegExp_Type;
 }
 

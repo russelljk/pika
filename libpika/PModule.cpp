@@ -14,10 +14,11 @@ PIKA_IMPL(Module)
 Module::Module(Engine* eng, Type* moduleType,
         String* name, String* p, String* load_nm, String* ver)
         : ThisSuper(eng, moduleType, name, eng->GetWorld()),
+        result(0),
         path(p),
         entryname(load_nm),
         entry(0),    
-        handle(0)       
+        handle(0)
 {
     Initialize(ver);
 }
@@ -29,6 +30,7 @@ bool Module::Finalize()
     this->path = 0;
     this->entryname = 0;
     this->entry = 0;
+    this->result = 0;
     return false;
 }
 
@@ -42,9 +44,9 @@ void Module::Initialize(String* ver)
     
         if (this->handle)
         {
-            // TODO: Pika_VersionFn from an unknown dll is not safe.
+            // TODO: VersionFn_t from an unknown dll is not safe.
             
-            Pika_VersionFn ver_fn = (Pika_VersionFn)Pika_GetSymbolAddress(this->handle, ver->GetBuffer());
+            VersionFn_t ver_fn = (VersionFn_t)Pika_GetSymbolAddress(this->handle, ver->GetBuffer());
                         
             // Under Mac OS, Windows or any OS where filenames are case insensitive -- failure to 
             // find the version function usually means the case of the library name is wrong
@@ -89,13 +91,25 @@ void Module::MarkRefs(Collector* c)
 {
     ThisSuper::MarkRefs(c);
 
-    if (this->path)     this->path->Mark(c);        
-    if (this->entryname) this->entryname->Mark(c);
+    if (path)       path->Mark(c);        
+    if (entryname)  entryname->Mark(c);
+    if (result)     result->Mark(c);
 }
 
 bool Module::IsLoaded() const
 {
     return this->handle != 0;
+}
+
+void Module::Run()
+{
+    if (entry)
+        result = entry(this->GetEngine(), this);
+}
+
+Package* Module::ImportResult()
+{
+    return result ? result : this;
 }
 
 }//namespace pika

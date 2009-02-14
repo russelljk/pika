@@ -176,7 +176,7 @@ String* Function::GetName()
     return def ? def->name: engine->emptyString;
 }
 
-Value Function::Apply(Value& aself, Nullable<Array*> args)
+Value Function::Apply(Value& aself, Array* args)
 {
     Context* ctx = engine->GetActiveContextSafe();
     u2 argc = args ? static_cast<u2>(args->GetLength()) : 0;
@@ -533,13 +533,6 @@ int Function_getLocalCount(Context* ctx, Value& self)
     return 1;
 }
 
-int Function_call(Context* ctx, Value& self)
-{
-    GETSELF(Function, f, "Function");
-    ctx->Push(f);
-    return 1;
-}
-
 int Function_gen(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
@@ -657,6 +650,30 @@ static const char* notsame_text = "function(a, b) return a !== b; end";
 
 extern int null_Function(Context*, Value&);
 
+static int Function_call(Context* ctx, Value& self)
+{
+    Array* args = 0;
+    Value selfObj = NULL_VALUE;
+    u4 argc = ctx->GetArgCount();
+    switch (argc)
+    {
+    case 2:
+        selfObj = ctx->GetArg(0);
+        args = ctx->GetArgT<Array>(1);
+        break;
+    case 1:
+        args = ctx->GetArgT<Array>(0);
+        break;
+    case 0:
+        break;
+    default:
+        ctx->WrongArgCount();
+    }
+    Function* fn = self.val.function;
+    ctx->Push(fn->Apply(selfObj, args));
+    return 1;
+}
+
 void InitFunctionAPI(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
@@ -666,9 +683,10 @@ void InitFunctionAPI(Engine* eng)
     .RegisterMethod(Function_getLocal,        "getLocal")
     .RegisterMethod(Function_getLocalCount,   "getLocalCount")
     .RegisterMethod(Function_printBytecode,   "printBytecode")
+    .RegisterMethod(Function_call,            "call")
     .RegisterMethod(Function_gen,             "generate")
     .RegisterMethod(Function_GenerateAs,      "generateAs")
-    .RegisterMethod(Function_call,            "opCall")
+    //.RegisterMethod(Function_call,            "opCall")
     .RegisterMethod(Function_printLiterals,   "printLiterals")
     .PropertyR("name",      &Function::GetName,     "getName")
     .PropertyR("location",  &Function::GetLocation, "getLocation")

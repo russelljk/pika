@@ -453,7 +453,24 @@ static int Dummy_Print(Context* ctx, Value& self)
     for (u4 i = 0; i < argc; ++i)
     {
         PrintValue(ctx, ctx->GetArg(i));
+        if (i + 1 < argc)
+            std::cout << " ";
     }
+    std::cout << std::endl;
+    return 0;
+}
+
+static int Dummy_List(Context* ctx, Value& self)
+{
+    u4 argc = ctx->GetArgCount();
+    GCPAUSE(ctx->GetEngine());
+    for (u4 i = 0; i < argc; ++i)
+    {
+        PrintValue(ctx, ctx->GetArg(i));
+        if (i + 1 < argc)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
     return 0;
 }
 
@@ -947,6 +964,7 @@ void Engine::InitializeWorld()
             { "printp",        Dummy_printp,         0, 1, 0 },
             { "sprintp",       Dummy_sprintp,        0, 1, 0 },
             { "print",         Dummy_Print,          0, 1, 0 },
+            { "list",          Dummy_List,           0, 1, 0 },            
             { "println",       Dummy_PrintLn,        0, 1, 0 },
             { "say",           Dummy_PrintLn,        0, 1, 0 },
             { "range",         Global_range,         0, 1, 0 },
