@@ -22,13 +22,13 @@ static bool Pika_fok(FILE* f)
 
 /*------------------------------------------------------------------------*/
 /** Reads a line from a file.
- *
- * @param fp        [in]    File pointer
- * @param buff      [out]   The line read in, excluding the newline character.
- *
- * @retval   true    When a line was successfully read
- * @retval   false   When the file doesn
- */
+  *
+  * @param fp        [in]    File pointer
+  * @param buff      [out]   The line read in, excluding the newline character.
+  *
+  * @retval   true    When a line was successfully read
+  * @retval   false   When the file doesn
+  */
 
 // TODO: (Pika_fgetln) CR, CR + LF, and LF should be supported as valid eol markers
 // TODO: (Pika_fgetln) We need to check to make sure the buffer size does not exceed the MAX buffer size.

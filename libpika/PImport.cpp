@@ -20,13 +20,20 @@ String* Pika_ConvertDotName(Engine* eng, String* path)
     if (Pika_rindex(fullpath, PIKA_PATH_SEP_CHAR))
         return path; 
     
+    // If the file given has a known extension for Pika.        
     if (extension && ((Pika_strcasecmp(extension, PIKA_EXT) == 0) || (Pika_strcasecmp(extension, PIKA_EXT_ALT) == 0)))
     {
-        // If the path given has a known extension for scripts.        
+        // if the extension does not occupy the entire string
         if (extension > fullpath)
-            last = extension; // if the extension does not occupy the entire string
+        {
+            // Mark the end of the path to be the start of the extension.
+            last = extension;
+        }
+        // Otherwise we were passed an extension or a (Unix) hidden file.
         else
-            return path; // We were passed just an extension or a (Unix) hidden file.
+        {            
+            return path;
+        }
     }
     else
     {
@@ -74,7 +81,7 @@ static String* Pika_ConstructModuleFnName(Engine* eng, String* name, const char*
 }
 
 /** Loads a native module from disk. 
-    No check is made to ensure that the module was already loaded. */
+  * No check is made to ensure that the module was already loaded. */
 static Module* Pika_importModule(Context* ctx, String* name)
 {
     Engine* eng = ctx->GetEngine();
@@ -101,7 +108,7 @@ static Module* Pika_importModule(Context* ctx, String* name)
 }
 
 /** Loads a script from disk.
-    No check is made to ensure that the script was already loaded. */
+  * No check is made to ensure that the script was already loaded. */
 static Package* Pika_importScript(Context* ctx, String* name)
 {
     Engine* engine = ctx->GetEngine();
@@ -237,11 +244,12 @@ int Global_import(Context* ctx, Value& self)
                 ctx->SafePush(res);
                 continue;
             }
-            else
+            else if (res.IsString() && (res.val.str == eng->loading_String || res.val.str == eng->AllocString("compiling")))
             {
-                //
-                // TODO: Its possible there is a circular reference that we should warn the user about.
-                //
+                RaiseException("Attempt to import '%s' failed. Circular dependency detected.", name->GetBuffer());
+            }
+            else
+            {                
                 RaiseException("Attempt to import %s failed.", name->GetBuffer());
                 return 0;
             }

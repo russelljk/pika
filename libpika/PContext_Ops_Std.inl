@@ -79,7 +79,7 @@ PIKA_OPCODE(OP_assert)
     }
     if (!a_ok)
     {
-        ReportRuntimeError(Exception::ERROR_assert, "Assertion failed.");
+        ReportRuntimeError(Exception::ERROR_assert, "Runtime assertion failed.");
     }
 }
 PIKA_NEXT()
@@ -163,7 +163,9 @@ PIKA_OPCODE(OP_pushglobal)
             }
             else
             {
-                ReportRuntimeError(Exception::ERROR_runtime, "Attempt to read global property.");
+                ReportRuntimeError(Exception::ERROR_runtime,
+                                   "Attempt to read global property '%s'.",
+                                   engine->ToString(this, name)->GetBuffer());
             }
         }
         else
@@ -173,7 +175,9 @@ PIKA_OPCODE(OP_pushglobal)
     }
     else
     {
-        ReportRuntimeError(Exception::ERROR_runtime, "Attempt to read global.");
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Attempt to read global variable '%s'.",
+                           engine->ToString(this, name)->GetBuffer());
     }
 }
 PIKA_NEXT()
@@ -187,8 +191,12 @@ PIKA_OPCODE(OP_pushmember)
     const Value& name = closure->GetLiteral(index);
     
     if (!self.IsObject())
-        ReportRuntimeError(Exception::ERROR_runtime, "invalid self object.\n");
-        
+    {
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Attempt to read member '%s' from self object of type '%s'.",
+                           engine->ToString(this, name)->GetBuffer(),
+                           engine->GetTypenameOf(self)->GetBuffer());
+    }    
     Push(self);
     Push(name);
     
@@ -234,25 +242,29 @@ PIKA_OPCODE(OP_setglobal)
     u2 index = GetShortOperand(instr);
     
     const Value& name = closure->GetLiteral(index);
-    Value& val  = this->Top();
+    Value& val  = Top();
     if (!this->package->SetGlobal(name, val))
     {
         Value res(NULL_VALUE);
         if (this->package->GetGlobal(name, res) && res.tag == TAG_property)
         {
-            this->Push(this->package);
-            if (this->DoPropertySet(numcalls, res.val.property))
+            Push(this->package);
+            if (DoPropertySet(numcalls, res.val.property))
             {
                 PIKA_NEXT()
             }
             else
             {
-                ReportRuntimeError(Exception::ERROR_runtime, "attempt to set global property.");
+                ReportRuntimeError(Exception::ERROR_runtime,
+                                   "Attempt to set global property '%s'.",
+                                   engine->ToString(this, name)->GetBuffer());
             }
         }
         else
         {
-            ReportRuntimeError(Exception::ERROR_runtime, "attempt to set global.");
+            ReportRuntimeError(Exception::ERROR_runtime,
+                               "Attempt to set global variable '%s'.",
+                               engine->ToString(this, name)->GetBuffer());
         }
     }
     else
@@ -268,12 +280,15 @@ PIKA_NEXT()
 PIKA_OPCODE(OP_setmember)
 {
     u2 index = GetShortOperand(instr);
-    
-    if (!self.IsObject())
-        ReportRuntimeError(Exception::ERROR_runtime, "Invalid self object.\n");
-        
     const Value& name = closure->GetLiteral(index);
-    
+
+    if (!self.IsObject())
+    {
+        ReportRuntimeError(Exception::ERROR_runtime,
+                           "Attempt to set member '%s' from self object of type '%s'.\n",
+                           engine->ToString(this, name)->GetBuffer(),
+                           engine->GetTypenameOf(self)->GetBuffer());
+    }
     Push( self );
     Push( name );
     

@@ -147,7 +147,7 @@ INLINE void ursh_num(pint_t& a, pint_t& b)
 {
     union {
         pint_t  s;
-        guint u;
+        puint_t u;
     } s2u;
     s2u.s = a;
     s2u.u >>= b;

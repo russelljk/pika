@@ -379,8 +379,8 @@ static String* FindFileName(Engine* eng, String* path)
         filename++;
     }
     
-    if (extension             &&
-            (extension > filename))
+    if (extension &&
+       (extension > filename))
     {
         return eng->AllocString(filename, extension - filename);
     }
@@ -406,6 +406,25 @@ static int OS_fileNameOf(Context* ctx, Value&)
     return 1;
 }
 
+#if defined( PIKA_64BIT_INT )
+#   define ROTN 63
+#else
+#   define ROTN 31
+#endif
+
+#define _lrotl(x, n)        ((((puint_t)(x)) << ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) >> ((pint_t) ((-(n)) & ROTN))))
+#define _lrotr(x, n)        ((((puint_t)(x)) >> ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) << ((pint_t) ((-(n)) & ROTN))))
+
+pint_t Rotl(pint_t x, pint_t n)
+{
+    return _lrotl(x,n);
+}
+
+pint_t Rotr(pint_t x, pint_t n)
+{
+    return _lrotr(x,n);
+}
+
 void InitSystemLIB(Engine* eng)
 {
 
@@ -415,65 +434,71 @@ void InitSystemLIB(Engine* eng)
     String*  OS_String     = eng->AllocString("os");
     Package* OS_Package    = eng->OpenPackage(OS_String, World_Package, false);
     
-    // Sys ---------------------------------------------------------------------
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     
 	SlotBinder<Object>(eng, OS_Package, OS_Package)
-    .Register    ( OS_sleep,                    "sleep")
-    .StaticMethod( OS_Clock,                    "clock")
-    .StaticMethod( OS_System,                   "system")
-    .StaticMethod( OS_Time,                     "time")
-    .StaticMethod( getenv,                      "getEnv")
-    .StaticMethod( setenv,                      "setEnv")
-    .StaticMethod( unsetenv,                    "unSetEnv")
-    .StaticMethod( Pika_FileExists,            "fileExists?")  // Checks for the existence of a file or directory.
-    .StaticMethod( Pika_IsFile,                "file?")        // Checks for the existence of a file.
-    .StaticMethod( Pika_IsDirectory,           "dir?")         // Checks for the existence of a directory.
-    .StaticMethod( Pika_CreateDirectory,       "makeDir")      // Makes a new directory.
-    .StaticMethod( Pika_RemoveDirectory,       "RemoveDir")    // Removes a directory.
-    .StaticMethod( Pika_SetCurrentDirectory,   "setCurrDir")   // Changes the current directory.
-    .Register    ( OS_readDir,                  "readDir")      // Provides an enumerator for a directory's contents.
-    .Register    ( OS_moveFile,                 "moveFile")     // Moves a file to a new location.
-    .Register    ( OS_copyFile,                 "copyFile")     // Copies a file to a new location.
-    .Register    ( OS_removeFile,               "removeFile")   // Removes a file.
-    .Register    ( OS_getCurrentDir,            "getCurrDir")   // Returns the current directory.
-    .Register    ( OS_getFullPath,              "getFullPath")
-    .Register    ( OS_fileExtOf,                "fileExtOf")
-    .Register    ( OS_fileNameOf,               "fileNameOf")
-    .Register    ( OS_addPath,                  "addPath")
+    .Register    ( OS_sleep,                 "sleep")
+    .StaticMethod( OS_Clock,                 "clock")
+    .StaticMethod( OS_System,                "system")
+    .StaticMethod( OS_Time,                  "time")
+    .StaticMethod( getenv,                   "getEnv")
+    .StaticMethod( setenv,                   "setEnv")
+    .StaticMethod( unsetenv,                 "unSetEnv")
+    .StaticMethod( Pika_FileExists,          "fileExists?") // Checks for the existence of a file or directory.
+    .StaticMethod( Pika_IsFile,              "file?")       // Checks for the existence of a file.
+    .StaticMethod( Pika_IsDirectory,         "dir?")        // Checks for the existence of a directory.
+    .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
+    .StaticMethod( Pika_RemoveDirectory,     "RemoveDir")   // Removes a directory.
+    .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
+    .Register    ( OS_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
+    .Register    ( OS_moveFile,              "moveFile")    // Moves a file to a new location.
+    .Register    ( OS_copyFile,              "copyFile")    // Copies a file to a new location.
+    .Register    ( OS_removeFile,            "removeFile")  // Removes a file.
+    .Register    ( OS_getCurrentDir,         "getCurrDir")  // Returns the current directory.
+    .Register    ( OS_getFullPath,           "getFullPath")
+    .Register    ( OS_fileExtOf,             "fileExtOf")
+    .Register    ( OS_fileNameOf,            "fileNameOf")
+    .Register    ( OS_addPath,               "addPath")
     ;
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+        
     InitRandomAPI(Math_Package, eng);
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+        
     SlotBinder<Object>(eng, Math_Package, Math_Package)
-    .StaticMethod( Cos,             "cos")
-    .StaticMethod( Cosh,            "cosh")
-    .StaticMethod( Sin,             "sin")
-    .StaticMethod( Sinh,            "sinh")
-    .StaticMethod( Tan,             "tan")
-    .StaticMethod( Tanh,            "tanh")
-    .StaticMethod( ArcCos,          "arcCos")
-    .StaticMethod( ArcSin,          "arcSin")
-    .StaticMethod( ArcTan,          "arcTan")
-    .StaticMethod( ArcTan2,         "arcTan2")
-    .StaticMethod( Sqrt,            "sqrt")
-    .StaticMethod( Math_min,        "min")
-    .StaticMethod( Math_max,        "max")
-    .StaticMethod( Math_Round,      "round")
-    .StaticMethod( Math_Power,      "power")
-    .StaticMethod( Log10,           "log10")
-    .StaticMethod( Log,             "log")
-    .StaticMethod( Floor,           "floor")
-    .StaticMethod( Ceil,            "ceiling")
-    .StaticMethod( Exp,             "exp")
-    .Register    ( Math_Abs,        "abs")
-    .Constant    ( PIKA_PI,        "PI")
-    .Constant    ( PIKA_E,         "E")
-    .Constant    ( PIKA_LN10,      "LN10")
-    .Constant    ( PIKA_LN2,       "LN2")
-    .Constant    ( PIKA_LOG2E,     "LOG2E")
-    .Constant    ( PIKA_LOG10E,    "LOG10E")
-    .Constant    ( PIKA_SQRT1_2,   "SQRT1_2")
-    .Constant    ( PIKA_SQRT2,     "SQRT2")
+    .StaticMethod( Rotl,         "rotl")
+    .StaticMethod( Rotr,         "rotr")
+    .StaticMethod( Cos,          "cos")
+    .StaticMethod( Cosh,         "cosh")
+    .StaticMethod( Sin,          "sin")
+    .StaticMethod( Sinh,         "sinh")
+    .StaticMethod( Tan,          "tan")
+    .StaticMethod( Tanh,         "tanh")
+    .StaticMethod( ArcCos,       "arcCos")
+    .StaticMethod( ArcSin,       "arcSin")
+    .StaticMethod( ArcTan,       "arcTan")
+    .StaticMethod( ArcTan2,      "arcTan2")
+    .StaticMethod( Sqrt,         "sqrt")
+    .StaticMethod( Math_min,     "min")
+    .StaticMethod( Math_max,     "max")
+    .StaticMethod( Math_Round,   "round")
+    .StaticMethod( Math_Power,   "power")
+    .StaticMethod( Log10,        "log10")
+    .StaticMethod( Log,          "log")
+    .StaticMethod( Floor,        "floor")
+    .StaticMethod( Ceil,         "ceiling")
+    .StaticMethod( Exp,          "exp")
+    .Register    ( Math_Abs,     "abs")
+    .Constant    ( PIKA_PI,      "PI")
+    .Constant    ( PIKA_E,       "E")
+    .Constant    ( PIKA_LN10,    "LN10")
+    .Constant    ( PIKA_LN2,     "LN2")
+    .Constant    ( PIKA_LOG2E,   "LOG2E")
+    .Constant    ( PIKA_LOG10E,  "LOG10E")
+    .Constant    ( PIKA_SQRT1_2, "SQRT1_2")
+    .Constant    ( PIKA_SQRT2,   "SQRT2")
     ;
 }
 

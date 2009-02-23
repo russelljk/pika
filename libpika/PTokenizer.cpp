@@ -39,7 +39,6 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_null),
     PIKA_keyword(TOK_if),
     PIKA_keyword(TOK_unless),
-    PIKA_keyword(TOK_foreach),
     PIKA_keyword(TOK_for),
     PIKA_keyword(TOK_else),
     PIKA_keyword(TOK_then),
@@ -57,7 +56,7 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_raise),
     PIKA_keyword(TOK_break),
     PIKA_keyword(TOK_continue),
-    PIKA_keyword(TOK_select),
+    PIKA_keyword(TOK_case),
     PIKA_keyword(TOK_yield),
     PIKA_keyword(TOK_mod),
     PIKA_keyword(TOK_and),
@@ -68,7 +67,7 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_finally),
     PIKA_keyword(TOK_package),
     PIKA_keyword(TOK_with),
-    PIKA_keyword(TOK_case),
+    PIKA_keyword(TOK_when),
     PIKA_keyword(TOK_new),
     PIKA_keyword(TOK_typeof),
     PIKA_keyword(TOK_bind),
@@ -79,7 +78,6 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_by),
     PIKA_keyword(TOK_class),
     PIKA_keyword(TOK_div),
-    PIKA_keyword(TOK_gen),
 };
 
 #define NumKeywordDescriptors ((sizeof (static_keywords))/(sizeof (KeywordDescriptor)))
@@ -670,20 +668,7 @@ void Tokenizer::ReadString()
 void Tokenizer::ReadControl()
 {
     switch (look)
-    {
-    case ':':
-    {
-        tokenType = look;
-        GetLook();
-        
-        if (look == '=')
-        {
-            tokenType = TOK_assign;
-            GetLook();
-        }
-    }
-    break;
-        
+    {    
     case '?':
     {
         tokenType = look;

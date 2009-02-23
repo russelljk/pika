@@ -381,27 +381,17 @@ Array* Array::Map(Value m)
     return this;
 }
 
-/**
- * Calls a user-defined-binary-comparison Function.
- */
+/** A User-defined binary-comparison Functor. */
 struct ValueComp
-{
-    /* constructor */
-    
+{    
     ValueComp(Context* ctx, Value comp)
             : context(ctx),
             comparison_func(comp) {}
-            
-    /* copy constructor */
     
     ValueComp(const ValueComp& rhs)
             : context(rhs.context), comparison_func(rhs.comparison_func) {}
-            
-    /* destructor */
     
     ~ValueComp() {}
-    
-    /* assignment operator */
     
     ValueComp& operator=(const ValueComp& rhs)
     {
@@ -412,8 +402,6 @@ struct ValueComp
         }
         return *this;
     }
-    
-    /* call operator */
     
     bool operator()(const Value& l, const Value& r)
     {

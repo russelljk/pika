@@ -92,10 +92,9 @@ struct PoolObject
     
 #endif
     
-/**
-    An arena class.
-    @note All blocks are align to the value of PIKA_ALIGN.
-*/
+/** An arena class.
+  * @note All blocks are align to the value of PIKA_ALIGN.
+  */
 class PIKA_API MemArena
 {
 public:
@@ -136,13 +135,12 @@ private:
     FreeBlock*      FreeList;
 };
 
-/**
-    Arena for c++ objects.
-    Similar to MemArena except space is not reserved at the beginning of a block for a header.
-    Meant to be used by MemObjPool.
-
-    @note All blocks are aligned to the value of PIKA_ALIGN.
- */
+/** Arena for c++ objects.
+  * Similar to MemArena except space is not reserved at the beginning of a block for a header.
+  * Meant to be used by MemObjPool.
+  *
+  * @note All blocks are aligned to the value of PIKA_ALIGN.
+  */
 class PIKA_API MemObjArena
 {
 public:

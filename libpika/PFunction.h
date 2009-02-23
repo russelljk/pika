@@ -60,12 +60,12 @@ public:
     virtual            ~Function();
 
     /** Create a new Function object.
-     *  @param eng      [in] The Engine to create the object in
-     *  @param def      [in] The function's definition.
-     *  @param loc      [in] The location of this function.
-     *  @param parent   [in] Optional parent of the function (for bytecode functions, may be 0.)
-     *  @see Def::CreateWith, Def::Create
-     */
+      * @param eng      [in] The Engine to create the object in
+      * @param def      [in] The function's definition.
+      * @param loc      [in] The location of this function.
+      * @param parent   [in] Optional parent of the function (for bytecode functions, may be 0.)
+      * @see Def::CreateWith, Def::Create
+      */
     static Function*    Create(Engine* eng, Def* def, Package* loc, Function* parent = 0);
 
     virtual void        Init(Context*);

@@ -8,14 +8,14 @@
 namespace pika
 {
 /** Properties provide access to class members through the use of getter and setter functions.
- *
- *  A property may we Read-Write, Read only or Write only. When written to or read from the
- *  accessor function is called automagically without the users intervention, the property will
- *  then appear to be a normal field.
- *
- *  Properties will always be slower than direct access but can be useful if certian
- *  operations need to performed on the value before it is set or retrieved.
- */
+  * 
+  * A property may we Read-Write, Read only or Write only. When written to or read from the
+  * accessor function is called automagically without the users intervention, the property will
+  * then appear to be a normal field.
+  * 
+  * Properties will always be slower than direct access but can be useful if certian
+  * operations need to performed on the value before it is set or retrieved.
+  */
 class PIKA_API Property : public Basic
 {
     PIKA_DECL(Property, Basic)

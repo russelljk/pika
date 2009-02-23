@@ -372,16 +372,14 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_while:         stmt = DoWhileStatement();     break;
     case TOK_until:         stmt = DoUntilStatement();     break;
     case TOK_loop:          stmt = DoLoopStatement();      break;
-    case TOK_foreach:       stmt = DoForEachStatement();   break;
-    case TOK_for:           stmt = DoForToStatement();     break;
+    case TOK_for:           stmt = DoForStatement();       break;
     case TOK_return:        stmt = DoReturnStatement();    break;
     case TOK_yield:         stmt = DoYieldStatement();     break;
-    case TOK_gen:           stmt = DoGenStatement();       break;
     case TOK_break:         stmt = DoBreakStatement();     break;
     case TOK_continue:      stmt = DoContinueStatement();  break;
     case TOK_begin:         stmt = DoBlockStatement();     break;
     case TOK_package:       stmt = DoPackageDeclaration(); break;
-    case TOK_select:        stmt = DoCaseStatement();      break;
+    case TOK_case:        stmt = DoCaseStatement();      break;
     case TOK_assert:        stmt = DoAssertStatement();    break;
     case TOK_class:         stmt = DoClassStatement();     break;
     case TOK_delete:
@@ -565,7 +563,7 @@ CaseList* Parser::DoCaseList(const int* terms)
 {
     CaseList* cases = 0;
     
-    while (Optional(TOK_case))
+    while (Optional(TOK_when))
     {
         ExprList* matches = DoExpressionList();
         
@@ -601,9 +599,9 @@ Stmt* Parser::DoCaseStatement()
 {
     Stmt* stmt       = 0;
     int   line       = tstream.GetLineNumber();
-    const int terms[] = { TOK_else, TOK_end, TOK_case, 0 };
+    const int terms[] = { TOK_else, TOK_end, TOK_when, 0 };
     
-    Match(TOK_select);
+    Match(TOK_case);
     
     Expr*     selector = DoExpression();
     CaseList* cases    = DoCaseList(terms);
@@ -1174,12 +1172,6 @@ bool Parser::DoContextualKeyword(const char* key, bool optional)
 
 void Parser::DoForToHeader(ForToHeader* header)
 {
-    header->line = tstream.GetLineNumber();
-    
-    Match(TOK_for);
-    
-    header->id = DoIdentifier();
-    
     Match('=');
     
     header->from = DoExpression();
@@ -1210,12 +1202,35 @@ void Parser::DoForToHeader(ForToHeader* header)
     
 }
 
-Stmt* Parser::DoForToStatement()
+Stmt* Parser::DoForStatement()
+{
+    ForHeader header = { 0, 0 };
+    
+    int line = tstream.GetLineNumber();
+    header.line = line;
+        
+    Match(TOK_for);
+    Id* id = DoIdentifier();
+    header.id = id;
+    
+    if (tstream.GetType() == TOK_in)
+    {
+        return DoForEachStatement(&header);
+    }
+    else
+    {
+        return DoForToStatement(&header);
+    }
+    return 0;
+}
+
+Stmt* Parser::DoForToStatement(ForHeader* fh)
 {
     Stmt* stmt = 0;
     Stmt* body = 0;
     
-    ForToHeader header = { 0, 0, 0, 0, false, 0 };
+    ForToHeader header = { {0, 0}, 0, 0, 0, false };
+    header.head = *fh;
     DoForToHeader(&header);
     
     if (!Optional(TOK_do))
@@ -1226,27 +1241,13 @@ Stmt* Parser::DoForToStatement()
     
     body = DoStatementListBlock(Static_finally_terms);
     
-    
-    //Match(TOK_end);
-    
-    PIKA_NEWNODE(ForToStmt, stmt, (header.id, header.from, header.to, header.step, body, header.isdown));
-    stmt->line = header.line;
+    PIKA_NEWNODE(ForToStmt, stmt, (header.head.id, header.from, header.to, header.step, body, header.isdown));
+    stmt->line = header.head.line;
     return DoFinallyBlock(stmt);
 }
 
 void Parser::DoForEachHeader(ForEachHeader* header)
 {
-    int line = tstream.GetLineNumber();
-    header->line = line;
-    
-    Match(TOK_foreach);
-    
-    Id* id = DoIdentifier();
-    LocalDecl* vdecl;
-    PIKA_NEWNODE(LocalDecl, vdecl, (id));
-    vdecl->line = id->line;
-    header->each = vdecl;
-    
     Match(TOK_in);
     
     if (tstream.GetType() ==  TOK_identifier && tstream.GetNextType() == TOK_of)
@@ -1258,15 +1259,16 @@ void Parser::DoForEachHeader(ForEachHeader* header)
     {
         StringExpr* of;
         PIKA_NEWNODE(StringExpr, of, (Pika_strdup(""), 0));
-        of->line = line;
+        of->line = header->head.line;
         header->of = of;
     }
     header->subject = DoExpression();
 }
 
-Stmt* Parser::DoForEachStatement()
+Stmt* Parser::DoForEachStatement(ForHeader* fh)
 {
-    ForEachHeader header;
+    ForEachHeader header = { {0,0}, 0, 0 };
+    header.head = *fh;
     DoForEachHeader(&header);
     if (!Optional(TOK_do))
     {
@@ -1279,8 +1281,8 @@ Stmt* Parser::DoForEachStatement()
     //Match(TOK_end);
     
     Stmt* stmt = 0;
-    PIKA_NEWNODE(ForeachStmt, stmt, (header.each, header.of, header.subject, body));
-    stmt->line = header.line;
+    PIKA_NEWNODE(ForeachStmt, stmt, (header.head.id, header.of, header.subject, body));
+    stmt->line = header.head.line;
        
     return DoFinallyBlock(stmt);
 }
@@ -1338,7 +1340,7 @@ Stmt* Parser::DoReturnStatement()
     
     Match(TOK_return);
     
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_if) && (tstream.GetType() != TOK_unless))
+    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))//&& (tstream.GetType() != TOK_unless))
     {
         exprList = DoExpressionList();
     }
@@ -1369,38 +1371,7 @@ Stmt* Parser::DoYieldStatement()
     
     Match(TOK_yield);
     
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_if) && (tstream.GetType() != TOK_unless))
-    {
-        exprList = DoExpressionList();
-    }
-    
-    PIKA_NEWNODE(YieldStmt, stmt, (exprList));
-    
-    if (exprList)
-    {
-        stmt->line = exprList->line;
-    }
-    else
-    {
-        stmt->line = line;
-    }
-    
-    stmt = DoOptionalJumpStatement(stmt);
-    
-    DoEndOfStatement();
-    
-    return stmt;
-}
-
-Stmt* Parser::DoGenStatement()
-{
-    Stmt* stmt = 0;
-    ExprList* exprList = 0;
-    int line = tstream.GetLineNumber();
-    
-    Match(TOK_gen);
-    
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_if) && (tstream.GetType() != TOK_unless))
+    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))//&& (tstream.GetType() != TOK_unless))
     {
         exprList = DoExpressionList();
     }
@@ -1484,15 +1455,15 @@ Stmt* Parser::DoOptionalJumpStatement(Stmt* stmt)
     if (line != stmt->line)
         return stmt;
         
-    if (tstream.GetType() == TOK_if ||
-        tstream.GetType() == TOK_unless )
+    if (tstream.GetType() == TOK_when)
     {
         bool unless = false;
-        if (!Optional(TOK_if))
+        /*if (!Optional(TOK_if))
         {
             Match(TOK_unless);
             unless = true;
-        }
+        }*/
+        Match(TOK_when);
         Expr* cond = DoExpression();
         Stmt* ifstmt = 0;
         
@@ -1779,12 +1750,12 @@ Expr* Parser::DoEqualExpression()
 {
     Expr* expr = DoCompExpression();
     
-    while ( tstream.GetType() == TOK_eq      ||
-            tstream.GetType() == TOK_ne      ||
-            tstream.GetType() == TOK_same    ||
-            tstream.GetType() == TOK_notsame ||
-            tstream.GetType() == TOK_is      || 
-            tstream.GetType() == TOK_has       )
+    while (tstream.GetType() == TOK_eq      ||
+           tstream.GetType() == TOK_ne      ||
+           tstream.GetType() == TOK_same    ||
+           tstream.GetType() == TOK_notsame ||
+           tstream.GetType() == TOK_is      || 
+           tstream.GetType() == TOK_has     )
     {
         Expr::Kind k;
         
@@ -1806,19 +1777,10 @@ Expr* Parser::DoEqualExpression()
         }
         else if (tstream.GetType() == TOK_is)
         {
-//            if (tstream.GetNextType() == TOK_not)
-//            {
-//                k = Expr::IS_NOT_EXPR;
-//                tstream.Advance();
-//            }
-//            else
-//            {
                 k = Expr::IS_EXPR;
-//            }
         }
-        else
+        else // TOK_has
         {
-            // TOK_has
             k = Expr::HAS_EXPR;
         }
         
@@ -2161,9 +2123,36 @@ Expr* Parser::DoPostfixExpression()
             expr->line = lhs->line;
             return expr;
         }
+        case TOK_unless:
+        case TOK_if:
+        {
+            int line = tstream.GetLineNumber();
+            
+            if (line > expr->line)
+                return expr;
+            bool unless = false;
+            if (Optional(TOK_unless))
+            {
+                unless = true;
+            }
+            else
+            {
+                Match(TOK_if);
+            }
+            Expr* cond  = DoExpression();
+                        
+            Match(TOK_else);
+            
+            Expr* other = DoExpression();
+                        
+            Expr* resExpr = 0;
+            PIKA_NEWNODE(CondExpr, resExpr, (cond, expr, other, unless));
+            resExpr->line = expr->line;
+            return resExpr;
+        }
         //
         // Postfix decrement.
-        //
+        //        
         case TOK_decrement:
         {
             int line = tstream.GetLineNumber();
@@ -2543,8 +2532,8 @@ struct CompItem : TreeNode
     
     virtual void CalculateResources(SymbolTable* st, CompileState& cs)
     {
-        symbol = cs.CreateLocalPlus(st, header.id->name, 2);
-        header.id  ->CalculateResources(st, cs);
+        symbol = cs.CreateLocalPlus(st, header.head.id->name, 2);
+        header.head.id  ->CalculateResources(st, cs);
         header.to  ->CalculateResources(st, cs);
         header.step->CalculateResources(st, cs);
         
@@ -2565,7 +2554,7 @@ struct CompItem : TreeNode
     Symbol*     symbol;
     CompItem*   next;
 };
-
+#if 0
 struct ArrayComp : Expr
 {
     ArrayComp(Expr* e, CompItem* i)
@@ -2621,7 +2610,7 @@ struct ArrayComp : Expr
     Expr*        expr;
     CompItem*    items;
 };
-
+#endif
 Expr* Parser::DoArrayExpression()
 {
     Expr* expr = 0;

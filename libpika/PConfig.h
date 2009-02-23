@@ -54,7 +54,7 @@
 /* Disallow using memzero in performance critical areas. */
 /* #define PIKA_NOMEMZERO_FOR_BLOCKS */
 
-/* Check that outer variable are valid. */
+/* Check that outer variables are valid. */
 /* #define PIKA_CHECK_LEX_ENV */
 
 /* String and identifiers are case insensitive. like BASIC. */
@@ -113,7 +113,7 @@
 #   define PIKA_LIB_PREFIX            "pika"
 #   define PIKA_CASE_INSENSITIVE      true
 #elif defined(PIKA_NIX)
-# define PIKA_PATH_SEP_CHAR           '/'
+#   define PIKA_PATH_SEP_CHAR         '/'
 #   define PIKA_PATH_SEP              "/"
 #   define PIKA_LIB_EXT               ".so"
 #   define PIKA_LIB_PREFIX            "libpika"
@@ -183,14 +183,14 @@ Keep in mind the range specified [min .. max ] and the limits of the data type u
 #ifdef PIKA_64BIT_INT
 #   define          PINT_MAX       (LONG_LONG_MAX)
 #   define          PINT_MIN       (LONG_LONG_MIN)
-typedef             u8              guint;
+typedef             u8              puint_t;
 typedef             s8              pint_t;
 #   define          Pika_Abs        PIKA_ABS64
 #   define          PINT_FMT        PIKA_INT_64BIT_FMT
 #else
 #   define          PINT_MAX       (INT_MAX)
 #   define          PINT_MIN       (INT_MIN)
-typedef             u4              guint;
+typedef             u4              puint_t;
 typedef             s4              pint_t;
 #   define          Pika_Abs        PIKA_ABS32
 #   define          PINT_FMT        PIKA_INT_32BIT_FMT

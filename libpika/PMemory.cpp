@@ -58,13 +58,13 @@ char* Pika_strdup(const char* s, size_t* lenOut)
 }
 
 /** Transforms a string literal into an actual string.
- *
- * @param s         [in] The input string
- * @param lenin     [in] The length of the input string.
- * @param lenout    [out] The length of the resultant string.
- *
- * @result A script usable string based on the input template string.
- */
+  *
+  * @param s         [in] The input string
+  * @param lenin     [in] The length of the input string.
+  * @param lenout    [out] The length of the resultant string.
+  *
+  * @result A script usable string based on the input template string.
+  */
 char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout)
 {
     size_t const EXTRA = 32;

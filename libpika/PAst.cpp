@@ -698,14 +698,17 @@ ForeachStmt::~ForeachStmt()
 void ForeachStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock()));
-    PIKA_NEWNODE(IdExpr, id, (iterVar->name));
+    PIKA_NEWNODE(LocalDecl, iterVar, (id));
+    iterVar->line = id->line;
+    PIKA_NEWNODE(IdExpr, idexpr, (id));
     
-    id->line = iterVar->name->line;
+    
+    idexpr->line = iterVar->name->line;
     enum_offset = cs.NextLocalOffset("");
     
     type_expr->CalculateResources(symtab, cs);
     iterVar->CalculateResources(symtab, cs);
-    id->CalculateResources(symtab, cs);
+    idexpr->CalculateResources(symtab, cs);
     in->CalculateResources(symtab, cs);
     body->CalculateResources(symtab, cs);
 }

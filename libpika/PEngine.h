@@ -139,13 +139,13 @@ public:
     bool CallHook(HookEvent he, void* data);
     
     /** Adds a HookEvent handler.
-     *  @see IHook 
-     */
+      * @see IHook 
+      */
     void AddHook(HookEvent he, IHook* h);
     
     /** Remove a HookEvent handler. 
-     *  @see IHook 
-     */
+      * @see IHook 
+      */
     bool RemoveHook(HookEvent he, IHook* h);
     
     // Path management /////////////////////////////////////////////////////////
@@ -178,12 +178,12 @@ public:
     void AddModule(Module* so);
     
     /** Open of a package from the given dot-path.
-     *  @param name             [in] The path of the package to open (ie world.Foo.Bar)
-     *  @param where            [in] The root package of the path. If NULL 'world' is used instead.
-     *  @param overwrite_always [in] Overwrite any non-package derived name clashes.
-     *
-     *  @result The package located at the destination of the dot-path.
-     */
+      * @param name             [in] The path of the package to open (ie world.Foo.Bar)
+      * @param where            [in] The root package of the path. If NULL 'world' is used instead.
+      * @param overwrite_always [in] Overwrite any non-package derived name clashes.
+      * 
+      * @result The package located at the destination of the dot-path.
+      */
     Package* OpenPackageDotPath(String*  name,
                                 Package* where = 0,
                                 bool overwrite_always = false);

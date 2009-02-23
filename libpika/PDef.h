@@ -82,17 +82,10 @@ class PIKA_API Def : public GCObject
             mustClose(false),
             isVarArg(false),
             isStrict(false),
-            line(-1)
-    {}
+            line(-1) {}
     
-    /** Constructor that creates a native function Def. */
-    Def(String*      declname,
-        Nativecode_t fn,
-        u2           argc,
-        bool         varargs,
-        bool         strict,
-        Def*         parent_def) :
-            name(declname),
+    Def(String* declname, Nativecode_t fn, u2 argc, 
+        bool varargs, bool strict, Def* parent_def) : name(declname),
             source(0),
             parent(parent_def),
             bytecode(0),
@@ -105,14 +98,14 @@ class PIKA_API Def : public GCObject
             mustClose(false),
             isVarArg(varargs),
             isStrict(strict),
-            line(-1)
-    {}
+            line(-1) {}
 public:
     virtual ~Def();
     
     virtual void MarkRefs(Collector* c);
     
-    static Def* CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, bool varargs, bool strict, Def* parent);
+    static Def* CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, 
+                           bool varargs, bool strict, Def* parent);
     static Def* Create(Engine* eng);
     
     void            SetBytecode(code_t* bc, u2 len);
@@ -137,10 +130,10 @@ public:
     u2               numLocals;   //!< Number of lexEnv and parameters.
     u2               stackLimit;  //!< Stack space needed for execution.
     Buffer<LineInfo> lineInfo;    //!< Mapping of source code line numbers to bytecode position.
-    /**
-     *  Ranges for all local variables (including arguments) in this def. It should be noted that this runs
-     *  from the local declaration to the end of its block, no further calculations are performed.
-     */
+    
+    /** Ranges for all local variables (including arguments) in this def. It should be noted that this runs
+      * from the local declaration to the end of its block, no further calculations are performed.
+      */
     Buffer<LocalVarInfo> localsInfo;
     
     ptrdiff_t    bytecodePos; //!< Point defined in parent's bytecode.

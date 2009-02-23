@@ -1138,7 +1138,7 @@ Instr* ForeachStmt::DoStmtCodeGen()
     Instr* ienumvalid = Instr::Create(OP_enumisvalid);
     Instr* ijmpfalse  = Instr::Create(OP_jumpiffalse);
     Instr* ienumadv   = Instr::Create(OP_enumadvance);
-    Instr* iset       = id->GenerateCodeSet();
+    Instr* iset       = idexpr->GenerateCodeSet();
     Instr* ijmpback   = Instr::Create(OP_jumpiftrue);
     
     PIKA_BLOCKEND(state);
@@ -1591,7 +1591,7 @@ Instr* CondExpr::GenerateCode()
     Instr* icond      = cond->GenerateCode();
     Instr* ia         = exprA->GenerateCode();
     Instr* ib         = exprB->GenerateCode();
-    Instr* ijmpfalse  = Instr::Create(OP_jumpiffalse);
+    Instr* ijmpfalse  = Instr::Create(unless ? OP_jumpiftrue : OP_jumpiffalse);
     Instr* ijmp       = Instr::Create(OP_jump);
     Instr* ijmptarget = Instr::Create(JMP_TARGET);
     

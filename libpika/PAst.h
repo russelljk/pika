@@ -421,20 +421,19 @@ struct VariableTarget : DeclarationTarget
             curr_decl(0),
             decls(decls),
             exprs(exprs),
-            isUnpack(false), isCall(false),
-            unpackCount(0)
+            unpackCount(0), isUnpack(false), isCall(false)    
     {}
     
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
     virtual const char* GetIdentifierName() { return curr_decl->name->name; }
     
-    VarDecl* curr_decl;
-    VarDecl* decls;
+    VarDecl*  curr_decl;
+    VarDecl*  decls;
     ExprList* exprs;
-    bool isUnpack;
-    bool isCall;
-    u2 unpackCount;
+    u2        unpackCount;
+    bool      isUnpack;
+    bool      isCall;
 };
 
 // Stmt ////////////////////////////////////////////////////////////////////////////////////////////
@@ -708,7 +707,7 @@ struct Expr : TreeNode
         EXPR_has,
         EXPR_new,
         EXPR_arraycomp,
-        EXPR_invalid,
+        EXPR_invalid,        
     };
     
     Expr(Kind kind) : kind(kind) {}
@@ -786,11 +785,12 @@ struct CallExpr : Expr
 
 struct CondExpr : Expr
 {
-    CondExpr(Expr* cond, Expr* a, Expr* b)
+    CondExpr(Expr* cond, Expr* a, Expr* b, bool unless = false)
             : Expr(Expr::COND_EXPR),
             cond(cond),
             exprA(a),
-            exprB(b) {}
+            exprB(b),
+            unless(unless) {}
             
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
@@ -798,6 +798,7 @@ struct CondExpr : Expr
     Expr* cond;
     Expr* exprA;
     Expr* exprB;
+    bool  unless;
 };
 
 /////////////////////////////////////////// NullSelectExpr /////////////////////////////////////////
@@ -950,52 +951,52 @@ struct ForToStmt : LoopingStmt
             to(to),
             step(step),
             body(body),
+            down(down),
             symbol(0),
-            symtab(0),
-            down(down) {}
-            
+            symtab(0) {}
+    
     virtual ~ForToStmt();
     
-    virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
+    virtual void   DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr* DoStmtCodeGen();
     
-    Id* id;
-    Expr* from;
-    Expr* to;
-    Expr* step;
-    Stmt* body;
-    Symbol* symbol;
+    Id*          id;
+    Expr*        from;
+    Expr*        to;
+    Expr*        step;
+    Stmt*        body;
+    bool         down;
+    Symbol*      symbol;
     SymbolTable* symtab;
-    bool down;
 };
 
 //////////////////////////////////////////// ForeachStmt ///////////////////////////////////////////
 
 struct ForeachStmt : LoopingStmt
 {
-    ForeachStmt(VarDecl *iterVar, Expr* type_expr, Expr* in, Stmt* body)
+    ForeachStmt(Id* id, Expr* type_expr, Expr* in, Stmt* body)
             : LoopingStmt(Stmt::FOREACH_STMT),
+            id(id),
+            iterVar(0),
             type_expr(type_expr),
-            symtab(0),
-            iterVar(iterVar),
-            id(0),
             in(in),
             body(body),
-            enum_offset(0)
-    {}
+            idexpr(0),
+            enum_offset(0),
+            symtab(0) {}
     
     virtual ~ForeachStmt();
     
-    virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
+    virtual void   DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr* DoStmtCodeGen();
-    
-    Expr*           type_expr;
-    SymbolTable*    symtab;
-    VarDecl*        iterVar;
-    IdExpr*         id;
-    Expr*           in;
-    Stmt*           body;
-    size_t          enum_offset;
+    Id*          id;
+    VarDecl*     iterVar;
+    Expr*        type_expr;   // The set name that will be enumerated.
+    Expr*        in;          // The subject.
+    Stmt*        body;        // Loop body.
+    IdExpr*      idexpr;      // Expression for the loop variable.
+    size_t       enum_offset; // Local var offset for the enumerator object.
+    SymbolTable* symtab;
 };
 
 /////////////////////////////////////////////// IfStmt /////////////////////////////////////////////
@@ -1092,7 +1093,7 @@ struct UnaryExpr : Expr
             : Expr(k),
             expr(expr) {}
             
-    virtual void CalculateResources(SymbolTable* st, CompileState& cs);
+    virtual void   CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
     
     virtual Opcode GetOpcode() const
@@ -1100,15 +1101,15 @@ struct UnaryExpr : Expr
         switch (kind)
         {
         case EXPR_lognot:   return OP_not;
-        case EXPR_bitnot:       return OP_bitnot;
-        case EXPR_positive:     return OP_pos;
-        case EXPR_negative:     return OP_neg;
-        case EXPR_preincr:      return OP_inc;
-        case EXPR_predecr:      return OP_dec;
-        case EXPR_postincr:     return OP_inc;
-        case EXPR_postdecr:     return OP_dec;
-        case EXPR_typeof:       return OP_typeof;
-        default:                return OP_nop;
+        case EXPR_bitnot:   return OP_bitnot;
+        case EXPR_positive: return OP_pos;
+        case EXPR_negative: return OP_neg;
+        case EXPR_preincr:  return OP_inc;
+        case EXPR_predecr:  return OP_dec;
+        case EXPR_postincr: return OP_inc;
+        case EXPR_postdecr: return OP_dec;
+        case EXPR_typeof:   return OP_typeof;
+        default:            return OP_nop;
         };
         return OP_nop;
     }
@@ -1204,6 +1205,8 @@ struct IdExpr : Expr
     bool outerwith;     // this identifier appears in a different with block than the current block!
     bool newLocal;
 };
+
+
 
 //////////////////////////////////////////// ConstantExpr //////////////////////////////////////////
 

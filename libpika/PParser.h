@@ -77,22 +77,27 @@ struct TokenStream
 };
 
 // Parser //////////////////////////////////////////////////////////////////////////////////////////
+
+struct ForHeader
+{    
+    Id*  id;
+    int  line;
+};
+
 struct ForToHeader
 {
-    Id*   id;
+    ForHeader head;
     Expr* from;
     Expr* to;
     Expr* step;
     bool  isdown;
-    int   line;
 };
 
 struct ForEachHeader
 {
-    LocalDecl* each;
+    ForHeader  head;    
     Expr*      of;
     Expr*      subject;
-    int        line;
 };
 
 class Parser
@@ -135,8 +140,9 @@ private:
     Stmt*           DoUntilStatement();
     Stmt*           DoLoopStatement();
 
-    Stmt*           DoForToStatement();
-    Stmt*           DoForEachStatement();
+    Stmt*           DoForStatement();
+    Stmt*           DoForToStatement(ForHeader*);
+    Stmt*           DoForEachStatement(ForHeader*);
 
     void            DoForToHeader(ForToHeader*);
     void            DoForEachHeader(ForEachHeader*);
@@ -144,8 +150,7 @@ private:
     Stmt*           DoReturnStatement();
     Stmt*           DoRaiseStatement();
     Stmt*           DoYieldStatement();
-    Stmt*           DoGenStatement();
-    
+        
     Stmt*           DoBreakStatement();
     Stmt*           DoContinueStatement();
     Stmt*           DoOptionalJumpStatement(Stmt*);

@@ -205,12 +205,12 @@ String* ByteArray::ReadString(Context* ctx)
         }
         else if (len < 0)
         {
-            RaiseException("cannot read string of negative length.");
+            RaiseException("Cannot read string of negative length.");
         }
         
         if ((pos + (size_t)len) > (size_t)GetLength())
         {
-            RaiseException("attempt to read beyond length of a byte-array's buffer.");
+            RaiseException("Attempt to read beyond length of a byte-array's buffer.");
         }
         res = engine->AllocString((const char*)buffer.GetAt(pos), len);
         pos += len;
@@ -310,11 +310,11 @@ void ByteArray::SetLength(ssize_t s)
     }
     else if (s < 0)
     {
-        RaiseException("attempt to resize byte-array with negative length.");
+        RaiseException("Attempt to resize byte-array with negative length.");
     }
     else if (s > PIKA_STRING_MAX_LEN)
     {
-        RaiseException("byte-array's length is too large.");
+        RaiseException("Byte Array's length is too large.");
     }
     else if (s == 0)
     {
@@ -595,11 +595,11 @@ int ByteArray_nextBytes(Context* ctx, Value& self)
     pint_t nbytes = ctx->GetIntArg(0);
     if (nbytes > PIKA_MAX_RETC)
     {
-        RaiseException("attempt to return too many values; limit of %u values exceeded", PIKA_MAX_RETC);
+        RaiseException("Attempt to return too many values; limit of %u values exceeded", PIKA_MAX_RETC);
     }
     else if (nbytes < 0)
     {
-        RaiseException("cannot return negative number ("PINT_FMT") of values.", nbytes);
+        RaiseException("Cannot return negative number ("PINT_FMT") of values.", nbytes);
     }
     else if (nbytes == 0)
     {
@@ -607,7 +607,7 @@ int ByteArray_nextBytes(Context* ctx, Value& self)
     }
     else if ((ba->GetPosition() + nbytes) >= ba->GetLength())
     {
-        RaiseException("attempt to read ("PINT_FMT") bytes beyond the end of the byte-array.", ((ba->GetPosition() + nbytes) - ba->GetLength()) + 1);
+        RaiseException("Attempt to read ("PINT_FMT") bytes beyond the end of the byte-array.", ((ba->GetPosition() + nbytes) - ba->GetLength()) + 1);
     }
     else
     {

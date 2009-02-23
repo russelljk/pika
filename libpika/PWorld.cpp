@@ -107,7 +107,7 @@ String* NumberToString(Engine* eng, const Value& v)
     return eng->AllocString(&buff[0]);
 }
 
-bool IntegerToString(pint_t i, guint radix, Buffer<char>& result)
+bool IntegerToString(pint_t i, puint_t radix, Buffer<char>& result)
 {
     const char* digits = "0123456789abcdefghijklmnopqrstuvwxyz";
     if (radix < 2 || radix > 36)
@@ -115,7 +115,7 @@ bool IntegerToString(pint_t i, guint radix, Buffer<char>& result)
         return false;
     }
     
-    guint j = 0;
+    puint_t j = 0;
     size_t const MAX_SIZE_NEEDED = sizeof(pint_t) * CHAR_BIT + 2; // number of bits in a pint_t + sign + 1
     char* buff = (char*)Pika_malloc(MAX_SIZE_NEEDED);
     char* tail = buff + MAX_SIZE_NEEDED;

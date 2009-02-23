@@ -15,9 +15,9 @@ namespace pika
 /////////////////////////////////////////////// Type ///////////////////////////////////////////////
 
 /** Pika type object.
- *  Types can be created through the class statement in scripts and by the static
- *  Type::Create method from C++.
- */
+  * Types can be created through the class statement in scripts and by the static
+  * Type::Create method from C++.
+  */
 class PIKA_API Type : public Package
 {
     PIKA_DECL(Type, Package)
@@ -46,29 +46,29 @@ public:
     virtual bool SetGlobal(const Value& key, Value& val, u4 attr = 0);
     
     /** Creates an new instance of this type.
-     *
-     *  @param inst     [out] The new instance.
-     */
+      * 
+      * @param inst     [out] The new instance.
+      */
     virtual void CreateInstance(Value& inst);
     
     /** Returns the specified field shared by instances of this type.
-     *
-     *  @param key      [in]  The name of the field.
-     *  @param result   [out] The field's value.
-     */
+      * 
+      * @param key      [in]  The name of the field.
+      * @param result   [out] The field's value.
+      */
     virtual bool GetField(const Value& key, Value& result);
     
     /** Determines if the specified field can be set.
-     *
-     *  @param key      [in]  The name of the field.
-     */
+      *
+      * @param key      [in]  The name of the field.
+      */
     virtual bool CanSetField(const Value& key);
     
     /** Add properties to this type.
-     *
-     *  @param rp       [in] Pointer to an array of type RegisterProperty.
-     *  @param count    [in] Number of properties to add.
-     */
+      *
+      * @param rp       [in] Pointer to an array of type RegisterProperty.
+      * @param count    [in] Number of properties to add.
+      */
     virtual void EnterProperties(RegisterProperty* rp, size_t count, Package* pkg = 0);
     
     /** Add instance methods to this type.
@@ -79,34 +79,34 @@ public:
     virtual void EnterMethods(RegisterFunction* rf, size_t count, Package* pkg = 0);
     
     /** Add class methods to this type.
-     *
-     *  @param rf       [in] Pointer to an array of type RegisterFunction.
-     *  @param count    [in] Number of class methods to add.
-     */
+      * 
+      * @param rf       [in] Pointer to an array of type RegisterFunction.
+      * @param count    [in] Number of class methods to add.
+      */
     virtual void EnterClassMethods(RegisterFunction* rf, size_t count, Package* pkg = 0);
     
     /** Creates a new type.
-     *
-     *  @param eng          [in] Pointer to an Engine.
-     *  @param name         [in] Name of the new type.
-     *  @param base         [in] Type we are deriving from (or null).
-     *  @param createFn     [in] Native construction method.
-     *  @param pkg          [in] Location this package lives in. (may be null).
-     *  @result             The newly created type.
-     *  @note               This function will create a metatype automatically.
-     */
+      * 
+      * @param eng          [in] Pointer to an Engine.
+      * @param name         [in] Name of the new type.
+      * @param base         [in] Type we are deriving from (or null).
+      * @param createFn     [in] Native construction method.
+      * @param pkg          [in] Location this package lives in. (may be null).
+      * @result             The newly created type.
+      * @note               This function will create a metatype automatically.
+      */
     static Type* Create(Engine* eng, String* name, Type* base, Type_NewFn createFn, Package* pkg);
     
     /** Creates a new type.
-     *
-     *  @param eng          [in] Pointer to an Engine.
-     *  @param name         [in] Name of the new type.
-     *  @param base         [in] Type we are deriving from (or null.)
-     *  @param createFn     [in] Native construction method.
-     *  @param pkg          [in] Location this package lives in. (may be null.)
-     *  @param meta         [in] The metatype (must not be null.)
-     *  @result             The newly created type.
-     */
+      * 
+      * @param eng          [in] Pointer to an Engine.
+      * @param name         [in] Name of the new type.
+      * @param base         [in] Type we are deriving from (or null.)
+      * @param createFn     [in] Native construction method.
+      * @param pkg          [in] Location this package lives in. (may be null.)
+      * @param meta         [in] The metatype (must not be null.)
+      * @result             The newly created type.
+      */
     static Type* Create(Engine* eng, String* name, Type* base, Type_NewFn createFn, Package* pkg, Type* meta);
     
     INLINE Type*    GetBase()     { return baseType;   } //!< Returns the Type's base type or super type.

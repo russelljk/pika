@@ -30,8 +30,8 @@ typedef void (*Type_NewFn)(Engine*, Type*, Value&);
 ////////////////////////////////////////////// Object //////////////////////////////////////////////
 
 /** Base class for all Pika object's.
- *  Each object has an associated type and a slot-table where instance variables are kept.
- */
+  * Each object has an associated type and a slot-table where instance variables are kept.
+  */
 class PIKA_API Object : public Basic
 {
     PIKA_DECL(Object, Basic)
@@ -73,40 +73,40 @@ public:
     virtual Enumerator* GetEnumerator(String*);
     
     /** Add native functions to an object.
-     *
-     *  @param rf       [in] Pointer to an array of type RegisterFunction.
-     *  @param count    [in] Number of functions to add.
-     *  @param pkg      [in] The package, module or script the functions live in. 
-     */
+      * 
+      * @param rf       [in] Pointer to an array of type RegisterFunction.
+      * @param count    [in] Number of functions to add.
+      * @param pkg      [in] The package, module or script the functions live in. 
+      */
     virtual void EnterFunctions(RegisterFunction* rf, size_t count, Package* pkg = 0);
     
     /** Create a new class Instance.
-     *
-     *  @param eng   [in] The Engine the object is created in.
-     *  @param count [in] Type type of the object (must be non null).
-     *  @result      The newly created object.
-     */
+      * 
+      * @param eng   [in] The Engine the object is created in.
+      * @param count [in] Type type of the object (must be non null).
+      * @result      The newly created object.
+      */
     static Object* StaticNew(Engine* eng, Type* objType);
     
     /** Sets a slot in an object's slot-table, bypassing operator overrides and properties.
-     *
-     *  @param obj  [in] Pointer to the object.
-     *  @param key  [in] The slot's name or key to be set.
-     *  @param val  [in] The value to set the slot to.
-     *  @result     If the slot was set true is returned.
-     *  @note       For use in scripts since native applications can use the Object::SetSlot member 
-     *              function.
-     */
+      * 
+      * @param obj  [in] Pointer to the object.
+      * @param key  [in] The slot's name or key to be set.
+      * @param val  [in] The value to set the slot to.
+      * @result     If the slot was set true is returned.
+      * @note       For use in scripts since native applications can use the Object::SetSlot member 
+      *              function.
+      */
     static bool RawSet(Object* obj, Value& key, Value& val);
     
     /** Returns a slot in an object's slot-table, bypassing operator overrides and properties.
-     *
-     *  @param obj  [in] Pointer to the object.
-     *  @param key  [in] The slot's name or key to be returned.
-     *  @result     The value of the slot.
-     *  @note       For use in scripts since native applications can use the Object::GetSlot member 
-     *              function.
-     */
+      * 
+      * @param obj  [in] Pointer to the object.
+      * @param key  [in] The slot's name or key to be returned.
+      * @result     The value of the slot.
+      * @note       For use in scripts since native applications can use the Object::GetSlot member 
+      *              function.
+      */
     static Value RawGet(Object* obj, Value& key);
 protected:
     Type*   type;

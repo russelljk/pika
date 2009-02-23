@@ -13,10 +13,7 @@ class Function;
 class Package;
 class String;
 
-////////////////////////////////////////////// Debugger ////////////////////////////////////////////
-/**
- * A simple Debugger that can be used in scripts.
- */
+/** A Debugger class that has hooks into the VM; allowing access to current script state. */
 class PIKA_API Debugger : public Object
 {
     PIKA_DECL(Debugger, Object)
