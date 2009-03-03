@@ -23,7 +23,7 @@ Package::Package(Engine* eng, Type* pkgType, String* n, Package* superPkg)
         superPackage(superPkg)
 {
     SetName(n);
-    SetSlot("__package", this);
+    SetSlot("__package", this, Slot::ATTR_internal);
 }
 
 Package::~Package() {}

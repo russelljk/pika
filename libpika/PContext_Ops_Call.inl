@@ -13,11 +13,11 @@ PIKA_OPCODE(OP_new)
     
     if (!vtype.IsDerivedFrom(Type::StaticGetClass()))
     {
-        ReportRuntimeError(Exception::ERROR_runtime, "operator new must be used on a Type instance");
+        ReportRuntimeError(Exception::ERROR_runtime, "operator new must be used on a Type instance: given %s", engine->GetTypenameOf(vtype)->GetBuffer());
     }    
     
     Type* typeobj = vtype.val.type;
-#if 1    
+    
     if (typeobj->GetField(Value(engine->GetOverrideString(OVR_new)), vtype)) // XXX: Get Override
     {
         vself.Set(typeobj);
@@ -25,13 +25,8 @@ PIKA_OPCODE(OP_new)
         {
             ++numcalls;
         }
-        else
-        {
-            Top() = vself;
-        }
     }
     else
-#endif
     {
         typeobj->CreateInstance(vself);
         if (typeobj->GetField(Value(engine->GetOverrideString(OVR_init)), vtype)) // XXX: Get Override

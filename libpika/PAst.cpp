@@ -291,6 +291,20 @@ void CompileState::SyntaxException(Exception::Kind k, int line, const char *msg,
     throw Exception(k);
 }
 
+void CompileState::SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...)
+{
+    va_list args;
+    
+    errors++;
+    fprintf(stderr, "** Syntax Error at line %d col %d: ", line, col);
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    
+    throw Exception(k);
+}
+
 void CompileState::SyntaxErrorSummary()
 {
     fprintf(stderr, "%d error(s) found.\n",   this->errors);
@@ -739,7 +753,7 @@ void BlockStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 
 BlockStmt::~BlockStmt() { Pika_delete(symtab); }
 
-DeclStmt::DeclStmt(Decl *decl): Stmt(Stmt::DECL_STMT), decl(decl) {}
+DeclStmt::DeclStmt(Decl *decl): Stmt(Stmt::STMT_decl), decl(decl) {}
 
 void DeclStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
@@ -747,6 +761,13 @@ void DeclStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     {
         decl->CalculateResources(st, cs);
     }
+}
+
+ParenExpr::~ParenExpr() {}
+    
+void ParenExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+{
+    expr->CalculateResources(st,cs);
 }
 
 void CallExpr::CalculateResources(SymbolTable* st, CompileState& cs)
@@ -1115,7 +1136,7 @@ void PropertyDecl::CalculateResources(SymbolTable* st, CompileState& cs)
 }
 
 AssignmentStmt::AssignmentStmt(ExprList* l, ExprList* r)
-        : Stmt(Stmt::DECL_STMT),
+        : Stmt(Stmt::STMT_decl),
         left(l),
         right(r),
         isBinaryOp(false),

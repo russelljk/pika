@@ -25,7 +25,7 @@ INLINE bool IsNotTerm(const int* terms, const int tok)
     return true;
 }
 
-/* Returns true if the token 'tok' IS a Terminator from the array 'terms'. */
+/* Returns true if the token 'tok' IS a one of the terminating tokens from the array 'terms'. */
 
 INLINE bool IsTerm(const int* terms, const int tok)
 {
@@ -39,7 +39,7 @@ INLINE bool IsTerm(const int* terms, const int tok)
     return false;
 }
 
-const int Parser::Static_end_terms[]     = { TOK_end, 0 };
+const int Parser::Static_end_terms[] = { TOK_end, 0 };
 const int Parser::Static_finally_terms[]  = { TOK_end, TOK_finally, 0 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,18 +71,16 @@ const int Token2String::diff = TOK_global;
 // TokenStream /////////////////////////////////////////////////////////////////////////////////////
 
 TokenStream::TokenStream(CompileState* state, FILE* yyin)
-        : state(state),
-        yyin(yyin),
-        tokenizer(0)
+    : state(state), tokenizer(0),
+    yyin(yyin)        
 {
     prev.tokenType = curr.tokenType = next.tokenType = EOF;
     PIKA_NEW(Tokenizer, tokenizer, (state, yyin));
 }
 
 TokenStream::TokenStream(CompileState* state, const char* buffer, size_t len)
-        : state(state),
-        yyin(0),
-        tokenizer(0)
+    : state(state), tokenizer(0),
+    yyin(0)        
 {
     prev.tokenType = curr.tokenType = next.tokenType = EOF;
     PIKA_NEW(Tokenizer, tokenizer, (state, buffer, len));
@@ -126,17 +124,17 @@ void TokenStream::Advance()
 // Parser //////////////////////////////////////////////////////////////////////////////////////////
 
 Parser::Parser(CompileState *cs, FILE* yyin)
-        : root(0),
-        state(cs),
-        tstream(state, yyin)
+    : root(0),
+    state(cs),
+    tstream(state, yyin)
 {
     state->SetParser(this);
 }
 
 Parser::Parser(CompileState *cs, const char* buffer, size_t len)
-        : root(0),
-        state(cs),
-        tstream(state, buffer, len)
+    : root(0),
+    state(cs),
+    tstream(state, buffer, len)
 {
     state->SetParser(this);
 }
@@ -223,18 +221,19 @@ bool Parser::Optional(int x)
 void Parser::Expected(int x)
 {
     int line = tstream.GetLineNumber();
+    int col  = tstream.GetCol();
     
     if (x >= Token2String::min && x <= Token2String::max)
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "Expected token '%s'.", Token2String::GetNames()[x-Token2String::diff]);
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "Expected token '%s'.", Token2String::GetNames()[x-Token2String::diff]);
     }
     else if (x <= CHAR_MAX && x >= CHAR_MIN)
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "Expected token '%c'.", (char)x);
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "Expected token '%c'.", (char)x);
     }
     else
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "Expected token %d.", x);
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "Expected token %d.", x);
     }
 }
 
@@ -243,18 +242,18 @@ void Parser::Expected(int x)
 void Parser::Unexpected(int x)
 {
     int line = tstream.GetLineNumber();
-    
+    int col  = tstream.GetCol();
     if (x >= Token2String::min && x <= Token2String::max)
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "unexpected token '%s'.", Token2String::GetNames()[x-Token2String::diff]);
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected token '%s'.", Token2String::GetNames()[x-Token2String::diff]);
     }
     else if (x <= CHAR_MAX && x >= CHAR_MIN)
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "unexpected token '%c'.", (char)x);
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected token '%c'.", (char)x);
     }
     else
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "unexpected token %d.", x);
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected token %d.", x);
     }
 }
 
@@ -273,6 +272,7 @@ void Parser::DoEndOfStatement()
     {
         state->SyntaxException(Exception::ERROR_syntax,
                                tstream.GetLineNumber(),
+                                tstream.GetCol(),
                                "end of statement required. expected ';' or \\n");
     }
 }
@@ -379,23 +379,26 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_continue:      stmt = DoContinueStatement();  break;
     case TOK_begin:         stmt = DoBlockStatement();     break;
     case TOK_package:       stmt = DoPackageDeclaration(); break;
-    case TOK_case:        stmt = DoCaseStatement();      break;
+    case TOK_case:          stmt = DoCaseStatement();      break;
     case TOK_assert:        stmt = DoAssertStatement();    break;
     case TOK_class:         stmt = DoClassStatement();     break;
     case TOK_delete:
     {
-        DeleteStmt* delstmt = 0;
+        DeleteStmt* delstmt = 0;        
         tstream.Advance();
+        
         do
         {
             int nxtline = tstream.GetLineNumber();
+            int nxtcol  = tstream.GetCol();
             Expr* operand = DoPrefixExpression();
             
             if (operand->kind != Expr::EXPR_dot)
             {
                 state->SyntaxException(Exception::ERROR_syntax,
-                                       tstream.GetLineNumber(),
-                                       "bind must be followed by a dot expression.");
+                                       nxtline,
+                                       nxtcol,
+                                       "delete must be followed by a dot expression.");
             }
             
             DotExpr* dotexpr = (DotExpr*)operand;
@@ -524,7 +527,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
         }
         else
         {
-            state->SyntaxException(Exception::ERROR_syntax, expr->line, "invalid name.");
+            state->SyntaxException(Exception::ERROR_syntax, expr->line, "invalid name specified.");
         }
     }
     else
@@ -651,7 +654,7 @@ Stmt* Parser::DoPropertyStatement()
     }
     else
     {
-        Unexpected(tstream.GetType());
+        state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(),  tstream.GetCol(), "expected identifier '%s' or '%s'.", getstr, setstr);
     }
     Match(':');
     
@@ -1152,7 +1155,7 @@ bool Parser::DoContextualKeyword(const char* key, bool optional)
         {
             if (!optional)
             {
-                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), "Expected token '%s'.", key);
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(),  tstream.GetCol(), "expected token '%s'.", key);
             }
             return false;
         }
@@ -1198,8 +1201,7 @@ void Parser::DoForToHeader(ForToHeader* header)
         PIKA_NEWNODE(IntegerExpr, estep, ((header->isdown) ? -1 : 1));
         estep->line = header->to->line;
         header->step = estep;
-    }
-    
+    }    
 }
 
 Stmt* Parser::DoForStatement()
@@ -1614,7 +1616,7 @@ Expr* Parser::DoConcatExpression()
     
     while (tstream.GetType() == TOK_cat || tstream.GetType() == TOK_catspace)
     {
-        Expr::Kind k = (tstream.GetType() == TOK_catspace) ? Expr::CONCAT_SPACE_EXPR : Expr::CONCAT_EXPR;
+        Expr::Kind k = (tstream.GetType() == TOK_catspace) ? Expr::EXPR_catsp : Expr::EXPR_cat;
         
         Expr* lhs = expr;
         
@@ -1634,7 +1636,7 @@ Expr* Parser::DoLogOrExpression()
     
     while (tstream.GetType() == TOK_or || tstream.GetType() == TOK_pipepipe)
     {
-        Expr::Kind k = Expr::LOG_OR_EXPR;
+        Expr::Kind k = Expr::EXPR_or;
         
         Expr* lhs = expr;
         tstream.Advance();
@@ -1653,7 +1655,7 @@ Expr* Parser::DoLogXorExpression()
     
     while (tstream.GetType() == TOK_xor || tstream.GetType() == TOK_caretcaret)
     {
-        Expr::Kind k = Expr::LOG_XOR_EXPR;
+        Expr::Kind k = Expr::EXPR_xor;
         
         Expr* lhs = expr;
         tstream.Advance();
@@ -1672,7 +1674,7 @@ Expr* Parser::DoLogAndExpression()
     
     while (tstream.GetType() == TOK_and || tstream.GetType() == TOK_ampamp)
     {
-        Expr::Kind k = Expr::LOG_AND_EXPR;
+        Expr::Kind k = Expr::EXPR_and;
         
         Expr* lhs = expr;
         tstream.Advance();
@@ -1691,7 +1693,7 @@ Expr* Parser::DoOrExpression()
     
     while (tstream.GetType() == '|')
     {
-        Expr::Kind k = Expr::BIT_OR_EXPR;
+        Expr::Kind k = Expr::EXPR_bitor;
         
         Expr* lhs = expr;
         tstream.Advance();
@@ -1710,7 +1712,7 @@ Expr* Parser::DoXorExpression()
     
     while (tstream.GetType() == '^')
     {
-        Expr::Kind k = Expr::BIT_XOR_EXPR;
+        Expr::Kind k = Expr::EXPR_bitxor;
         
         Expr* lhs = expr;
         tstream.Advance();
@@ -1729,7 +1731,7 @@ Expr* Parser::DoAndExpression()
     
     while (tstream.GetType() == '&')
     {
-        Expr::Kind k = Expr::BIT_AND_EXPR;
+        Expr::Kind k = Expr::EXPR_bitand;
         
         Expr* lhs = expr;
         tstream.Advance();
@@ -1761,35 +1763,35 @@ Expr* Parser::DoEqualExpression()
         
         if (tstream.GetType() == TOK_eq)
         {
-            k = Expr::EQUAL_EXPR;
+            k = Expr::EXPR_eq;
         }
         else if (tstream.GetType() == TOK_ne)
         {
-            k = Expr::NOT_EQUAL_EXPR;
+            k = Expr::EXPR_ne;
         }
         else if (tstream.GetType() == TOK_same)
         {
-            k = Expr::SAME_EXPR;
+            k = Expr::EXPR_same;
         }
         else if (tstream.GetType() == TOK_notsame)
         {
-            k = Expr::NOT_SAME_EXPR;
+            k = Expr::EXPR_notsame;
         }
         else if (tstream.GetType() == TOK_is)
         {
-                k = Expr::IS_EXPR;
+                k = Expr::EXPR_is;
         }
         else // TOK_has
         {
-            k = Expr::HAS_EXPR;
+            k = Expr::EXPR_has;
         }
         
         Expr* lhs = expr;
         tstream.Advance();
         
-        if (k == Expr::SAME_EXPR && tstream.GetType() == TOK_not)
+        if (k == Expr::EXPR_same && tstream.GetType() == TOK_not)
         {
-            k = Expr::NOT_SAME_EXPR;
+            k = Expr::EXPR_notsame;
             tstream.Advance();
         }
         
@@ -1818,19 +1820,19 @@ Expr* Parser::DoCompExpression()
         
         if (tstream.GetType() == '<')
         {
-            k = Expr::LT_EXPR;
+            k = Expr::EXPR_lt;
         }
         else if (tstream.GetType() == '>')
         {
-            k = Expr::GT_EXPR;
+            k = Expr::EXPR_gt;
         }
         else if (tstream.GetType() == TOK_lte)
         {
-            k = Expr::LTE_EXPR;
+            k = Expr::EXPR_lte;
         }
         else
         {
-            k = Expr::GTE_EXPR;
+            k = Expr::EXPR_gte;
         }
         
         Expr* lhs = expr;
@@ -1885,7 +1887,7 @@ Expr* Parser::DoAddExpression()
     
     while (tstream.GetType() == '+' || tstream.GetType() == '-')
     {
-        Expr::Kind k = (tstream.GetType() == '+') ? Expr::ADD_EXPR : Expr::SUB_EXPR;
+        Expr::Kind k = (tstream.GetType() == '+') ? Expr::EXPR_add : Expr::EXPR_sub;
         
         Expr* lhs = expr;
         
@@ -1913,19 +1915,19 @@ Expr* Parser::DoMulExpression()
         
         if (tstream.GetType() == '*')
         {
-            k = Expr::MUL_EXPR;
+            k = Expr::EXPR_mul;
         }
         else if (tstream.GetType() == '/')
         {
-            k = Expr::DIV_EXPR;
+            k = Expr::EXPR_div;
         }
         else if (tstream.GetType() == TOK_div)
         {
-            k = Expr::INTDIV_EXPR;
+            k = Expr::EXPR_intdiv;
         }
         else
         {
-            k = Expr::MOD_EXPR;
+            k = Expr::EXPR_mod;
         }
         
         Expr* lhs = expr;
@@ -1969,7 +1971,7 @@ Expr* Parser::DoPrefixExpression()
     case TOK_decrement:
     case TOK_typeof:
     {
-        // ~ | ! | + | - | not | ++ | -- <expression>
+        // ~ ! + - not ++ --
         
         int line = tstream.GetLineNumber();
         Expr::Kind k = GetPrefixType(lextok);
@@ -2005,8 +2007,6 @@ Expr* Parser::DoPrefixExpression()
         return expr;
     }
     break;
-    case TOK_new:
-        return DoNewExpression();
     }
     return DoPostfixExpression();
 }
@@ -2028,8 +2028,8 @@ Expr* Parser::DoNewExpression()
         ExprList* callArgs = 0;
         
         if (IsPrimaryExpression()                       &&
-                (tstream.GetPrevType() == TOK_identifier)    && // ????
-                (tstream.GetLineNumber() == tstream.GetPreviousLineNumber()))
+           (tstream.GetPrevType() == TOK_identifier)    &&
+           (tstream.GetLineNumber() == tstream.GetPreviousLineNumber()))
         {
             callArgs = DoExpressionList();
         }
@@ -2046,10 +2046,12 @@ bool Parser::IsPrimaryExpression()
 {
     switch (tstream.GetType())
     {
-    case '{':
-    case '~':
-    case '!':
-//  case '[':   // We have a problem between array index [] and array literals [] with paran free calls
+    case '{': // object literal
+    case '~': // complement
+    case '!': // not
+    case '\\':// lambda expression
+//  case '[':   // We have a problem between array index [] and array literals [] with paren free calls
+    case TOK_new:
     case TOK_function:
     case TOK_identifier:
     case TOK_stringliteral:
@@ -2266,7 +2268,6 @@ Expr* Parser::DoPrimaryExpression()
     
     switch (lextok)
     {
-//  case TOK_do:
     case TOK_function:  expr = DoFunctionExpression();     break;
     case '[':           expr = DoArrayExpression();        break;
     case '{':           expr = DoDictionaryExpression();   break;
@@ -2274,10 +2275,62 @@ Expr* Parser::DoPrimaryExpression()
     {
         Match('(');
         expr = DoExpression();
-        
+        Expr* pexpr=0;
+        PIKA_NEWNODE(ParenExpr, pexpr, (expr));
+        pexpr->line =line;
+        expr = pexpr;
         Match(')');
     }
     break;
+    case '\\':
+    {
+        int line = tstream.GetLineNumber();
+        Match('\\');
+        ParamDecl* params = 0;
+#if 1   // '\\' params -> expr
+        // '\\''\\' expr
+        if (tstream.GetType() != '\\')
+        {
+            params = DoFunctionArguments();
+            Match(TOK_implies);
+        }
+        else        
+        {
+            Match('\\');
+        }
+#elif 0 // '\\' params '\\' expr
+        // '\\''\\' expr
+        if (tstream.GetType() != '\\')
+            params = DoFunctionArguments();
+        Match('\\');
+#elif 0 // '\\' params -> expr
+        // '\\' -> expr
+        if (tstream.GetType() != TOK_implies)
+            params = DoFunctionArguments();
+        Match(TOK_implies);
+#endif
+        size_t beg  = tstream.curr.begOffset;
+        Expr* expr = DoExpression();
+        size_t end  = tstream.curr.begOffset;
+
+        ExprList* elist = 0;
+        PIKA_NEWNODE(ExprList, elist, (expr));
+        elist->line = expr->line;
+
+        ExprStmt* body = 0;
+        PIKA_NEWNODE(ExprStmt, body, (elist));
+        body->line = expr->line;
+        
+        Expr* fun;
+        PIKA_NEWNODE(FunExpr, fun, (params, body, beg, end));
+        fun->line = line;
+        return fun;
+    }
+    break;
+    
+    case TOK_new:
+        return DoNewExpression();
+    
     case TOK_identifier:     expr = DoIdExpression();             break;
     case TOK_stringliteral:  expr = DoStringLiteralExpression();  break;
     case TOK_integerliteral: expr = DoIntegerLiteralExpression(); break;
@@ -2554,119 +2607,16 @@ struct CompItem : TreeNode
     Symbol*     symbol;
     CompItem*   next;
 };
-#if 0
-struct ArrayComp : Expr
-{
-    ArrayComp(Expr* e, CompItem* i)
-            : Expr(Expr::EXPR_arraycomp),
-            symtab(0),
-            expr(e),
-            items(i) {}
-            
-    virtual ~ArrayComp()
-    {
-        Pika_delete(symtab);
-    }
-    
-    virtual void DoStmtResources(SymbolTable* st, CompileState& cs)
-    {
-        PIKA_NEW(SymbolTable, symtab, (st, false, false));
-        incr_off = state->NextLocalOffset("");
-        items->CalculateResources(symtab, cs);
-        expr->CalculateResources(symtab, cs);
-    }
-    
-    Instr* IncrLoop()
-    {
-        Instr* ipushlocal = Instr::Create(OP_pushlocal);
-        Instr* iopincr    = Instr::Create(OP_inc);
-        Instr* isetlocal  = Instr::Create(OP_setlocal);
-        
-        ipushlocal->Attach(iopincr)->Attach(isetlocal);
-        ipushlocal->operand = isetlocal->operand = incr_off;
-        return ipushlocal;
-    }
-    
-    virtual Instr* GenerateCode()
-    {
-        //  [for if?]+ expr
-        // BEGIN BLOCK
-        Instr* iexpr   = expr->GenerateCode();
-        Instr* iincr   = IncrLoop();
-        Instr* itarget = Instr::Create(JMP_TARGET);
-        Instr* iend    = Instr::Create(JMP_TARGET);
-        
-        iexpr        ->
-        Attach(iincr)->
-        Attach(itarget)
-        ;
-        Instr* icomp = items->DoGen(iexpr, itarget, iend);
-        // END BLOCK
-        return icomp;
-    }
-    
-    int          incr_off;
-    SymbolTable* symtab;
-    Expr*        expr;
-    CompItem*    items;
-};
-#endif
+
 Expr* Parser::DoArrayExpression()
 {
     Expr* expr = 0;
     
     Match('[');
     
-    const int arr_terms[] = { ']', /*':',*/ 0 };
+    const int arr_terms[] = { ']', 0 };
     ExprList* elems = DoOptionalExpressionList(arr_terms, true);
-    /*
-    // If we got only a single expression.
-    if (elems && elems->next == 0)
-    {
-        // Check to see if this is an array comprehension expression.
-        if (Optional(':'))
-        {
-            CompItem* head = 0;
-            CompItem* curr = 0;
-            do
-            {
-                ForToHeader header = { 0, 0, 0, 0, false, 0 };
-                Expr* cond   = 0;
-                bool unless  = false;
-                
-                DoForToHeader(&header);
-                
-                if (Optional(TOK_if))
-                {
-                    cond = DoExpression();
-                }
-                else if (Optional(TOK_unless))
-                {
-                    cond = DoExpression();
-                    unless = true;
-                }
-                CompItem* item = 0;
-                PIKA_NEWNODE(CompItem, item, (header, cond, unless));
-                
-                if (!head)
-                {
-                    curr = head = item;
-                }
-                else
-                {
-                    curr->next = item;
-                    curr = item;
-                }
-            }
-            while (tstream.GetType() == TOK_for);
-            
-            //PIKA_NEWNODE(ArrayComp, expr, (elems->expr, head));
-            //int compline = tstream.GetLineNumber();    
-            //Match(']');
-            //expr->line = compline;
-            //return expr;
-        }
-    }*/
+    
     int line = tstream.GetLineNumber();
     
     Match(']');
@@ -2748,7 +2698,7 @@ FieldList* Parser::DoDictionaryExpressionFields()
             }
             else
             {
-                Unexpected(tstream.GetType());
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(),  tstream.GetCol(), "expected identifier '%s' or '%s'.", getstr, setstr);
             }
             
             Match(':');

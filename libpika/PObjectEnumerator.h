@@ -32,7 +32,7 @@ public:
             // Build an array of keys so that any changes made to the slot table
             // do not effect us.
             
-            slots.Resize(table.count);
+            slots.Resize(count);
             size_t s = 0;
             for (bin = 0; bin < count; ++bin)
             {
@@ -40,11 +40,15 @@ public:
                 
                 while (curr)
                 {
-                    
-                    slots[s++] = curr->key;
+                    if (!(curr->attr & Slot::ATTR_noenum))
+                    {
+                        slots[s++] = curr->key;
+                    }
                     curr = curr->next;
                 }
             }
+            if (s < count)
+                slots.Resize(s);
             currSlot = slots.Begin();
             MoveCurrent();
             return true;

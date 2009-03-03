@@ -24,6 +24,7 @@
 #define PCURSES_HEADER
 
 #include "Pika.h"
+//#define _XOPEN_SOURCE_EXTENDED 1
 #include <ncurses.h>
 
 

@@ -14,10 +14,6 @@
 #include "PTokenizer.h"
 #include "PPackage.h"
 
-int matchstar(int c, const char *re, const char *text);
-int matchhere(const char *re, const char *text);
-int match(const char *re, const char *text);
-
 namespace pika
 {
 
@@ -694,8 +690,9 @@ public:
     static int fromByte(Context* ctx, Value&)
     {
         Engine* eng = ctx->GetEngine();
-        u1      uch = static_cast<u1>(ctx->GetIntArg(0) & 0xff);
-        String* res = eng->AllocString((char*) & uch, 1);
+        //u1      uch = static_cast<u1>(ctx->GetIntArg(0) & 0xff);
+        char uch = ctx->GetIntArg(0);
+        String* res = eng->AllocString((char*)&uch, 1);
         
         ctx->Push(res);
         return 1;
@@ -917,7 +914,7 @@ public:
 
 }// pika
 
-static RegisterFunction StringMethods[] =
+static RegisterFunction String_Methods[] =
 {
     { "replaceChar",StringApi::replaceChar, 2, 0, 1 },
     { "toInteger",  StringApi::toInteger,   0, 0, 0 },
@@ -936,16 +933,16 @@ static RegisterFunction StringMethods[] =
     { "substring",  StringApi::slice,       2, 0, 1 },
     { OPSLICE_STR,  StringApi::slice,       2, 0, 1 },
     { "times",      StringApi::times,       1, 0, 1 },
-    { OPNEW_CSTR,   StringApi::init,        1, 0, 1 },
     { "toString",   StringApi::toString,    0, 0, 1 },
     { "reverse",    StringApi::reverse,     0, 0, 1 },
 };
 
-static RegisterFunction StringClassMethods[] =
+static RegisterFunction String_ClassMethods[] =
 {
     { "cat",        StringApi::concat,      0, 1, 0 },
     { "catSp",      StringApi::concatSpace, 0, 1, 0 },
     { "fromByte",   StringApi::fromByte,    1, 0, 1 },
+    { OPNEW_CSTR,   StringApi::init,        1, 0, 1 },
 };
 
 void InitStringAPI(Engine* eng)
@@ -954,8 +951,8 @@ void InitStringAPI(Engine* eng)
     
     eng->String_Type->SetFinal(true);
     eng->String_Type->SetAbstract(true);    
-    eng->String_Type->EnterMethods(StringMethods, countof(StringMethods));
-    eng->String_Type->EnterClassMethods(StringClassMethods, countof(StringClassMethods));
+    eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
+    eng->String_Type->EnterClassMethods(String_ClassMethods, countof(String_ClassMethods));
     
     eng->GetWorld()->SetSlot("String", eng->String_Type);
 }

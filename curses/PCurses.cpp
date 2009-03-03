@@ -51,15 +51,24 @@ UserData* CreateNewWindow(Context* ctx, WINDOW* w)
     return ud;
 }
 
+/* Curses' initscr calls exit when a terminal cannot be opened. We want the raise an exception instead of exiting. */
 Value Curses_Init(Context* ctx)
 {
     Value res(NULL_VALUE);
-//  setlocale(LC_ALL, "");
-    WINDOW* win = initscr();
-    if (win)
+    setlocale(LC_ALL, "");    
+    char* name = getenv("TERM");
+    if (name == 0 || newterm(name, stdout, stdin) == 0)
     {
-        UserData* ud = CreateNewWindow(ctx, win);
-        res.Set(ud);
+        RaiseException("cannot open terminal '%s'\n", name ? name : "unknown");
+    }
+    else
+    {        
+        WINDOW* win = stdscr;//initscr();
+        if (win)
+        {
+            UserData* ud = CreateNewWindow(ctx, win);
+            res.Set(ud);
+        }
     }
     return res;
 }
@@ -699,7 +708,7 @@ PIKA_MODULE(curses, eng, curses)
     { "insdelln",       Window_winsdelln,       1, 0, 1 },
     { "scrl",           Window_wscrl,           1, 0, 1 },
     { "timeout",        Window_wtimeout,        1, 0, 1 },
-    { "is_linetouched", Window_is_linetouched,  1, 0, 1 },
+    { "linetouched?",   Window_is_linetouched,  1, 0, 1 },
     
     { "bkgdset",        Window_wbkgdset,        1, 0, 1 },
     { "bkgd",           Window_wbkgd,           1, 0, 1 },

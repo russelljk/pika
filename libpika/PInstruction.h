@@ -165,7 +165,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_pushlocal:
     case OP_pushglobal:
     case OP_pushmember:
-    case OP_pushouter:      return  1;
+    case OP_pushlexical:      return  1;
     case OP_setlocal0:
     case OP_setlocal1:
     case OP_setlocal2:

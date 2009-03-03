@@ -642,6 +642,13 @@ void Array::SetBack(const Value& v)
 }
 
 }// pika
+
+void Array_NewFn(Engine* eng, Type* obj_type, Value& res)
+{
+    Object* obj = Array::Create(eng, obj_type, 0, 0);
+    res.Set(obj);
+}
+
 /*
 
 X fold

@@ -732,6 +732,7 @@ static int Basic_getType(Context* ctx, Value& self)
 extern void Object_NewFn(Engine*, Type*, Value&);
 extern void Package_NewFn(Engine*, Type*, Value&);
 extern void TypeObj_NewFn(Engine*, Type*, Value&);
+extern void Array_NewFn(Engine*, Type*, Value&);
 
 namespace pika
 {
@@ -849,7 +850,7 @@ void Engine::InitializeWorld()
         Type_Type    ->SetType( TypeType_Type    );
         TypeType_Type->SetType( TypeType_Type    );
         
-        Array_Type = Type::Create(this, AllocString("Array"), Object_Type, 0, Pkg_World);
+        Array_Type = Type::Create(this, AllocString("Array"), Object_Type, Array_NewFn, Pkg_World);
         
         Basic_Type   ->GetSubtypes()->SetType(Array_Type);
         Object_Type  ->GetSubtypes()->SetType(Array_Type);
@@ -987,10 +988,16 @@ void Engine::InitializeWorld()
             { "toReal",     Null_toReal,    0, 0, 0 },
             { "toNumber",   Null_toNumber,  0, 0, 0 },
             { "toBoolean",  Null_toBoolean, 0, 0, 0 },
+        };
+
+        static RegisterFunction Null_ClassMethods[] =
+        {
             { OPNEW_CSTR,   Null_init,      0, 1, 0 },
-        };      
+        };
+
         Null_Type = Type::Create(this, AllocString("Null"), 0, 0, Pkg_World);
         Null_Type->EnterMethods(Null_Functions, countof(Null_Functions));
+        Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));
         Pkg_World->SetSlot("Null", Null_Type);
         Null_Type->SetFinal(true);
         Null_Type->SetAbstract(true);
@@ -1000,17 +1007,21 @@ void Engine::InitializeWorld()
         
         // Boolean /////////////////////////////////////////////////////////////////////////////////////
 
-        static RegisterFunction booleanFunctions[] =
+        static RegisterFunction Boolean_Functions[] =
         {
             { "toString",   Boolean_toString,  0, 0, 0 },
             { "toInteger",  Boolean_toInteger, 0, 0, 0 },
             { "toReal",     Boolean_toReal,    0, 0, 0 },
             { "toNumber",   Boolean_toNumber,  0, 0, 0 },
             { "toBoolean",  Boolean_toBoolean, 0, 0, 0 },
+        };          
+        static RegisterFunction Boolean_ClassMethods[] =
+        {
             { OPNEW_CSTR,   Boolean_init,      0, 1, 0 },
         };          
         Boolean_Type  = Type::Create(this, AllocString("Boolean"), 0, 0, Pkg_World);
-        Boolean_Type->EnterMethods(booleanFunctions, countof(booleanFunctions));
+        Boolean_Type->EnterMethods(Boolean_Functions, countof(Boolean_Functions));
+        Boolean_Type->EnterClassMethods(Boolean_ClassMethods, countof(Boolean_ClassMethods));
         Pkg_World->SetSlot("Boolean", Boolean_Type);
         Boolean_Type->SetFinal(true);
         Boolean_Type->SetAbstract(true);
@@ -1019,17 +1030,21 @@ void Engine::InitializeWorld()
         
         // Integer ////////////////////////////////////////////////////////////////////////////////
 
-        static RegisterFunction integerFunctions[] =
+        static RegisterFunction Integer_Functions[] =
         {
             { "toString",   Integer_toString,  0, 1, 0 },
             { "toInteger",  Integer_toInteger, 0, 0, 0 },
             { "toReal",     Integer_toReal,    0, 0, 0 },
             { "toNumber",   Integer_toNumber,  0, 0, 0 },
-            { "toBoolean",  Integer_toBoolean, 0, 0, 0 },
-            { OPNEW_CSTR,   Integer_init,      0, 1, 0 },
+            { "toBoolean",  Integer_toBoolean, 0, 0, 0 },            
+        };        
+        static RegisterFunction Integer_ClassMethods[] =
+        {
+        { OPNEW_CSTR,       Integer_init,      0, 1, 0 },
         };        
         Integer_Type  = Type::Create(this, AllocString("Integer"), 0, 0, Pkg_World);
-        Integer_Type->EnterMethods(integerFunctions, countof(integerFunctions));
+        Integer_Type->EnterMethods(Integer_Functions, countof(Integer_Functions));
+        Integer_Type->EnterClassMethods(Integer_ClassMethods, countof(Integer_ClassMethods));
         Integer_Type->EnterProperties(Value_properties, countof(Value_properties));
         Integer_Type->SetSlot("MAX", (pint_t)PINT_MAX);
         Integer_Type->SetSlot("MIN", (pint_t)PINT_MIN);
@@ -1039,7 +1054,7 @@ void Engine::InitializeWorld()
    
         // Real ///////////////////////////////////////////////////////////////////////////////////
 
-        static RegisterFunction realFunctions[] =
+        static RegisterFunction Real_Functions[] =
         {
             { "toString",   Real_toString,  0, 0, 0 },
             { "toInteger",  Real_toInteger, 0, 0, 0 },
@@ -1048,10 +1063,14 @@ void Engine::InitializeWorld()
             { "toBoolean",  Real_toBoolean, 0, 0, 0 },
             { "nan?",       Real_isnan,     0, 0, 0 },
             // TODO:: Finite? Infinite? SignBit etc...
+        };
+        static RegisterFunction Real_ClassMethods[] =
+        {
             { OPNEW_CSTR,   Real_init,      0, 1, 0 },
         };
         Real_Type  = Type::Create(this, AllocString("Real"), 0, 0, Pkg_World);
-        Real_Type->EnterMethods(realFunctions, countof(realFunctions));
+        Real_Type->EnterMethods(Real_Functions, countof(Real_Functions));
+        Real_Type->EnterClassMethods(Real_ClassMethods, countof(Real_ClassMethods));
         Pkg_World->SetSlot("Real", Real_Type);
         Real_Type->SetFinal(true);
         Real_Type->SetAbstract(true);

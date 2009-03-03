@@ -1162,7 +1162,7 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
     else
     {
         // object or userdata that may contain a call override method.
-        if (frameVar.tag == TAG_object || frameVar.tag == TAG_userdata)
+        if (frameVar.tag >= TAG_basic)
         {
             Push(frameVar);
             return SetupOverride(argc, frameVar.val.basic, OVR_call);
@@ -2972,11 +2972,33 @@ Context::EErrRes Context::OpException(Exception& e)
             const char* msg = e.GetMessage();
             if (msg)
             {
-                std::cerr << Exception::Static_Error_Formats[e.kind] << ": " << msg << std::endl;
+                // If the exception was raised inside a script
+                if (e.kind == Exception::ERROR_script)
+                {
+                    ScriptException& se = static_cast<ScriptException&>(e);
+                    
+                    // If they used an instance of an Error derived class.
+                    if (engine->Error_Type->IsInstance(se.var))
+                    {
+                        String* typestr = engine->GetTypenameOf(se.var);
+                        // unhandled TYPE -- MESSAGE\n
+                        std::cerr << "unhandled " << typestr->GetBuffer() << " -- " << msg << std::endl;
+                    }
+                    // A non-error values was raised.
+                    else
+                    {
+                        // unhandled exception -- MESSAGE
+                        std::cerr << "unhandled exception -- " << msg << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cerr << Exception::Static_Error_Formats[e.kind] << " -- " << msg << std::endl;
+                }
             }
             else
             {
-                std::cerr << "*** Unhandled Exception ***" << std::endl;
+                std::cerr << "*** unhandled exception ***" << std::endl;
             }
         }
         return ER_exit;

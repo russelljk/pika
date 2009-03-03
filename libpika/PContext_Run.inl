@@ -112,7 +112,7 @@ void Context::Run()
 #       ifdef DECL_OP
 #           undef DECL_OP
 #       endif
-#       define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT) &&lbl_##XOP,
+#       define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) &&lbl_##XOP,
     static const void* static_jmp_addresses[] =
         {
 #       include "POpcode.def"    // Initialization of all the goto addresses.

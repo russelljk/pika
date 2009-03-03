@@ -196,7 +196,7 @@ protected:
     void            ReadIdentifier();
     void            ReadString();
     void            ReadControl();
-    void            ReadMultiLineComment();
+    void            ReadMultiLineComment(int);
     void            ReadSingleLineComment();
     
     size_t          tokenBegin;

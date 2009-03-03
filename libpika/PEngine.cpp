@@ -922,7 +922,7 @@ String* Engine::GetTypenameOf(Value& v)
             return objType->GetName();
     }
     }
-    return AllocString("undefined");
+    return this->emptyString;
 }
 
 Context* Engine::AllocContext()

@@ -513,11 +513,11 @@ Instr* CallExpr::GenerateCode()
 
 Instr* BinaryExpr::GenerateCode()
 {
-    if (kind == LOG_AND_EXPR)
+    if (kind == EXPR_and)
     {
         return GenerateShortCircuitOp(left, right, true);
     }
-    else if (kind == LOG_OR_EXPR)
+    else if (kind == EXPR_or)
     {
         return GenerateShortCircuitOp(left, right, false);
     }
@@ -591,7 +591,7 @@ Instr* IdExpr::GenerateCode()
     
     if (IsOuter())
     {
-        oc = OP_pushouter;
+        oc = OP_pushlexical;
     }
     else if (IsLocal())
     {
@@ -1951,6 +1951,7 @@ Instr* FinallyStmt::DoStmtCodeGen()
      *      jump        [ target: finished      ]
      * ensured:
      *      <ensure block>
+     *      jump to address on top of address stack
      * invoke_ensure:
      *      callensure  [ target: ensured       ]
      *      raise
@@ -2004,9 +2005,9 @@ Instr* FinallyStmt::DoStmtCodeGen()
     icallensure->SetTarget(iensured_block);
     ijmptoend->SetTarget(ifinished);
     
-    FinallyBlockBreaks(ibegin,           // Start of the block.
-                      iensured_block,   // End of the block.
-                      iensured_block);  // Target for OP_callensure, the beginning of the ensure block.
+    FinallyBlockBreaks(ibegin,          // Start of the block.
+                       iensured_block,  // End of the block.
+                       iensured_block); // Target for OP_callensure, the beginning of the ensure block.
                       
     EnsureNonLocalJumps(state,
                         iensured_block,
@@ -2304,6 +2305,11 @@ Instr* ClassDecl::GenerateCode()
                       false);
                       
     return insideof;
+}
+
+Instr* ParenExpr::GenerateCode()
+{
+    return expr->GenerateCode();
 }
 
 }// namespace pika

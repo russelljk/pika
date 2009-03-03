@@ -27,7 +27,7 @@ enum OpcodeFormat
 #ifdef DECL_OP
 #undef DECL_OP
 #endif
-#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT) XOP,
+#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) XOP,
 
 // Opcode //////////////////////////////////////////////////////////////////////////////////////////
 

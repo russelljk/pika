@@ -170,6 +170,8 @@ struct CompileState
     
     /** Issues a syntax error and raises an exception. This function never returns. */
     void SyntaxException(Exception::Kind k, int line, const char *msg, ...);
+
+    void SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...);    
     
     /** Prints a summary of all error and warnings. */
     void SyntaxErrorSummary();
@@ -442,23 +444,23 @@ struct Stmt : TreeNode
 {
     enum Kind
     {
-        EMPTY_STMT,
-        STMT_LIST,
-        BLOCK_STMT,
-        LABELED_STMT,
-        EXPR_STMT,
-        DECL_STMT,
-        IF_STMT,
-        COND_LOOP_STMT,
-        LOOP_STMT,
-        FOREACH_STMT,
-        FOR_STMT,
-        RET_STMT,
-        BREAK_STMT,
-        CONTINUE_STMT,
-        YIELD_STMT,
-        TRY_STMT,
-        RAISE_STMT,
+        STMT_empty,
+        STMT_list,
+        STMT_block,
+        STMT_labeled,
+        STMT_expr,
+        STMT_decl,
+        STMT_if,
+        STMT_while,
+        STMT_loop,
+        STMT_foreach,
+        STMT_for,
+        STMT_return,
+        STMT_break,
+        STMT_continue,
+        STMT_yield,
+        STMT_try,
+        STMT_raise,
         STMT_ensureblock,
         STMT_with,
         STMT_case,
@@ -517,7 +519,7 @@ struct FinallyStmt : Stmt
 struct RaiseStmt : Stmt
 {
     RaiseStmt(Expr* expr)
-            : Stmt(Stmt::RAISE_STMT),
+            : Stmt(Stmt::STMT_raise),
             reraiseOffset((u2) - 1), expr(expr)
     {}
     
@@ -553,7 +555,7 @@ struct CatchIsBlock : TreeNode, TLinked<CatchIsBlock>
 struct TryStmt : Stmt
 {
     TryStmt(Stmt* tryBlock, Stmt* catchBlock, Id* caughtVar, CatchIsBlock* cisb, Stmt* elsebody)
-            : Stmt(Stmt::TRY_STMT),
+            : Stmt(Stmt::STMT_try),
             tryBlock(tryBlock),
             catchBlock(catchBlock),
             caughtVar(caughtVar),
@@ -583,7 +585,7 @@ struct TryStmt : Stmt
 struct LabeledStmt : Stmt
 {
     LabeledStmt(Id* id, Stmt* stmt)
-            : Stmt(Stmt::LABELED_STMT),
+            : Stmt(Stmt::STMT_labeled),
             id(id),
             label(0),
             stmt(stmt)
@@ -613,7 +615,7 @@ struct LoopingStmt : Stmt
 struct BreakStmt : Stmt
 {
     BreakStmt(Id *id)
-            : Stmt(Stmt::BREAK_STMT),
+            : Stmt(Stmt::STMT_break),
             label(0),
             id(id)
     {}
@@ -630,7 +632,7 @@ struct BreakStmt : Stmt
 struct ContinueStmt : Stmt
 {
     ContinueStmt(Id *id)
-            : Stmt(Stmt::CONTINUE_STMT),
+            : Stmt(Stmt::STMT_continue),
             label(0),
             id(id)
     {}
@@ -648,34 +650,34 @@ struct Expr : TreeNode
 {
     enum Kind
     {
-        COND_EXPR,
-        NULLSELECT_EXPR,
-        SLICE_EXPR,
-        ADD_EXPR,
-        SUB_EXPR,
-        MUL_EXPR,
-        DIV_EXPR,
-        INTDIV_EXPR,
-        MOD_EXPR,
-        CONCAT_SPACE_EXPR,
-        CONCAT_EXPR,
-        BIND_EXPR,
-        EQUAL_EXPR,
-        NOT_EQUAL_EXPR,
-        SAME_EXPR,
-        NOT_SAME_EXPR,
-        IS_EXPR,
-        HAS_EXPR,
-        LT_EXPR,
-        GT_EXPR,
-        LTE_EXPR,
-        GTE_EXPR,
-        BIT_AND_EXPR,
-        BIT_OR_EXPR,
-        BIT_XOR_EXPR,
-        LOG_AND_EXPR,
-        LOG_OR_EXPR,
-        LOG_XOR_EXPR,
+        EXPR_conditional,
+        EXPR_nullselect,
+        EXPR_slice,
+        EXPR_add,
+        EXPR_sub,
+        EXPR_mul,
+        EXPR_div,
+        EXPR_intdiv,
+        EXPR_mod,
+        EXPR_catsp,
+        EXPR_cat,
+        EXPR_bind,
+        EXPR_eq,
+        EXPR_ne,
+        EXPR_same,
+        EXPR_notsame,
+        EXPR_is,
+        EXPR_has,
+        EXPR_lt,
+        EXPR_gt,
+        EXPR_lte,
+        EXPR_gte,
+        EXPR_bitand,
+        EXPR_bitor,
+        EXPR_bitxor,
+        EXPR_and,
+        EXPR_or,
+        EXPR_xor,
         EXPR_lsh,
         EXPR_rsh,
         EXPR_ursh,
@@ -704,15 +706,26 @@ struct Expr : TreeNode
         EXPR_pow,
         EXPR_load,
         EXPR_dotbind,
-        EXPR_has,
         EXPR_new,
         EXPR_arraycomp,
-        EXPR_invalid,        
+        EXPR_invalid,
+        EXPR_paren,     
     };
     
     Expr(Kind kind) : kind(kind) {}
     
     Kind kind;
+};
+
+struct ParenExpr : Expr
+{
+    ParenExpr(Expr* e) : Expr(Expr::EXPR_paren), expr(e) {}
+    virtual ~ParenExpr();
+    
+    virtual void   CalculateResources(SymbolTable* st, CompileState& cs);
+    virtual Instr* GenerateCode();
+    
+    Expr* expr;
 };
 
 // PropertyDecl ////////////////////////////////////////////////////////////////////////////////////
@@ -786,7 +799,7 @@ struct CallExpr : Expr
 struct CondExpr : Expr
 {
     CondExpr(Expr* cond, Expr* a, Expr* b, bool unless = false)
-            : Expr(Expr::COND_EXPR),
+            : Expr(Expr::EXPR_conditional),
             cond(cond),
             exprA(a),
             exprB(b),
@@ -805,7 +818,7 @@ struct CondExpr : Expr
 
 struct NullSelectExpr : Expr
 {
-    NullSelectExpr(Expr* a, Expr* b) : Expr(Expr::NULLSELECT_EXPR), exprA(a), exprB(b) {}
+    NullSelectExpr(Expr* a, Expr* b) : Expr(Expr::EXPR_nullselect), exprA(a), exprB(b) {}
     
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
@@ -819,7 +832,7 @@ struct NullSelectExpr : Expr
 struct SliceExpr : Expr
 {
     SliceExpr(Expr* expr, Expr* from, Expr* to)
-            : Expr(Expr::SLICE_EXPR),
+            : Expr(Expr::EXPR_slice),
             expr(expr),
             from(from),
             to(to),
@@ -842,7 +855,7 @@ struct SliceExpr : Expr
 struct StmtList : Stmt
 {
     StmtList(Stmt *first, Stmt *second)
-            : Stmt(Stmt::STMT_LIST),
+            : Stmt(Stmt::STMT_list),
             first(first),
             second(second) {}
             
@@ -862,7 +875,7 @@ struct StmtList : Stmt
 
 struct EmptyStmt : Stmt
 {
-    EmptyStmt() : Stmt(Stmt::EMPTY_STMT) {}
+    EmptyStmt() : Stmt(Stmt::STMT_empty) {}
     
     virtual void DoStmtResources(SymbolTable* st, CompileState& cs) {}
     Instr* DoStmtCodeGen();
@@ -872,7 +885,7 @@ struct EmptyStmt : Stmt
 
 struct ExprStmt : Stmt
 {
-    ExprStmt(ExprList* expr) : Stmt(Stmt::EXPR_STMT), exprList(expr), autopop(true) {}
+    ExprStmt(ExprList* expr) : Stmt(Stmt::STMT_expr), exprList(expr), autopop(true) {}
     
     virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr* DoStmtCodeGen();
@@ -885,7 +898,7 @@ struct ExprStmt : Stmt
 
 struct RetStmt : Stmt
 {
-    RetStmt(ExprList* el) : Stmt(Stmt::RET_STMT), exprs(el), count(0), isInTry(false) {}
+    RetStmt(ExprList* el) : Stmt(Stmt::STMT_return), exprs(el), count(0), isInTry(false) {}
     
     virtual void    DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr*  DoStmtCodeGen();
@@ -899,7 +912,7 @@ struct RetStmt : Stmt
 
 struct YieldStmt : Stmt
 {
-    YieldStmt(ExprList* el) : Stmt(Stmt::YIELD_STMT), exprs(el), count(0) {}
+    YieldStmt(ExprList* el) : Stmt(Stmt::STMT_yield), exprs(el), count(0) {}
     
     virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr* DoStmtCodeGen();
@@ -912,7 +925,7 @@ struct YieldStmt : Stmt
 
 struct LoopStmt : LoopingStmt
 {
-    LoopStmt(Stmt *body) : LoopingStmt(Stmt::LOOP_STMT), body(body) {}
+    LoopStmt(Stmt *body) : LoopingStmt(Stmt::STMT_loop), body(body) {}
     
     virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr* DoStmtCodeGen();
@@ -925,7 +938,7 @@ struct LoopStmt : LoopingStmt
 struct CondLoopStmt : LoopingStmt
 {
     CondLoopStmt(Expr* cond, Stmt* body, bool repeat, bool until)
-            : LoopingStmt(Stmt::COND_LOOP_STMT),
+            : LoopingStmt(Stmt::STMT_while),
             cond(cond),
             body(body),
             repeat(repeat),
@@ -945,7 +958,7 @@ struct CondLoopStmt : LoopingStmt
 struct ForToStmt : LoopingStmt
 {
     ForToStmt(Id* id, Expr* from, Expr* to, Expr* step, Stmt* body, bool down)
-            : LoopingStmt(Stmt::FOR_STMT),
+            : LoopingStmt(Stmt::STMT_for),
             id(id),
             from(from),
             to(to),
@@ -975,7 +988,7 @@ struct ForToStmt : LoopingStmt
 struct ForeachStmt : LoopingStmt
 {
     ForeachStmt(Id* id, Expr* type_expr, Expr* in, Stmt* body)
-            : LoopingStmt(Stmt::FOREACH_STMT),
+            : LoopingStmt(Stmt::STMT_foreach),
             id(id),
             iterVar(0),
             type_expr(type_expr),
@@ -1004,7 +1017,7 @@ struct ForeachStmt : LoopingStmt
 struct IfStmt : Stmt
 {
     IfStmt(Expr* cond, Stmt* then_part, bool unless = false)
-            : Stmt(Stmt::IF_STMT),
+            : Stmt(Stmt::STMT_if),
             next(0),
             cond(cond),
             then_part(then_part),
@@ -1039,7 +1052,7 @@ struct IfStmt : Stmt
 struct ConditionalStmt : Stmt
 {
     ConditionalStmt(IfStmt* ifpart, Stmt* elsepart)
-            : Stmt(Stmt::IF_STMT),
+            : Stmt(Stmt::STMT_if),
             ifPart(ifpart),
             elsePart(elsepart) {}
             
@@ -1060,7 +1073,7 @@ struct ConditionalStmt : Stmt
 struct BlockStmt : Stmt
 {
     BlockStmt(Stmt* stmts)
-            : Stmt(Stmt::BLOCK_STMT),
+            : Stmt(Stmt::STMT_block),
             stmts(stmts),
             symtab(0) {}
             
@@ -1133,33 +1146,33 @@ struct BinaryExpr : Expr
     {
         switch (kind)
         {
-        case ADD_EXPR:          return OP_add;
-        case SUB_EXPR:          return OP_sub;
-        case MUL_EXPR:          return OP_mul;
-        case DIV_EXPR:          return OP_div;
-        case INTDIV_EXPR:       return OP_idiv; // TODO: OP_idiv
-        case MOD_EXPR:          return OP_mod;
-        case CONCAT_SPACE_EXPR: return OP_catsp;
-        case CONCAT_EXPR:       return OP_cat;
-        case EQUAL_EXPR:        return OP_eq;
-        case NOT_EQUAL_EXPR:    return OP_ne;
-        case SAME_EXPR:         return OP_same;
-        case NOT_SAME_EXPR:     return OP_notsame;
-        case IS_EXPR:           return OP_is;
-        case HAS_EXPR:          return OP_has;
-        case LT_EXPR:           return OP_lt;
-        case GT_EXPR:           return OP_gt;
-        case LTE_EXPR:          return OP_lte;
-        case GTE_EXPR:          return OP_gte;
-        case BIT_AND_EXPR:      return OP_bitand;
-        case BIT_OR_EXPR:       return OP_bitor;
-        case BIT_XOR_EXPR:      return OP_bitxor;
-        case LOG_XOR_EXPR:      return OP_xor;
-        case EXPR_lsh:          return OP_lsh;
-        case EXPR_rsh:          return OP_rsh;
-        case EXPR_ursh:         return OP_ursh;
-        case EXPR_pow:          return OP_pow;
-        default:                return OP_nop;
+        case EXPR_add:      return OP_add;
+        case EXPR_sub:      return OP_sub;
+        case EXPR_mul:      return OP_mul;
+        case EXPR_div:      return OP_div;
+        case EXPR_intdiv:   return OP_idiv;
+        case EXPR_mod:      return OP_mod;
+        case EXPR_catsp:    return OP_catsp;
+        case EXPR_cat:      return OP_cat;
+        case EXPR_eq:       return OP_eq;
+        case EXPR_ne:       return OP_ne;
+        case EXPR_same:     return OP_same;
+        case EXPR_notsame:  return OP_notsame;
+        case EXPR_is:       return OP_is;
+        case EXPR_has:      return OP_has;
+        case EXPR_lt:       return OP_lt;
+        case EXPR_gt:       return OP_gt;
+        case EXPR_lte:      return OP_lte;
+        case EXPR_gte:      return OP_gte;
+        case EXPR_bitand:   return OP_bitand;
+        case EXPR_bitor:    return OP_bitor;
+        case EXPR_bitxor:   return OP_bitxor;
+        case EXPR_xor:      return OP_xor;
+        case EXPR_lsh:      return OP_lsh;
+        case EXPR_rsh:      return OP_rsh;
+        case EXPR_ursh:     return OP_ursh;
+        case EXPR_pow:      return OP_pow;
+        default:            return OP_nop;
         };
         return OP_nop;
     }
@@ -1225,11 +1238,7 @@ struct ConstantExpr : Expr
 
 struct FunExpr : ConstantExpr
 {
-    FunExpr(ParamDecl* args,
-            Stmt*      body,
-            size_t     begtxt,
-            size_t     endtxt,
-            Id*        name = 0)
+    FunExpr(ParamDecl* args, Stmt* body, size_t begtxt, size_t endtxt, Id* name = 0)
     : ConstantExpr(Expr::EXPR_function),
     args(args),
     name(name),
@@ -1255,14 +1264,12 @@ struct FunExpr : ConstantExpr
 
 struct PropExpr : Expr
 {
-    PropExpr(Expr* n,
-             Expr* g,
-             Expr* s)
+    PropExpr(Expr* name, Expr* getfn, Expr* setfn)
     : Expr(Expr::EXPR_property),
-    nameexpr(n),
-    getter(g),
-    setter(s) {}
-            
+    nameexpr(name),
+    getter(getfn),
+    setter(setfn) {}
+    
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
     

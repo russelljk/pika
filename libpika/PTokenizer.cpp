@@ -416,11 +416,11 @@ Tokenizer::Tokenizer(CompileState* s, FILE* fs)
         state(s),
         tabIndentSize(4),
         line(1),
-        col(1),
-        ch(1),
+        col(0),
+        ch(0),
         prevline(1),
-        prevcol(1),
-        prevch(1),
+        prevcol(0),
+        prevch(0),
         look(EOF),
         hasUtf8Bom(false),
         minKeywordLength(0),
@@ -438,11 +438,11 @@ Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
         state(s),
         tabIndentSize(4),
         line(1),
-        col(1),
-        ch(1),
+        col(0),
+        ch(0),
         prevline(1),
-        prevcol(1),
-        prevch(1),
+        prevcol(0),
+        prevch(0),
         look(EOF),
         hasUtf8Bom(false),
         minKeywordLength(0),
@@ -569,7 +569,7 @@ void Tokenizer::ReadIdentifier()
     // [a-zA-Z$_][a-zA-Z0-9$_]*[?!]?
     
     if (!(IsLetter(look) || IsIdentifierExtra(look))) // make sure we start with an appropriate character.
-        state->SyntaxException(Exception::ERROR_syntax, line, "Expecting letter, '$' or '_' while reading identifier");
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "Expecting letter, '$' or '_' while reading identifier");
         
     while (IsLetterOrDigit(look) || IsIdentifierExtra(look))
     {
@@ -644,7 +644,7 @@ void Tokenizer::ReadString()
     }
     
     if (IsEndOfStream() || look != termchar)
-        state->SyntaxException(Exception::ERROR_syntax, prevline, "unclosed string literal");
+        state->SyntaxException(Exception::ERROR_syntax, prevline, prevcol, "unclosed string literal");
         
     GetLook();
     
@@ -717,6 +717,11 @@ void Tokenizer::ReadControl()
             tokenType = TOK_subassign;
             GetLook();
         }
+        else if (look == '>')
+        {
+            tokenType = TOK_implies;
+            GetLook();
+        }
     }
     break;
         
@@ -785,13 +790,14 @@ void Tokenizer::ReadControl()
 
     case '(':
     {
+        int lineStart = line;
         tokenType = look;
         GetLook();
-
+        
         if (look == '*')
         {
             GetLook();
-            ReadMultiLineComment();
+            ReadMultiLineComment(lineStart);
             return GetNext();
         }
     }
@@ -1006,10 +1012,9 @@ void Tokenizer::ReadControl()
     }
 }
 
-void Tokenizer::ReadMultiLineComment()
+void Tokenizer::ReadMultiLineComment(int lineStart)
 {
     int depth = 1;
-    
     while (!IsEndOfStream() && depth)
     {
         if (look == '(')
@@ -1040,7 +1045,7 @@ void Tokenizer::ReadMultiLineComment()
     
     if (depth)
     {
-        state->SyntaxException(Exception::ERROR_syntax, line, "unclosed multi-line comment");
+        state->SyntaxException(Exception::ERROR_syntax, lineStart, "unclosed multi-line comment");
     }
 }
 
@@ -1062,7 +1067,7 @@ int Tokenizer::Peek()
 
 void Tokenizer::NumberParseError(const char* msg)
 {
-    state->SyntaxException(Exception::ERROR_syntax, line, msg);
+    state->SyntaxException(Exception::ERROR_syntax, line, col, msg);
 }
 
 void Tokenizer::GetLook()
@@ -1090,7 +1095,7 @@ void Tokenizer::GetLook()
                     {
                         // single CR
                         ++line;
-                        col = ch = 1;
+                        col = ch = 0;
                     }
                     // otherwise CR LF
                 }
@@ -1100,7 +1105,7 @@ void Tokenizer::GetLook()
             {
                 // LF
                 ++line;
-                col = ch = 1;
+                col = ch = 0;
             }
             else if (look == '\t')
             {

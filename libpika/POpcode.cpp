@@ -13,7 +13,7 @@ namespace pika
 #ifdef DECL_OP
 #undef DECL_OP
 #endif
-#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT) XNAME,
+#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) XNAME,
 
 const char* OpcodeNames[OPCODE_MAX] =
     {
@@ -26,7 +26,7 @@ const char* OpcodeNames[OPCODE_MAX] =
 #ifdef DECL_OP
 #undef DECL_OP
 #endif
-#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT) XLENGTH,
+#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) XLENGTH,
 
 const int OpcodeLengths[OPCODE_MAX] =
     {
@@ -41,7 +41,7 @@ const int OpcodeLengths[OPCODE_MAX] =
 #ifdef DECL_OP
 #undef DECL_OP
 #endif
-#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT) XFORMAT,
+#define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) XFORMAT,
 
 const OpcodeFormat OpcodeFormats[OPCODE_MAX] =
 {

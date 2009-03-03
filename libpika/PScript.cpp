@@ -72,9 +72,9 @@ bool Script::Run(Array* args)
             Value nval(NULL_VALUE);
             SetSlot(args_str, nval, Slot::ATTR_protected);
         }        
-        SetSlot("__script",  this,       Slot::ATTR_protected);
-        SetSlot("__context", context,    Slot::ATTR_protected);
-        SetSlot("__main",    entryPoint, Slot::ATTR_protected);        
+        SetSlot("__script",  this,       Slot::ATTR_internal);
+        SetSlot("__context", context,    Slot::ATTR_internal);
+        SetSlot("__main",    entryPoint, Slot::ATTR_internal);        
     }// resume gc
     
     context->PushNull();

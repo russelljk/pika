@@ -207,7 +207,7 @@ PIKA_NEXT()
  * Gets a local variable from a
  * previous|outer function call.
  */
-PIKA_OPCODE(OP_pushouter)
+PIKA_OPCODE(OP_pushlexical)
 {
     u1 depth = GetByteOperand(instr);
     u2 index = GetShortOperand(instr);

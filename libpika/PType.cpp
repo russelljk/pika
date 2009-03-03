@@ -39,9 +39,12 @@ private:
 
 PIKA_IMPL(Type)
 
-Type::Type(Engine* eng, Type* obj_type,
-           String* n, Type* base,
-           Type_NewFn newFn, Package* loc)
+Type::Type(Engine*    eng,
+           Type*      obj_type,
+           String*    n,
+           Type*      base,
+           Type_NewFn newFn,
+           Package*   loc)
         : Package(eng, obj_type, n, loc),
         baseType(base),
         newfn(newFn),
@@ -52,7 +55,7 @@ Type::Type(Engine* eng, Type* obj_type,
     if (baseType)
     {
         if (!newfn)
-        {
+        {            
             newfn = baseType->newfn;
         }
         baseType->AddSubtype(this);
@@ -100,8 +103,7 @@ Enumerator* Type::GetEnumerator(String* enumtype)
         else if (enumtype == eng->AllocString("properties"))
         {
             filter = eng->Property_Type;
-        }
-        
+        }        
         if (filter)
         {
             FilterEnum* filterenum = 0;

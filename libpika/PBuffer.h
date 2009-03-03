@@ -266,7 +266,7 @@ public:
     {
         if (oldcap == 0)
         {
-            return 16;
+            return sizeneeded;// ? sizeneeded : 16;
         }
                 
         size_t nsize = (size_t)(oldcap * ResizeAmt(oldcap));
