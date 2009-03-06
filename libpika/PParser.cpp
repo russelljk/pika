@@ -2287,7 +2287,7 @@ Expr* Parser::DoPrimaryExpression()
         int line = tstream.GetLineNumber();
         Match('\\');
         ParamDecl* params = 0;
-#if 1   // '\\' params -> expr
+#if 0   // '\\' params -> expr
         // '\\''\\' expr
         if (tstream.GetType() != '\\')
         {
@@ -2303,7 +2303,7 @@ Expr* Parser::DoPrimaryExpression()
         if (tstream.GetType() != '\\')
             params = DoFunctionArguments();
         Match('\\');
-#elif 0 // '\\' params -> expr
+#else   // '\\' params -> expr
         // '\\' -> expr
         if (tstream.GetType() != TOK_implies)
             params = DoFunctionArguments();

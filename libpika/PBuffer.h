@@ -24,7 +24,6 @@ namespace pika
 {
 
 // XXX: Export exception handling methods so that PikaError does not need to be included.
-// XXX: Constructor that takes an initial size.
 
 ////////////////////////////////////////////// Buffer //////////////////////////////////////////////
 /**
@@ -39,7 +38,7 @@ public:
       */
     class Indexer
     {
-        size_t           index;
+        ptrdiff_t        index;
         Buffer<T>*       owner;
     public:
         friend           class Buffer<T>;
@@ -59,11 +58,13 @@ public:
         
         INLINE void CheckValid() const
         {
-            if (index >= owner->GetSize())
+            if (index < 0 || (size_t)index >= owner->GetSize())
             {
                 RaiseException("Invalid indexer. %d", index);
             }
         }
+        
+        ptrdiff_t GetIndex() const { return index; }
         
         INLINE Indexer& operator= (const Indexer& x) {  index = x.index; owner = x.owner; return *this; }
         
@@ -227,6 +228,11 @@ public:
     
     INLINE Buffer() : elements(0), size(0), capacity(0) { }
     
+    INLINE Buffer(size_t sz) : elements(0), size(0), capacity(0)
+    {
+        Resize(sz);
+    }
+    
     Buffer(const Buffer& a)
     {
         size     = 0;
@@ -266,15 +272,17 @@ public:
     {
         if (oldcap == 0)
         {
-            return sizeneeded;// ? sizeneeded : 16;
+            return sizeneeded;
         }
-                
-        size_t nsize = (size_t)(oldcap * ResizeAmt(oldcap));
-        
-        if (nsize < sizeneeded)
+        size_t nsize = (sizeneeded < 16) ? sizeneeded * ResizeAmt(oldcap)
+                                         : sizeneeded + (sizeneeded >> 2) + 6;        
+        // if nsize overflowed
+        if (nsize < sizeneeded) 
         {
-            nsize = sizeneeded;
-        }
+            if (sizeneeded >= GetMaxSize<T>())
+                return sizeneeded; // this will fail we the capacity is set
+            return sizeneeded + ((GetMaxSize<T>() - sizeneeded) >> 2); // size + half the distance to array.max
+        }       
         return nsize;
     }
     

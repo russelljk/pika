@@ -42,6 +42,7 @@
 		7F11939F0F32261B001EF550 /* PNativeInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F11939D0F32261B001EF550 /* PNativeInterface.h */; };
 		7F1193A00F32261B001EF550 /* PNativeInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F11939E0F32261B001EF550 /* PNativeInterface.cpp */; };
 		7F1193B10F32278F001EF550 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
+		7F3EB3170F61658600B32E22 /* PikaSort.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F3EB3160F61658600B32E22 /* PikaSort.h */; };
 		7F99390B0F1EE3FF0029C501 /* PArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389D0F1EE3FF0029C501 /* PArray.cpp */; };
 		7F99390C0F1EE3FF0029C501 /* PArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F99389E0F1EE3FF0029C501 /* PArray.h */; };
 		7F99390D0F1EE3FF0029C501 /* PAst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389F0F1EE3FF0029C501 /* PAst.cpp */; };
@@ -211,6 +212,7 @@
 		7F1193950F32259F001EF550 /* libpikaffi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikaffi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F11939D0F32261B001EF550 /* PNativeInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeInterface.h; path = ../ffi/PNativeInterface.h; sourceTree = SOURCE_ROOT; };
 		7F11939E0F32261B001EF550 /* PNativeInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNativeInterface.cpp; path = ../ffi/PNativeInterface.cpp; sourceTree = SOURCE_ROOT; };
+		7F3EB3160F61658600B32E22 /* PikaSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PikaSort.h; path = ../libpika/PikaSort.h; sourceTree = SOURCE_ROOT; };
 		7F99389D0F1EE3FF0029C501 /* PArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PArray.cpp; path = ../libpika/PArray.cpp; sourceTree = SOURCE_ROOT; };
 		7F99389E0F1EE3FF0029C501 /* PArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PArray.h; path = ../libpika/PArray.h; sourceTree = SOURCE_ROOT; };
 		7F99389F0F1EE3FF0029C501 /* PAst.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PAst.cpp; path = ../libpika/PAst.cpp; sourceTree = SOURCE_ROOT; };
@@ -501,6 +503,7 @@
 		4682DAB00E17EC7000B52D6B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				7F3EB3160F61658600B32E22 /* PikaSort.h */,
 				7FDCB9530F21110100E7EB19 /* PConfig_GCC.h */,
 				7FDCB94E0F21108800E7EB19 /* PConfig_VisualStudio.h */,
 				7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */,
@@ -652,6 +655,7 @@
 				7F9939700F1EE3FF0029C501 /* PUtil.h in Headers */,
 				7F9939720F1EE3FF0029C501 /* PValue.h in Headers */,
 				7F9939740F1EE3FF0029C501 /* PValueEnumerator.h in Headers */,
+				7F3EB3170F61658600B32E22 /* PikaSort.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

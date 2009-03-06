@@ -3,6 +3,7 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
+#include "PikaSort.h"
 #include <algorithm>
 #include <vector>
 /*
@@ -438,10 +439,9 @@ Array* Array::Sort(Value fn)
     // We sort using indexers so that modifications to the orignal
     // array will not cause an out of bounds read|write.
     
-    // TODO: std::sort infinite loops if fn return true when 2 elements are equal.
-    std::stable_sort(elements.iBegin(),
-                     elements.iEnd(),
-                     ValueComp(ctx, fn));
+    pika_sort(elements.iBegin(),
+              elements.iEnd(),
+              ValueComp(ctx, fn));
     return this;
 }
 
