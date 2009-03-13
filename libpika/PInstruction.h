@@ -281,22 +281,19 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_has:            return -1;
     case OP_typeof:         return  0;
     
-    case OP_pushtry:        return  0;
-    
-    case OP_poptry:         return  0;
-    
-    case OP_raise:          return  0;
-    
+    case OP_pushtry:
+    case OP_pophandler:    
+    case OP_raise:    
+    case OP_retensure:
+    case OP_callensure:     return  0;
+        
     case OP_pushwith:       return -1;
     case OP_popwith:        return  0;
     
     case OP_newenv:         return -1;
     case OP_pushpkg:        return -1;
     case OP_poppkg:         return  0;
-    
-    case OP_retensure:
-    case OP_popensure:
-    case OP_callensure:     return  0;
+
     
     case BREAK_LOOP:        return  0;
     case CONTINUE_LOOP:     return  0;

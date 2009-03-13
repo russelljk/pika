@@ -945,9 +945,14 @@ static RegisterFunction String_ClassMethods[] =
     { OPNEW_CSTR,   StringApi::init,        1, 0, 1 },
 };
 
+static void String_newFn(Engine* eng, Type* type, Value& res)
+{
+    res.Set(eng->emptyString);
+}
+
 void InitStringAPI(Engine* eng)
 {
-    eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, 0, eng->GetWorld());
+    eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, String_newFn, eng->GetWorld());
     
     eng->String_Type->SetFinal(true);
     eng->String_Type->SetAbstract(true);    

@@ -527,7 +527,7 @@ Script* Engine::Compile(String* name, Context* parent)
         yyin = 0;
     }
     
-    Script* script = Script::Create(this, str_dot_name, Pkg_Imports);
+    Script* script = Script::Create(this, str_dot_name, Pkg_World);
     scripts.Push(script);
     
     Context* context = Context::Create(this, this->Context_Type);

@@ -53,7 +53,7 @@ protected:
 };// Exception
 
 /** Raises an exception through C++'s exception handling framework. 
-  * This function never returns bc a throw statement is executed.
+  * This function never returns b/c a throw statement is executed.
   */
 PIKA_API void RaiseException(Exception::Kind k, const char* msg, ...);
 PIKA_API void RaiseException(const char* msg, ...);

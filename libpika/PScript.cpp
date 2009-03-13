@@ -114,3 +114,16 @@ Script* Script::Create(Engine* eng, String* name, Package* pkg)
 
 }// pika
 
+static void Script_newFn(Engine* eng, Type* type, Value& res)
+{
+    Script* s = Script::Create(eng, eng->emptyString, eng->GetWorld());
+    res.Set(s);
+}
+
+void InitScriptAPI(Engine* eng)
+{
+    eng->Script_Type = Type::Create(eng,
+                                    eng->AllocString("Script"),
+                                    eng->Package_Type,
+                                    Script_newFn, eng->GetWorld());
+}

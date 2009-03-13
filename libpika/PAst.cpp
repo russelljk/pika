@@ -250,7 +250,7 @@ Symbol* CompileState::CreateLocalPlus(SymbolTable* st, const char* name, size_t 
     }
     return symbol;
 }
-
+#if defined(ENABLE_SYNTAX_WARNINGS)
 void CompileState::SyntaxWarning(WarningLevel level, int line, const char* format, ...)
 {
     va_list args;
@@ -263,7 +263,7 @@ void CompileState::SyntaxWarning(WarningLevel level, int line, const char* forma
     fprintf(stderr, "\n");
     fflush(stderr);
 }
-
+#endif
 void CompileState::SyntaxError(int line,  const char* format, ...)
 {
     va_list args;
@@ -597,10 +597,12 @@ void LabeledStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
             LoopingStmt* lstmt = (LoopingStmt*)stmt;
             lstmt->label = label;
         }
+#if defined(ENABLE_SYNTAX_WARNINGS)
         else
         {
             state->SyntaxWarning(WARN_mild, line, "label \"%s\" has no meaning in this context.", id->name);
         }
+#endif
         stmt->CalculateResources(st, cs);
     }
 }

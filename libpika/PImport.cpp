@@ -227,22 +227,34 @@ int Global_import(Context* ctx, Value& self)
         Value res;
         if (eng->GetImport(name, res))
         {
-            //
-            // module was imported already or is in the process of being imported
-            //
+             // module was imported already or is in the process of being imported
             if (eng->Module_Type->IsInstance(res))
             {
                 Module* module = (Module*)res.val.object;
                 ctx->SafePush(module->ImportResult());
                 continue;
             }
-            else if (res.IsDerivedFrom(Package::StaticGetClass()))
+            else if (eng->Package_Type->IsInstance(res))
             {
-                //
-                // already loaded
-                //                
+                // already loaded                
                 ctx->SafePush(res);
                 continue;
+            }
+            else if (eng->Function_Type->IsInstance(res))
+            {
+                ctx->CheckStackSpace(2);
+                ctx->PushNull();
+                ctx->Push(res);
+                if (ctx->SetupCall(0))
+                {
+                    ctx->Run();
+                }
+                Value libres = ctx->PopTop();
+                if (eng->Package_Type->IsInstance(libres))
+                {
+                    eng->PutImport(name, libres);
+                    ctx->SafePush(libres);
+                }
             }
             else if (res.IsString() && (res.val.str == eng->loading_String || res.val.str == eng->AllocString("compiling")))
             {

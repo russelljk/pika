@@ -161,10 +161,10 @@ struct CompileState
     bool UpdateLineInfo(int line);
     
     // Error Reporting -----------------------------------------------------------------------------
-    
+#if defined(ENABLE_SYNTAX_WARNINGS)    
     /** Issues a syntax warning */
     void SyntaxWarning(WarningLevel level, int line, const char* format, ...);
-    
+#endif    
     /** Issues a syntax error. */
     void SyntaxError(int line, const char* format, ...);
     

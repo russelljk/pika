@@ -16,14 +16,21 @@ namespace pika
 
 struct KeywordDescriptor
 {
-    ETokenType  ttype;
-    const char* name;
-    size_t      length;
+    ETokenType  ttype; // keyword's token type
+    const char* name;  // The name of the token, (can be any valid identifier).
+    size_t      length;// length of the name, filled in at runtime.
 };
-
+/*
+ * TODO: Can a hashtable or tree be used to reduce the amount of time it takes to lookup tokens?
+ *       For most scripts this is not a problem; but lookup time is O(N) and its possible parsing
+ *       a large number of scripts could slow down the tokenizer.
+ */
 static KeywordDescriptor static_keywords[] =
 {
     // Keywords.
+    //
+    // { ETokenType, const char*, size_t },    
+    { TOK_function, "def", 0 },
     PIKA_keyword(TOK_global),
     PIKA_keyword(TOK_local),
     PIKA_keyword(TOK_member),
@@ -81,22 +88,23 @@ static KeywordDescriptor static_keywords[] =
 };
 
 #define NumKeywordDescriptors ((sizeof (static_keywords))/(sizeof (KeywordDescriptor)))
-    
-INLINE bool IsAscii(int x)  { return isascii(x) != 0; }
-INLINE bool IsLetter(int x) { return IsAscii(x) && (isalpha(x) != 0); }
-INLINE bool IsDigit(int x)  { return IsAscii(x) && (isdigit(x) != 0); }
-INLINE bool IsSpace(int x)  { return IsAscii(x) && (isspace(x) != 0); }
 
-INLINE bool IsUpper(int x)  { return IsAscii(x) && (isupper(x) != 0); }
-INLINE bool IsLower(int x)  { return IsAscii(x) && (islower(x) != 0); }
+INLINE bool IsAscii(int x)  { return isascii(x) != 0; }                 // Is an ascii character.
+INLINE bool IsLetter(int x) { return IsAscii(x) && (isalpha(x) != 0); } // Is an upper or lower case letter
+INLINE bool IsDigit(int x)  { return IsAscii(x) && (isdigit(x) != 0); } // Is a digit.
+INLINE bool IsSpace(int x)  { return IsAscii(x) && (isspace(x) != 0); } // Is white space.
 
-INLINE int  ToLower(int x)  { return(IsLetter(x)) ? tolower(x) : x; }
-INLINE int  ToUpper(int x)  { return(IsLetter(x)) ? toupper(x) : x; }
+INLINE bool IsUpper(int x)  { return IsAscii(x) && (isupper(x) != 0); } // Is an upper case letter.
+INLINE bool IsLower(int x)  { return IsAscii(x) && (islower(x) != 0); } // Is a lower case letter.
 
-INLINE bool IsLetterOrDigit(int x)   { return IsAscii(x) && (isalnum(x) != 0); }
-INLINE bool IsIdentifierExtra(int x) { return x == '_'   || x == '$'; }
-INLINE bool IsValidDigit(int x)      { return IsDigit(x) || x == '_'; }
+INLINE int  ToLower(int x)  { return(IsLetter(x)) ? tolower(x) : x; }   // Converts a letter to lower case.
+INLINE int  ToUpper(int x)  { return(IsLetter(x)) ? toupper(x) : x; }   // Converts a letter to upper case.
 
+INLINE bool IsLetterOrDigit(int x)   { return IsAscii(x) && (isalnum(x) != 0); } // Is a letter or a digit.
+INLINE bool IsIdentifierExtra(int x) { return x == '_'   || x == '$'; }          // Is part of a valid identifier.
+INLINE bool IsValidDigit(int x)      { return IsDigit(x) || x == '_'; }          // Is part of a valid number literal.
+
+// Convert a character/digit into a radix digit (ie 'f' returns 15).
 INLINE u4 RadixToNumber(int x)
 {
     if (IsDigit(x))
@@ -515,8 +523,7 @@ void Tokenizer::GetNext()
 void Tokenizer::EatWhitespace()
 {
     while (IsSpace(look))
-    {
-    
+    {    
         GetLook();
     }
 }
@@ -588,24 +595,18 @@ void Tokenizer::ReadIdentifier()
     
     // might be a keyword
     if (toklen >= minKeywordLength && toklen <= maxKeywordLength)
-    {
-        bool iskeyword = false;
-        
+    {        
         for (size_t i = 0; i < NumKeywordDescriptors; ++i)
         {
             if (toklen == static_keywords[i].length)
             {
                 if (StrCmpWithSize(GetBeginPtr(), static_keywords[i].name, toklen) == 0)
                 {
-                    iskeyword = true;
                     tokenType = static_keywords[i].ttype;
-                    break;
+                    return;                    
                 }
             }
-        }
-        
-        if (iskeyword)
-            return;
+        }            
     }
     
     // its an identifier, not a keyword.
@@ -715,11 +716,6 @@ void Tokenizer::ReadControl()
         else if (look == '=')
         {
             tokenType = TOK_subassign;
-            GetLook();
-        }
-        else if (look == '>')
-        {
-            tokenType = TOK_implies;
             GetLook();
         }
     }

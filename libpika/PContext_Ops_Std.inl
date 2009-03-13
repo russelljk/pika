@@ -175,9 +175,13 @@ PIKA_OPCODE(OP_pushglobal)
     }
     else
     {
+#   if defined( PIKA_ALLOW_MISSING_GLOBALS )
+        PushNull();
+#   else
         ReportRuntimeError(Exception::ERROR_runtime,
                            "Attempt to read global variable '%s'.",
                            engine->ToString(this, name)->GetBuffer());
+#   endif
     }
 }
 PIKA_NEXT()

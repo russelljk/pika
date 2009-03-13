@@ -834,6 +834,9 @@ void Engine::InitializeWorld()
         this->false_String     = AllocString("false");
         this->message_String   = AllocString("message");
         
+        String*  Imports_Str = AllocString(IMPORTS_STR);
+        String*  Types_Str   = AllocString("baseTypes");
+                
         Basic_Type   = Type::Create(this, AllocString("BasicObj"),  0,            0,             Pkg_World, 0);
         Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object_NewFn,  Pkg_World, 0);
         Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package_NewFn, Pkg_World, 0);
@@ -868,10 +871,11 @@ void Engine::InitializeWorld()
         LocalsObject_Type   = Type::Create(this, AllocString("LocalsObject"),   Object_Type,   0, Pkg_World); // TODO: Add native constructor.
         
         NativeFunction_Type = Type::Create(this, AllocString("NativeFunction"), Function_Type, 0, Pkg_World);
-        NativeMethod_Type   = Type::Create(this, AllocString("NativeMethod"),   Function_Type, 0, Pkg_World);
         NativeFunction_Type->SetFinal(true);
-        NativeMethod_Type->SetFinal(true);
         NativeFunction_Type->SetAbstract(true);
+        
+        NativeMethod_Type   = Type::Create(this, AllocString("NativeMethod"),   Function_Type, 0, Pkg_World);        
+        NativeMethod_Type->SetFinal(true);
         NativeMethod_Type->SetAbstract(true);
         
         Pkg_World->SetSlot(Function_String, Function_Type);
@@ -880,6 +884,10 @@ void Engine::InitializeWorld()
         InitPackageAPI (this);
         InitFunctionAPI(this);
         InitStringAPI  (this);
+        
+        Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
+        Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);
+        
         InitDebuggerAPI(this);
         InitArrayAPI   (this);
         InitSystemLIB  (this);
@@ -1077,13 +1085,7 @@ void Engine::InitializeWorld()
         Real_Type->EnterProperties(Value_properties, countof(Value_properties));        
         //----------------------------------------------------------------------------------------------
         Initialize_ImportAPI(this);
-        
-        String*  Imports_Str = AllocString(IMPORTS_STR);
-        String*  Types_Str   = AllocString("baseTypes");
-        
-        Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
-        Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);
-        
+                
         CreateRoots();
         
     }// GCPAUSE

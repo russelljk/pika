@@ -190,12 +190,19 @@ void Debugger::LineDebugData::Reset()
 
 }// pika
 
+static void Debugger_newFn(Engine* eng, Type* type, Value& res)
+{
+    Debugger* dbg=0;
+    GCNEW(eng, Debugger, dbg, (eng, type));
+    res.Set(dbg);
+}
+
 void InitDebuggerAPI(Engine* eng)
 {
-    Package* world = eng->GetWorld();
-    String* dbg_str = eng->AllocString("Debugger");
-    Debugger* dbg = 0;
-    Type* dbg_type = Type::Create(eng, dbg_str, eng->Object_Type, 0, world);
+    Package*  world    = eng->GetWorld();
+    String*   dbg_str  = eng->AllocString("Debugger");
+    Debugger* dbg      = 0;
+    Type*     dbg_type = Type::Create(eng, dbg_str, eng->Object_Type, Debugger_newFn, world);
     
     dbg_type->SetAbstract(true);
     dbg_type->SetFinal(true);

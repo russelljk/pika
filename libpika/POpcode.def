@@ -127,17 +127,17 @@
     DECL_OP( OP_typeof,         "typeof",       1, OF_none,     "" )
     
     DECL_OP( OP_pushtry,        "pushtry",      3, OF_target,   "" )
-    DECL_OP( OP_poptry,         "poptry",       1, OF_none,     "" )
+    DECL_OP( OP_pophandler,     "pophandler",   1, OF_none,     "" )
 
     DECL_OP( OP_raise,          "raise",        1, OF_none,     "" )
-
+                                                                    
+    DECL_OP( OP_retensure,      "retensure",    1, OF_none,     "" )
+    DECL_OP( OP_callensure,     "callensure",   3, OF_target,   "" )
+    
     DECL_OP( OP_pushwith,       "pushwith",     1, OF_none,     "" )
     DECL_OP( OP_popwith,        "popwith",      1, OF_none,     "" )
 
     DECL_OP( OP_newenv,         "newenv",       1, OF_none,     "" )
     DECL_OP( OP_pushpkg,        "pushenv",      1, OF_none,     "" )
     DECL_OP( OP_poppkg,         "popenv",       1, OF_none,     "" )
-                                                                    
-    DECL_OP( OP_retensure,      "retensure",    1, OF_none,     "" )
-    DECL_OP( OP_popensure,      "popensure",    1, OF_none,     "" )
-    DECL_OP( OP_callensure,     "callensure",   3, OF_target,   "" )
+

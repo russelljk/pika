@@ -425,49 +425,15 @@ pint_t Rotr(pint_t x, pint_t n)
     return _lrotr(x,n);
 }
 
-void InitSystemLIB(Engine* eng)
+int math_lib_load(Context* ctx, Value&)
 {
-
-    Package* World_Package = eng->GetWorld();
-    String*  Math_String   = eng->AllocString("math");
-    Package* Math_Package  = eng->OpenPackage(Math_String, World_Package, false);
-    String*  OS_String     = eng->AllocString("os");
-    Package* OS_Package    = eng->OpenPackage(OS_String, World_Package, false);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    
-	SlotBinder<Object>(eng, OS_Package, OS_Package)
-    .Register    ( OS_sleep,                 "sleep")
-    .StaticMethod( OS_Clock,                 "clock")
-    .StaticMethod( OS_System,                "system")
-    .StaticMethod( OS_Time,                  "time")
-    .StaticMethod( getenv,                   "getEnv")
-    .StaticMethod( setenv,                   "setEnv")
-    .StaticMethod( unsetenv,                 "unSetEnv")
-    .StaticMethod( Pika_FileExists,          "fileExists?") // Checks for the existence of a file or directory.
-    .StaticMethod( Pika_IsFile,              "file?")       // Checks for the existence of a file.
-    .StaticMethod( Pika_IsDirectory,         "dir?")        // Checks for the existence of a directory.
-    .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
-    .StaticMethod( Pika_RemoveDirectory,     "RemoveDir")   // Removes a directory.
-    .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
-    .Register    ( OS_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
-    .Register    ( OS_moveFile,              "moveFile")    // Moves a file to a new location.
-    .Register    ( OS_copyFile,              "copyFile")    // Copies a file to a new location.
-    .Register    ( OS_removeFile,            "removeFile")  // Removes a file.
-    .Register    ( OS_getCurrentDir,         "getCurrDir")  // Returns the current directory.
-    .Register    ( OS_getFullPath,           "getFullPath")
-    .Register    ( OS_fileExtOf,             "fileExtOf")
-    .Register    ( OS_fileNameOf,            "fileNameOf")
-    .Register    ( OS_addPath,               "addPath")
-    ;
+    Engine* eng = ctx->GetEngine();
+    Package* world_Package = eng->GetWorld();
+    Package* math_Package = Package::Create(eng, eng->AllocString("math"), world_Package);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
         
-    InitRandomAPI(Math_Package, eng);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-        
-    SlotBinder<Object>(eng, Math_Package, Math_Package)
+    SlotBinder<Object>(eng, math_Package, math_Package)
     .StaticMethod( Rotl,         "rotl")
     .StaticMethod( Rotr,         "rotr")
     .StaticMethod( Cos,          "cos")
@@ -500,6 +466,56 @@ void InitSystemLIB(Engine* eng)
     .Constant    ( PIKA_SQRT1_2, "SQRT1_2")
     .Constant    ( PIKA_SQRT2,   "SQRT2")
     ;
+    
+    InitRandomAPI(math_Package, eng);
+    
+    ctx->Push(math_Package);
+    return 1;
+}
+
+void InitSystemLIB(Engine* eng)
+{
+
+    Package* World_Package = eng->GetWorld();
+    String*  math_String   = eng->AllocString("math");
+    //Package* Math_Package  = eng->OpenPackage(Math_String, World_Package, false);
+    String*  OS_String     = eng->AllocString("os");
+    Package* OS_Package    = eng->OpenPackage(OS_String, World_Package, false);
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+	SlotBinder<Object>(eng, OS_Package, OS_Package)
+    .Register    ( OS_sleep,                 "sleep")
+    .StaticMethod( OS_Clock,                 "clock")
+    .StaticMethod( OS_System,                "system")
+    .StaticMethod( OS_Time,                  "time")
+    .StaticMethod( getenv,                   "getEnv")
+    .StaticMethod( setenv,                   "setEnv")
+    .StaticMethod( unsetenv,                 "unSetEnv")
+    .StaticMethod( Pika_FileExists,          "fileExists?") // Checks for the existence of a file or directory.
+    .StaticMethod( Pika_IsFile,              "file?")       // Checks for the existence of a file.
+    .StaticMethod( Pika_IsDirectory,         "dir?")        // Checks for the existence of a directory.
+    .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
+    .StaticMethod( Pika_RemoveDirectory,     "RemoveDir")   // Removes a directory.
+    .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
+    .Register    ( OS_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
+    .Register    ( OS_moveFile,              "moveFile")    // Moves a file to a new location.
+    .Register    ( OS_copyFile,              "copyFile")    // Copies a file to a new location.
+    .Register    ( OS_removeFile,            "removeFile")  // Removes a file.
+    .Register    ( OS_getCurrentDir,         "getCurrDir")  // Returns the current directory.
+    .Register    ( OS_getFullPath,           "getFullPath")
+    .Register    ( OS_fileExtOf,             "fileExtOf")
+    .Register    ( OS_fileNameOf,            "fileNameOf")
+    .Register    ( OS_addPath,               "addPath")
+    ;
+    
+    static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };
+    
+    Value mathfn(Function::Create(eng, &math_FuncDef, World_Package));
+    
+    eng->PutImport(math_String, mathfn);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+        
 }
 
 

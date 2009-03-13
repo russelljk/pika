@@ -61,13 +61,13 @@ struct TokenStream
     INLINE size_t  GetStringLength() const { return curr.value.len; }
 
     INLINE int GetLineNumber() const { return curr.line; }
+    INLINE int GetNextLineNumber()     const { return(next.tokenType == EOF) ? (curr.tokenType == EOF) ? prev.line : curr.line : next.line; }
+    INLINE int GetPreviousLineNumber() const { return prev.line; }
     
     INLINE int GetCol() const { return curr.col; }
     INLINE int GetPrevCol() const { return prev.col; }
+    INLINE int GetNextCol() const { return(next.tokenType == EOF) ? (curr.tokenType == EOF) ? prev.col : curr.col : next.col; }
         
-    INLINE int GetNextLineNumber()     const { return(curr.tokenType == EOF || next.tokenType == EOF) ? prev.line : next.line; }
-    INLINE int GetPreviousLineNumber() const { return prev.line; }
-    
     CompileState* state;
     Tokenizer*    tokenizer;
     FILE*         yyin;      //!< File handle for the script. Null if we are parsing a string.

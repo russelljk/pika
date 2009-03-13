@@ -289,6 +289,9 @@ static int Package_openPath(Context* ctx, Value&)
     return 1;
 }
 
+extern void InitScriptAPI(Engine* eng);
+extern void InitModuleAPI(Engine* eng);
+                                    
 void InitPackageAPI(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -296,16 +299,9 @@ void InitPackageAPI(Engine* eng)
     
     Pkg_World->SetType(eng->Package_Type);
     eng->Type_Type->SetType(eng->Package_Type->GetType());
-        
-    eng->Module_Type = Type::Create(eng,
-                                    eng->AllocString("Module"),
-                                    eng->Package_Type,
-                                    0, Pkg_World);
-                                    
-    eng->Script_Type = Type::Create(eng,
-                                    eng->AllocString("Script"),
-                                    eng->Package_Type,
-                                    0, Pkg_World);                                    
+    
+    InitModuleAPI(eng);
+    InitScriptAPI(eng);
     
     static RegisterFunction Package_methods[] =
     {

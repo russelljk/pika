@@ -126,7 +126,6 @@ public:
         RUNNING,   //!< Context is running.
         DEAD,      //!< Context has finished running and exited cleanly.
         INVALID,   //!< Context has not been initialized or exited abruptly.
-        PREPARED,  //!< Context has been initialized and is ready to run.
     };
         
     enum EErrRes
@@ -243,7 +242,6 @@ public:
     INLINE bool IsRunning()   const { return state == RUNNING;   }
     INLINE bool IsDead()      const { return state == DEAD;      }
     INLINE bool IsInvalid()   const { return state == INVALID;   }
-    INLINE bool IsPrepared()  const { return state == PREPARED;   }
     
     INLINE pint_t GetState() const { return state; }
     

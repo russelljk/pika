@@ -843,7 +843,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
     int resultArgc = argc;
     // For strict native methods this will raise an exception.
 #if defined(PIKA_STRICT_ARGC)
-    if (true)
+    if (!def->isVarArg)
 #else
     if (def->isStrict && nativecall)
 #endif
@@ -1143,6 +1143,8 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
             
             if (closure->MustClose())
             {
+                //ASSERT(env == closure->lexEnv);
+                //LexicalEnv* oldEnv = env;
                 env = LexicalEnv::Create(engine, closure->lexEnv, true); // ... create the lexical environment (ie the args + locals).
                 env->Set(bsp, def->numLocals);                           // ... for now they point to our stack.
             }
@@ -1524,6 +1526,8 @@ void Context::OpDotSet(int& numcalls, Opcode oc)
 // as needed. Depending on the object in question, a missing member may
 // cause an exception.
 
+// TODO: remove OP_pushglobal
+
 void Context::OpDotGet(int& numcalls, Opcode oc)
 {
     // [ ...      ]
@@ -1595,17 +1599,6 @@ void Context::OpDotGet(int& numcalls, Opcode oc)
                     //                  | [ value ]
                 }
                 
-            }
-            else if (oc == OP_pushglobal)
-            {
-#   if defined( PIKA_ALLOW_MISSING_GLOBALS )
-                res.SetNull();
-#   else
-                ReportRuntimeError(Exception::ERROR_runtime,
-                                   "Attempt to read global variable '%s'.",
-                                   engine->ToString(this, prop)->GetBuffer());
-                return;
-#   endif
             }
             else
             {

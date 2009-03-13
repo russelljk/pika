@@ -26,19 +26,79 @@ namespace pika
 // XXX: Export exception handling methods so that PikaError does not need to be included.
 
 ////////////////////////////////////////////// Buffer //////////////////////////////////////////////
-/**
- *  Resizable template Buffer class.
- */
+/** Resizable template Buffer class. */
 template<typename T>
 class Buffer
 {
+protected:        
+    T*      elements;
+    size_t  size;
+    size_t  capacity;
+    
+    INLINE static size_t ResizeAmt(size_t oldcap) { return 2; }
+    
+    INLINE size_t NewCap(size_t oldcap, size_t sizeneeded) const
+    {
+        if (oldcap == 0)
+        {
+            return sizeneeded;
+        }
+        size_t nsize = (sizeneeded < 16) ? sizeneeded * ResizeAmt(oldcap)
+                                         : sizeneeded + (sizeneeded >> 2) + 6;  // sizeneeded + 1/4*sizeneeded + 6 
+        // if nsize overflowed
+        if (nsize < sizeneeded) 
+        {
+            if (sizeneeded >= GetMaxSize<T>())
+                return sizeneeded; // << This will fail when SetCapacity is called.
+            return sizeneeded + ((GetMaxSize<T>() - sizeneeded) >> 2); // sizeneeded + fourth the distance to array.max
+        }
+        return nsize;
+    }
+    
+    INLINE void CopyConstrucor(T *tPtr, const T &t) { *tPtr = t; }
+    
+    /** Calls the constructor for a given range of elements. */
+    INLINE void ConstructRange(size_t start, size_t end)
+    {
+        ASSERT(start <= end);
+        
+        if (!IsPOD())
+        {
+            T* startPtr = elements + start;
+            T*   endPtr = elements + end;
+            
+            for (T* i = startPtr; i != endPtr; ++i)
+            {
+                Pika_construct<T>(i);
+            }
+        }
+    }
+    
+    /** Calls the destructor for a given range of elements. */
+    INLINE void DestructRange(size_t  start, size_t end)
+    {
+        ASSERT(start <= end);
+                
+        if (!IsPOD())
+        {
+            T* startPtr = elements + start;
+            T*   endPtr = elements + end;
+            
+            for (T* i = startPtr; i != endPtr; ++i)
+            {
+                Pika_destruct<T>(i);
+            }
+        }
+    }
+
 public:    
-    /** Access the Buffer with an index. This access is slower than using a pointer based Iterator but is
-      * much safer because the size and location of the Buffer's elements can change and the Indexer is still valid.
+    /** Access the Buffer with an index. This access is slower than using Iterator but is
+      * much safer because the size and location of the Buffer's elements can change and 
+      * the Indexer will still be valid.
       */
     class Indexer
     {
-        ptrdiff_t        index;
+        ptrdiff_t        index; // must be signed!
         Buffer<T>*       owner;
     public:
         friend           class Buffer<T>;
@@ -60,7 +120,7 @@ public:
         {
             if (index < 0 || (size_t)index >= owner->GetSize())
             {
-                RaiseException("Invalid indexer. %d", index);
+                RaiseException(Exception::ERROR_index, "Invalid index into buffer. %d", index);
             }
         }
         
@@ -112,8 +172,7 @@ public:
         INLINE bool	operator> (const Indexer& rhs) const { return index >  rhs.index; }
     };
     
-    /** Basic iterator that has partial compatibility with the C++ STL. 
-      */
+    /** Basic iterator that has (partial?) compatibility with the C++ STL. */
     class Iterator
     {
         T* myPtr;
@@ -177,8 +236,7 @@ public:
         INLINE bool	operator> (const Iterator& rhs) const { return myPtr >  rhs.myPtr; }
     };
     
-    /** Basic constant iterator that has 'partial' compatibility with the C++ STL.  
-      */
+    /** Basic constant iterator that has (partial?) compatibility with the C++ STL. */
     class ConstIterator
     {
         const T* myPtr;
@@ -263,29 +321,6 @@ public:
         }        
     }
     
-    INLINE static size_t ResizeAmt(size_t oldcap)
-    {
-        return 2;
-    }
-    
-    INLINE size_t NewCap(size_t oldcap, size_t sizeneeded) const
-    {
-        if (oldcap == 0)
-        {
-            return sizeneeded;
-        }
-        size_t nsize = (sizeneeded < 16) ? sizeneeded * ResizeAmt(oldcap)
-                                         : sizeneeded + (sizeneeded >> 2) + 6;        
-        // if nsize overflowed
-        if (nsize < sizeneeded) 
-        {
-            if (sizeneeded >= GetMaxSize<T>())
-                return sizeneeded; // this will fail we the capacity is set
-            return sizeneeded + ((GetMaxSize<T>() - sizeneeded) >> 2); // size + half the distance to array.max
-        }       
-        return nsize;
-    }
-    
     void Push(const T& t)
     {
         if (size == capacity)
@@ -312,6 +347,8 @@ public:
         }
     }
     
+    static INLINE bool IsPOD() { TNeedsDestructor<T> needsDestructor; return !needsDestructor(); }
+        
     void SetCapacity(size_t newSize)
     {
         if (newSize >= GetMaxSize<T>())
@@ -336,8 +373,19 @@ public:
             size = newSize;
         }
         
-        TNeedsDestructor<T> needsDestructor;        
-        if (needsDestructor())
+        // If we are dealing with POD, so we can call realloc to (possibly) extend the size of the
+        // current buffer.
+        if (IsPOD())
+        {
+            elements = (T*)Pika_realloc(elements, newSize * sizeof(T));
+            if (!elements)
+            {
+                RaiseException("Internal class Buffer failed to allocate enough bytes.");
+            }
+        }
+        // Else a destructor (or copy constructor) is needed then we must
+        // allocate a new-buffer and copy elements from the old-buffer into it.
+        else
         {
             T* temp = elements;
             elements = (T*)Pika_malloc(newSize * sizeof(T));
@@ -357,14 +405,6 @@ public:
                 RaiseException("Internal class Buffer failed to allocate enough bytes.");
             }
             Pika_free((void*)temp);
-        }
-        else
-        {
-            elements = (T*)Pika_realloc(elements, newSize * sizeof(T));
-            if (!elements)
-            {
-                RaiseException("Internal class Buffer failed to allocate enough bytes.");
-            }
         }
         this->capacity = newSize;
     }
@@ -428,8 +468,6 @@ public:
     /** When order doen't matter for the elements of an array you can use SwapAndPop to quickly erase an 
       * element. It works by swapping the element at the given position with the last element. Then the 
       * last element is popped of the back of the array.
-      *
-      * O(1)
       */
     bool SwapAndPop(Iterator& iter)
     {
@@ -458,8 +496,6 @@ public:
     /** Erases the element at the given position. Since every element after that position must be
       * copied down it can be an expensive operation. If you do not care about the order of elements
       * you can call SwapAndPop.
-      *
-      * O(n)
       */
     bool Erase(Iterator& iter)
     {
@@ -471,22 +507,17 @@ public:
     
     bool Erase(size_t index)
     {
-        if (!size)
-        {
+        if (!size || index >= size) 
             return false;
-        }
-        if (index >= size)
-        {
-            return false;
-        }
+        
+        // If its the last element.
         if (index == size - 1)
         {
-            //Easy case
             Pop();
             return true;
         }
         
-        //Copy down.
+        // Otherwise copy down.
         
         T* ePtr      = elements + index;
         T* ePtrPlus1 = elements + (index + 1);
@@ -576,49 +607,6 @@ public:
     
     INLINE ConstIterator    Begin() const { return ConstIterator(elements); }
     INLINE ConstIterator    End()   const { return ConstIterator(elements + size); }
-protected:
-    INLINE void CopyConstrucor(T *tPtr, const T &t) { *tPtr = t; }
-    
-    /** Calls the constructor for a given range of elements. */
-    void ConstructRange(size_t start, size_t end)
-    {
-        ASSERT(start <= end);
-        
-        TNeedsDestructor<T> needsDestructor;
-        
-        if (needsDestructor())
-        {
-            T* startPtr = elements + start;
-            T*   endPtr = elements + end;
-            
-            for (T* i = startPtr; i != endPtr; ++i)
-            {
-                Pika_construct<T>(i);
-            }
-        }
-    }
-    
-    /** Calls the destructor for a given range of elements. */
-    void DestructRange(size_t  start, size_t end)
-    {
-        ASSERT(start <= end);
-        TNeedsDestructor<T> needsDestructor;
-        
-        if (needsDestructor())
-        {
-            T* startPtr = elements + start;
-            T*   endPtr = elements + end;
-            
-            for (T* i = startPtr; i != endPtr; ++i)
-            {
-                Pika_destruct<T>(i);
-            }
-        }
-    }
-    
-    T*      elements;
-    size_t  size;
-    size_t  capacity;
 };
 
 }//pika

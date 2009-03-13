@@ -393,7 +393,7 @@ void Context::Run()
                     {
                         // Super can not be derived from
                         ReportRuntimeError(Exception::ERROR_runtime,
-                                           "Attempt to extend final type: %s.",
+                                           "class '%s' cannot be subclassed.",
                                            super->GetName()->GetBuffer());
                     }          
                     else
@@ -913,26 +913,58 @@ void Context::Run()
             }
             PIKA_NEXT()
             
-            PIKA_OPCODE(OP_poptry)
+            PIKA_OPCODE(OP_pophandler)
             {
+                ASSERT(!handlers.IsEmpty());
                 handlers.Pop();
             }
             PIKA_NEXT()
             
             PIKA_OPCODE(OP_raise)
             {
+                // The programmer wants to raise an exception.
+
                 Value& thrown = Top();
-                ScriptException eng(thrown);
-                switch (OpException(eng))
+                ScriptException exception(thrown);
+                switch (OpException(exception))
                 {
-                case ER_throw:    inlineThrow = true; throw eng; break;
-                case ER_continue: { PIKA_NEXT() }
-                case ER_exit:     return;
-                default:          inlineThrow = true; throw eng;
+                case ER_throw:
+                    inlineThrow = true; // The exception handler inside run should re-throw this exception.
+                    throw exception;    // "pass" it to the exception handler ... avert your eyes **yuck**
+                case ER_continue:
+                { 
+                    PIKA_NEXT()         // We can handle the exception here.
+                }
+                case ER_exit:
+                    return;             // We are dead, nothing to do but exit.
+                default:
+                    inlineThrow = true;
+                    throw exception;
                 }
             }
             PIKA_NEXT()
             
+            PIKA_OPCODE(OP_retensure)
+            {
+                ASSERT(!addressStack.IsEmpty());
+                
+                size_t offset = addressStack.Back();
+                pc = closure->GetBytecode() + offset;
+                addressStack.Pop();
+            }
+            PIKA_NEXT()
+            
+            PIKA_OPCODE(OP_callensure)
+            {
+                code_t* byte_code_start = closure->GetBytecode();
+                u2 ensure_offset = GetShortOperand(instr);
+                size_t offset = pc - byte_code_start;
+                
+                addressStack.Push(offset);
+                pc = byte_code_start + ensure_offset;
+            }
+            PIKA_NEXT()
+                        
             PIKA_OPCODE(OP_pushwith)
             {
                 // TODO: If OnUse raises an exception what about OnDispose.
@@ -1074,34 +1106,6 @@ void Context::Run()
             PIKA_OPCODE(OP_poppkg)
             {
                 PopPackageScope();
-            }
-            PIKA_NEXT()
-            
-            PIKA_OPCODE(OP_retensure)
-            {
-                ASSERT(!addressStack.IsEmpty());
-                
-                size_t offset = addressStack.Back();
-                pc = closure->GetBytecode() + offset;
-                addressStack.Pop();
-            }
-            PIKA_NEXT()
-            
-            PIKA_OPCODE(OP_popensure)
-            {
-                ASSERT(!handlers.IsEmpty());
-                handlers.Pop();
-            }
-            PIKA_NEXT()
-            
-            PIKA_OPCODE(OP_callensure)
-            {
-                code_t* byte_code_start = closure->GetBytecode();
-                u2 ensure_offset = GetShortOperand(instr);
-                size_t offset = pc - byte_code_start;
-                
-                addressStack.Push(offset);
-                pc = byte_code_start + ensure_offset;
             }
             PIKA_NEXT()
             

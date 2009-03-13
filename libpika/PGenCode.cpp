@@ -201,7 +201,7 @@ void FinallyBlockBreaks(Instr* start, Instr* end, Instr* target)
         case CONTINUE_LOOP:
         {
             Instr* icallensure = Instr::Create(OP_callensure);
-            Instr* ipopensure  = Instr::Create(OP_popensure);
+            Instr* ipopensure  = Instr::Create(OP_pophandler);
             
             icallensure->next = ipopensure;
             ipopensure->prev  = icallensure;
@@ -224,8 +224,8 @@ void FinallyBlockBreaks(Instr* start, Instr* end, Instr* target)
         }
     }
 }
-
-void EnsureNonLocalJumps(CompileState* state, Instr* start, Instr* end, int line)
+#if defined(ENABLE_SYNTAX_WARNINGS)
+void WarnNonLocalJumps(CompileState* state, Instr* start, Instr* end, int line)
 {
     for (Instr* curr = start; curr && (curr != end); curr = curr->next)
     {
@@ -243,28 +243,13 @@ void EnsureNonLocalJumps(CompileState* state, Instr* start, Instr* end, int line
         case BREAK_LOOP:
         case CONTINUE_LOOP:
         {
-            Instr* ipopensure = Instr::Create(OP_popensure);
-            Instr* iprev = curr->prev;
-            
-            ipopensure->next = curr;
-            ipopensure->prev = iprev;
-            
-            curr->prev = ipopensure;
-            
-            if (iprev)
-            {
-                iprev->next = ipopensure;
-            }
             state->SyntaxWarning(WARN_severe, line, "jumping out of an ensure block is not recommended.");
         }
-        //  Fall through
-        //      |
-        //      V
         default: continue;
         }
     }
 }
-
+#endif
 }// namespace
 
 Instr* TreeNode::GenerateCode()
@@ -715,7 +700,7 @@ Instr* TryStmt::DoStmtCodeGen()
 {
     /*      [ OP_pushtry    ]
      *      [ try block     ]
-     *      [ OP_poptry     ]
+     *      [ OP_pophandler     ]
      *      [ OP_jump       ]-----.
      *  .---[ catch block + ]     |
      *  |   [ JMP_TARGET    ] <---'    
@@ -723,7 +708,7 @@ Instr* TryStmt::DoStmtCodeGen()
      *  '-> [ JMP_TARGET    ]  
      */
     Instr* ipushtry   = Instr::Create(OP_pushtry);
-    Instr* ipoptry    = Instr::Create(OP_poptry);
+    Instr* ipoptry    = Instr::Create(OP_pophandler);
     Instr* ifinishtry = Instr::Create(OP_jump);
     Instr* ijmptarget = Instr::Create(JMP_TARGET);
     Instr* ijmptarget2 = Instr::Create(JMP_TARGET);
@@ -848,7 +833,7 @@ Instr* TryStmt::DoStmtCodeGen()
         ipushtry->Attach(ijmptarget2)->Attach( ijmptarget );
     }
     
-    HandleBlockBreaks(ipushtry, ipoptry, OP_poptry);
+    HandleBlockBreaks(ipushtry, ipoptry, OP_pophandler);
     
     return ipushtry;
 }
@@ -1981,7 +1966,7 @@ Instr* FinallyStmt::DoStmtCodeGen()
     PIKA_BLOCKEND(state);
     
     Instr* ipushensure   = Instr::Create(OP_pushensure);
-    Instr* ipopensure    = Instr::Create(OP_popensure);
+    Instr* ipopensure    = Instr::Create(OP_pophandler);
     Instr* icallensure   = Instr::Create(OP_callensure);
     Instr* ijmptoend     = Instr::Create(OP_jump);
     Instr* ifinished     = Instr::Create(JMP_TARGET);
@@ -2008,11 +1993,12 @@ Instr* FinallyStmt::DoStmtCodeGen()
     FinallyBlockBreaks(ibegin,          // Start of the block.
                        iensured_block,  // End of the block.
                        iensured_block); // Target for OP_callensure, the beginning of the ensure block.
-                      
-    EnsureNonLocalJumps(state,
-                        iensured_block,
-                        iretensure,
-                        line);
+#if defined(ENABLE_SYNTAX_WARNINGS)                      
+    WarnNonLocalJumps(state,
+                      iensured_block,
+                      iretensure,
+                      line);
+#endif
     return ibegin;
 }
 

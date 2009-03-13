@@ -67,7 +67,7 @@ public:
       * @see Def::CreateWith, Def::Create
       */
     static Function*    Create(Engine* eng, Def* def, Package* loc, Function* parent = 0);
-
+    static Function*    Create(Engine* eng, RegisterFunction* rf, Package* loc);
     virtual void        Init(Context*);
     virtual void        InitWithBody(String* body);
     
@@ -79,24 +79,17 @@ public:
     INLINE Function*    GetParent()         { return parent; }
     INLINE Package*     GetLocation()       { return location; }
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
+    String*             GetName();
 
-    String* GetName();
     
     INLINE  bool        MustClose()  const { return def->mustClose; }    
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
     
-    virtual void        BeginCall(Context*);
-    
-    virtual Value       Apply(Value&, Array*);
-        
-    void                SetLocals(Context*, Value*);
-    
+    virtual void        BeginCall(Context*);    
+    virtual Value       Apply(Value&, Array*);   
     int                 DetermineLineNumber(code_t* pc);
-
     virtual Function*   BindWith(Value&);
-
     bool                IsLocatedIn(Package*);
-
     virtual String*     GetDotPath();
     
     u4           numDefaults; //!< Default values count.
@@ -107,13 +100,6 @@ public:
     Package*     location;    //!< Package we are declared inside of.
 };
 
-INLINE void Function::SetLocals(Context*, Value* v)
-{
-    ASSERT(lexEnv) ;
-    ASSERT(!lexEnv->IsAllocated());
-
-    lexEnv->Set(v, def->numLocals);
-}
 
 /** A function callable only by instances of the same type. */
 class PIKA_API InstanceMethod : public Function 

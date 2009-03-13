@@ -114,7 +114,18 @@ Package* Module::ImportResult()
 
 }//namespace pika
 
+static void Module_newFn(Engine* eng, Type* type, Value& res)
+{
+    Module* m = Module::Create(eng, eng->emptyString, eng->emptyString, eng->emptyString, eng->emptyString);
+    res.Set(m);
+}
 
-
+void InitModuleAPI(Engine* eng)
+{
+    eng->Module_Type = Type::Create(eng,
+                                    eng->AllocString("Module"),
+                                    eng->Package_Type,
+                                    Module_newFn, eng->GetWorld());
+}
 
 

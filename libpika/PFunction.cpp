@@ -114,6 +114,15 @@ Function* Function::Create(Engine* eng, Def* def, Package* loc, Function* parent
     return cl;
 }
 
+Function* Function::Create(Engine* eng, RegisterFunction* rf, Package* loc)
+{
+    String* funcName = eng->AllocString(rf->name);
+    Def* def = Def::CreateWith(eng, funcName, rf->code,
+                               rf->argc, rf->varargs,
+                               rf->strict, 0);    
+    return Create(eng, def, loc, 0);
+}
+
 Function::~Function() { if (defaults) Pika_free(defaults); }
 
 void Function::BeginCall(Context* ctx)
@@ -500,7 +509,7 @@ int Function_getBytecode(Context* ctx, Value& self)
     ctx->PushNull();
     return 1;
 }
-
+#if 0
 int Function_getLocal(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
@@ -532,7 +541,7 @@ int Function_getLocalCount(Context* ctx, Value& self)
     ctx->Push(count);
     return 1;
 }
-
+#endif
 int Function_gen(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
@@ -680,8 +689,8 @@ void InitFunctionAPI(Engine* eng)
     .Method(&Function::Apply,               "apply")
     .RegisterMethod(Function_getBytecode,     "getBytecode")
     .RegisterMethod(Function_getText,         "getText")
-    .RegisterMethod(Function_getLocal,        "getLocal")
-    .RegisterMethod(Function_getLocalCount,   "getLocalCount")
+    //.RegisterMethod(Function_getLocal,        "getLocal")
+    //.RegisterMethod(Function_getLocalCount,   "getLocalCount")
     .RegisterMethod(Function_printBytecode,   "printBytecode")
     .RegisterMethod(Function_call,            "call")
     .RegisterMethod(Function_gen,             "generate")
@@ -735,4 +744,6 @@ void InitFunctionAPI(Engine* eng)
         { "parent", LocalsObject_getParent, "getParent", 0, 0 }
     };
     eng->LocalsObject_Type->EnterProperties(localsObject_Properties, countof(localsObject_Properties));
+    eng->LocalsObject_Type->SetFinal(true);
+    eng->LocalsObject_Type->SetAbstract(true);
 }

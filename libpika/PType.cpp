@@ -311,7 +311,7 @@ Type* Type::Create(Engine* eng, String* name, Type* base, Type_NewFn fn, Package
     GCPAUSE_NORUN(eng);
     if (base && base->IsFinal())
     {
-        RaiseException("Cannot derive from final type %s", base->GetName()->GetBuffer());
+        RaiseException("class '%s' cannot be subclassed.", base->GetName()->GetBuffer());
     }
     Type* obj;
     GCNEW(eng, Type, obj, (eng, type_, name, base, fn, location));

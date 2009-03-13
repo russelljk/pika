@@ -25,16 +25,16 @@ public:
         started = true;
         Slot* curr = 0;
         size_t bin = 0;
-        size_t count = table.size;
-        
-        if (owner && count)
+        size_t sz  = table.size; // size of table.slots[]
+        size_t count = table.count; // # of elements in table
+        if (owner && sz)
         {
             // Build an array of keys so that any changes made to the slot table
             // do not effect us.
             
             slots.Resize(count);
             size_t s = 0;
-            for (bin = 0; bin < count; ++bin)
+            for (bin = 0; bin < sz; ++bin)
             {
                 curr = table.slots[bin];
                 
@@ -42,6 +42,7 @@ public:
                 {
                     if (!(curr->attr & Slot::ATTR_noenum))
                     {
+                        ASSERT(s < count);
                         slots[s++] = curr->key;
                     }
                     curr = curr->next;

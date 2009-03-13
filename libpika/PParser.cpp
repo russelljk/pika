@@ -243,7 +243,11 @@ void Parser::Unexpected(int x)
 {
     int line = tstream.GetLineNumber();
     int col  = tstream.GetCol();
-    if (x >= Token2String::min && x <= Token2String::max)
+    if (x == EOF)
+    {
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected end of file reached.");
+    }
+    else if (x >= Token2String::min && x <= Token2String::max)
     {
         state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected token '%s'.", Token2String::GetNames()[x-Token2String::diff]);
     }
@@ -876,7 +880,7 @@ Stmt* Parser::DoLabeledStatement()
     if (tstream.GetType() != TOK_identifier)
         Expected(TOK_identifier);
         
-    if (tstream.GetNextType() == ':')
+    if (tstream.GetNextType() == ':' && tstream.GetLineNumber() == tstream.GetNextLineNumber())
     {
         // <identifier> ':' <statement>
         
@@ -2287,31 +2291,14 @@ Expr* Parser::DoPrimaryExpression()
         int line = tstream.GetLineNumber();
         Match('\\');
         ParamDecl* params = 0;
-#if 0   // '\\' params -> expr
-        // '\\''\\' expr
-        if (tstream.GetType() != '\\')
-        {
+        
+        if (tstream.GetType() != ':')
             params = DoFunctionArguments();
-            Match(TOK_implies);
-        }
-        else        
-        {
-            Match('\\');
-        }
-#elif 0 // '\\' params '\\' expr
-        // '\\''\\' expr
-        if (tstream.GetType() != '\\')
-            params = DoFunctionArguments();
-        Match('\\');
-#else   // '\\' params -> expr
-        // '\\' -> expr
-        if (tstream.GetType() != TOK_implies)
-            params = DoFunctionArguments();
-        Match(TOK_implies);
-#endif
+        Match(':');
+        
         size_t beg  = tstream.curr.begOffset;
-        Expr* expr = DoExpression();
-        size_t end  = tstream.curr.begOffset;
+        Expr*  expr = DoExpression();
+        size_t end  = tstream.curr.endOffset;
 
         ExprList* elist = 0;
         PIKA_NEWNODE(ExprList, elist, (expr));

@@ -26,7 +26,6 @@ private:
     T t;
 };
 
-template<typename T> INLINE T    Abs(const T t) { return (t >= (T)0) ? t : -t; }
 template<typename T> INLINE T    Max(const T a, const T b) { return (a >= b) ? a : b; }
 template<typename T> INLINE T    Min(const T a, const T b) { return (a <= b) ? a : b; }
 template<typename T> INLINE T    Clamp(const T t, const T lo, const T hi) { return ((t < lo) ? lo : ((t < hi) ? t : hi)); }
