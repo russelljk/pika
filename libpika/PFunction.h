@@ -21,7 +21,7 @@ class LexicalEnv;
 class PIKA_API LexicalEnv : public GCObject 
 {
 protected:
-    LexicalEnv(LexicalEnv*, bool close);
+    LexicalEnv(bool close);
 public:
     virtual ~LexicalEnv();
 
@@ -43,7 +43,7 @@ public:
     void Allocate();
     void Deallocate();
 
-    static LexicalEnv* Create(Engine*, LexicalEnv*, bool);
+    static LexicalEnv* Create(Engine*, bool);
 
     Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
     size_t length;    //!< Number of lexEnv

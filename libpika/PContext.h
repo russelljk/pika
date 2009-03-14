@@ -36,9 +36,9 @@ struct UserDataInfo;
 
 enum ScopeKind
 {
-    SCOPE_call,
-    SCOPE_with,
-    SCOPE_package,
+    SCOPE_call,     // function call or operator new
+    SCOPE_with,     // using scope
+    SCOPE_package,  // package or class scope
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,19 +49,18 @@ struct ScopeInfo
 {
     void DoMark(Collector*);
     
-    LexicalEnv*  env;
-    Function*    closure;
-    Package*     package;
-    Value        self;
-    code_t*      pc;
-    size_t       stackTop;
-    size_t       stackBase;
-    u4           argCount;
-    u4           retCount;
-    u4           numTailCalls;
-    bool         newCall;
-    ScopeKind    kind;
-    LiteralPool* literals;
+    LexicalEnv*  env;       // lexical environment (variables reachable outside this scope).
+    Function*    closure;   // Function closure.
+    Package*     package;   // Package (global scope).
+    Value        self;      // Self object.
+    code_t*      pc;        // Instruction pointer.
+    size_t       stackTop;  // Top of the stack.
+    size_t       stackBase; // Base of the stack.
+    u4           argCount;  // Argument count (can vary from the functions parameter count).
+    u4           retCount;  // Expected # of return values  >= 1.
+    u4           numTailCalls; // Number of tail calls performed.
+    bool         newCall;      // Is a new expression call.
+    ScopeKind    kind;         // Type of scope we are (tell us which fields we are concerned with).
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +157,6 @@ protected:
     Function*      closure;         //!< Specified function for the current scope.
     Package*       package;         //!< Specified package for the current scope.
     LexicalEnv*    env;             //!< Lexical environment for the current scope.
-    LiteralPool*   currLiterals;    //!< LiteralPool used in the current scope.
     bool           newCall;         //!< Is the current scope a result of the operator new.
     u4             argCount;        //!< Actual number of arguments stored on the stack.
     u4             retCount;        //!< Number of return values expected.

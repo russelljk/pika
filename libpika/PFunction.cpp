@@ -30,7 +30,7 @@ PIKA_FORCE_INLINE void MarkValues(Collector* c, Value *begin, Value* end)
 
 // LexicalEnv //////////////////////////////////////////////////////////////////////////////////////////
 
-LexicalEnv::LexicalEnv(LexicalEnv* p, bool close)
+LexicalEnv::LexicalEnv(bool close)
         :
         values(0),
         length(0),
@@ -80,10 +80,10 @@ void LexicalEnv::EndCall()
     }
 }
 
-LexicalEnv* LexicalEnv::Create(Engine* eng, LexicalEnv* parent, bool close)
+LexicalEnv* LexicalEnv::Create(Engine* eng, bool close)
 {
     LexicalEnv* ov;
-    PIKA_NEW(LexicalEnv, ov, (parent, close));
+    PIKA_NEW(LexicalEnv, ov, (close));
     eng->AddToGC(ov);
     return ov;
 }
@@ -509,8 +509,8 @@ int Function_getBytecode(Context* ctx, Value& self)
     ctx->PushNull();
     return 1;
 }
-#if 0
-int Function_getLocal(Context* ctx, Value& self)
+
+static int Function_getLocal(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
     pint_t idx = ctx->GetIntArg(0);
@@ -529,7 +529,7 @@ int Function_getLocal(Context* ctx, Value& self)
     return 0;
 }
 
-int Function_getLocalCount(Context* ctx, Value& self)
+static int Function_getLocalCount(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
     pint_t count = 0;
@@ -541,8 +541,8 @@ int Function_getLocalCount(Context* ctx, Value& self)
     ctx->Push(count);
     return 1;
 }
-#endif
-int Function_gen(Context* ctx, Value& self)
+
+static int Function_gen(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
@@ -564,7 +564,7 @@ int Function_gen(Context* ctx, Value& self)
 }
 
 // TODO: it currently takes our argc which causes a problem
-int Function_GenerateAs(Context* ctx, Value& self)
+static int Function_GenerateAs(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
@@ -591,7 +591,7 @@ int Function_GenerateAs(Context* ctx, Value& self)
     return 1;
 }
 
-int Function_printBytecode(Context* ctx, Value& self)
+static int Function_printBytecode(Context* ctx, Value& self)
 {
     String* str = ctx->GetStringArg(0);
     size_t len = str->GetLength();
@@ -607,7 +607,7 @@ int Function_printBytecode(Context* ctx, Value& self)
     return 0;
 }
 
-int Function_printLiterals(Context* ctx, Value& self)
+static int Function_printLiterals(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Def* def = f->GetDef();
@@ -627,7 +627,7 @@ int Function_printLiterals(Context* ctx, Value& self)
 
 // LocalObject API /////////////////////////////////////////////////////////////////////////////////
 
-int LocalsObject_getParent(Context* ctx, Value& self)
+static int LocalsObject_getParent(Context* ctx, Value& self)
 {
     LocalsObject* obj = (LocalsObject*)self.val.object;    
     Object* parent = obj->GetParent();
@@ -689,13 +689,13 @@ void InitFunctionAPI(Engine* eng)
     .Method(&Function::Apply,               "apply")
     .RegisterMethod(Function_getBytecode,     "getBytecode")
     .RegisterMethod(Function_getText,         "getText")
-    //.RegisterMethod(Function_getLocal,        "getLocal")
-    //.RegisterMethod(Function_getLocalCount,   "getLocalCount")
+    .RegisterMethod(Function_getLocal,        "getLocal")
+    .RegisterMethod(Function_getLocalCount,   "getLocalCount")
     .RegisterMethod(Function_printBytecode,   "printBytecode")
     .RegisterMethod(Function_call,            "call")
     .RegisterMethod(Function_gen,             "generate")
     .RegisterMethod(Function_GenerateAs,      "generateAs")
-    //.RegisterMethod(Function_call,            "opCall")
+    .RegisterMethod(Function_call,            "opCall")
     .RegisterMethod(Function_printLiterals,   "printLiterals")
     .PropertyR("name",      &Function::GetName,     "getName")
     .PropertyR("location",  &Function::GetLocation, "getLocation")

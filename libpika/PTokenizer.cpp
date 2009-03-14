@@ -85,6 +85,10 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_by),
     PIKA_keyword(TOK_class),
     PIKA_keyword(TOK_div),
+    PIKA_keyword(TOK_bitand),
+    PIKA_keyword(TOK_bitor),
+    PIKA_keyword(TOK_bitxor),
+    PIKA_keyword(TOK_bitnot),
 };
 
 #define NumKeywordDescriptors ((sizeof (static_keywords))/(sizeof (KeywordDescriptor)))

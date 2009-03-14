@@ -81,7 +81,7 @@ void InitContextAPI(Engine* eng)
         {"call",  Context_call,  0, 0, 1 },
         {"setup", Context_Setup, 0, 1, 0 },
     };
-        
+    
     SlotBinder<Context>(eng, eng->Context_Type)
     .Constant((pint_t)Context::SUSPENDED,   "SUSPENDED")
     .Constant((pint_t)Context::RUNNING,     "RUNNING")
@@ -345,7 +345,6 @@ void Context::MakeInvalid()
     closure         = 0;
     package         = 0;
     env             = 0;
-    currLiterals    = 0;
     state           = INVALID;
     prev            = 0;
     pc              = 0;
@@ -631,24 +630,24 @@ INLINE void Context::BitOpBinary(const Opcode op, const OpOverride ovr, const Op
     }
     
     // Check for override from the lhs operand
-    if (a.tag == TAG_object)
+    if (a.tag >= TAG_basic)
     {
-        Object* obj = a.val.object;
-        bool    res = false;
+        Basic* basic = a.val.basic;
+        bool res = false;
         
-        if (SetupOverrideLhs(obj, ovr, &res))
+        if (SetupOverrideLhs(basic, ovr, &res))
             ++numcalls;
         if (res)
             return;
     }
     
     // Check for override from the rhs operand
-    if (b.tag == TAG_object)
+    if (b.tag >= TAG_basic)
     {
-        Object* obj = b.val.object;
+        Basic* basic = b.val.basic;
         bool    res = false;
         
-        if (SetupOverrideRhs(obj, ovr_r, &res))
+        if (SetupOverrideRhs(basic, ovr_r, &res))
             ++numcalls;
         if (res)
             return;
@@ -1145,8 +1144,8 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
             {
                 //ASSERT(env == closure->lexEnv);
                 //LexicalEnv* oldEnv = env;
-                env = LexicalEnv::Create(engine, closure->lexEnv, true); // ... create the lexical environment (ie the args + locals).
-                env->Set(bsp, def->numLocals);                           // ... for now they point to our stack.
+                env = LexicalEnv::Create(engine, true); // ... create the lexical environment (ie the args + locals).
+                env->Set(bsp, def->numLocals);          // ... for now they point to our stack.
             }
             else
             {
