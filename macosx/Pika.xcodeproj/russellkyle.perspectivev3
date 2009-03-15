@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ActivePerspectiveName</key>
-	<string>Project</string>
+	<string>Debug</string>
 	<key>AllowedModules</key>
 	<array>
 		<dict>
@@ -229,7 +229,7 @@
 				<key>PBXProjectModuleGUID</key>
 				<string>7F4C4E4A0F6971DD0005BFDE</string>
 				<key>PBXProjectModuleLabel</key>
-				<string>PTokenizer.cpp</string>
+				<string>foo.pika</string>
 				<key>PBXSplitModuleInNavigatorKey</key>
 				<dict>
 					<key>Split0</key>
@@ -241,7 +241,7 @@
 						<key>_historyCapacity</key>
 						<integer>0</integer>
 						<key>bookmark</key>
-						<string>7FB6CDDE0F6C27880082F98C</string>
+						<string>7FB6CDEE0F6C43F60082F98C</string>
 						<key>history</key>
 						<array>
 							<string>7F4C4E530F697DE00005BFDE</string>
@@ -252,9 +252,9 @@
 							<string>7FB6CDBD0F6C24C00082F98C</string>
 							<string>7FB6CDBF0F6C24C00082F98C</string>
 							<string>7FB6CDD40F6C26510082F98C</string>
-							<string>7FB6CDDA0F6C27880082F98C</string>
 							<string>7FB6CDDB0F6C27880082F98C</string>
-							<string>7FB6CDD90F6C276F0082F98C</string>
+							<string>7FB6CDEB0F6C43F60082F98C</string>
+							<string>7FB6CDE30F6C28010082F98C</string>
 						</array>
 						<key>prevStack</key>
 						<array>
@@ -281,6 +281,8 @@
 							<string>7FB6CDD50F6C26510082F98C</string>
 							<string>7FB6CDDC0F6C27880082F98C</string>
 							<string>7FB6CDDD0F6C27880082F98C</string>
+							<string>7FB6CDEC0F6C43F60082F98C</string>
+							<string>7FB6CDED0F6C43F60082F98C</string>
 						</array>
 					</dict>
 					<key>Split1</key>
@@ -292,7 +294,7 @@
 						<key>_historyCapacity</key>
 						<integer>0</integer>
 						<key>bookmark</key>
-						<string>7FB6CDDF0F6C27880082F98C</string>
+						<string>7FB6CDEF0F6C43F60082F98C</string>
 						<key>history</key>
 						<array>
 							<string>7FB6CDCA0F6C24C00082F98C</string>
@@ -423,8 +425,6 @@
 							<string>MainColumn</string>
 							<real>249</real>
 						</array>
-						<key>RubberWindowFrame</key>
-						<string>11 124 1035 1054 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -462,8 +462,6 @@
 							<dict>
 								<key>Frame</key>
 								<string>{{0, 0}, {764, 0}}</string>
-								<key>RubberWindowFrame</key>
-								<string>11 124 1035 1054 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -476,8 +474,6 @@
 							<key>Tabs</key>
 							<array>
 								<dict>
-									<key>BecomeActive</key>
-									<true/>
 									<key>ContentConfiguration</key>
 									<dict>
 										<key>PBXProjectModuleGUID</key>
@@ -489,8 +485,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {764, 981}}</string>
-										<key>RubberWindowFrame</key>
-										<string>11 124 1035 1054 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -614,6 +608,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXProjectModuleGUID</key>
@@ -625,6 +621,8 @@
 					<dict>
 						<key>Frame</key>
 						<string>{{0, 0}, {1035, 492}}</string>
+						<key>RubberWindowFrame</key>
+						<string>11 124 1035 1054 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugCLIModule</string>
@@ -699,7 +697,11 @@
 							</array>
 							<key>Frame</key>
 							<string>{{0, 241}, {524, 275}}</string>
+							<key>RubberWindowFrame</key>
+							<string>11 124 1035 1054 0 0 1920 1178 </string>
 						</dict>
+						<key>RubberWindowFrame</key>
+						<string>11 124 1035 1054 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugSessionModule</string>
@@ -746,7 +748,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>258746248.56719601</real>
+	<real>258753526.97592801</real>
 	<key>ToolbarDisplayMode</key>
 	<integer>1</integer>
 	<key>ToolbarIsVisible</key>
@@ -761,8 +763,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>/Users/russellkyle/pika/macosx/Pika.xcodeproj</string>
 		<string>7F4C4E4A0F6971DD0005BFDE</string>
+		<string>/Users/russellkyle/pika/macosx/Pika.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>11 124 1035 1054 0 0 1920 1178 </string>

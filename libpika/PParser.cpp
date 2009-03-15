@@ -1695,7 +1695,7 @@ Expr* Parser::DoOrExpression()
 {
     Expr* expr = DoXorExpression();
     
-    while (tstream.GetType() == '|' || tstream.GetType() == TOK_bitor)
+    while (tstream.GetType() == '|')
     {
         Expr::Kind k = Expr::EXPR_bitor;
         
@@ -1714,7 +1714,7 @@ Expr* Parser::DoXorExpression()
 {
     Expr* expr = DoAndExpression();
     
-    while (tstream.GetType() == '^'|| tstream.GetType() == TOK_bitxor)
+    while (tstream.GetType() == '^')
     {
         Expr::Kind k = Expr::EXPR_bitxor;
         
@@ -1733,7 +1733,7 @@ Expr* Parser::DoAndExpression()
 {
     Expr* expr = DoEqualExpression();
     
-    while (tstream.GetType() == '&' || tstream.GetType() == TOK_bitand)
+    while (tstream.GetType() == '&')
     {
         Expr::Kind k = Expr::EXPR_bitand;
         
@@ -1948,8 +1948,7 @@ static Expr::Kind GetPrefixType(int t)
 {
     switch (t)
     {
-    case '~':
-    case TOK_bitnot:    return Expr::EXPR_bitnot;
+    case '~':           return Expr::EXPR_bitnot;
     case '!':
     case TOK_not:       return Expr::EXPR_lognot;
     case TOK_increment: return Expr::EXPR_preincr;
@@ -1975,7 +1974,6 @@ Expr* Parser::DoPrefixExpression()
     case TOK_increment:
     case TOK_decrement:
     case TOK_typeof:
-    case TOK_bitnot:
     {
         // ~ ! + - not ++ --
         
