@@ -251,9 +251,13 @@ int Global_import(Context* ctx, Value& self)
                 }
                 Value libres = ctx->PopTop();
                 if (eng->Package_Type->IsInstance(libres))
-                {
-                    eng->PutImport(name, libres);
+                {                    
                     ctx->SafePush(libres);
+                }
+                else
+                {
+                    RaiseException("Attempt to import %s failed.", name->GetBuffer());
+                    return 0;                    
                 }
             }
             else if (res.IsString() && (res.val.str == eng->loading_String || res.val.str == eng->AllocString("compiling")))

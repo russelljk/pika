@@ -611,18 +611,16 @@ bool Engine::ToBoolean(Context* ctx, const Value& v)
     case TAG_userdata:    return true;
     case TAG_object:
     {
-        /*
         if (ctx)
         {
-        Value res;
-        CallConversionFunction(ctx, toBoolean_String, v.val.object, res);
-        
-        if (res.tag != TAG_boolean)
-        {
-            RaiseException(Exception::ERROR_runtime, "Conversion operator %s failed.", toBoolean_String->GetBuffer());
+            Value res;
+            CallConversionFunction(ctx, toBoolean_String, v.val.object, res);
+            
+            if (res.tag != TAG_boolean)
+            {
+                RaiseException(Exception::ERROR_runtime, "conversion operator %s failed.", toBoolean_String->GetBuffer());
+            }
         }
-        }
-        */
         return v.val.index != 0;
     }
     }
@@ -677,7 +675,7 @@ bool Engine::ToIntegerExplicit(Context* ctx, Value& v)
         CallConversionFunction(ctx, toInteger_String, v.val.object, res);
         
         if (res.tag != TAG_integer)
-            RaiseException(Exception::ERROR_runtime, "Conversion operator %s failed.", toInteger_String->GetBuffer());
+            RaiseException(Exception::ERROR_runtime, "conversion operator %s failed.", toInteger_String->GetBuffer());
         v = res;    
         return true;
     }
@@ -709,7 +707,7 @@ bool Engine::ToRealExplicit(Context* ctx, Value& v)
         CallConversionFunction(ctx, toReal_String, v.val.object, res);
         
         if (res.tag != TAG_real)
-            RaiseException(Exception::ERROR_runtime, "Conversion operator %s failed.", toReal_String->GetBuffer());
+            RaiseException(Exception::ERROR_runtime, "conversion operator %s failed.", toReal_String->GetBuffer());
             
         return true;
     }
@@ -899,8 +897,7 @@ String* Engine::GetTypenameOf(Value& v)
     case TAG_null:       return Null_Type->GetName();
     case TAG_boolean:    return Boolean_Type->GetName();
     case TAG_integer:    return Integer_Type->GetName();
-    case TAG_real:       return Real_Type->GetName();
-    
+    case TAG_real:       return Real_Type->GetName();    
     case TAG_string:     return String_Type->GetName();
     case TAG_enumerator: return AllocString("Enumerator"); // TODO: we need the subclasses of enumerator
     case TAG_property:   return Property_Type->GetName();

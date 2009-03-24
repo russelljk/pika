@@ -692,7 +692,6 @@ struct Expr : TreeNode
         //postfix unary
         EXPR_postincr,
         EXPR_postdecr,
-        EXPR_typeof,
         EXPR_call,
         EXPR_identifier,
         EXPR_member,
@@ -1121,7 +1120,6 @@ struct UnaryExpr : Expr
         case EXPR_predecr:  return OP_dec;
         case EXPR_postincr: return OP_inc;
         case EXPR_postdecr: return OP_dec;
-        case EXPR_typeof:   return OP_typeof;
         default:            return OP_nop;
         };
         return OP_nop;

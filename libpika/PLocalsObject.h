@@ -20,9 +20,9 @@ class PIKA_API LocalsObject : public Object
 protected:
     friend class LocalsObjectEnumerator;
     
-    LocalsObject(Engine* eng, Type* obj_type, Function* func, ptrdiff_t p)
+    LocalsObject(Engine* eng, Type* obj_type, Function* func, LexicalEnv* env, ptrdiff_t p)
         : Object(eng, obj_type), 
-        lexEnv(0),
+        lexEnv(env),
         function(func),            
         parent(0), 
         pos(p)            
@@ -45,10 +45,10 @@ public:
     // read or write a local-variable by name.
     virtual bool GetSlot(const Value& key, Value& result);
     virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0);
-    
+    virtual bool HasSlot(const Value& key);
     virtual LocalsObject* GetParent();
 
-    static LocalsObject* Create(Engine*, Type*, Function*, ptrdiff_t);    
+    static LocalsObject* Create(Engine*, Type*, Function*, LexicalEnv*, ptrdiff_t);    
 private:
     Table         indices;  // Local variable lookup table.
     LexicalEnv*   lexEnv;   // Function's lexical environment.

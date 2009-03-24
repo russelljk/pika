@@ -429,7 +429,8 @@ int math_lib_load(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     Package* world_Package = eng->GetWorld();
-    Package* math_Package = Package::Create(eng, eng->AllocString("math"), world_Package);
+    String*  math_String = eng->AllocString("math");
+    Package* math_Package = Package::Create(eng, math_String, world_Package);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -468,7 +469,7 @@ int math_lib_load(Context* ctx, Value&)
     ;
     
     InitRandomAPI(math_Package, eng);
-    
+    eng->PutImport(math_String, math_Package);
     ctx->Push(math_Package);
     return 1;
 }

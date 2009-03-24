@@ -640,6 +640,29 @@ static int Global_range(Context* ctx, Value& self)
     return 1;
 }
 
+static int Global_each(Context* ctx, Value&)
+{
+    pint_t lo = ctx->GetIntArg(0);
+    pint_t hi = ctx->GetIntArg(1);
+    Value  fn = ctx->GetArg(2);
+    if (lo > hi)
+        Swap(lo,hi);
+    
+    for (pint_t i = lo; i < hi; ++i)
+    {
+        ctx->CheckStackSpace(3);
+        ctx->Push(i);
+        ctx->PushNull();
+        ctx->Push(fn);
+        if (ctx->SetupCall(1))
+        {
+            ctx->Run();
+        }
+        ctx->PopTop();
+    }
+    return 0;
+}
+
 static int Global_addSearchPath(Context* ctx, Value&)
 {
     u2 a = 0;
@@ -978,6 +1001,7 @@ void Engine::InitializeWorld()
             { "say",           Dummy_PrintLn,        0, 1, 0 },
             { "range",         Global_range,         0, 1, 0 },
             { "addSearchPath", Global_addSearchPath, 0, 1, 0 },
+            { "each",          Global_each,          3, 0, 1 },
         };
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
         Pkg_World->SetType(Package_Type);

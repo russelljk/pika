@@ -16,23 +16,27 @@
 #include "PLocalsObject.h"
 #include "PEnumerator.h"
 
-namespace pika {
+namespace pika
+{
 extern Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Basic* self, Table& table);
 
 // LocalObject /////////////////////////////////////////////////////////////////////////////////////
 
 PIKA_IMPL(LocalsObject)
 
-void LocalsObject::BuildIndices() {
+void LocalsObject::BuildIndices()
+{
     if (!function) return;
     
-    lexEnv = function->lexEnv;
+    //lexEnv = function->lexEnv;
     Def* def = function->def;
     
-    for (size_t i = 0; i < def->localsInfo.GetSize(); ++i) {
+    for (size_t i = 0; i < def->localsInfo.GetSize(); ++i)
+    {
         LocalVarInfo& info = def->localsInfo[i];
         
-        if (info.beg <= pos && info.end > pos) {
+        if (info.beg <= pos && info.end > pos)
+        {
             Value vval((pint_t)i);
             Value vname(info.name);
             
@@ -41,7 +45,8 @@ void LocalsObject::BuildIndices() {
     }
 }
 
-void LocalsObject::MarkRefs(Collector* c) {
+void LocalsObject::MarkRefs(Collector* c)
+{
     Object::MarkRefs(c);
     
     indices.DoMark(c);
@@ -51,31 +56,36 @@ void LocalsObject::MarkRefs(Collector* c) {
     if (parent)   parent->Mark(c);
 }
 
-LocalsObject* LocalsObject::GetParent() {
+LocalsObject* LocalsObject::GetParent()
+{
     if (!function) return NULL;
     if (parent) return parent;// We created the parent already.
     
     if (function->parent                 && // Does our function even have a parent?
-            function->parent->def->mustClose && // Are the parent's local-variables' heap allocated?
-            function->parent->def->bytecode)    // Is the parent function a bytecode function?
+        function->parent->def->mustClose && // Are the parent's local-variables' heap allocated?
+        function->parent->def->bytecode)    // Is the parent function a bytecode function?
     {
         Function* parentFunc    = function->parent;
         ptrdiff_t parentPos     = function->def->bytecodePos;
         pint_t     parentCodeLen = parentFunc->def->bytecode->length;
         
-        if (parentPos >= 0 && parentPos < parentCodeLen) {
-            parent = Create(engine, GetType(), parentFunc, parentPos);
+        if (parentPos >= 0 && parentPos < parentCodeLen)
+        {
+            parent = Create(engine, GetType(), parentFunc, function->lexEnv, parentPos);
             parent->lexEnv = parentFunc->lexEnv;
         }
     }
     return parent;
 }
 
-bool LocalsObject::GetSlot(const Value& key, Value& result) {
-    if (key.IsString() && indices.Get(key, result) && result.IsInteger()) {
+bool LocalsObject::GetSlot(const Value& key, Value& result)
+{
+    if (key.IsString() && indices.Get(key, result) && result.IsInteger())
+    {
         pint_t indexof = result.val.integer;
         
-        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length) {
+        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length)
+        {
             result = lexEnv->values[indexof];
             return true;
         }
@@ -83,12 +93,30 @@ bool LocalsObject::GetSlot(const Value& key, Value& result) {
     return Object::GetSlot(key, result);
 }
 
-bool LocalsObject::SetSlot(const Value& key, Value& value, u4 attr) {
-    Value result;
-    if (key.IsString() && indices.Get(key, result) && result.IsInteger()) {
+bool LocalsObject::HasSlot(const Value& key)
+{
+    Value result = NULL_VALUE;
+    if (key.IsString() && indices.Get(key, result) && result.IsInteger())
+    {
         pint_t indexof = result.val.integer;
         
-        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length) {
+        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length)
+        {     
+            return true;
+        }
+    }
+    return members.Exists(key);
+}
+
+bool LocalsObject::SetSlot(const Value& key, Value& value, u4 attr)
+{
+    Value result;
+    if (key.IsString() && indices.Get(key, result) && result.IsInteger())
+    {
+        pint_t indexof = result.val.integer;
+        
+        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length)
+        {
             WriteBarrier(value);
             lexEnv->values[indexof] = value;
             return true;
@@ -97,15 +125,17 @@ bool LocalsObject::SetSlot(const Value& key, Value& value, u4 attr) {
     return Object::SetSlot(key, value, attr);
 }
 
-Enumerator* LocalsObject::GetEnumerator(String* str) {
+Enumerator* LocalsObject::GetEnumerator(String* str)
+{
     bool use_values = str == engine->values_String;
     Enumerator* e = CreateSlotEnumerator(engine, use_values, this, this->indices);
     return e;
 }
 
-LocalsObject* LocalsObject::Create(Engine* eng, Type* type, Function* function, ptrdiff_t pc) {
+LocalsObject* LocalsObject::Create(Engine* eng, Type* type, Function* function, LexicalEnv* env, ptrdiff_t pc)
+{
     LocalsObject* obj;
-    PIKA_NEW(LocalsObject, obj, (eng, type, function, pc));
+    PIKA_NEW(LocalsObject, obj, (eng, type, function, env, pc));
     eng->AddToGC(obj);
     return obj;
 }

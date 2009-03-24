@@ -123,7 +123,8 @@ public:
     
     /** Adds a type method. */
     void AddMethod(Function*);
-    
+    void AddClassMethod(Function*);
+        
     Type_NewFn  GetNewFn() const { return newfn; }
 protected:
     /** Adds a subtype. Called by derived types when they are created. */

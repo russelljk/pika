@@ -75,7 +75,7 @@ Value Object::RawGet(Object* obj, Value& key)
 
 void Object::AddFunction(Function* f)
 {
-    SetSlot(f->GetDef()->name, f);
+    SetSlot(f->GetName(), f);
 }
 
 void Object::AddProperty(Property* p)

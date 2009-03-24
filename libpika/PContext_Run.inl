@@ -218,7 +218,7 @@ void Context::Run()
                 
                 ptrdiff_t pc_index = ((pc - 1) - closure->GetBytecode());
                 
-                Object* obj = LocalsObject::Create(engine, engine->LocalsObject_Type, closure, pc_index);
+                Object* obj = LocalsObject::Create(engine, engine->LocalsObject_Type, closure, env, pc_index);
                 Push(obj);
             }
             PIKA_NEXT()
@@ -888,17 +888,6 @@ void Context::Run()
             }
             PIKA_NEXT()
             
-            PIKA_OPCODE(OP_typeof)
-            {
-                Value& obj = Top();
-                String* typenm = engine->GetTypenameOf(obj);
-                if (typenm)
-                    obj.Set(typenm);
-                else
-                    obj.SetNull();
-            }
-            PIKA_NEXT()
-            
             PIKA_OPCODE(OP_pushtry)
             {
                 u2 catchpc = GetShortOperand(instr);
@@ -1129,5 +1118,7 @@ void Context::Run()
             }
         }
     }
+    if (state == SUSPENDED)
+        callsCount = numcalls > 0 ? numcalls : 1;
     --numRuns;
 }

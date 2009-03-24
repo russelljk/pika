@@ -279,7 +279,6 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_notsame:        return -1;
     case OP_is:             return -1;
     case OP_has:            return -1;
-    case OP_typeof:         return  0;
     
     case OP_pushtry:
     case OP_pophandler:    

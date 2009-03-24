@@ -24,9 +24,9 @@ protected:
     LexicalEnv(bool close);
 public:
     virtual ~LexicalEnv();
-
+    
     virtual void MarkRefs(Collector* c);
-
+    
     INLINE void Set(Value* v, size_t l)
     {
         ASSERT( !allocated );
@@ -34,17 +34,17 @@ public:
         values    = v;
         length    = l;
     }
-
+    
     void EndCall();
-
+    
     INLINE bool IsValid()     const { return values != 0; }
     INLINE bool IsAllocated() const { return allocated;   }
-
+    
     void Allocate();
     void Deallocate();
-
+    
     static LexicalEnv* Create(Engine*, bool);
-
+    
     Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
     size_t length;    //!< Number of lexEnv
     bool   allocated; //!< If true values point to a heap allocated buffer otherwise they point to the Context's stack.
@@ -58,7 +58,7 @@ protected:
     Function(Engine*, Type*, Def*, Package*, Function*);
 public:
     virtual            ~Function();
-
+    
     /** Create a new Function object.
       * @param eng      [in] The Engine to create the object in
       * @param def      [in] The function's definition.
@@ -80,7 +80,7 @@ public:
     INLINE Package*     GetLocation()       { return location; }
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
     String*             GetName();
-
+    
     
     INLINE  bool        MustClose()  const { return def->mustClose; }    
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
@@ -94,41 +94,41 @@ public:
     
     u4           numDefaults; //!< Default values count.
     Value*       defaults;    //!< Default values for parameters.
-    LexicalEnv*  lexEnv;      //!< Lexical environment for this function.
+    LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
     Def*         def;         //!< Function definition, may be shared with other functions.
     Function*    parent;      //!< The parent function we are defined inside (for nested functions only).
     Package*     location;    //!< Package we are declared inside of.
 };
 
-
 /** A function callable only by instances of the same type. */
 class PIKA_API InstanceMethod : public Function 
 {
     PIKA_DECL(InstanceMethod, Function)
-public:
+protected:
     InstanceMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
     InstanceMethod(Engine*, Function*, Type*);
-    
+public:    
     virtual ~InstanceMethod();
-
+    
     virtual Type*   GetClassType() { return classtype; }
     virtual void    BeginCall(Context*);
     virtual void    MarkRefs(Collector*);    
     virtual String* GetDotPath();
-
+    
     static InstanceMethod* Create(Engine*, Function*, Type*);
     static InstanceMethod* Create(Engine*, Function*, Def*, Package*, Type*);
 protected:
     Type* classtype; //!< The type we belong to and whose instances may call us.
 };
 
-
 /** A method bound to a single Type instance. */
 class PIKA_API ClassMethod : public Function 
 {
     PIKA_DECL(ClassMethod, Function)
-public:
+protected:
     ClassMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
+    ClassMethod(Engine*, Function*, Type*);    
+public:
     virtual ~ClassMethod();
     
     virtual Type*   GetClassType() const { return classtype; }
@@ -136,6 +136,7 @@ public:
     virtual void    MarkRefs(Collector*);    
     virtual String* GetDotPath();
     
+    static ClassMethod* Create(Engine*, Function*, Type*);    
     static ClassMethod* Create(Engine*, Function*, Def*, Package*, Type*);
 protected:
     Type* classtype; //!< The type we belong to and the self object we are bound to.
@@ -149,7 +150,7 @@ protected:
     BoundFunction(Engine*, Type*, Function*, Value&);
 public:    
     virtual              ~BoundFunction();
-
+    
     static BoundFunction* Create(Engine*, Function*, Value&);
     
     virtual Function*     GetBoundFunction() const { return closure;}
@@ -158,8 +159,8 @@ public:
     virtual void          BeginCall(Context*);
     virtual void          MarkRefs(Collector*);
 protected:
-    Function*   closure;    //!< The bound function.
-    Value       self;       //!< The bound <code>self</code> object.
+    Function*   closure; //!< The bound function.
+    Value       self;    //!< The bound <code>self</code> object.
 };
 
 } // pika

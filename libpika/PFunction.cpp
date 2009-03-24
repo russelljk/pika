@@ -261,7 +261,7 @@ classtype(tclass)
 
 InstanceMethod::InstanceMethod(Engine* eng, Function* f, Type* tclass)
 : Function(eng,
-           f->GetType(),
+           eng->InstanceMethod_Type,
            f->GetDef(),
            f->location,
            f->parent),
@@ -362,7 +362,30 @@ classtype(tclass)
     ASSERT(classtype);
 }
 
+ClassMethod::ClassMethod(Engine* eng, Function* f, Type* tclass)
+: Function(eng,
+           eng->ClassMethod_Type,
+           f->GetDef(),
+           f->location,
+           f->parent),
+            classtype(tclass)
+{
+    if (f)
+    {
+        lexEnv = f->lexEnv;
+        numDefaults = f->numDefaults;
+        defaults = f->defaults;
+    }
+}
+
 ClassMethod::~ClassMethod() {}
+
+ClassMethod* ClassMethod::Create(Engine* eng, Function* f, Type* t)
+{
+    ClassMethod* cm = 0;
+    GCNEW(eng, ClassMethod, cm, (eng, f, t));
+    return cm;
+}
 
 ClassMethod* ClassMethod::Create(Engine* eng, Function* c, Def* func_def, Package* loc, Type* tclass)
 {
@@ -643,19 +666,17 @@ static int LocalsObject_getParent(Context* ctx, Value& self)
     return 1;
 }
 
-static const char* lt_text = "function(a, b) return a <  b; end";
-static const char* gt_text = "function(a, b) return a >  b; end";
+static const char* lt_text = "sub(a, b) ret a <  b; end";
+static const char* gt_text = "sub(a, b) ret a >  b; end";
 
-static const char* lte_text = "function(a, b) return a <= b; end";
-static const char* gte_text = "function(a, b) return a >= b; end";
+static const char* lte_text = "sub(a, b) ret a <= b; end";
+static const char* gte_text = "sub(a, b) ret a >= b; end";
 
-static const char* eq_text = "function(a, b) return a == b; end";
-static const char* ne_text = "function(a, b) return a != b; end";
+static const char* eq_text = "sub(a, b) ret a == b; end";
+static const char* ne_text = "sub(a, b) ret a != b; end";
 
-static const char*    same_text = "function(a, b) return a === b; end";
-static const char* notsame_text = "function(a, b) return a !== b; end";
-
-
+static const char*    same_text = "sub(a, b) ret a === b; end";
+static const char* notsame_text = "sub(a, b) ret a !== b; end";
 
 extern int null_Function(Context*, Value&);
 
@@ -709,7 +730,7 @@ void InitFunctionAPI(Engine* eng)
     
     Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
     
-    Package* libcmp = eng->OpenPackage(eng->AllocString("compare"), eng->GetWorld(), true);
+    Package* libcmp = eng->OpenPackage(eng->AllocString("cmp"), eng->GetWorld(), true);
     Function* ltFn  = Function::Create(eng, def, eng->GetWorld(), 0);
     Function* gtFn  = Function::Create(eng, def, eng->GetWorld(), 0);
     Function* lteFn = Function::Create(eng, def, eng->GetWorld(), 0);
@@ -730,14 +751,14 @@ void InitFunctionAPI(Engine* eng)
     sameFn->InitWithBody(eng->AllocString(same_text));
     notsameFn->InitWithBody(eng->AllocString(notsame_text));
     
-    libcmp->SetSlot(eng->AllocString("less"),           ltFn);
-    libcmp->SetSlot(eng->AllocString("greater"),        gtFn);
-    libcmp->SetSlot(eng->AllocString("lessOrEqual"),    lteFn);
-    libcmp->SetSlot(eng->AllocString("greaterOrEqual"), gteFn);
-    libcmp->SetSlot(eng->AllocString("equal"),          eqFn);
-    libcmp->SetSlot(eng->AllocString("notEqual"),       neFn);
-    libcmp->SetSlot(eng->AllocString("same"),           sameFn);
-    libcmp->SetSlot(eng->AllocString("notSame"),        notsameFn);
+    libcmp->SetSlot(eng->AllocString("lt"),  ltFn);
+    libcmp->SetSlot(eng->AllocString("gt"),  gtFn);
+    libcmp->SetSlot(eng->AllocString("lte"), lteFn);
+    libcmp->SetSlot(eng->AllocString("gte"), gteFn);
+    libcmp->SetSlot(eng->AllocString("eq"),  eqFn);
+    libcmp->SetSlot(eng->AllocString("ne"),  neFn);
+    libcmp->SetSlot(eng->AllocString("sm"),  sameFn);
+    libcmp->SetSlot(eng->AllocString("ns"),  notsameFn);
     
     struct RegisterProperty localsObject_Properties[] =
     {

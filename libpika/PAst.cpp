@@ -958,15 +958,12 @@ void DictionaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
 
 void LoadExpr::CalculateResources(SymbolTable* st, CompileState& cs)
 {
-#if defined(PIKA_LOCALS_IMPLIES_CLOSE)
+#if !defined(PIKA_LOCALS_CANNOT_CLOSE)
     if (loadkind == LK_locals)
     {
-        Def* curr = cs.currDef->parent;
-        
-        while (curr)
+        for (Def* curr = cs.currDef->parent; curr != 0; curr = curr->parent)
         {
-            curr->mustClose = true;
-            curr = curr->parent;
+           curr->mustClose = true;
         }
     }
 #endif

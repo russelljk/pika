@@ -1322,9 +1322,9 @@ bool Context::SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res)
   */
 void Context::OpSuper()
 {
-    Function* prop     = closure;
-    String*   methname = prop->GetDef()->name;
-    bool      found    = false;
+    Function* prop = closure;
+    String* methname = prop->GetDef()->name;
+    bool found = false;
     
     if (closure && closure->IsDerivedFrom(InstanceMethod::StaticGetClass()))
     {
@@ -2210,8 +2210,20 @@ void Context::Call(Context* ctx, u2 rc)
 
 void Context::Suspend(Context* ctx)
 {
-//    Value v = ctx->GetArg(0);
-//    ctx->DoSuspend(v);
+    if (!ctx->prev)
+    {
+        ctx->ReportRuntimeError(Exception::ERROR_runtime,
+                                "cannot yield from this context: no context to yield to.");
+    }                
+    
+    if (ctx->nativeCallDepth > 1) // 1 is for this function call
+    {
+       ctx-> ReportRuntimeError(Exception::ERROR_runtime,
+                                "cannot yield across a native call.");
+    }
+    
+    u4 count = ctx->GetArgCount();
+    ctx->DoSuspend(ctx->GetArgs(), count);
 }
 
 void Context::MarkRefs(Collector* c)

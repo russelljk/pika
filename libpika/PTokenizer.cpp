@@ -30,7 +30,7 @@ static KeywordDescriptor static_keywords[] =
     // Keywords.
     //
     // { ETokenType, const char*, size_t },    
-    { TOK_function, "def", 0 },
+    
     PIKA_keyword(TOK_global),
     PIKA_keyword(TOK_local),
     PIKA_keyword(TOK_member),
@@ -73,10 +73,9 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_property),
     PIKA_keyword(TOK_finally),
     PIKA_keyword(TOK_package),
-    PIKA_keyword(TOK_with),
+    PIKA_keyword(TOK_using),
     PIKA_keyword(TOK_when),
     PIKA_keyword(TOK_new),
-    PIKA_keyword(TOK_typeof),
     PIKA_keyword(TOK_bind),
     PIKA_keyword(TOK_assert),
     PIKA_keyword(TOK_delete),

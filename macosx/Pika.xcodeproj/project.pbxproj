@@ -39,9 +39,6 @@
 		4620C4B20DE74C9000DE098B /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
 		4620C4E40DE7514200DE098B /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 4620C4E30DE7514200DE098B /* config.h */; };
 		466235810DEC83CE00543092 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
-		7F11939F0F32261B001EF550 /* PNativeInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F11939D0F32261B001EF550 /* PNativeInterface.h */; };
-		7F1193A00F32261B001EF550 /* PNativeInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F11939E0F32261B001EF550 /* PNativeInterface.cpp */; };
-		7F1193B10F32278F001EF550 /* libpika.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4620C3D90DE74C0800DE098B /* libpika.dylib */; };
 		7F3EB3170F61658600B32E22 /* PikaSort.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F3EB3160F61658600B32E22 /* PikaSort.h */; };
 		7F99390B0F1EE3FF0029C501 /* PArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F99389D0F1EE3FF0029C501 /* PArray.cpp */; };
 		7F99390C0F1EE3FF0029C501 /* PArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 7F99389E0F1EE3FF0029C501 /* PArray.h */; };
@@ -207,11 +204,8 @@
 		4620C3CF0DE74BC300DE098B /* pika */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pika; sourceTree = BUILT_PRODUCTS_DIR; };
 		4620C3D90DE74C0800DE098B /* libpika.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpika.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4620C4E30DE7514200DE098B /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		4651E6E70DFB071D00B70498 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO; path = ../TODO; sourceTree = SOURCE_ROOT; };
 		4662357E0DEC839000543092 /* libpikacurses.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikacurses.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		7F1193950F32259F001EF550 /* libpikaffi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpikaffi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		7F11939D0F32261B001EF550 /* PNativeInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNativeInterface.h; path = ../ffi/PNativeInterface.h; sourceTree = SOURCE_ROOT; };
-		7F11939E0F32261B001EF550 /* PNativeInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNativeInterface.cpp; path = ../ffi/PNativeInterface.cpp; sourceTree = SOURCE_ROOT; };
+		7F1EE6760F6D745200115F66 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO; path = ../TODO; sourceTree = SOURCE_ROOT; };
 		7F3EB3160F61658600B32E22 /* PikaSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PikaSort.h; path = ../libpika/PikaSort.h; sourceTree = SOURCE_ROOT; };
 		7F99389D0F1EE3FF0029C501 /* PArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PArray.cpp; path = ../libpika/PArray.cpp; sourceTree = SOURCE_ROOT; };
 		7F99389E0F1EE3FF0029C501 /* PArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PArray.h; path = ../libpika/PArray.h; sourceTree = SOURCE_ROOT; };
@@ -320,7 +314,7 @@
 		7F9939080F1EE3FF0029C501 /* PValueEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PValueEnumerator.h; path = ../libpika/PValueEnumerator.h; sourceTree = SOURCE_ROOT; };
 		7F9939090F1EE3FF0029C501 /* PWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PWorld.cpp; path = ../libpika/PWorld.cpp; sourceTree = SOURCE_ROOT; };
 		7F9939760F1EE4910029C501 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../pikac/Main.cpp; sourceTree = SOURCE_ROOT; };
-		7F9939840F1EE5E90029C501 /* foo.pika */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pika; name = foo.pika; path = ../scripts/foo.pika; sourceTree = SOURCE_ROOT; };
+		7F9939840F1EE5E90029C501 /* foo.pika */ = {isa = PBXFileReference; explicitFileType = sourcecode.pika; fileEncoding = 4; name = foo.pika; path = ../scripts/foo.pika; sourceTree = SOURCE_ROOT; };
 		7FDCB8D10F1FBC3300E7EB19 /* PCurses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PCurses.cpp; path = ../curses/PCurses.cpp; sourceTree = SOURCE_ROOT; };
 		7FDCB8D20F1FBC3300E7EB19 /* PCurses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PCurses.h; path = ../curses/PCurses.h; sourceTree = SOURCE_ROOT; };
 		7FDCB94A0F21101F00E7EB19 /* PConfig_Borland.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PConfig_Borland.h; path = ../libpika/PConfig_Borland.h; sourceTree = SOURCE_ROOT; };
@@ -357,14 +351,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7F1193930F32259F001EF550 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7F1193B10F32278F001EF550 /* libpika.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		7FE85FB90F448772000202A3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -379,7 +365,6 @@
 		4620C3B70DE74B7500DE098B = {
 			isa = PBXGroup;
 			children = (
-				4651E6E70DFB071D00B70498 /* TODO */,
 				4620C4E30DE7514200DE098B /* config.h */,
 				7F9BB0380F2CC4760092672E /* regexpr */,
 				466235820DEC83D800543092 /* curses */,
@@ -387,8 +372,7 @@
 				4620C3C90DE74B8B00DE098B /* libpika */,
 				4620C3CB0DE74BA100DE098B /* pikac */,
 				4620C3D00DE74BC300DE098B /* Products */,
-				7F11939D0F32261B001EF550 /* PNativeInterface.h */,
-				7F11939E0F32261B001EF550 /* PNativeInterface.cpp */,
+				7F1EE6760F6D745200115F66 /* TODO */,
 			);
 			sourceTree = "<group>";
 		};
@@ -425,7 +409,6 @@
 				4620C3CF0DE74BC300DE098B /* pika */,
 				4620C3D90DE74C0800DE098B /* libpika.dylib */,
 				4662357E0DEC839000543092 /* libpikacurses.dylib */,
-				7F1193950F32259F001EF550 /* libpikaffi.dylib */,
 				7FE85FBB0F448772000202A3 /* libpikaRegExp.dylib */,
 			);
 			name = Products;
@@ -668,14 +651,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7F1193910F32259F001EF550 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7F11939F0F32261B001EF550 /* PNativeInterface.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		7FE85FB70F448772000202A3 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -738,23 +713,6 @@
 			productReference = 4662357E0DEC839000543092 /* libpikacurses.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		7F1193940F32259F001EF550 /* libpikaffi */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 7F11939C0F3225D9001EF550 /* Build configuration list for PBXNativeTarget "libpikaffi" */;
-			buildPhases = (
-				7F1193910F32259F001EF550 /* Headers */,
-				7F1193920F32259F001EF550 /* Sources */,
-				7F1193930F32259F001EF550 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = libpikaffi;
-			productName = libpikaffi;
-			productReference = 7F1193950F32259F001EF550 /* libpikaffi.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		7FE85FBA0F448772000202A3 /* pikaRegExp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7FE85FC10F448791000202A3 /* Build configuration list for PBXNativeTarget "pikaRegExp" */;
@@ -791,7 +749,6 @@
 				4620C3D80DE74C0800DE098B /* libpika */,
 				4662357D0DEC839000543092 /* libpikacurses */,
 				46FBE8760E00517D00015215 /* g-basics */,
-				7F1193940F32259F001EF550 /* libpikaffi */,
 				7FE85FBA0F448772000202A3 /* pikaRegExp */,
 			);
 		};
@@ -864,14 +821,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7FDCB8D30F1FBC3300E7EB19 /* PCurses.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7F1193920F32259F001EF550 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7F1193A00F32261B001EF550 /* PNativeInterface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1478,90 +1427,6 @@
 			};
 			name = Deployment;
 		};
-		7F1193960F3225A0001EF550 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				EXECUTABLE_PREFIX = libpika;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "-lffi";
-				PREBINDING = NO;
-				PRODUCT_NAME = ffi;
-			};
-			name = Debug;
-		};
-		7F1193970F3225A0001EF550 /* Real Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				EXECUTABLE_PREFIX = libpika;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				HEADER_SEARCH_PATHS = /opt/local/include;
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "-lffi";
-				PREBINDING = NO;
-				PRODUCT_NAME = ffi;
-			};
-			name = "Real Debug";
-		};
-		7F1193980F3225A0001EF550 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = libpika;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				HEADER_SEARCH_PATHS = /opt/local/include;
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "-lffi";
-				PREBINDING = NO;
-				PRODUCT_NAME = ffi;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		7F1193990F3225A0001EF550 /* Release 64 */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				EXECUTABLE_PREFIX = libpika;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				HEADER_SEARCH_PATHS = /opt/local/include;
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "-lffi";
-				PREBINDING = NO;
-				PRODUCT_NAME = ffi;
-			};
-			name = "Release 64";
-		};
-		7F11939A0F3225A0001EF550 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = libpika;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				HEADER_SEARCH_PATHS = /opt/local/include;
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "-lffi";
-				PREBINDING = NO;
-				PRODUCT_NAME = ffi;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
 		7FE85FBC0F448773000202A3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1722,18 +1587,6 @@
 				46FBE8790E00517D00015215 /* Release */,
 				46FBE87A0E00517D00015215 /* Release 64 */,
 				46FBE87B0E00517D00015215 /* Deployment */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		7F11939C0F3225D9001EF550 /* Build configuration list for PBXNativeTarget "libpikaffi" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7F1193960F3225A0001EF550 /* Debug */,
-				7F1193970F3225A0001EF550 /* Real Debug */,
-				7F1193980F3225A0001EF550 /* Release */,
-				7F1193990F3225A0001EF550 /* Release 64 */,
-				7F11939A0F3225A0001EF550 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

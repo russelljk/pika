@@ -166,6 +166,7 @@ private:
     
     Stmt*           DoAssertStatement();
     
+    void            DoBlockBegin(int, int, int);
     // Expression parsing ------------------------------------------------------
     
     Expr*           DoExpression();
@@ -214,7 +215,7 @@ private:
     FieldList*      DoDictionaryExpressionFields();
     
     bool            IsPrimaryExpression();
-    ParamDecl*      DoFunctionArguments();
+    ParamDecl*      DoFunctionParameters();
     
     void            Match(int x);
     bool            Optional(int x);

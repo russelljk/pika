@@ -124,7 +124,6 @@
     DECL_OP( OP_notsame,        "notsame",      1, OF_none,     "" )
     DECL_OP( OP_is,             "is",           1, OF_none,     "" )
     DECL_OP( OP_has,            "has",          1, OF_none,     "" )
-    DECL_OP( OP_typeof,         "typeof",       1, OF_none,     "" )
     
     DECL_OP( OP_pushtry,        "pushtry",      3, OF_target,   "" )
     DECL_OP( OP_pophandler,     "pophandler",   1, OF_none,     "" )

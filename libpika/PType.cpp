@@ -368,6 +368,22 @@ void Type::AddMethod(Function* f)
     }
 }
 
+void Type::AddClassMethod(Function* f)
+{
+    if (f->IsNative())
+    {
+        // Native C++ functions/methods do have dynamic binding to instance variables/methods so
+        // we cannot create an InstanceMethod from this function.
+        AddFunction(f);
+    }
+    else
+    {
+        // Script functions are OK since properties are dynamically bound.
+        Function* im = ClassMethod::Create(engine, f, this);
+        AddFunction(im);
+    }
+}
+
 }// pika
 
 static int Type_alloc(Context* ctx, Value& self)
@@ -418,6 +434,7 @@ void InitTypeAPI(Engine* eng)
     .PropertyR("location", &Type::GetLocation, "getLocation")
     .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes")
     .Method(&Type::AddMethod, "addMethod")
+    .Method(&Type::AddClassMethod, "addClassMethod")
     ;
     
     static RegisterFunction TypeFunctions[] =

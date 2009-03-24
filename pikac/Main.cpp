@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 			{
                 Pika_PrintBanner();
             }
-            
+            eng->AddEnvPath("PIKA_PATH");
             Script* script = eng->Compile(fileName);
             
             if (script)
