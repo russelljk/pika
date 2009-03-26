@@ -22,6 +22,11 @@
 #   define _findclose(srchHandle)           0
 #endif
 
+errno_t setenv(const char* name, const char* val)
+{
+    return _putenv_s(name, val);
+}
+
 errno_t unsetenv(const char* name)
 {
 	return setenv(name, "");
@@ -307,11 +312,3 @@ void* Pika_GetSymbolAddress(intptr_t handle, const char* symbol)
 {
     return (void*)GetProcAddress((HMODULE)handle, symbol);
 }
-
-Pika_regex* Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode) {return 0;}
-
-size_t Pika_regerror(int errcode, const Pika_regex* preg, char* errbuf, size_t errbuf_size) {return 0;}
-
-int Pika_regexec(const Pika_regex* preg, const char* subj, size_t const subjlen, Pika_regmatch* pmatch, size_t const nmatch, int eflags) {return 0;}
-
-void Pika_regfree(Pika_regex* preg) {}

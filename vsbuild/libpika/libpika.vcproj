@@ -315,10 +315,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpika\PRegExpr.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpika\PScript.cpp"
 				>
 			</File>
@@ -414,14 +410,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libpika\PConfig.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libpika\PConfig_Borland.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libpika\PConfig_GCC.h"
 				>
 			</File>
 			<File
@@ -570,10 +558,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libpika\PRandom.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libpika\PRegExpr.h"
 				>
 			</File>
 			<File
