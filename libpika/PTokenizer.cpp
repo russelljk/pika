@@ -22,15 +22,14 @@ struct KeywordDescriptor
 };
 /*
  * TODO: Can a hashtable or tree be used to reduce the amount of time it takes to lookup tokens?
- *       For most scripts this is not a problem; but lookup time is O(N) and its possible parsing
- *       a large number of scripts could slow down the tokenizer.
+ *       For most scripts this is not a problem; but a large number of scripts could
+ *       slow down the tokenizer.
  */
 static KeywordDescriptor static_keywords[] =
 {
     // Keywords.
     //
     // { ETokenType, const char*, size_t },    
-    
     PIKA_keyword(TOK_global),
     PIKA_keyword(TOK_local),
     PIKA_keyword(TOK_member),
@@ -40,6 +39,7 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_elseif),
     PIKA_keyword(TOK_loop),
     PIKA_keyword(TOK_return),
+    { TOK_return, "return", 0 },
     PIKA_keyword(TOK_locals),
     PIKA_keyword(TOK_self),
     PIKA_keyword(TOK_super),
