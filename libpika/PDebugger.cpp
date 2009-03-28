@@ -101,6 +101,7 @@ Debugger::Debugger(Engine* eng, Type* obj_type)
                       case OF_target:
                       case OF_w:  return engine->AllocStringFmt("%s 0x%hx",     opcodename, instr.w);
                       case OF_bw: return engine->AllocStringFmt("%s 0x%x 0x%x", opcodename, instr.b, instr.w);
+                      default: break;
                       }
                       return engine->AllocString(opcodename);
                   }

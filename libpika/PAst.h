@@ -761,7 +761,6 @@ struct LoadExpr : Expr
         LK_true,
         LK_false,
         LK_locals,
-        LK_class,
     };
     
     LoadExpr(LoadKind k) : Expr(Expr::EXPR_load), loadkind(k) {}

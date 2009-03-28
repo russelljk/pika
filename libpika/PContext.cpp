@@ -476,6 +476,7 @@ INLINE void Context::CompOpBinary(const Opcode op, const OpOverride ovr, const O
             case OP_gt:  res =  gr_num(a.val.real, b.val.real); break;
             case OP_lte: res = lte_num(a.val.real, b.val.real); break;
             case OP_gte: res = gte_num(a.val.real, b.val.real); break;
+            default: break;
             }
             a.SetBool(res);
             Pop();
@@ -492,6 +493,7 @@ INLINE void Context::CompOpBinary(const Opcode op, const OpOverride ovr, const O
         case OP_gt:  res =  gr_num(a.val.integer, b.val.integer); break;
         case OP_lte: res = lte_num(a.val.integer, b.val.integer); break;
         case OP_gte: res = gte_num(a.val.integer, b.val.integer); break;
+        default: break;
         }
         
         a.SetBool(res);
@@ -516,6 +518,7 @@ INLINE void Context::CompOpBinary(const Opcode op, const OpOverride ovr, const O
         case OP_gt:  res =  gr_num(a.val.real, b.val.real); break;
         case OP_lte: res = lte_num(a.val.real, b.val.real); break;
         case OP_gte: res = gte_num(a.val.real, b.val.real); break;
+        default: break;
         }
         
         a.SetBool(res);
@@ -532,6 +535,7 @@ INLINE void Context::CompOpBinary(const Opcode op, const OpOverride ovr, const O
         case OP_gt:  res =  gr_num(*a.val.str, *b.val.str); break;
         case OP_lte: res = lte_num(*a.val.str, *b.val.str); break;
         case OP_gte: res = gte_num(*a.val.str, *b.val.str); break;
+        default: break;
         }
         
         a.SetBool(res);
@@ -582,6 +586,7 @@ INLINE void Context::ArithOpUnary(const Opcode op, const OpOverride ovr, int& nu
         case OP_dec: dec_num(a.val.integer); break;
         case OP_pos: pos_num(a.val.integer); break;
         case OP_neg: neg_num(a.val.integer); break;
+        default: break;
         }
     }
     else if (a.tag == TAG_real)
@@ -592,6 +597,7 @@ INLINE void Context::ArithOpUnary(const Opcode op, const OpOverride ovr, int& nu
         case OP_dec: dec_num(a.val.real); break;
         case OP_pos: pos_num(a.val.real); break;
         case OP_neg: neg_num(a.val.real); break;
+        default: break;
         }
     }
     else if (a.tag == TAG_object)
@@ -624,6 +630,7 @@ INLINE void Context::BitOpBinary(const Opcode op, const OpOverride ovr, const Op
         case OP_lsh:    lsh_num (a.val.integer, b.val.integer); break;
         case OP_rsh:    rsh_num (a.val.integer, b.val.integer); break;
         case OP_ursh:   ursh_num(a.val.integer, b.val.integer); break;
+        default: break;
         }
         Pop();
         return;
@@ -703,6 +710,7 @@ INLINE void Context::ArithOpBinary(const Opcode op, const OpOverride ovr, const 
             case OP_idiv: div_num(a.val.integer, b.val.integer); break;
             case OP_mod:  mod_num(a.val.integer, b.val.integer); break;
             case OP_pow:  pow_num(a.val.integer, b.val.integer); break;
+            default: break;
             }
             Pop();
             return;
@@ -723,6 +731,7 @@ INLINE void Context::ArithOpBinary(const Opcode op, const OpOverride ovr, const 
                 break;
             case OP_mod:  mod_num(a.val.real, b.val.real); break;
             case OP_pow:  pow_num(a.val.real, b.val.real); break;
+            default: break;
             }
             Pop();
             return;
@@ -763,6 +772,7 @@ INLINE void Context::ArithOpBinary(const Opcode op, const OpOverride ovr, const 
                 break;
             case OP_mod: mod_num(a.val.real, b.val.real); break;
             case OP_pow: pow_num(a.val.real, b.val.real); break;
+            default: break;
             }
             Pop();
             return;
@@ -782,6 +792,7 @@ INLINE void Context::ArithOpBinary(const Opcode op, const OpOverride ovr, const 
                 break;
             case OP_mod: mod_num(a.val.real, b.val.real); break;
             case OP_pow: pow_num(a.val.real, b.val.real); break;
+            default: break;
             }
             Pop();
             return;
@@ -814,6 +825,7 @@ INLINE void Context::ArithOpBinary(const Opcode op, const OpOverride ovr, const 
         if (res) return;
     }
     break;
+    default: break;
     }
     
     if (b.tag == TAG_object)

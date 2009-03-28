@@ -1,0 +1,6 @@
+
+/* We have pcre headers and library. */
+#cmakedefine HAVE_PCRE 1
+
+/* We have posix regular expression. */
+#cmakedefine HAVE_POSIX_RE 1

@@ -297,6 +297,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     case BREAK_LOOP:        return  0;
     case CONTINUE_LOOP:     return  0;
     case JMP_TARGET:        return  0;
+    default:                return 0;
     };
     return 0;
 };

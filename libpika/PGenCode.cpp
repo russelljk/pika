@@ -1284,6 +1284,7 @@ Instr* LoadExpr::GenerateCode()
     case LK_true:       return Instr::Create(OP_pushtrue);
     case LK_false:      return Instr::Create(OP_pushfalse);
     case LK_locals:     return Instr::Create(OP_locals);
+
     }
     return Instr::Create(OP_nop);
 }

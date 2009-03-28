@@ -202,6 +202,7 @@ void DoConstantFold(Instr* ir, LiteralPool* lp)
                 BINARY_FOLD(OP_div,  div_num)
                 BINARY_FOLD(OP_idiv, div_num)
                 BINARY_FOLD(OP_mod,  mod_num)
+                default: break;
             }
         }
         CONTINUE_FOLD_LOOP();
@@ -274,7 +275,8 @@ void Compiler::Emit()
                     def->SetLocalRange(curr->operand, curr->pos, curr->target->pos);
                 }
             }
-            break;            
+            break;
+        default: break;
         }
         
         switch (fmt)

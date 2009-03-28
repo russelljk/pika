@@ -4,8 +4,64 @@
  */
 #include "Pika.h"
 #include "PlatRE.h"
+#include "re_config.h"
 
-#if defined(USE_POSIX_REGEX)
+#if defined(HAVE_PCRE)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                          PCRE                                                 //
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <pcre.h>
+
+int const PIKA_NO_UTF8_CHECK  = PCRE_NO_UTF8_CHECK;
+int const PIKA_UTF8           = PCRE_UTF8;
+int const PIKA_MULTILINE      = PCRE_MULTILINE;
+
+#define OVECTOR_SIZE (128*3)
+
+Pika_regex* Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode)
+{
+    int err = 0;
+    const char* errdescr = 0;
+    int erroff = 0;
+    int options = PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_MULTILINE | cflags;
+    pcre* re = pcre_compile2(pattern, options, &err, &errdescr, &erroff, 0);
+    
+    if (!re && errmsg && errlen > 0)
+        strncpy(errmsg, errdescr, Min(errlen, strlen(errdescr)));    
+    if (errorcode)
+        *errorcode = err;
+    return (Pika_regex*)re;
+}
+
+size_t Pika_regerror(int errcode, const Pika_regex* preg, char* errbuf, size_t errbuf_size) { return 0; }
+
+void Pika_regfree(Pika_regex* re)
+{
+    pcre_free((pcre*)re);
+}
+
+int Pika_regexec(const Pika_regex* re, const char* subj, size_t const subjlen, Pika_regmatch* pmatch, size_t const nmatch, int eflags)
+{
+    //int* ovector = (int*)alloca(sizeof(int) * nmatch * 1.5);
+    int ovector[OVECTOR_SIZE];
+    int match = pcre_exec((pcre*)re, 0, subj, subjlen,
+                          0,
+                          PCRE_NO_UTF8_CHECK,
+                          ovector,
+                          OVECTOR_SIZE);
+    for (int i = 0; i < Min<int>(nmatch, match); ++i)
+    {
+        int so = ovector[i * 2];
+        int eo = ovector[i * 2 + 1];
+        pmatch[i].start = so >= 0 ? so : 0;
+        pmatch[i].end   = eo >= 0 ? eo : 0;
+    }
+    return match;
+}
+
+#elif defined(HAVE_POSIX_RE)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                          POSIX                                                //
@@ -79,57 +135,16 @@ void Pika_regfree(Pika_regex* preg)
 
 #else
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//                                          PCRE                                                 //
-///////////////////////////////////////////////////////////////////////////////////////////////////
+int const PIKA_NO_UTF8_CHECK  = -1;
+int const PIKA_UTF8           = -1;
+int const PIKA_MULTILINE      = -1;
 
-#include <pcre.h>
+Pika_regex* Pika_regcomp(const char*, int, char*, size_t, int*) { return 0; }
 
-int const PIKA_NO_UTF8_CHECK  = PCRE_NO_UTF8_CHECK;
-int const PIKA_UTF8           = PCRE_UTF8;
-int const PIKA_MULTILINE      = PCRE_MULTILINE;
+size_t Pika_regerror(int, const Pika_regex*, char*, size_t) { return 0; }
 
-#define OVECTOR_SIZE (128*3)
+void Pika_regfree(Pika_regex*) {}
 
-Pika_regex* Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode)
-{
-    int err = 0;
-    const char* errdescr = 0;
-    int erroff = 0;
-    int options = PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_MULTILINE | cflags;
-    pcre* re = pcre_compile2(pattern, options, &err, &errdescr, &erroff, 0);
-    
-    if (!re && errmsg && errlen > 0)
-        strncpy(errmsg, errdescr, Min(errlen, strlen(errdescr)));    
-    if (errorcode)
-        *errorcode = err;
-    return (Pika_regex*)re;
-}
-
-size_t Pika_regerror(int errcode, const Pika_regex* preg, char* errbuf, size_t errbuf_size) { return 0; }
-
-void Pika_regfree(Pika_regex* re)
-{
-    pcre_free((pcre*)re);
-}
-
-int Pika_regexec(const Pika_regex* re, const char* subj, size_t const subjlen, Pika_regmatch* pmatch, size_t const nmatch, int eflags)
-{
-    //int* ovector = (int*)alloca(sizeof(int) * nmatch * 1.5);
-    int ovector[OVECTOR_SIZE];
-    int match = pcre_exec((pcre*)re, 0, subj, subjlen,
-                          0,
-                          PCRE_NO_UTF8_CHECK,
-                          ovector,
-                          OVECTOR_SIZE);
-    for (int i = 0; i < Min<int>(nmatch, match); ++i)
-    {
-        int so = ovector[i * 2];
-        int eo = ovector[i * 2 + 1];
-        pmatch[i].start = so >= 0 ? so : 0;
-        pmatch[i].end   = eo >= 0 ? eo : 0;
-    }
-    return match;
-}
+int Pika_regexec(const Pika_regex*, const char*, size_t const, Pika_regmatch*, size_t const, int) { return 0; }
 
 #endif
