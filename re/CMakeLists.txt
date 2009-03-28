@@ -42,7 +42,7 @@ if (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)
     message (FATAL "no regular expression library found.")
 endif (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE) 
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/re_config.h.in 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-re_config.h.in 
                ${CMAKE_CURRENT_SOURCE_DIR}/re_config.h)
 
 set (re_LIB_SRCS PlatRE.cpp PRegExp.cpp)
