@@ -5,6 +5,25 @@
 #include "Pika.h"
 #include "PRegExp.h"
 #include "PlatRE.h"
+#if defined(PIKA_WIN)
+
+#include <windows.h>
+
+BOOL APIENTRY DllMain(HMODULE hModule,
+                      DWORD  ul_reason_for_call,
+                      LPVOID lpReserved)
+{
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH: break;
+    }
+    return TRUE;
+}
+
+#endif
 
 /*
 TODO: Add GCPAUSE_NORUN to all methods that allocate >1 gcobject.

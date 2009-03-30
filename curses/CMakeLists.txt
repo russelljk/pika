@@ -13,17 +13,30 @@ endif (WIN32)
 
 set (ADD_LIBS "")
 
-# ----------------------------- CURSES ------------------------------
+# ----------------------------- curses/ncurses library ------------------------------
 
-include (FindCurses)
+if (CURSES_INCLUDE_DIR AND CURSES_LIBRARIES)
+    # If curses library and include paths are already defined.
+    message (STATUS  "Using the curses library provided.")
+    set(CURSES_FOUND TRUE)
+else (CURSES_INCLUDE_DIR AND CURSES_LIBRARIES)
+    # Otherwise we have to search for them.
+    include (FindCurses)
+endif (CURSES_INCLUDE_DIR AND CURSES_LIBRARIES)
 
 if (CURSES_FOUND)
     # echo what we found.
     message (STATUS  ${CURSES_INCLUDE_DIR})
     message (STATUS  ${CURSES_LIBRARIES})
+    
     set(HAVE_CURSES 1)
+    
+    # Add the headers file path.
     include_directories ( ${CURSES_INCLUDE_DIR} )
+    
+    # Add the library path.
     set (ADD_LIBS ${ADD_LIBS} ${CURSES_LIBRARIES})
+
 endif (CURSES_FOUND)
 
 # --------------------- Source + Header Files ----------------------

@@ -3,6 +3,26 @@
  *  See Copyright Notice in PCurses.h
  */
 #include "PCurses.h"
+#if defined(PIKA_WIN)
+
+#include <windows.h>
+
+BOOL APIENTRY DllMain(HMODULE hModule,
+                      DWORD  ul_reason_for_call,
+                      LPVOID lpReserved)
+{
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH: break;
+    }
+    return TRUE;
+}
+
+#endif
+
 #define WINDOW_TYPENAME "curses.Window"
 
 #define GETWINDOW(X)                                                        \
