@@ -1,5 +1,6 @@
 message (STATUS "********* Starting pikacurses library *********")
 
+# TODO: support pdcurses
 # Disable 'unsecure' warnings in VC++
 
 if (WIN32)
@@ -36,23 +37,22 @@ if (CURSES_FOUND)
     
     # Add the library path.
     set (ADD_LIBS ${ADD_LIBS} ${CURSES_LIBRARIES})
-
 endif (CURSES_FOUND)
 
 # --------------------- Source + Header Files ----------------------
 
-if (NOT HAVE_CURSES)
-    message (FATAL "No curses library found.")
-endif (NOT HAVE_CURSES) 
+if (HAVE_CURSES)
+    set (curses_LIB_SRCS PCurses.cpp)
+    set (curses_LIB_HEADERS PCurses.h)
 
-set (curses_LIB_SRCS PCurses.cpp)
-set (curses_LIB_HEADERS PCurses.h)
+    source_group (include FILES ${curses_LIB_HEADERS})
+    source_group (source  FILES ${curses_LIB_SRCS})
 
-source_group (include FILES ${curses_LIB_HEADERS})
-source_group (source  FILES ${curses_LIB_SRCS})
+    include_directories (${Pika_SOURCE_DIR}/libpika)
+    link_directories (${Pika_BINARY_DIR}/libpika)
 
-include_directories (${Pika_SOURCE_DIR}/libpika)
-link_directories (${Pika_BINARY_DIR}/libpika)
-
-add_library (pikacurses SHARED ${curses_LIB_SRCS} ${curses_LIB_HEADERS})
-target_link_libraries (pikacurses ${ADD_LIBS} pika)
+    add_library (pikacurses SHARED ${curses_LIB_SRCS} ${curses_LIB_HEADERS})
+    target_link_libraries (pikacurses ${ADD_LIBS} pika)
+else (HAVE_CURSES)
+   message (STATUS "Curses library not found.")
+endif (HAVE_CURSES) 

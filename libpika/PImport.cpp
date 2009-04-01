@@ -240,7 +240,7 @@ int Global_import(Context* ctx, Value& self)
                 ctx->SafePush(res);
                 continue;
             }
-            else if (eng->Function_Type->IsInstance(res))
+            else if (eng->Function_Type->IsInstance(res)) // Function loader.
             {
                 ctx->CheckStackSpace(2);
                 ctx->PushNull();
@@ -284,7 +284,7 @@ int Global_import(Context* ctx, Value& self)
             }
             else
             {
-                RaiseException("Attempt to import %s.", name->GetBuffer());
+                RaiseException("Attempt to import %s failed.", name->GetBuffer());
                 return 0;
             }
         }

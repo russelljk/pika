@@ -11,19 +11,5 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
 
 add_subdirectory(pikac)
 add_subdirectory(libpika)
-
-if (PCRE_INCLUDE_DIR AND PCRE_PCRE_LIBRARY)
-    add_subdirectory(re)
-else (PCRE_INCLUDE_DIR AND PCRE_PCRE_LIBRARY)
-    if (UNIX)
-        add_subdirectory(re)
-    endif (UNIX)
-endif (PCRE_INCLUDE_DIR AND PCRE_PCRE_LIBRARY)
-
-if (CURSES_INCLUDE_DIR AND CURSES_LIBRARIES)
-    add_subdirectory(curses)
-else (CURSES_INCLUDE_DIR AND CURSES_LIBRARIES)
-    if (UNIX)
-        add_subdirectory(curses)
-    endif (UNIX)
-endif (CURSES_INCLUDE_DIR AND CURSES_LIBRARIES)
+add_subdirectory(re)
+add_subdirectory(curses)

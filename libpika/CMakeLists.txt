@@ -90,3 +90,7 @@ source_group (source  FILES ${pika_LIB_SRCS})
 add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
 
 target_link_libraries (pika ${ADD_LIBS})
+
+INSTALL(TARGETS pika
+	LIBRARY DESTINATION lib
+)

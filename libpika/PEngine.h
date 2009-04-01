@@ -61,6 +61,7 @@ struct PIKA_API PathManager : GCObject
     virtual bool    Finalize();
     virtual void    AddPath(String* str);
 private:
+    bool IsValidFile(const char*);
     Buffer<String*> searchPaths;
     Engine*         engine;
 };

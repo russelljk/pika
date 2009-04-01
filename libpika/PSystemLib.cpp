@@ -353,7 +353,7 @@ static int OS_fileExtOf(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_addPath(Context* ctx, Value&)
+static int OS_addSearchPath(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     for (size_t a = 0; a < ctx->GetArgCount(); ++a)
@@ -507,7 +507,7 @@ void InitSystemLIB(Engine* eng)
     .Register    ( OS_getFullPath,           "getFullPath")
     .Register    ( OS_fileExtOf,             "fileExtOf")
     .Register    ( OS_fileNameOf,            "fileNameOf")
-    .Register    ( OS_addPath,               "addPath")
+    .Register    ( OS_addSearchPath,         "addSearchPath")
     ;
     
     static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };

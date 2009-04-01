@@ -83,6 +83,11 @@ PathManager::PathManager(Engine* eng)
 
 PathManager::~PathManager() {}
 
+bool PathManager::IsValidFile(const char* path)
+{
+    return Pika_FileExists(path) && !Pika_IsDirectory(path);
+}
+
 String* PathManager::FindFile(String* file)
 {
     char* temp = (char*)Pika_malloc(sizeof(char) * (PIKA_MAX_PATH + 1));
@@ -98,7 +103,7 @@ String* PathManager::FindFile(String* file)
         }
         temp[PIKA_MAX_PATH] = '\0';
         
-        if (Pika_FileExists(temp))
+        if (IsValidFile(temp))
         {
             String* res = engine->AllocString(temp);
             Pika_free(temp);
@@ -108,7 +113,7 @@ String* PathManager::FindFile(String* file)
     }
     Pika_free(temp);
     
-    if (Pika_FileExists(file->GetBuffer()))
+    if (IsValidFile(file->GetBuffer()))
     {
         return file;
     }

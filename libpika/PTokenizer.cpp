@@ -512,6 +512,11 @@ void Tokenizer::GetNext()
     {
         ReadString(); 
     }
+    else if (look == '`')
+    {
+        ReadString();
+        tokenType = TOK_identifier;
+    }
     // control character
     else 
     {
@@ -625,7 +630,7 @@ void Tokenizer::ReadString()
 {
     int termchar = look;
     
-    if (termchar != '\'' && termchar != '\"')
+    if (termchar != '\'' && termchar != '\"' && termchar != '`')
         return;
         
     GetLook();
@@ -1001,7 +1006,9 @@ void Tokenizer::ReadControl()
     }
     break;
         
-    default:    
+    default:
+        if (!IsAscii(look) && look != EOF)
+            state->SyntaxException(Exception::ERROR_syntax, line, col, "Non-ascii character encountered %d.\n", look);
         tokenType = look;
         GetLook();    
     }
