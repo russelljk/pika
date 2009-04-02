@@ -42,15 +42,25 @@ endif (CURSES_FOUND)
 # --------------------- Source + Header Files ----------------------
 
 if (HAVE_CURSES)
-    set (curses_LIB_SRCS PCurses.cpp)
-    set (curses_LIB_HEADERS PCurses.h)
 
+    set (HAVE_CURSES_H          ${CURSES_HAVE_CURSES_H})
+    set (HAVE_NCURSES_H         ${CURSES_HAVE_NCURSES_H})
+    set (HAVE_NCURSES_NCURSES_H ${CURSES_HAVE_NCURSES_NCURSES_H})
+    set (HAVE_NCURSES_CURSES_H  ${CURSES_HAVE_NCURSES_CURSES_H})
+    set (HAVE_PDCURSES_H        ${CURSES_HAVE_PDCURSES_H})
+
+    configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake-curses_config.h.in 
+                    ${CMAKE_CURRENT_SOURCE_DIR}/curses_config.h)
+    
+    set (curses_LIB_SRCS PCurses.cpp)
+    set (curses_LIB_HEADERS PCurses.h curses_config.h)
+    
     source_group (include FILES ${curses_LIB_HEADERS})
     source_group (source  FILES ${curses_LIB_SRCS})
-
+    
     include_directories (${Pika_SOURCE_DIR}/libpika)
     link_directories (${Pika_BINARY_DIR}/libpika)
-
+    
     add_library (pikacurses SHARED ${curses_LIB_SRCS} ${curses_LIB_HEADERS})
     target_link_libraries (pikacurses ${ADD_LIBS} pika)
 else (HAVE_CURSES)

@@ -24,8 +24,22 @@
 #define PCURSES_HEADER
 
 #include "Pika.h"
-//#define _XOPEN_SOURCE_EXTENDED 1
-#include <ncurses.h>
+#include "curses_config.h"
 
+//#define _XOPEN_SOURCE_EXTENDED 1
+
+#if defined( HAVE_CURSES_H )
+#   include <curses.h>
+#elif defined( HAVE_NCURSES_H )
+#   include <ncurses.h>
+#elif defined( HAVE_NCURSES_NCURSES_H )
+#   include <ncurses/ncurses.h>
+#elif defined( HAVE_NCURSES_CURSES_H )
+#   include <ncurses/curses.h>
+#elif defined( HAVE_PDCURSES_H )
+#   include <pdcurses.h>
+#else
+#   error "No curses header file specified"
+#endif
 
 #endif
