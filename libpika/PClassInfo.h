@@ -11,7 +11,7 @@ namespace pika
 class PIKA_API ClassInfo 
 {
 public:
-    ClassInfo(char*, ClassInfo*);
+    ClassInfo(const char*, ClassInfo*);
     ~ClassInfo();
 
     bool IsDerivedFrom(const ClassInfo* other) const;
@@ -21,7 +21,7 @@ public:
     INLINE ClassInfo*       GetNext()  const { return next;  }
 
     static  ClassInfo* GetFirstClass() { return firstClass; }
-    static  ClassInfo* Create(char* name, ClassInfo* super);
+    static  ClassInfo* Create(const char* name, ClassInfo* super);
 
 private:
     const char*       name;

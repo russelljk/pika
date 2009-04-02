@@ -201,7 +201,7 @@ void Pika_RewindDirectory(Pika_Directory* dir)
     rewinddir((DIR*)((void*)(dir)));
 }
 
-#if defined( HAVE_LIBDL ) || defined( HAVE_LIBDLD )
+#if defined( HAVE_LIBDL ) || defined( HAVE_LIBDLD ) || defined( HAVE_LIBC_DL )
 
 #if defined( HAVE_DLFCN_H )
 #   include <dlfcn.h>
@@ -230,7 +230,7 @@ void* Pika_GetSymbolAddress(intptr_t handle, const char* symbol)
 }
 
 #else
-
+# error "NO DLOPEN available"
 intptr_t    Pika_OpenShared(const char* path) { return 0; }
 bool        Pika_CloseShared(intptr_t handle) { return false; }
 void*       Pika_GetSymbolAddress(intptr_t handle, const char* symbol) { return 0; }

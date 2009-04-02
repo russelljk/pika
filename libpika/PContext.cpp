@@ -13,8 +13,9 @@
 #include "PEnumerator.h"
 #include "PValueEnumerator.h"
 #include "PNativeBind.h"
-#include <iostream>
 #include "PContext_Ops.inl"
+#include <iostream>
+
 const char* GetContextStateName(Context::EState state)
 {
     switch (state)
@@ -26,8 +27,6 @@ const char* GetContextStateName(Context::EState state)
     default:                 return "uninitialized"; // context's state member is uninitialized garbage.
     }
 }
-
-#include "PContext_ops.inl"
 
 void Context_NewFn(Engine* eng, Type* obj_type, Value& res)
 {

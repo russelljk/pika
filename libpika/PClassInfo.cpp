@@ -13,7 +13,7 @@ namespace pika
 
 ClassInfo* ClassInfo::firstClass = 0;
 
-ClassInfo::ClassInfo(char* n, ClassInfo* s)
+ClassInfo::ClassInfo(const char* n, ClassInfo* s)
     : name(n), super(s)
 {
     next = firstClass;
@@ -22,7 +22,7 @@ ClassInfo::ClassInfo(char* n, ClassInfo* s)
 
 ClassInfo::~ClassInfo() {}
 
-ClassInfo* ClassInfo::Create(char* name, ClassInfo* super)
+ClassInfo* ClassInfo::Create(const char* name, ClassInfo* super)
 {
     static MemObjPool<ClassInfo> classInfoPool(32);
     

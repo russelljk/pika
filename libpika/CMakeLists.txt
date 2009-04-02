@@ -41,7 +41,7 @@ include (CheckLibraryExists)
 # link to dlopen if available
 check_library_exists (dl dlopen "" HAVE_LIBDL)
 if (HAVE_LIBDL)
-	set (ADD_LIBS ${ADD_LIBS} dl)
+    set (ADD_LIBS ${ADD_LIBS} dl)
 endif (HAVE_LIBDL)
 
 # in Unix we need to explicitly link to libm
@@ -52,6 +52,11 @@ endif (UNIX)
 #--------------------- Functions -----------------------
 
 include (CheckFunctionExists)
+
+# Check if dl* symbols exist without a library.
+if  (NOT HAVE_LIBDL)
+    check_function_exists ("dlopen;dlsym;dlclose" HAVE_LIBC_DL)
+endif (NOT HAVE_LIBDL)
 
 check_function_exists (bcopy    HAVE_BCOPY)
 check_function_exists (bzero    HAVE_BZERO)

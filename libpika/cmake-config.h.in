@@ -56,6 +56,9 @@
 /* Define to 1 if you have the `dld' library (-ldld). */
 #cmakedefine HAVE_LIBDLD 1
 
+/* dl symbols are in libc. */
+#cmakedefine HAVE_LIBC_DL 1
+
 /* Define to 1 if you have the `m' library (-lm). */
 /* #cmakedefine HAVE_LIBM 1 */
 
