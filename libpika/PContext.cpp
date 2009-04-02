@@ -14,7 +14,7 @@
 #include "PValueEnumerator.h"
 #include "PNativeBind.h"
 #include <iostream>
-
+#include "PContext_Ops.inl"
 const char* GetContextStateName(Context::EState state)
 {
     switch (state)

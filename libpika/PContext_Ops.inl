@@ -6,7 +6,9 @@
 //       remove gCompiler line 22 code block
 //       remove gContext ArithBinary? OP_div code.
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef PContext_Ops_inl
+#define PContext_Ops_inl
+
 #define USE_C_ARITH
 template<typename T> INLINE void add_num(T& a, T& b) { a += b; }
 template<typename T> INLINE void sub_num(T& a, T& b) { a -= b; }
@@ -171,3 +173,4 @@ template<> INLINE bool gte_num<String>(const String& a, const String& b) { retur
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#endif
