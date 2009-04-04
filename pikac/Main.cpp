@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
         Pika_DisplayUsage(argv[0]);
     }
     bool printBanner = true;
-    
+
     if (argc >= 2)
 	{
         Engine* eng = 0;
