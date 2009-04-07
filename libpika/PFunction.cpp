@@ -666,17 +666,6 @@ static int LocalsObject_getParent(Context* ctx, Value& self)
     return 1;
 }
 
-static const char* lt_text = "sub(a, b) ret a <  b; end";
-static const char* gt_text = "sub(a, b) ret a >  b; end";
-
-static const char* lte_text = "sub(a, b) ret a <= b; end";
-static const char* gte_text = "sub(a, b) ret a >= b; end";
-
-static const char* eq_text = "sub(a, b) ret a == b; end";
-static const char* ne_text = "sub(a, b) ret a != b; end";
-
-static const char*    same_text = "sub(a, b) ret a === b; end";
-static const char* notsame_text = "sub(a, b) ret a !== b; end";
 
 extern int null_Function(Context*, Value&);
 
@@ -727,38 +716,6 @@ void InitFunctionAPI(Engine* eng)
     .PropertyR("boundFunction",  &BoundFunction::GetBoundFunction,  "getBoundFunction")
     .PropertyR("boundSelf",      &BoundFunction::GetBoundSelf,      "getBoundSelf")
     ;
-    
-    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
-    
-    Package* libcmp = eng->OpenPackage(eng->AllocString("cmp"), eng->GetWorld(), true);
-    Function* ltFn  = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* gtFn  = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* lteFn = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* gteFn = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* eqFn  = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* neFn  = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* sameFn    = Function::Create(eng, def, eng->GetWorld(), 0);
-    Function* notsameFn = Function::Create(eng, def, eng->GetWorld(), 0);
-    
-    ltFn ->InitWithBody(eng->AllocString( lt_text));
-    gtFn ->InitWithBody(eng->AllocString( gt_text));
-    lteFn->InitWithBody(eng->AllocString(lte_text));
-    gteFn->InitWithBody(eng->AllocString(gte_text));
-    
-    eqFn ->InitWithBody(eng->AllocString( eq_text));
-    neFn ->InitWithBody(eng->AllocString( ne_text));
-    
-    sameFn->InitWithBody(eng->AllocString(same_text));
-    notsameFn->InitWithBody(eng->AllocString(notsame_text));
-    
-    libcmp->SetSlot(eng->AllocString("lt"),  ltFn);
-    libcmp->SetSlot(eng->AllocString("gt"),  gtFn);
-    libcmp->SetSlot(eng->AllocString("lte"), lteFn);
-    libcmp->SetSlot(eng->AllocString("gte"), gteFn);
-    libcmp->SetSlot(eng->AllocString("eq"),  eqFn);
-    libcmp->SetSlot(eng->AllocString("ne"),  neFn);
-    libcmp->SetSlot(eng->AllocString("sm"),  sameFn);
-    libcmp->SetSlot(eng->AllocString("ns"),  notsameFn);
     
     struct RegisterProperty localsObject_Properties[] =
     {
