@@ -83,23 +83,9 @@ struct IScriptStream
   * @note Reads the entire file into a buffer. */
 struct FileScriptStream : IScriptStream
 {
-    FileScriptStream(FILE* fs) : buffer(0), pos(0), bufferLength(0), stream(fs)
-    {
-        fseek(stream, 0, SEEK_END);
-        long len = ftell(stream);
-        rewind(stream);
-        
-        buffer = (char*)Pika_malloc((len + 1) * sizeof(char));
-        bufferLength = len;
-        fread(buffer, sizeof(char), len, stream);
-        buffer[bufferLength] = EOF;
-        CheckBom();
-    }
+    FileScriptStream(FILE* fs);
 
-    virtual ~FileScriptStream()
-    {
-        Pika_free(buffer);
-    }
+    virtual ~FileScriptStream();
 
     virtual int  Get()   { return pos <= bufferLength ? buffer[pos++] : EOF; }
     virtual int  Peek()  { return pos <= bufferLength ? buffer[pos] : EOF; }

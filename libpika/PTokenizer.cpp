@@ -1132,4 +1132,29 @@ void Tokenizer::GetLook()
     }
 }
 
+FileScriptStream::FileScriptStream(FILE* fs) : buffer(0), pos(0), bufferLength(0), stream(fs)
+{
+    fseek(stream, 0, SEEK_END);
+    long len = ftell(stream);
+    if (len < 0)
+    {
+        // TODO: exception.
+    }
+    
+    rewind(stream);
+    
+    buffer = (char*)Pika_malloc((len + 1) * sizeof(char));
+    bufferLength = len;
+    size_t amtRead = fread(buffer, sizeof(char), len, stream);
+    if (amtRead < len) {bufferLength = amtRead; /* TODO: Raise an exception? */ }
+    
+    buffer[bufferLength] = EOF;
+    CheckBom();
+}
+
+FileScriptStream::~FileScriptStream()
+{
+    Pika_free(buffer);
+}
+
 }// pika
