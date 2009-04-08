@@ -162,44 +162,36 @@ struct CompileState
     
     // Error Reporting -----------------------------------------------------------------------------
 #if defined(ENABLE_SYNTAX_WARNINGS)    
-    /** Issues a syntax warning */
-    void SyntaxWarning(WarningLevel level, int line, const char* format, ...);
-#endif    
-    /** Issues a syntax error. */
-    void SyntaxError(int line, const char* format, ...);
-    
-    /** Issues a syntax error and raises an exception. This function never returns. */
-    void SyntaxException(Exception::Kind k, int line, const char *msg, ...);
 
-    void SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...);    
-    
-    /** Prints a summary of all error and warnings. */
-    void SyntaxErrorSummary();
+    void SyntaxWarning(WarningLevel level, int line, const char* format, ...);
+#endif
+    void   SyntaxError(int line, const char* format, ...);           
+    void   SyntaxException(Exception::Kind k, int line,          const char *msg, ...);
+    void   SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...); 
+    void   SyntaxErrorSummary();
     
     /** Returns true if syntax errors occurred while parsing and compiling a script. */
     bool HasErrors() const { return errors != 0; }
     
-    void SetParser(Parser* p) { parser = p; }
-    
-    TreeNodeList nodes;             // All the nodes we know about.
-    LiteralPool* literals;          // Literals used in this program. Shared by all child functions.
-    Table        literalLookup;
-    Engine*      engine;
-    Def*         currDef;           // Current function definition being compiled.
-    int          localOffset;       // Next local variable offset.
-    int          localCount;        // Total number of lexEnv.
-    u2           currentLine;       // Current line being processed.
-    int          errors;            // Number of errors found.
-    int          warnings;          // Number of warnings found.
-    Instr*       endOfBlock;        // Last Instr of the current block (used to track local variable scope.)
-    Parser*      parser;
+    void   SetParser(Parser* p) { parser = p; }
     struct TryState
     {
-        bool        inTry;
-        bool        inCatch;        // Are we in a catch block.
-        u2          catchVarOffset; // Location of the caught exception (used to re-raise a caught exception).
-    }
-    trystate;
+        bool inTry;
+        bool inCatch;               // Are we in a catch block.
+        u2   catchVarOffset;        // Location of the caught exception (used to re-raise a caught exception).
+    }               trystate;
+    TreeNodeList    nodes;          // All the nodes we know about.
+    LiteralPool*    literals;       // Literals used in this program. Shared by all child functions.
+    Table           literalLookup;
+    Engine*         engine;
+    Def*            currDef;        // Current function definition being compiled.
+    int             localOffset;    // Next local variable offset.
+    int             localCount;     // Total number of lexEnv.
+    u2              currentLine;    // Current line being processed.
+    int             errors;         // Number of errors found.
+    int             warnings;       // Number of warnings found.
+    Instr*          endOfBlock;     // Last Instr of the current block (used to track local variable scope.)
+    Parser*         parser;
 };
 
 // TreeNode ////////////////////////////////////////////////////////////////////////////////////////

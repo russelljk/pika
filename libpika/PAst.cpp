@@ -250,7 +250,10 @@ Symbol* CompileState::CreateLocalPlus(SymbolTable* st, const char* name, size_t 
     }
     return symbol;
 }
+
 #if defined(ENABLE_SYNTAX_WARNINGS)
+
+/** Issues a syntax warning. Prints the message to stderr. */
 void CompileState::SyntaxWarning(WarningLevel level, int line, const char* format, ...)
 {
     va_list args;
@@ -263,7 +266,12 @@ void CompileState::SyntaxWarning(WarningLevel level, int line, const char* forma
     fprintf(stderr, "\n");
     fflush(stderr);
 }
-#endif
+
+#endif /* ENABLE_SYNTAX_WARNINGS */
+
+/** Issues a syntax error. Prints the message to stderr.
+  * @note Do not use if the error is not recoverable unless you manually raise an exception. 
+  */
 void CompileState::SyntaxError(int line,  const char* format, ...)
 {
     va_list args;
@@ -277,6 +285,7 @@ void CompileState::SyntaxError(int line,  const char* format, ...)
     fflush(stderr);
 }
 
+/** Issues a syntax error and raises an exception. This function never returns. */
 void CompileState::SyntaxException(Exception::Kind k, int line, const char *msg, ...)
 {
     va_list args;
@@ -305,6 +314,7 @@ void CompileState::SyntaxException(Exception::Kind k, int line, int col, const c
     throw Exception(k);
 }
 
+/** Prints a summary of all error and warnings. */
 void CompileState::SyntaxErrorSummary()
 {
     fprintf(stderr, "%d error(s) found.\n",   this->errors);

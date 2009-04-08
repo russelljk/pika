@@ -4,7 +4,8 @@
 #include "PConfig.h"
 #include "PHooks.h"
 
-namespace pika
-{
+namespace pika {
+
 IHook::~IHook() {}
+
 }

@@ -18,7 +18,8 @@
 #include <cassert>
 #include <ctime>
 #include <cstring>
-
+#include <iostream>
+#include <fstream>
 #include "config.h"
 
 #if defined(HAVE_STRINGS_H)

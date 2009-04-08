@@ -70,7 +70,7 @@ const int Token2String::diff = TOK_global;
 
 // TokenStream /////////////////////////////////////////////////////////////////////////////////////
 
-TokenStream::TokenStream(CompileState* state, FILE* yyin)
+TokenStream::TokenStream(CompileState* state, std::ifstream* yyin)
     : state(state), tokenizer(0),
     yyin(yyin)        
 {
@@ -123,7 +123,7 @@ void TokenStream::Advance()
 
 // Parser //////////////////////////////////////////////////////////////////////////////////////////
 
-Parser::Parser(CompileState *cs, FILE* yyin)
+Parser::Parser(CompileState *cs, std::ifstream* yyin)
     : root(0),
     state(cs),
     tstream(state, yyin)

@@ -2,7 +2,7 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
-#include <iostream>
+
 
 // TODO: Specifiy arguments.
 void Pika_DisplayUsage(const char* name)

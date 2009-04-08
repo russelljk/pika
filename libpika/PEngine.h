@@ -22,8 +22,7 @@
 #   include "PObject.h"
 #endif
 
-namespace pika
-{
+namespace pika {
 class Script;
 class Object;
 class String;

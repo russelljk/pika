@@ -416,7 +416,7 @@ IScriptStream::~IScriptStream()
 
 //////////////////////////////////////////////Tokenizer/////////////////////////////////////////////
 
-Tokenizer::Tokenizer(CompileState* s, FILE* fs)
+Tokenizer::Tokenizer(CompileState* s, std::ifstream* fs)
         : tokenBegin(0),
         tokenEnd(0),
         state(s),
@@ -1132,29 +1132,76 @@ void Tokenizer::GetLook()
     }
 }
 
-FileScriptStream::FileScriptStream(FILE* fs) : buffer(0), pos(0), bufferLength(0), stream(fs)
+FileScriptStream::FileScriptStream(std::ifstream* fs) : buffer(0), pos(0), bufferLength(0), stream(fs)
 {
-    fseek(stream, 0, SEEK_END);
-    long len = ftell(stream);
-    if (len < 0)
-    {
-        // TODO: exception.
-    }
+    if (!stream)
+        CheckGood();
     
-    rewind(stream);
+    stream->seekg(0, std::ios_base::end);
+    size_t len = stream->tellg();    
+    stream->seekg(0, std::ios_base::beg);
     
-    buffer = (char*)Pika_malloc((len + 1) * sizeof(char));
+    CheckGood();
+    
+    buffer = (char*)Pika_malloc((len + 1));
     bufferLength = len;
-    size_t amtRead = fread(buffer, sizeof(char), len, stream);
-    if (amtRead < len) {bufferLength = amtRead; /* TODO: Raise an exception? */ }
+    stream->read(buffer, len);
+    
+    CheckGood();
     
     buffer[bufferLength] = EOF;
     CheckBom();
 }
 
-FileScriptStream::~FileScriptStream()
+FileScriptStream::~FileScriptStream() { Pika_free(buffer); }
+
+void FileScriptStream::CheckGood()
 {
-    Pika_free(buffer);
+    if (!stream || !stream->good())
+    {
+        RaiseException(Exception::ERROR_system, "bad file or input stream.");
+    }
 }
+
+int FileScriptStream::Get() { return pos <= bufferLength && buffer ? buffer[pos++] : EOF; }
+int FileScriptStream::Peek() { return pos <= bufferLength && buffer ? buffer[pos] : EOF; }
+bool FileScriptStream::IsEof() { return pos > bufferLength || !buffer; }
+
+void FileScriptStream::CheckBom()
+{
+    if (bufferLength >= 3)
+    {
+        // UTF8 BOM
+        u1 x = (u1)buffer[0];
+        u1 y = (u1)buffer[1];
+        u1 z = (u1)buffer[2];
+
+        if ((x == 0xEF && y == 0xBB && z == 0xBF))
+        {
+            pos = 3;
+            return;
+        }
+    }
+}
+
+StringScriptStream::StringScriptStream(const char* buf, size_t len) 
+    : buffer(0),
+    pos(0),
+    bufferLength(len)
+{
+    buffer = (char*)Pika_malloc((bufferLength + 1) * sizeof(char));
+    Pika_memcpy(buffer, buf, bufferLength);
+    buffer[bufferLength] = EOF;
+}
+
+StringScriptStream::~StringScriptStream() { Pika_free(buffer); }
+
+int  StringScriptStream::Get()   { return pos <= bufferLength ? buffer[pos++] : EOF; }
+int  StringScriptStream::Peek()  { return pos <= bufferLength ? buffer[pos]   : EOF; }
+bool StringScriptStream::IsEof() { return pos > bufferLength; }
+
+int  StdinScriptStream::Get()   { return std::cin.get(); }
+int  StdinScriptStream::Peek()  { return std::cin.peek(); }
+bool StdinScriptStream::IsEof() { return std::cin.eof();  }
 
 }// pika

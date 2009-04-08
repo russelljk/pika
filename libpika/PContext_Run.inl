@@ -9,7 +9,8 @@
  */
 
 /** This macro handles returns from Context::Run. */
-#define PIKA_RET(V)                                                                \
+
+#define PIKA_RET(V)                                                                 \
     --numcalls;                                                                     \
     if (closure == 0 || (pc == 0 && !closure->IsNative()))                          \
     {                                                                               \
@@ -41,7 +42,7 @@
 
 /** This macro calls the per instruction debug hook if its enabled. */
 #ifndef PIKA_NO_HOOKS
-#   define PIKA_CHECK_INSTR_HOOK()                             \
+#   define PIKA_CHECK_INSTR_HOOK()                              \
     if (engine->HasHook(HE_instruction))                        \
     {                                                           \
         InstructionData instr_data;                             \

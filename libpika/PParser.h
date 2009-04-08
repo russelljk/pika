@@ -41,7 +41,7 @@ struct Token
 /** A stream of tokens from the tokenizer. */
 struct TokenStream
 {
-    TokenStream(CompileState* state, FILE* yyin);
+    TokenStream(CompileState* state, std::ifstream* yyin);
     TokenStream(CompileState* state, const char* buffer, size_t len);
     
     ~TokenStream();
@@ -68,12 +68,12 @@ struct TokenStream
     INLINE int GetPrevCol() const { return prev.col; }
     INLINE int GetNextCol() const { return(next.tokenType == EOF) ? (curr.tokenType == EOF) ? prev.col : curr.col : next.col; }
         
-    CompileState* state;
-    Tokenizer*    tokenizer;
-    FILE*         yyin;      //!< File handle for the script. Null if we are parsing a string.
-    Token         prev;      //!< Previous token.
-    Token         curr;      //!< Current token.
-    Token         next;      //!< Next token.
+    CompileState*  state;
+    Tokenizer*     tokenizer;
+    std::ifstream* yyin;      //!< File handle for the script. Null if we are parsing a string.
+    Token          prev;      //!< Previous token.
+    Token          curr;      //!< Current token.
+    Token          next;      //!< Next token.
 };
 
 // Parser //////////////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ public:
     CompileState* state;
     TokenStream   tstream;
     
-    Parser(CompileState* cs, FILE* yyin);
+    Parser(CompileState* cs, std::ifstream* yyin);
     Parser(CompileState* cs, const char* buffer, size_t len);
     
     ~Parser();

@@ -3,7 +3,6 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
-#include <iostream> // TODO: remove me before release
 
 #define STILL_ITERATING() (!b || NextIteration())
 

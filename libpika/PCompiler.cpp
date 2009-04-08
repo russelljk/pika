@@ -21,9 +21,9 @@ case op:                                                                        
                 {                                                                                    \
                     if (op == OP_div && (res1.val.integer % res2.val.integer != 0))                  \
                     {                                                                                \
-                        preal_t const ra = (preal_t)res1.val.integer;                                    \
-                        preal_t const rb = (preal_t)res2.val.integer;                                    \
-                        res1.Set((preal_t)(ra/rb));                                                    \
+                        preal_t const ra = (preal_t)res1.val.integer;                                \
+                        preal_t const rb = (preal_t)res2.val.integer;                                \
+                        res1.Set((preal_t)(ra/rb));                                                  \
                         prevprev->operand = lp->Add(res1.val.real);                                  \
                     }                                                                                \
                     else                                                                             \
@@ -51,14 +51,14 @@ case op:                                                                        
                 }                                                                                    \
                                                                                                      \
                                                                                                      \
-                Pika_delete(prev);Pika_delete(curr);                                               \
+                Pika_delete(prev);Pika_delete(curr);                                                 \
                 curr = prevprev;                                                                     \
                                                                                                      \
             }                                                                                        \
     }break;
 
 
-#define CONTINUE_FOLD_LOOP()                                                                \
+#define CONTINUE_FOLD_LOOP()  \
     curr = curr->next; continue;
 
 // Folds constant arithmetic|bit operations.

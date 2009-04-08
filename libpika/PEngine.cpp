@@ -25,9 +25,8 @@ String* FindPackageName(Engine* eng, String* path)
         filename++;
         
     if (extension &&
-            (extension > filename) &&
-            ((Pika_strcasecmp(extension, PIKA_EXT) == 0) ||
-             (Pika_strcasecmp(extension, PIKA_EXT_ALT) == 0)))
+        (extension > filename) &&
+        ((Pika_strcasecmp(extension, PIKA_EXT) == 0) || (Pika_strcasecmp(extension, PIKA_EXT_ALT) == 0)))
     {
         return eng->AllocString(filename, extension - filename);
     }
@@ -51,8 +50,7 @@ bool FileHasExt(const char* filename, const char* filext)
     return Pika_strcasecmp(ext, filext) == 0;
 }
 
-namespace pika
-{
+namespace pika {
 
 bool EndsWithSeperator(const char* str, size_t len)
 {
@@ -475,83 +473,90 @@ Script* Engine::Compile(String* name, Context* parent)
     // parse the file
     PutImport(str_dot_name, Value(AllocString("compiling")));
     
-    FILE* yyin = fopen(name->GetBuffer(), "rb");
-    
-    if (!yyin)
-    {
-        return 0;
-    }
-    
-    // create context for this script
-    
-    LiteralPool* literals  = 0;
-    u2 loadindex = 0;
-    
-    // Create the CompileState and Parser, use std::auto_ptr so that they are deleted in-case of exception ot early return.
-    std::auto_ptr<CompileState> compinfo(new CompileState(this));
-    std::auto_ptr<Parser>       parser  (new Parser(compinfo.get(), yyin));
-    
+    std::ifstream yyin;
+    // Try to open the file and create the CompileState + Parser.
     try
-    {
-        Program* tree = parser->DoParse();
-        tree->CalculateResources(0, *compinfo);
+    {        
+        yyin.open(name->GetBuffer());
+        //FILE* yyin = fopen(name->GetBuffer(), "rb");
         
-        if (compinfo->HasErrors())
+        if (!yyin)
         {
-            RaiseException(Exception::ERROR_syntax, "Attempt to compile script %s.\n", name->GetBuffer());
+            return 0;
         }
         
-        tree->GenerateCode();
+        // create context for this script
         
-        if (compinfo->HasErrors())
+        LiteralPool* literals  = 0;
+        u2 loadindex = 0;
+        
+        // Create the CompileState and Parser, use std::auto_ptr so that they are deleted in-case of exception ot early return.
+        std::auto_ptr<CompileState> compinfo(new CompileState(this));
+        
+        Parser* parserptr = new Parser(compinfo.get(), &yyin); // !!! Constructor may throw an exception.
+        std::auto_ptr<Parser> parser(parserptr);
+        
+        // Try to compile the script.
+        try 
         {
-            RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script %s.\n", name->GetBuffer());
+            Program* tree = parser->DoParse();
+            tree->CalculateResources(0, *compinfo);
+            
+            if (compinfo->HasErrors())
+            {
+                RaiseException(Exception::ERROR_syntax, "Attempt to compile script %s.\n", name->GetBuffer());
+            }
+            
+            tree->GenerateCode();
+            
+            if (compinfo->HasErrors())
+            {
+                RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script %s.\n", name->GetBuffer());
+            }
+            
+            loadindex = tree->index;
+            literals = compinfo->literals;
+            
+        }
+        catch (Exception&)
+        {
+            compinfo->SyntaxErrorSummary();            
+            PutImport(str_dot_name, Value(AllocString("invalid")));
+            return 0;
         }
         
-        loadindex = tree->index;
-        literals = compinfo->literals;
+        // Create the Script Object.
+        Script* script = Script::Create(this, str_dot_name, Pkg_World);
+        scripts.Push(script); // Add it to the list.
         
+        // Create an initialize a Context for the Script.
+        // The context will execute the Script's bytecode.
+        Context* context = Context::Create(this, this->Context_Type);
+        context->state = Context::SUSPENDED;
+        
+        Value closure;
+        const Value& f = literals->Get(loadindex); // main fuction for the script.
+        
+        context->package = script;
+        context->prev    = parent;
+        context->DoClosure(f.val.def, closure); // create the closure
+        
+        script->Initialize(literals, context, closure.val.function);
+        
+        // Make sure we don't get GC sweeped the first time around.
+        gc->ForceToGray(script);
+        
+        // Finally place the Script inside the Imports package.
+        PutImport(str_dot_name, Value(script));
+        
+        return script;
     }
     catch (Exception&)
     {
-        compinfo->SyntaxErrorSummary();
-        
-        if (yyin)
-        {
-            fclose(yyin);
-            yyin = 0;
-        }
-        
         PutImport(str_dot_name, Value(AllocString("invalid")));
         return 0;
     }
-    
-    if (yyin)
-    {
-        fclose(yyin);
-        yyin = 0;
-    }
-    
-    Script* script = Script::Create(this, str_dot_name, Pkg_World);
-    scripts.Push(script);
-    
-    Context* context = Context::Create(this, this->Context_Type);
-    context->state = Context::SUSPENDED;
-    
-    Value closure;
-    const Value& f = literals->Get(loadindex);
-    
-    context->package = script;
-    context->prev    = parent;
-    context->DoClosure(f.val.def, closure);
-    
-    script->Initialize(literals, context, closure.val.function);
-    
-    gc->ForceToGray(script);
-    
-    PutImport(str_dot_name, Value(script));
-    
-    return script;
+    return 0;
 }
 
 Script* Engine::Compile(const char* name)

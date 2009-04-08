@@ -83,60 +83,48 @@ struct IScriptStream
   * @note Reads the entire file into a buffer. */
 struct FileScriptStream : IScriptStream
 {
-    FileScriptStream(FILE* fs);
-
+    FileScriptStream(std::ifstream* fs);
     virtual ~FileScriptStream();
 
-    virtual int  Get()   { return pos <= bufferLength ? buffer[pos++] : EOF; }
-    virtual int  Peek()  { return pos <= bufferLength ? buffer[pos] : EOF; }
-    virtual bool IsEof() { return pos > bufferLength; }
+    virtual int  Get();
+    virtual int  Peek();
+    virtual bool IsEof();
 
 private:
     // TODO: move this into tokenizer class so that other streams can use it.
-    void CheckBom()
-    {
-        if (bufferLength >= 3)
-        {
-            // UTF8 BOM
-            u1 x = (u1)buffer[0];
-            u1 y = (u1)buffer[1];
-            u1 z = (u1)buffer[2];
-
-            if ((x == 0xEF && y == 0xBB && z == 0xBF))
-            {
-                pos = 3;
-                return;
-            }
-        }
-    }
-
+    void CheckBom();
+    void CheckGood();
+    
     char*  buffer;
     size_t pos;
     size_t bufferLength;
-    FILE*  stream;
+    std::ifstream* stream;
+};
+
+struct StdinScriptStream : IScriptStream
+{
+    virtual ~StdinScriptStream() {}
+    
+    /** Get and return the current character in the stream. 
+      * The position of the stream should move to the next character before this method returns. */
+    virtual int  Get();
+
+    /** Get and return the next character in the stream. */
+    virtual int  Peek();
+    
+    /** Returns true if we have reached the end of the stream. */
+    virtual bool IsEof();
 };
 
 /** String based input stream. */
 struct StringScriptStream : IScriptStream
 {
-    StringScriptStream(const char* buf, size_t len) 
-        : buffer(0),
-        pos(0),
-        bufferLength(len)
-    {
-        buffer = (char*)Pika_malloc((bufferLength + 1) * sizeof(char));
-        Pika_memcpy(buffer, buf, bufferLength);
-        buffer[bufferLength] = EOF;
-    }
-
-    virtual ~StringScriptStream()
-    {
-        Pika_free(buffer);
-    }
-
-    virtual int  Get()   { return pos <= bufferLength ? buffer[pos++] : EOF; }
-    virtual int  Peek()  { return pos <= bufferLength ? buffer[pos]   : EOF; }
-    virtual bool IsEof() { return pos > bufferLength; }
+    StringScriptStream(const char* buf, size_t len);
+    virtual ~StringScriptStream();
+    
+    virtual int  Get();
+    virtual int  Peek();
+    virtual bool IsEof();
 
 private:
     char*  buffer;
@@ -148,7 +136,7 @@ private:
 class Tokenizer
 {
 public:
-    Tokenizer(CompileState*, FILE* stream);
+    Tokenizer(CompileState*, std::ifstream* stream);
     Tokenizer(CompileState*, const char* buf, size_t len);
 
     virtual ~Tokenizer();
