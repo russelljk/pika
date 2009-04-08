@@ -1,6 +1,6 @@
 /*
  * PlatRE.h
- *  See Copyright Notice in Pika.h
+ *  See Copyright Notice in PRegExp.h
  */
 #ifndef PLATRE_HEADER
 #define PLATRE_HEADER

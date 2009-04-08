@@ -1,6 +1,6 @@
 /*
  *  PlatRE.cpp
- *  See Copyright Notice in Pika.h
+ *  See Copyright Notice in PRegExp.h
  */
 #include "Pika.h"
 #include "PlatRE.h"
