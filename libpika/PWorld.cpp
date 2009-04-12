@@ -792,7 +792,7 @@ public:
     
     static void onNew(Engine* eng, Type* type, Value& res);
     virtual ~GCPause() { if (isPaused) { engine->GetGC()->Resume(); } }
-    
+    virtual bool Finalize() { UnPause(); return true; }
     bool isPaused;
 };
 

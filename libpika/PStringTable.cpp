@@ -14,29 +14,79 @@ PIKA_FORCE_INLINE bool Pika_strsame(const char* a, size_t lena, const char* b, s
     return lena == lenb && StrCmpWithSize(a, b, lena) == 0;
 }
 
-StringTable::StringTable(Engine* eng) : engine(eng)
+StringTable::StringTable(Engine* eng) : size(ENTRY_SIZE), count(0), engine(eng)
 {
-    Clear();
+    entries = (String**)Pika_calloc(size, sizeof(String*));    
 }
 
 StringTable::~StringTable()
 {
-    SweepAll();
+    if (entries)
+    {
+        SweepAll();
+        Pika_free(entries);
+        entries = 0;
+    }
 }
 
 void StringTable::Clear()
 {
-    Pika_memzero(Slots, sizeof(String*) * ENTRY_SIZE);
+    Pika_memzero(entries, sizeof(String*) * size);
+}
+
+static size_t const MAX_STRTABLE_SIZE  = GetMaxSize<String*>() / 8;
+
+void StringTable::Grow()
+{
+    size_t nsize = size << 1;
+
+    if (nsize < size ||             // Addition over-flow or
+        nsize >= MAX_STRTABLE_SIZE) // Bigger than max size allowed
+    {
+        nsize = MAX_STRTABLE_SIZE;
+    }
+    
+    size_t oldSize  = size;
+    String** oldEntries = entries;
+    
+    size  = nsize;
+    entries = (String**)Pika_calloc(size, sizeof(String*));
+    
+    if (!entries)
+    {
+        size  = oldSize;
+        entries = oldEntries;
+
+        RaiseException("StringTable::Grow memory allocation failed.");
+    }
+    
+    for (size_t i = 0; i < oldSize; i++)
+    {
+        String* current = oldEntries[i];
+
+        while (current)
+        {
+            String* next = current->next;
+
+            size_t hashcode = current->GetHashCode() & (size - 1);
+
+            current->next = entries[hashcode];
+            entries[hashcode] = current;
+
+            current = next;
+        }
+    }
+    Pika_free(oldEntries);
 }
 
 void StringTable::SweepAll()
 {
-    for (size_t i = 0; i < ENTRY_SIZE; i++)
+    for (size_t i = 0; i < size; i++)
     {
         String* curr = 0;
         String* next = 0;
 
-        curr = Slots[i];
+        curr = entries[i];
 
         while (curr)
         {
@@ -50,10 +100,10 @@ void StringTable::SweepAll()
 
 void StringTable::Sweep()
 {
-    for (size_t i = 0; i < ENTRY_SIZE; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        String*  curr =  Slots[i];
-        String** ptrto = &Slots[i];
+        String*  curr =  entries[i];
+        String** ptrto = &entries[i];
 
         while (curr)
         {
@@ -74,7 +124,7 @@ void StringTable::Sweep()
 
 String* StringTable::Get(const char *cstr)
 {
-    return Get( cstr, strlen( cstr ) );
+    return Get(cstr, strlen( cstr ));
 }
 
 String* StringTable::Get(const char* cstr, size_t len)
@@ -83,25 +133,29 @@ String* StringTable::Get(const char* cstr, size_t len)
     {
         RaiseException("Attempt to create a string of length "SIZE_T_FMT" (max string length %d).", len, PIKA_STRING_MAX_LEN);
     }
-
-    size_t i;
-    String* s;
-    i = Pika_strhash(cstr, len) & (ENTRY_SIZE - 1);
-
-    for (s = Slots[i]; s; s = (String*)s->next)
+    size_t strhash = Pika_strhash(cstr, len);
+    size_t hashcode = strhash & (size - 1);
+    
+    for (String* s = entries[hashcode]; s; s = (String*)s->next)
     {
         if (Pika_strsame(cstr, len, s->buffer, s->length))
         {
-            if (s->gcflags & GCObject::ReadyToCollect) // Is it a dead string?
-                s->gcflags = s->gcflags & ~GCObject::ReadyToCollect; // ... Then revive it.
+            if (s->gcflags & GCObject::ReadyToCollect)               // If its a dead string ...
+                s->gcflags = s->gcflags & ~GCObject::ReadyToCollect; // ... then revive it.
             return s;
         }
     }
-
-    s = String::Create(engine, cstr, len);
-    s->next = Slots[i];
-    Slots[i] = s;
-    return s;
+    
+    if ((size < MAX_STRTABLE_SIZE) && (count > (size << 1)))
+    {
+        Grow();
+        hashcode = strhash & (size - 1);
+    }
+    ++count;
+    String* newstr = String::Create(engine, cstr, len);
+    newstr->next = entries[hashcode];
+    entries[hashcode] = newstr;
+    return newstr;
 }
 
 }//pika

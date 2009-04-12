@@ -23,13 +23,17 @@ public:
     String* Get(const char*, size_t);
 private:
     friend class Engine;
-
+    
+    void Grow();
+    
     void Sweep();
     void SweepAll();
 
     void Clear();
-
-    String* Slots[ENTRY_SIZE];
+    
+    size_t size;
+    size_t count;
+    String** entries;
     Engine* engine;
 };
 
