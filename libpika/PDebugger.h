@@ -24,10 +24,10 @@ public:
 
     virtual void MarkRefs(Collector*);
 
-    void SetLineCallback(Nullable<Function*> fn);
-    void OnInstruction(Context* ctx, code_t* pc, Function* fn);
+    void SetLineCB(Nullable<Function*> fn);
+    void OnInstr(Context* ctx, code_t* pc, Function* fn);
 
-    String* GetInstruction();
+    String* GetInstr();
 
     void   Start();
     void   Quit();

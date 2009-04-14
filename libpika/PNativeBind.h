@@ -274,7 +274,7 @@ struct SlotBinder
     SlotBinder& Internal(AType val, const char* propName)
     {
         String* name = engine->AllocString(propName);
-        object->SetSlot(name, val, Slot::ATTR_internal);
+        object->SetSlot(name, val, Slot::ATTR_internal | Slot::ATTR_forcewrite);
         return *this;
     }
     
