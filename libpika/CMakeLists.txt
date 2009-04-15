@@ -94,6 +94,15 @@ add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
 
 target_link_libraries (pika ${ADD_LIBS})
 
-INSTALL(TARGETS pika
-	LIBRARY DESTINATION lib
-)
+set (pika_LIB_VERSION_MAJOR "0")
+set (pika_LIB_VERSION_MINOR "1")
+
+set (GENERIC_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}")
+
+# what about SOVERSION
+set_target_properties(pika PROPERTIES VERSION ${GENERIC_LIB_VERSION})
+
+install(FILES ${pika_LIB_HEADERS} DESTINATION include/Pika)
+
+install (TARGETS pika
+	 LIBRARY DESTINATION lib)
