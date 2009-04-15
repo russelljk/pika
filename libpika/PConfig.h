@@ -20,7 +20,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include "config.h"
+#include "pika_config.h"
 
 #if defined(HAVE_STRINGS_H)
 #   include <strings.h>

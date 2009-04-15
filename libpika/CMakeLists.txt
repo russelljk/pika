@@ -71,13 +71,13 @@ check_function_exists (strtok_s HAVE_STRTOK_S)
 
 #--------------------- Generate config.h -----------------------
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/pika_config.h)
 
 #---------------------- Target Files --------------------------
 
 set (pika_LIB_SRCS PArray.cpp PAst.cpp PBasic.cpp PByteArray.cpp PClassInfo.cpp PCollector.cpp PCompiler.cpp PContext.cpp PDebugger.cpp PDef.cpp PEngine.cpp PEnumerator.cpp PError.cpp PFile.cpp PFunction.cpp PGenCode.cpp PHooks.cpp Pika.cpp PImport.cpp PLiteralPool.cpp PLocalsObject.cpp PMemory.cpp PMemPool.cpp PModule.cpp PNativeBind.cpp PNativeMethod.cpp PObject.cpp POpcode.cpp PPackage.cpp PParser.cpp PPlatform.cpp PProperty.cpp PRandom.cpp PScript.cpp PString.cpp PStringTable.cpp PSymbolTable.cpp PSystemLib.cpp PTable.cpp PTokenizer.cpp PType.cpp PUserData.cpp PValue.cpp PValueEnumerator.cpp PWorld.cpp)
 
-set (pika_LIB_HEADERS config.h PArray.h PAst.h PBasic.h PBuffer.h PByteArray.h PByteOrder.h PClassInfo.h PCollector.h PCompiler.h PConfig.h PContext.h PContext_Ops.inl PContext_Ops_Arith.inl PContext_Ops_Call.inl PContext_Ops_Std.inl PContext_Run.inl PDebugger.h PDef.h PEngine.h PEnumerator.h PError.h PFile.h PFunction.h PHooks.h Pika.h PikaSort.h PInstruction.h PLineInfo.h PLiteralPool.h PLocalsObject.h PMemory.h PMemPool.h PModule.h PNativeBind.h PNativeConstMethodDecls.h PNativeMethod.h PNativeMethodDecls.h PNativeStaticMethodDecls.h PObject.h PObjectEnumerator.h POpcode.def POpcode.h PPackage.h PParser.h PPlatform.h PProfiler.h PProperty.h PRandom.h PScript.h PString.h PStringTable.h PSymbolTable.h PTable.h PToken.def PTokenDef.h PTokenizer.h PType.h PUserData.h PUtil.h PValue.h PValueEnumerator.h)
+set (pika_LIB_HEADERS pika_config.h PArray.h PAst.h PBasic.h PBuffer.h PByteArray.h PByteOrder.h PClassInfo.h PCollector.h PCompiler.h PConfig.h PContext.h PContext_Ops.inl PContext_Ops_Arith.inl PContext_Ops_Call.inl PContext_Ops_Std.inl PContext_Run.inl PDebugger.h PDef.h PEngine.h PEnumerator.h PError.h PFile.h PFunction.h PHooks.h Pika.h PikaSort.h PInstruction.h PLineInfo.h PLiteralPool.h PLocalsObject.h PMemory.h PMemPool.h PModule.h PNativeBind.h PNativeConstMethodDecls.h PNativeMethod.h PNativeMethodDecls.h PNativeStaticMethodDecls.h PObject.h PObjectEnumerator.h POpcode.def POpcode.h PPackage.h PParser.h PPlatform.h PProfiler.h PProperty.h PRandom.h PScript.h PString.h PStringTable.h PSymbolTable.h PTable.h PToken.def PTokenDef.h PTokenizer.h PType.h PUserData.h PUtil.h PValue.h PValueEnumerator.h)
 
 if (WIN32)
     set (pika_LIB_SRCS ${pika_LIB_SRCS} PPlatformWin32.cpp)
