@@ -626,7 +626,7 @@ Instr* IdExpr::GenerateCodeSet()
     
     if (IsOuter())
     {
-        oc = OP_setouter;
+        oc = OP_setlexical;
     }
     else if (IsLocal())
     {

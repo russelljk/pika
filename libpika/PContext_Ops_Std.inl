@@ -2,15 +2,22 @@
  *  PContext_Ops_Std.inl
  *  See Copyright Notice in Pika.h
  */
+/*
+ * Does nothing.
+ */
 PIKA_OPCODE(OP_nop)
 PIKA_NEXT()
-
+/*
+ * Duplicates the top-most element of the stack.
+ */
 PIKA_OPCODE(OP_dup)
 {
     Push(Top());
 }
 PIKA_NEXT()
-
+/*
+ * Swaps the two top-most elements on the stack.
+ */
 PIKA_OPCODE(OP_swap)
 {
     Value& vTop0 = Top();
@@ -18,14 +25,18 @@ PIKA_OPCODE(OP_swap)
     Swap(vTop0, vTop1);
 }
 PIKA_NEXT()
-
+/*
+ * Jumps to a certain position unconditionally.
+ */
 PIKA_OPCODE(OP_jump)
 {
     u2 jmppos = GetShortOperand(instr);
     pc = closure->GetBytecode() + jmppos;
 }
 PIKA_NEXT()
-
+/*
+ * Jumps to a certain position if an expression evaluates to false.
+ */
 PIKA_OPCODE(OP_jumpiffalse)
 {
     Value& t = PopTop();
@@ -44,7 +55,9 @@ PIKA_OPCODE(OP_jumpiffalse)
     }
 }
 PIKA_NEXT()
-
+/*
+ * Jumps to a certain position if an expression evaluates to true.
+ */
 PIKA_OPCODE(OP_jumpiftrue)
 {
     Value& t = PopTop();
@@ -63,7 +76,9 @@ PIKA_OPCODE(OP_jumpiftrue)
     }
 }
 PIKA_NEXT()
-
+/*
+ * Raises an exception if an expression evaluates to false.
+ */
 PIKA_OPCODE(OP_assert)
 {
     Value& t  = PopTop();
@@ -83,20 +98,24 @@ PIKA_OPCODE(OP_assert)
     }
 }
 PIKA_NEXT()
-
+/*
+ * Pushes null onto the stack.
+ */
 PIKA_OPCODE(OP_pushnull)
 {
     PushNull();
 }
 PIKA_NEXT()
-
+/*
+ * Pushes the current self object onto the stack.
+ */
 PIKA_OPCODE(OP_pushself)
 {
     Push(self);
 }
 PIKA_NEXT()
 /*
- * OP_pushtrue ------------------------------------------------------------------------------------
+ * Pushes the Boolean value true onto the stack.
  */
 PIKA_OPCODE(OP_pushtrue)
 {
@@ -104,38 +123,37 @@ PIKA_OPCODE(OP_pushtrue)
 }
 PIKA_NEXT()
 /*
- * OP_pushfalse -----------------------------------------------------------------------------------
+ * Pushes the Boolean value false onto the stack.
  */
 PIKA_OPCODE(OP_pushfalse)
 {
     PushFalse();
 }
 PIKA_NEXT()
-/*
- * Gets a literal|constant variable.
- */
-PIKA_OPCODE(OP_pushliteral0) Push(closure->GetLiteral(0)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushliteral1) Push(closure->GetLiteral(1)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushliteral2) Push(closure->GetLiteral(2)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushliteral3) Push(closure->GetLiteral(3)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushliteral4) Push(closure->GetLiteral(4)); PIKA_NEXT()
 
+PIKA_OPCODE(OP_pushliteral0) Push(closure->GetLiteral(0)); PIKA_NEXT() // The 0th indexed literal is pushed onto the stack.
+PIKA_OPCODE(OP_pushliteral1) Push(closure->GetLiteral(1)); PIKA_NEXT() // ... 1st ...
+PIKA_OPCODE(OP_pushliteral2) Push(closure->GetLiteral(2)); PIKA_NEXT() // ... 2nd ...
+PIKA_OPCODE(OP_pushliteral3) Push(closure->GetLiteral(3)); PIKA_NEXT() // ... 3rd ...
+PIKA_OPCODE(OP_pushliteral4) Push(closure->GetLiteral(4)); PIKA_NEXT() // ... 4th ...
+/*
+ * The Nth indexed literal is pushed onto the stack.
+ */
 PIKA_OPCODE(OP_pushliteral)
 {
     u2 index = GetShortOperand(instr);
     Push(closure->GetLiteral(index));
 }
 PIKA_NEXT()
-/*
- * Gets a local variable from the
- * current function call.
- */
-PIKA_OPCODE(OP_pushlocal0) Push(GetLocal(0)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushlocal1) Push(GetLocal(1)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushlocal2) Push(GetLocal(2)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushlocal3) Push(GetLocal(3)); PIKA_NEXT()
-PIKA_OPCODE(OP_pushlocal4) Push(GetLocal(4)); PIKA_NEXT()
 
+PIKA_OPCODE(OP_pushlocal0) Push(GetLocal(0)); PIKA_NEXT() // The 0th indexed local variable is pushed onto the stack.
+PIKA_OPCODE(OP_pushlocal1) Push(GetLocal(1)); PIKA_NEXT() // ... 1st ...
+PIKA_OPCODE(OP_pushlocal2) Push(GetLocal(2)); PIKA_NEXT() // ... 2nd ...
+PIKA_OPCODE(OP_pushlocal3) Push(GetLocal(3)); PIKA_NEXT() // ... 3rd ...
+PIKA_OPCODE(OP_pushlocal4) Push(GetLocal(4)); PIKA_NEXT() // ... 4th ...
+/*
+ * The Nth indexed local variable is pushed onto the stack.
+ */
 PIKA_OPCODE(OP_pushlocal)
 {
     u2 index = GetShortOperand(instr);
@@ -143,8 +161,7 @@ PIKA_OPCODE(OP_pushlocal)
 }
 PIKA_NEXT()
 /*
- * Gets a global variable from the
- * current package.
+ * Gets a global variable from the current package and pushes it onto the stack.
  */
 PIKA_OPCODE(OP_pushglobal)
 {
@@ -208,8 +225,7 @@ PIKA_OPCODE(OP_pushmember)
 }
 PIKA_NEXT()
 /*
- * Gets a local variable from a
- * previous|outer function call.
+ * Gets a bound local variable from a parent function's environment.
  */
 PIKA_OPCODE(OP_pushlexical)
 {
@@ -303,7 +319,7 @@ PIKA_NEXT()
  * Sets a local variable from a
  * previous|outer function call.
  */
-PIKA_OPCODE(OP_setouter)
+PIKA_OPCODE(OP_setlexical)
 {
     Value& t = PopTop();
     u1 depth = GetByteOperand(instr);

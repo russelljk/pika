@@ -4,8 +4,7 @@
  */
 #include "Pika.h"
 #include "PikaSort.h"
-#include <algorithm>
-#include <vector>
+
 /*
 classes:
     pika::ArrayEnumerator
@@ -436,12 +435,17 @@ Array* Array::Sort(Value fn)
 {
     Context* ctx = engine->GetActiveContextSafe();
     
+    // keep the value GC safe (we don't know how this method is called).
+    ctx->Push(fn);
+    
     // We sort using indexers so that modifications to the orignal
     // array will not cause an out of bounds read|write.
     
     pika_sort(elements.iBegin(),
               elements.iEnd(),
               ValueComp(ctx, fn));
+    
+    ctx->Pop();
     return this;
 }
 

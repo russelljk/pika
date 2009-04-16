@@ -174,7 +174,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_setlocal:
     case OP_setglobal:
     case OP_setmember:
-    case OP_setouter:       return -1;
+    case OP_setlexical:       return -1;
     case OP_pop:            return -1;
     case OP_acc:            return -1;
     

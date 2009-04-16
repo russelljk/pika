@@ -3,6 +3,10 @@
  *  See Copyright Notice in PCurses.h
  */
 #include "PCurses.h"
+
+// TODO: Find out what the most common subset of curses is, 
+//       solaris' curses package does not support certain methods + ACS constants.
+
 #if defined(PIKA_WIN)
 
 #include <windows.h>
@@ -210,7 +214,7 @@ int Window_wborder(Context* ctx, Value& self)
 int Window_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
     GETWINDOW(win);                             \
-    pint_t  res = FNNAME(win);                    \
+    pint_t  res = FNNAME(win);                  \
     ctx->Push( res );                           \
     return 1;                                   \
 }
@@ -245,11 +249,11 @@ CURSES_NA_NA(wsyncup)
 int Window_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
     GETWINDOW(win);                             \
-    pint_t  a   = ctx->GetIntArg(0);              \
-    pint_t  b   = ctx->GetIntArg(1);              \
-    pint_t  c   = ctx->GetIntArg(2);              \
-    pint_t  d   = ctx->GetIntArg(3);              \
-    pint_t  res = FNNAME(win, a, b, c, d);        \
+    pint_t  a   = ctx->GetIntArg(0);            \
+    pint_t  b   = ctx->GetIntArg(1);            \
+    pint_t  c   = ctx->GetIntArg(2);            \
+    pint_t  d   = ctx->GetIntArg(3);            \
+    pint_t  res = FNNAME(win, a, b, c, d);      \
     ctx->Push( res );                           \
     return 1;                                   \
 }
@@ -261,9 +265,9 @@ CURSES_IIII_I( mvwhline )
 int Window_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
     GETWINDOW(win);                             \
-    pint_t  a   = ctx->GetIntArg(0);              \
-    pint_t  b   = ctx->GetIntArg(1);              \
-    pint_t  res = FNNAME(win, a, b);              \
+    pint_t  a   = ctx->GetIntArg(0);            \
+    pint_t  b   = ctx->GetIntArg(1);            \
+    pint_t  res = FNNAME(win, a, b);            \
     ctx->Push( res );                           \
     return 1;                                   \
 }
@@ -287,7 +291,7 @@ int Window_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
     GETWINDOW(win);                             \
     bool   b   = ctx->GetBoolArg(0);            \
-    pint_t  res = FNNAME(win, b);                 \
+    pint_t  res = FNNAME(win, b);               \
     ctx->Push( res );                           \
     return 1;                                   \
 }
@@ -319,8 +323,8 @@ CURSES_Z_NA(immedok)
 int Window_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
     GETWINDOW(win);                             \
-    pint_t  a   = ctx->GetIntArg(0);              \
-    pint_t  res = FNNAME(win, a);                 \
+    pint_t  a   = ctx->GetIntArg(0);            \
+    pint_t  res = FNNAME(win, a);               \
     ctx->Push( res );                           \
     return 1;                                   \
 }
@@ -337,7 +341,7 @@ CURSES_I_I(wbkgd)
 int Window_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
     GETWINDOW(win);                             \
-    pint_t  a = ctx->GetIntArg(0);                \
+    pint_t  a = ctx->GetIntArg(0);              \
     FNNAME(win, a);                             \
     return 0;                                   \
 }
@@ -348,8 +352,8 @@ CURSES_I_NA(wbkgdset)
 #define STATIC_I_I(FNNAME)                      \
 int Static_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
-    pint_t  a   = ctx->GetIntArg(0);              \
-    pint_t  res = FNNAME( a );                    \
+    pint_t  a   = ctx->GetIntArg(0);            \
+    pint_t  res = FNNAME( a );                  \
     ctx->Push( res );                           \
     return 1;                                   \
 }
@@ -363,7 +367,7 @@ STATIC_I_I(slk_color)
 #define STATIC_NA_I(FNNAME)                     \
 int Static_##FNNAME(Context* ctx, Value& self)  \
 {                                               \
-    pint_t  res = FNNAME();                       \
+    pint_t  res = FNNAME();                     \
     ctx->Push( res );                           \
     return 1;                                   \
 }

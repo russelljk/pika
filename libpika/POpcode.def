@@ -12,8 +12,8 @@
     DECL_OP( OP_pushnull,       "pushnull",     1, OF_none,     "Pushes null onto the stack." )
     DECL_OP( OP_pushself,       "pushself",     1, OF_none,     "Pushes the current self object onto the stack." )
     
-    DECL_OP( OP_pushtrue,       "pushtrue",     1, OF_none,     "Pushes the true onto the stack." )
-    DECL_OP( OP_pushfalse,      "pushfalse",    1, OF_none,     "Pushes the false onto the stack." )
+    DECL_OP( OP_pushtrue,       "pushtrue",     1, OF_none,     "Pushes the value true onto the stack." )
+    DECL_OP( OP_pushfalse,      "pushfalse",    1, OF_none,     "Pushes the value false onto the stack." )
     
     DECL_OP( OP_pushliteral0,   "pushliteral0", 1, OF_none,     "Pushes the literal at index 0 onto the stack." )
     DECL_OP( OP_pushliteral1,   "pushliteral1", 1, OF_none,     "Pushes the literal at index 1 onto the stack." )
@@ -31,7 +31,7 @@
 
     DECL_OP( OP_pushglobal,     "pushglobal",   3, OF_w,        "Pushes a global variable with a given name onto the stack." )
     DECL_OP( OP_pushmember,     "pushmember",   3, OF_w,        "Pushes a member variable with a given name onto the stack." )
-    DECL_OP( OP_pushlexical,    "pushlexical",  4, OF_bw,       "Pushes a lexical variable at a given depth and index onto the stack." )
+    DECL_OP( OP_pushlexical,    "pushlexical",  4, OF_bw,       "Pushes a lexical variable at a given (depth, index) onto the stack." )
 
     DECL_OP( OP_setlocal0,      "setlocal0",    1, OF_none,     "Set the local variable at index 0 with the value currently on top of the stack." )
     DECL_OP( OP_setlocal1,      "setlocal1",    1, OF_none,     "Set the local variable at index 1 with the value currently on top of the stack." )
@@ -42,7 +42,7 @@
 
     DECL_OP( OP_setglobal,      "setglobal",    3, OF_w,        "" )
     DECL_OP( OP_setmember,      "setmember",    3, OF_w,        "" )
-    DECL_OP( OP_setouter,       "setouter",     4, OF_bw,       "" )
+    DECL_OP( OP_setlexical,     "setlexical",   4, OF_bw,       "Sets a lexical variable at a given (depth, index) with the value currently on top of the stack." )
 
     DECL_OP( OP_pop,            "pop",          1, OF_none,     "" )
     DECL_OP( OP_acc,            "acc",          1, OF_none,     "" )

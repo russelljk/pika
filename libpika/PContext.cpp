@@ -377,10 +377,6 @@ void Context::GrowStack(size_t min_amt)
     
     // All previous activation's need their lexEnv set to the new stack pointer,
     // otherwise they might point to a invalid block of memory.
-    //
-    // TODO { What about closures formed before grow stack and then returned
-    //        from the parent's function afterwards. We need to test this
-    //        situtation. }
     
     for (ScopeIter currap = scopesBeg; currap < scopesTop; ++currap)
     {
@@ -1434,7 +1430,7 @@ void Context::OpDotSet(int& numcalls, Opcode oc)
     {
         // Call the opSet override method if present.
         
-        if (oc != OP_setglobal && obj.tag == TAG_object)
+        if (obj.tag == TAG_object)
         {
             Value setfn;
             setfn.SetNull();
@@ -1536,8 +1532,6 @@ void Context::OpDotSet(int& numcalls, Opcode oc)
 // as needed. Depending on the object in question, a missing member may
 // cause an exception.
 
-// TODO: remove OP_pushglobal
-
 void Context::OpDotGet(int& numcalls, Opcode oc)
 {
     // [ ...      ]
@@ -1632,45 +1626,31 @@ void Context::OpDotGet(int& numcalls, Opcode oc)
         Basic* basic = obj.val.basic;
         if (!basic->GetSlot(prop, res))
         {
-            if (oc == OP_pushglobal)
+            if (obj.tag == TAG_object)
             {
-#   if PIKA_GLOBALS_MUST_EXIST
-                res.SetNull();
-#   else
-                ReportRuntimeError(Exception::ERROR_runtime,
-                                   "Attempt to read missing global variable '%s'.",
-                                   engine->ToString(this, prop)->GetBuffer());
-                return;
-#   endif
-            }
-            else
-            {
-                if (obj.tag == TAG_object)
+                Value getfn;
+                getfn.SetNull();
+                
+                if (GetOverrideFrom(engine, obj.val.object, OVR_get, getfn))
                 {
-                    Value getfn;
-                    getfn.SetNull();
-                    
-                    if (GetOverrideFrom(engine, obj.val.object, OVR_get, getfn))
+                    Swap(prop, obj);
+                    Push(getfn);
+                    if (SetupCall(1))
                     {
-                        Swap(prop, obj);
-                        Push(getfn);
-                        if (SetupCall(1))
-                        {
-                            ++numcalls;
-                        }
-                        return;
+                        ++numcalls;
                     }
+                    return;
                 }
-#   if defined( PIKA_ALLOW_MISSING_SLOTS )
-                res.SetNull();
-#   else
-                ReportRuntimeError(Exception::ERROR_runtime,
-                                   "Attempt to read missing member '%s' of '%s'.",
-                                   engine->ToString(this, prop)->GetBuffer(),
-                                   engine->ToString(this, obj)->GetBuffer());
-#   endif
-                return;
             }
+#   if defined( PIKA_ALLOW_MISSING_SLOTS )
+            res.SetNull();
+#   else
+            ReportRuntimeError(Exception::ERROR_runtime,
+                               "Attempt to read missing member '%s' of '%s'.",
+                               engine->ToString(this, prop)->GetBuffer(),
+                               engine->ToString(this, obj)->GetBuffer());
+#   endif
+            return;
         }
     }
     

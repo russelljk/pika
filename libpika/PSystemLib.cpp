@@ -26,11 +26,6 @@ extern void InitRandomAPI(Package*, Engine* eng);
 #define PIKA_SQRT2      ((preal_t) 1.41421356237309504880168872420969808  )
 
 // OS.Sleep ///////////////////////////////////////////////////////////////////////////////////////
-//
-// TODO: sys.sleep: We should offer a version where amt is a Real measured in seconds.
-//       ie: pint_t ms = (pint_t)(amt * 1000.0)
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static int OS_sleep(Context* ctx, Value&)
 {
