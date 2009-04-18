@@ -100,7 +100,8 @@ set (pika_LIB_VERSION_MINOR "1")
 set (GENERIC_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}")
 
 # what about SOVERSION
-set_target_properties(pika PROPERTIES VERSION ${GENERIC_LIB_VERSION})
+set_target_properties(pika PROPERTIES VERSION ${GENERIC_LIB_VERSION}
+                                      SOVERSION ${GENERIC_LIB_VERSION})
 
 install(FILES ${pika_LIB_HEADERS} DESTINATION include/Pika)
 
