@@ -503,6 +503,21 @@ INLINE T* Context::GetArgT(u2 arg)
 
 bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res);
 
+struct PIKA_API SafeValue
+{
+    INLINE SafeValue(Context* ctx, Value val) : context(ctx)
+    {
+        context->Push(val);
+    }
+    
+    INLINE ~SafeValue()
+    {
+        context->Pop();
+    }
+    
+    Context* context;
+};
+
 }//pika
 
 #endif

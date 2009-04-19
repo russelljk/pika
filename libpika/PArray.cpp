@@ -5,13 +5,9 @@
 #include "Pika.h"
 #include "PikaSort.h"
 
-/*
-classes:
-    pika::ArrayEnumerator
-    pika::ValueComp
-*/
-namespace pika
-{
+namespace pika {
+
+PIKA_IMPL(Array)
 
 class ArrayEnumerator : public Enumerator
 {
@@ -22,7 +18,7 @@ public:
             indexes(indexes),
             owner(owner),
             curr(0) {}
-            
+    
     virtual ~ArrayEnumerator() {}
     
     virtual bool Rewind()
@@ -78,9 +74,55 @@ public:
     size_t curr;
 };
 
-// Array ///////////////////////////////////////////////////////////////////////////////////////////
-
-PIKA_IMPL(Array)
+/** A User-defined binary-comparison Functor. */
+struct ValueComp
+{    
+    ValueComp(Context* ctx, Value comp)
+            : context(ctx),
+            comparison_func(comp) {}
+    
+    ValueComp(const ValueComp& rhs)
+            : context(rhs.context), comparison_func(rhs.comparison_func) {}
+    
+    ~ValueComp() {}
+    
+    ValueComp& operator=(const ValueComp& rhs)
+    {
+        if (this != &rhs)
+        {
+            context = rhs.context;
+            comparison_func  = rhs.comparison_func;
+        }
+        return *this;
+    }
+    
+    bool operator()(const Value& l, const Value& r)
+    {
+        Engine* eng = context->GetEngine();
+        
+        context->CheckStackSpace(4);    // 2 arguments + self + function = 4
+        context->Push(l);               // Left  operand
+        context->Push(r);               // Right operand
+        context->PushNull();            // Self  object
+        context->Push(comparison_func); // Comp  function
+        
+        if (context->SetupCall(2))
+        {
+            // call the function
+            context->Run();
+        }
+        // convert the return value to boolean.
+        
+        Value& res   = context->Top();
+        bool   bcomp = eng->ToBoolean(context, res);
+        
+        context->Pop();
+        return bcomp;
+    }
+    
+    Context*  context;
+    Value comparison_func;  // Comparison Function
+};
 
 bool Array::GetSlot(const Value& key, Value& res)
 {
@@ -152,6 +194,7 @@ size_t Array::GetMax()
     return Min<size_t>(PIKA_BUFFER_MAX_LEN, GetMaxSize<Value>());
 }
 
+/** Set the new size of the array. */
 void Array::SetLength(ssize_t slen)
 {
     if (slen < 0)
@@ -172,6 +215,7 @@ void Array::SetLength(ssize_t slen)
         elements[oldlen + i].SetNull();
 }
 
+/** Add an element to the front of the array. */
 Array* Array::Unshift(Value& v)
 {
     if (elements.GetSize() >= GetMax())
@@ -186,6 +230,7 @@ Array* Array::Unshift(Value& v)
     return this;
 }
 
+/** Converts the array into a string, formatted as an array literal. */
 String* Array::ToString()
 {
     GCPAUSE_NORUN(engine);
@@ -200,17 +245,27 @@ String* Array::ToString()
         String* res = 0;
         if (elements[i].IsDerivedFrom(Array::StaticGetClass()))
         {
+            // An array this could lead to an infinite loop, so just print ellipsis.
             res = engine->AllocString("[...]");
         }
         else if (elements[i].IsObject())
         {
+            // Same danger as an array can occur if the Object and this Array have a cyclical references.
             res = engine->AllocStringFmt("{%s instance:%p}", elements[i].val.object->GetType()->GetName()->GetBuffer(), elements[i].val.object);
         }
         else
         {
+            // Its a non object value.
+            // TODO: It is possible that a UserData object could hold reference to this Array.
             res = engine->ToString(ctx, elements[i]);
         }
-        curr = String::ConcatSpace(curr, res);
+        
+        if (res)
+        {
+            curr = String::ConcatSpace(curr, res);
+        }
+        
+        // Add a comma if this is not the last element.
         if (i + 1 != len)
             curr = String::Concat(curr, comma);
     }
@@ -218,7 +273,7 @@ String* Array::ToString()
     curr = String::ConcatSpace(curr, end);
     return curr;
 }
-
+/** Removes and returns the first element. */
 Value Array::Shift()
 {
     size_t len = elements.GetSize();
@@ -243,23 +298,26 @@ Value Array::Shift()
 
 bool Array::Empty() const { return elements.GetSize() == 0; }
 
+/** Add an element to the back of the array. */
 Array* Array::Push(Value& v)
 {
     if (elements.GetSize() >= GetMax())
     {
-        RaiseException("cannot add more elements to the array");
+        RaiseException("Cannot add more elements to the array");
     }
     WriteBarrier(v);
     elements.Push(v);
     return this;
 }
 
+/** Reverse the elements in the array. */
 Array* Array::Reverse()
 {
     std::reverse(elements.Begin(), elements.End());
     return this;
 }
 
+/** Removes and returns the last element. */
 Value Array::Pop()
 {
     size_t len = elements.GetSize();
@@ -272,7 +330,7 @@ Value Array::Pop()
     }
     else
     {
-        RaiseException("cannot remove elements from an empty array");
+        RaiseException("Cannot remove elements from an empty array");
     }
     return v;
 }
@@ -325,7 +383,7 @@ void Array::Init(Context* ctx)
         }
         else
         {
-            RaiseException("cannot create a Array with negative length\n");
+            RaiseException("Cannot create a Array with negative length\n");
         }
     }
     else if (argc != 0)
@@ -334,6 +392,7 @@ void Array::Init(Context* ctx)
     }
 }
 
+/** Returns a subset from this array. */
 Array* Array::Slice(pint_t from, pint_t to)
 {
     Engine::CollectorPause gcp(engine);
@@ -359,6 +418,7 @@ Array* Array::Slice(pint_t from, pint_t to)
     return res;
 }
 
+/** Performs the given function on each element. */
 Array* Array::Map(Value m)
 {
     Context* ctx = engine->GetActiveContextSafe();
@@ -381,56 +441,7 @@ Array* Array::Map(Value m)
     return this;
 }
 
-/** A User-defined binary-comparison Functor. */
-struct ValueComp
-{    
-    ValueComp(Context* ctx, Value comp)
-            : context(ctx),
-            comparison_func(comp) {}
-    
-    ValueComp(const ValueComp& rhs)
-            : context(rhs.context), comparison_func(rhs.comparison_func) {}
-    
-    ~ValueComp() {}
-    
-    ValueComp& operator=(const ValueComp& rhs)
-    {
-        if (this != &rhs)
-        {
-            context = rhs.context;
-            comparison_func  = rhs.comparison_func;
-        }
-        return *this;
-    }
-    
-    bool operator()(const Value& l, const Value& r)
-    {
-        Engine* eng = context->GetEngine();
-        
-        context->CheckStackSpace(4);    // 2 arguments + self + function = 4
-        context->Push(l);               // Left  operand
-        context->Push(r);               // Right operand
-        context->PushNull();            // Self  object
-        context->Push(comparison_func); // Comp  function
-        
-        if (context->SetupCall(2))
-        {
-            // call the function
-            context->Run();
-        }
-        // convert the return value to boolean.
-        
-        Value& res   = context->Top();
-        bool   bcomp = eng->ToBoolean(context, res);
-        
-        context->Pop();
-        return bcomp;
-    }
-    
-    Context*  context;
-    Value comparison_func;  // Comparison Function
-};
-
+/** Sort the array with given comparison function. */
 Array* Array::Sort(Value fn)
 {
     Context* ctx = engine->GetActiveContextSafe();
@@ -449,14 +460,15 @@ Array* Array::Sort(Value fn)
     return this;
 }
 
+/** Returns an array where all the elements are filtered through a function. */
 Array* Array::Filter(Value fn)
 {
-    Engine::CollectorPause pauser(engine);
+    //Engine::CollectorPause pauser(engine);
     
     Context* ctx = engine->GetActiveContextSafe();
     
     Array* v = Array::Create(engine, 0, 0, 0);
-    
+    SafeValue safe(ctx, v);
     for (size_t i = 0; i < elements.GetSize(); ++i)
     {
         Value val = elements[i];
@@ -480,6 +492,68 @@ Array* Array::Filter(Value fn)
     return v;
 }
 
+Array* Array::TakeWhile(Value fn)
+{   
+    Context* ctx = engine->GetActiveContextSafe();
+    
+    for (size_t i = 0; i < elements.GetSize(); ++i)
+    {
+        Value val = elements[i];
+        ctx->CheckStackSpace(3);
+        ctx->Push(val);
+        ctx->PushNull();
+        ctx->Push(fn);
+        
+        if (ctx->SetupCall(1))
+        {
+            ctx->Run();
+        }
+        Value res = ctx->Top();
+        
+        if (!engine->ToBoolean(ctx, res))
+        {
+            ctx->Pop();
+            return Array::Create(engine, 0, Min<size_t>(i, elements.GetSize()), elements.GetAt(0));
+        }
+        ctx->Pop();
+    }
+    return Array::Create(engine, 0, elements.GetSize(), elements.GetAt(0));
+}
+
+Array* Array::DropWhile(Value fn)
+{
+    Engine::CollectorPause pauser(engine);
+    
+    Context* ctx = engine->GetActiveContextSafe();    
+    
+    for (size_t i = 0; i < elements.GetSize(); ++i)
+    {
+        Value val = elements[i];
+        ctx->CheckStackSpace(3);
+        ctx->Push(val);
+        ctx->PushNull();
+        ctx->Push(fn);
+        
+        if (ctx->SetupCall(1))
+        {
+            ctx->Run();
+        }
+        Value res = ctx->Top();
+        
+        if (!engine->ToBoolean(ctx, res))
+        {
+            size_t amt = elements.GetSize() > i ? elements.GetSize() - i : elements.GetSize();
+            Array* v = Array::Create(engine, engine->Array_Type, amt, this->elements.GetAt(i));
+            return v;
+        }
+        
+        ctx->Pop();
+    }
+    Array* nullv = Array::Create(engine, 0, 0, 0);
+    return nullv;
+}
+
+/** Fold all the elements of the array from right to left. */
 Value Array::Foldr(const Value& init, const Value& fn)
 {
     Context* ctx = engine->GetActiveContextSafe();
@@ -501,6 +575,7 @@ Value Array::Foldr(const Value& init, const Value& fn)
     return ctx->PopTop();
 }
 
+/** Fold all the elements of the array from left to right. */
 Value Array::Fold(const Value& init, const Value& fn)
 {
     Context*  ctx = engine->GetActiveContextSafe();
@@ -522,6 +597,7 @@ Value Array::Fold(const Value& init, const Value& fn)
     return ctx->PopTop();
 }
 
+/** Appends an array to the end of this array. */
 Array* Array::Append(Array* other)
 {
     for (size_t i = 0; i < other->elements.GetSize(); ++i)
@@ -532,6 +608,7 @@ Array* Array::Append(Array* other)
     return this;
 }
 
+/** Returns the element at the given index. */
 Value& Array::At(pint_t idx)
 {
     if (idx < 0 || (size_t)idx >= elements.GetSize())
@@ -555,6 +632,7 @@ Array* Array::Cat(Array* lhs, Array* rhs)
     return res;
 }
 
+/** Concat with this on the right-hand-side. */
 Value Array::CatRhs(Value& lhs)
 {
     GCPAUSE_NORUN(engine);
@@ -582,6 +660,7 @@ Value Array::CatRhs(Value& lhs)
     return res;
 }
 
+/** Concat with this on the left-hand-side. */
 Value Array::CatLhs(Value& rhs)
 {
     GCPAUSE_NORUN(engine);
@@ -653,33 +732,8 @@ void Array_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
-/*
-
-X fold
-scan
-take
-drop
-splitAt
-takeWhile
-dropWhile
-span
-break
-zip
-unzip
-take
-taker
-drop
-dropr
-
-String: lines words unlines unwords reverse
-
-*/
 void InitArrayAPI(Engine* eng)
-{
-    // TODO: Checks that Object.type.subtypes + Package.type + Type.type all have Array type.
-    // Don't Forget about function subclasses { BoundMethod InstanceMethod ClassMethod HookedFunction etc }
-    // Don't Forget about LocalsObject
-    
+{   
     pint_t Array_MAX = Array::GetMax();
     
     SlotBinder<Array>(eng, eng->Array_Type)
@@ -697,6 +751,8 @@ void InitArrayAPI(Engine* eng)
     .Method(&Array::Unshift,    "unshift")
     .Method(&Array::Map,        "map")
     .Method(&Array::Filter,     "filter")
+    .Method(&Array::TakeWhile,  "takeWhile")
+    .Method(&Array::DropWhile,  "dropWhile")
     .Method(&Array::Foldr,      "foldr")
     .Method(&Array::Fold,       "fold")
     .Method(&Array::Sort,       "sort")
