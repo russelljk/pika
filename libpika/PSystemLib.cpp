@@ -354,7 +354,8 @@ static int OS_addSearchPath(Context* ctx, Value&)
     for (size_t a = 0; a < ctx->GetArgCount(); ++a)
     {
         String* path = ctx->GetStringArg(a);
-        eng->AddSearchPath(path);
+        if ( !path->HasNulls() )
+            eng->AddSearchPath(path);
     }
     return 0;
 }

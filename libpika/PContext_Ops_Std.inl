@@ -276,14 +276,14 @@ PIKA_OPCODE(OP_setglobal)
             else
             {
                 ReportRuntimeError(Exception::ERROR_runtime,
-                                   "Attempt to set global property '%s'.",
+                                   "Attempt to set read-only property '%s'.",
                                    engine->ToString(this, name)->GetBuffer());
             }
         }
         else
         {
             ReportRuntimeError(Exception::ERROR_runtime,
-                               "Attempt to set global variable '%s'.",
+                               "Attempt to set variable '%s'.",
                                engine->ToString(this, name)->GetBuffer());
         }
     }

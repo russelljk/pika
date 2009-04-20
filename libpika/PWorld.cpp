@@ -460,20 +460,6 @@ static int Dummy_Print(Context* ctx, Value& self)
     return 0;
 }
 
-static int Dummy_List(Context* ctx, Value& self)
-{
-    u4 argc = ctx->GetArgCount();
-    GCPAUSE(ctx->GetEngine());
-    for (u4 i = 0; i < argc; ++i)
-    {
-        PrintValue(ctx, ctx->GetArg(i));
-        if (i + 1 < argc)
-            std::cout << ", ";
-    }
-    std::cout << std::endl;
-    return 0;
-}
-
 static int Dummy_PrintLn(Context* ctx, Value& self)
 {
     u4 argc = ctx->GetArgCount();
@@ -798,15 +784,13 @@ public:
 
 PIKA_IMPL(GCPause)
 
-
-
 void GCPause::onNew(Engine* eng, Type* type, Value& res)
 {
     GCPause* cp = 0;
     GCNEW(eng, GCPause, cp, (eng, type));
     res.Set(cp);
 }
-    
+
 void Engine::InitializeWorld()
 {
     /* !!! DO NOT RE-ARRANGE WITHOUT CHECKING DEPENDENCIES !!! */
@@ -996,11 +980,9 @@ void Engine::InitializeWorld()
             { "printp",        Dummy_printp,         0, 1, 0 },
             { "sprintp",       Dummy_sprintp,        0, 1, 0 },
             { "print",         Dummy_Print,          0, 1, 0 },
-            { "list",          Dummy_List,           0, 1, 0 },            
             { "println",       Dummy_PrintLn,        0, 1, 0 },
             { "say",           Dummy_PrintLn,        0, 1, 0 },
             { "range",         Global_range,         0, 1, 0 },
-            { "addSearchPath", Global_addSearchPath, 0, 1, 0 },
             { "each",          Global_each,          3, 0, 1 },
         };
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
@@ -1024,18 +1006,17 @@ void Engine::InitializeWorld()
 
         static RegisterFunction Null_ClassMethods[] =
         {
-            { OPNEW_CSTR,   Null_init,      0, 1, 0 },
+            { OPNEW_CSTR,  Null_init, 0, 1, 0 },
         };
-
+        
         Null_Type = Type::Create(this, AllocString("Null"), 0, 0, Pkg_World);
         Null_Type->EnterMethods(Null_Functions, countof(Null_Functions));
-        Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));
-        Pkg_World->SetSlot("Null", Null_Type);
+        Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));        
         Null_Type->SetFinal(true);
         Null_Type->SetAbstract(true);
-        Null_Type->SetType(Type_Type);/// XXX: ????
-        
+        Null_Type->SetType(Type_Type);/// XXX: ????        
         Null_Type->EnterProperties(Value_properties, countof(Value_properties));
+        Pkg_World->SetSlot("Null", Null_Type);
         
         // Boolean /////////////////////////////////////////////////////////////////////////////////////
 
@@ -1046,11 +1027,13 @@ void Engine::InitializeWorld()
             { "toReal",     Boolean_toReal,    0, 0, 0 },
             { "toNumber",   Boolean_toNumber,  0, 0, 0 },
             { "toBoolean",  Boolean_toBoolean, 0, 0, 0 },
-        };          
+        };
+        
         static RegisterFunction Boolean_ClassMethods[] =
         {
             { OPNEW_CSTR,   Boolean_init,      0, 1, 0 },
-        };          
+        };
+        
         Boolean_Type  = Type::Create(this, AllocString("Boolean"), 0, 0, Pkg_World);
         Boolean_Type->EnterMethods(Boolean_Functions, countof(Boolean_Functions));
         Boolean_Type->EnterClassMethods(Boolean_ClassMethods, countof(Boolean_ClassMethods));
@@ -1061,7 +1044,7 @@ void Engine::InitializeWorld()
         Boolean_Type->EnterProperties(Value_properties, countof(Value_properties));        
         
         // Integer ////////////////////////////////////////////////////////////////////////////////
-
+        
         static RegisterFunction Integer_Functions[] =
         {
             { "toString",   Integer_toString,  0, 1, 0 },
@@ -1069,21 +1052,23 @@ void Engine::InitializeWorld()
             { "toReal",     Integer_toReal,    0, 0, 0 },
             { "toNumber",   Integer_toNumber,  0, 0, 0 },
             { "toBoolean",  Integer_toBoolean, 0, 0, 0 },            
-        };        
+        }; 
+        
         static RegisterFunction Integer_ClassMethods[] =
         {
-        { OPNEW_CSTR,       Integer_init,      0, 1, 0 },
-        };        
+            { OPNEW_CSTR, Integer_init, 0, 1, 0 },
+        };   
+        
         Integer_Type  = Type::Create(this, AllocString("Integer"), 0, 0, Pkg_World);
         Integer_Type->EnterMethods(Integer_Functions, countof(Integer_Functions));
         Integer_Type->EnterClassMethods(Integer_ClassMethods, countof(Integer_ClassMethods));
         Integer_Type->EnterProperties(Value_properties, countof(Value_properties));
         Integer_Type->SetSlot("MAX", (pint_t)PINT_MAX);
         Integer_Type->SetSlot("MIN", (pint_t)PINT_MIN);
-        Pkg_World->SetSlot("Integer", Integer_Type);
         Integer_Type->SetFinal(true);
         Integer_Type->SetAbstract(true);
-   
+        Pkg_World->SetSlot("Integer", Integer_Type);
+           
         // Real ///////////////////////////////////////////////////////////////////////////////////
 
         static RegisterFunction Real_Functions[] =
@@ -1096,23 +1081,26 @@ void Engine::InitializeWorld()
             { "nan?",       Real_isnan,     0, 0, 0 },
             // TODO:: Finite? Infinite? SignBit etc...
         };
+        
         static RegisterFunction Real_ClassMethods[] =
         {
             { OPNEW_CSTR,   Real_init,      0, 1, 0 },
         };
+        
         Real_Type  = Type::Create(this, AllocString("Real"), 0, 0, Pkg_World);
         Real_Type->EnterMethods(Real_Functions, countof(Real_Functions));
         Real_Type->EnterClassMethods(Real_ClassMethods, countof(Real_ClassMethods));
-        Pkg_World->SetSlot("Real", Real_Type);
         Real_Type->SetFinal(true);
         Real_Type->SetAbstract(true);
         Real_Type->EnterProperties(Value_properties, countof(Value_properties));        
+        Pkg_World->SetSlot("Real", Real_Type);        
         //----------------------------------------------------------------------------------------------
+        
         Initialize_ImportAPI(this);
                 
         CreateRoots();
         
     }// GCPAUSE
-}// Engine::InitializeWorld
+}// InitializeWorld
 
 }// pika
