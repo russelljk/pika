@@ -1,26 +1,25 @@
-******   incomplete   ******
-****** need to finish *******
+This document will explain how to build and install the Pika library, interpreter and modules from source using the CMake build system.
 
-In order to Pika you must have CMake >= 2.6 installed. If you do not have CMake installed you can download it from its website http://www.cmake.org.
+---------------------------------------------------
+** First Get CMake
 
-libpikacurses - requires a curses compatible library.
-libpikaRegExp - requires PCRE or Posix regular expressions.
+(If CMake verison 2.6 or greater is already installed go to step 1.)
+Go to the CMake home page at http://www.cmake.org and follow the instructions for installing CMake for your platform. If you are using a *nix platform if might be preferable to use the system's package manager.
 
-----------------------------------------------------------------------
+** Now open up the terminal and navigate to the project's root directory.
 
-Inorder to compile pika
+At the terminal type: 
+note: (don't type the > character)
 
-1) make your way to the root folder or the project.
-2) at the command line type:
-   > mkdir build
-   > cd build
-   > cmake ../../pika
-   > make
-   > make install
+> mkdir build && cd build
+> cmake ../../pika
+> make
+> sudo make install
 
-----------------------------------------------------------------------
-   CMake command line arguments
-   
-   -DCURSES_LIBRARIES
-   -DCURSES_INCLUDE_DIR
+The first line creates a directory to house all the build files. This will keep the project and source directory clean. 
 
+The second line invokes CMake at the projects root directory. You define constants for CMake using the -D option (for example '-DPCRE_PATH=/usr/include/'). CMake can also create project files for IDEs such as Xcode, Eclipse and Visual Studio by using the -G option (ie '-G Xcode' creates an Xcode project). Typing cmake --help will list all generators supported on your platform.
+
+The third line builds Pika
+
+The last line will install it
