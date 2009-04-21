@@ -15,8 +15,7 @@
 
 #include "PTokenDef.h"
 
-namespace pika
-{
+namespace pika {
 
 struct CompileState;
 

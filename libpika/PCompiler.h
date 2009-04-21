@@ -8,8 +8,7 @@
 #include "PBuffer.h"
 #include "PInstruction.h"
 
-namespace pika
-{
+namespace pika {
 struct CompileState;
 
 /** Compiles the intermediate representation (aka the Instr class) into bytecode.

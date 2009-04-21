@@ -106,8 +106,7 @@ PIKA_FORCE_INLINE void MarkValues(Collector* c, Value *begin, Value* end)
     }
 }
 
-namespace pika
-{
+namespace pika {
 
 // Enumerates each yielded value for the given Context.
 class ContextEnum : public Enumerator

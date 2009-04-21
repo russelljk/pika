@@ -5,8 +5,7 @@
 #include "Pika.h"
 #include "PByteArray.h"
 
-namespace pika
-{
+namespace pika {
 
 // ByteArrayEnumerator ////////////////////////////////////////////////////////////////////////////////
 

@@ -17,8 +17,7 @@
 #include "PParser.h"
 #include "PAst.h"
 
-namespace pika
-{
+namespace pika {
 
 PIKA_FORCE_INLINE void MarkValues(Collector* c, Value *begin, Value* end)
 {

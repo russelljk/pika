@@ -5,8 +5,7 @@
 #ifndef PIKA_ENUMERATOR_HEADER
 #define PIKA_ENUMERATOR_HEADER
 
-namespace pika
-{
+namespace pika {
 
 /* Enumerator //////////////////////////////////////////////////////////////////////////////////////
  * 

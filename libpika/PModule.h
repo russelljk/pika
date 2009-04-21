@@ -66,6 +66,6 @@ protected:
     intptr_t      handle;    //!< Handle for the module.
 };
 
-}//namespace pika
+}// pika
 
 #endif

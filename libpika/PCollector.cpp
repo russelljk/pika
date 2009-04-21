@@ -6,8 +6,7 @@
 
 #define STILL_ITERATING() (!b || NextIteration())
 
-namespace pika
-{
+namespace pika {
 
 void GCObject::Unlink()
 {

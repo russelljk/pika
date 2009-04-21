@@ -5,8 +5,7 @@
 #ifndef PIKA_BYTEARRAY_HEADER
 #define PIKA_BYTEARRAY_HEADER
 
-namespace pika
-{
+namespace pika {
 /** 
  * A mutable binary string object.
  *
@@ -95,6 +94,6 @@ protected:
     Buffer<u1>  buffer;
 };
 
-}
+}// pika
 
 #endif

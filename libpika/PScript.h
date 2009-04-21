@@ -9,8 +9,7 @@
 #   include "PLiteralPool.h"
 #endif
 
-namespace pika 
-{
+namespace pika {
 // Script
 
 class PIKA_API Script : public Package 

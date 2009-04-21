@@ -5,8 +5,7 @@
 #include "Pika.h"
 #include "POpcode.h"
 
-namespace pika
-{
+namespace pika {
 
 // OpcodeNames /////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,12 +28,12 @@ const char* OpcodeNames[OPCODE_MAX] =
 #define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) XLENGTH,
 
 const int OpcodeLengths[OPCODE_MAX] =
-    {
+{
 #   include "POpcode.def"
-        0,
-        0,
-        0,
-    };
+    0,
+    0,
+    0,
+};
     
 // OpcodeFormats ///////////////////////////////////////////////////////////////////////////////////
 
@@ -79,4 +78,4 @@ void Pika_PrintInstruction(code_t bc)
     }
 }
 
-}
+}// pika

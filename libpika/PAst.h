@@ -26,8 +26,7 @@ do {                                     \
 } while (false)
 #endif //PIKA_NEWNODE
 
-namespace pika
-{
+namespace pika {
 
 class Parser;
 class LiteralPool;

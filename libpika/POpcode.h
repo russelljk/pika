@@ -5,8 +5,7 @@
 #ifndef PIKA_OPCODE_HEADER
 #define PIKA_OPCODE_HEADER
 
-namespace pika 
-{
+namespace pika {
 // grep @OPCODE-LENGTH@ to find places where the opcode length is assumed.
 
 // offset of the comparison operator of a for loop
@@ -173,7 +172,7 @@ extern PIKA_API void Pika_PrintInstruction(code_t bc);
 #define PIKA_GET_SHORTOF(x)     ((x >> 16) & 0xFFFF)
 #define PIKA_GET_BYTEOF(x)      ((x >> 8)  & 0xFF)
 
-}
+}// pika
 
 #endif
 

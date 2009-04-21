@@ -10,8 +10,7 @@
 #   include "PDef.h"
 #endif
 
-namespace pika 
-{
+namespace pika {
 class Def;
 class Function;
 class Package;

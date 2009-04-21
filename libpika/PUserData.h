@@ -5,8 +5,7 @@
 #ifndef PIKA_USERDATA_HEADER
 #define PIKA_USERDATA_HEADER
 
-namespace pika
-{
+namespace pika {
 class UserData;
 
 typedef void (*UserData_fn)  (UserData* ud);

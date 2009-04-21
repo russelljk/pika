@@ -19,8 +19,7 @@
 #   define CLEAR_BITS()
 #endif
 
-namespace pika
-{
+namespace pika {
 
 class String;
 class Def;

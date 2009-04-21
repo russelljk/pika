@@ -35,8 +35,7 @@
 
 ////////////////////////////////////////// Class Hierarchy /////////////////////////////////////////
 
-namespace pika
-{
+namespace pika {
 class ClassInfo;
 class Collector;
 class GCObject;
@@ -62,7 +61,7 @@ class       LexicalEnv;
 class Engine;
 class StringTable;
 class Table;
-}
+}// pika
 using pika::Array;
 using pika::Basic;
 using pika::ClassInfo;

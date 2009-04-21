@@ -9,8 +9,7 @@
 #include "PBuffer.h"
 #endif
 
-namespace pika
-{
+namespace pika {
 
 #if defined(PIKA_DLL) && defined(_WIN32)
 template class PIKA_API Buffer<Value>;

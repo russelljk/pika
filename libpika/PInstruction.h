@@ -7,8 +7,7 @@
 
 #include "POpcode.h"
 
-namespace pika
-{
+namespace pika {
 
 struct TreeNode;
 

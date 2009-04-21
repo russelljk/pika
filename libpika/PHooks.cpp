@@ -8,4 +8,4 @@ namespace pika {
 
 IHook::~IHook() {}
 
-}
+}// pika

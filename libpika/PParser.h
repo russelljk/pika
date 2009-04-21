@@ -8,8 +8,7 @@
 #include "PTokenDef.h"
 #include "PTokenizer.h"
 #include "PAst.h"
-namespace pika
-{
+namespace pika {
 struct Program;
 struct Expr;
 struct ExprList;

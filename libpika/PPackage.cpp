@@ -11,8 +11,7 @@
 #include "PContext.h"
 #include "PNativeBind.h"
 
-namespace pika
-{
+namespace pika {
 
 PIKA_IMPL(Package)
 

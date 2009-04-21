@@ -7,8 +7,7 @@
 #include "PEnumerator.h"
 #include "PValueEnumerator.h"
 #include "PEngine.h"
-namespace pika
-{
+namespace pika {
 
 class RangeEnumerator : public Enumerator
 {
@@ -158,4 +157,4 @@ Enumerator* CreateRangeEnumerator(Engine* eng, pint_t from, pint_t to, pint_t st
     return re;
 }
 
-}
+}// pika

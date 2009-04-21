@@ -8,8 +8,7 @@
 #include "PParser.h"
 #include "PInstruction.h"
 
-namespace pika
-{
+namespace pika {
 
 /* Returns true if the token 'tok' IS NOT a Terminator from the array 'terms'. */
 

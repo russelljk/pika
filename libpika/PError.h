@@ -9,8 +9,8 @@
 #   include "PConfig.h"
 #endif
 
-namespace pika 
-{
+namespace pika {
+
 enum WarningLevel 
 {
     WARN_mild,   // no side effects or performance penalties

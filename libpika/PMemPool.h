@@ -8,8 +8,7 @@
 #define PIKA_MIN_POOL_SIZE 128
 #define PIKA_AVG_POOL_SIZE 2048
 
-namespace pika
-{
+namespace pika {
 
 class MemPool;
 
@@ -260,6 +259,6 @@ private:
     FreeBlock*   FreeList;
 };
 
-}
+}// pika
 
 #endif

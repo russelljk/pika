@@ -5,8 +5,7 @@
 #ifndef PIKA_UTIL_HEADER
 #define PIKA_UTIL_HEADER
 
-namespace pika
-{
+namespace pika {
 
 /** The maximum size a buffer of type T can be. */
 template<typename T>

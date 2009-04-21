@@ -6,12 +6,9 @@
 #include "PNativeMethod.h"
 #include "PFunction.h"
 
-namespace pika
-{
+namespace pika {
 
-NativeMethodBase::~NativeMethodBase() 
-{
-}
+NativeMethodBase::~NativeMethodBase() {}
 
 void* NativeMethodBase::operator new(size_t n) 
 { 
@@ -21,7 +18,9 @@ void* NativeMethodBase::operator new(size_t n)
 void NativeMethodBase::operator delete(void *v) 
 { 
     if (v)
-        Pika_free(v); 
+    {
+        Pika_free(v);
+    }
 }
 
 }// pika

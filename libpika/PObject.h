@@ -15,8 +15,7 @@
 
 /////////////////////////////////////////////// pika ///////////////////////////////////////////////
 
-namespace pika
-{
+namespace pika {
 /* Forward Declarations */
 struct RegisterFunction;
 struct RegisterProperty;

@@ -7,8 +7,7 @@
 
 #include "PLineInfo.h"
 
-namespace pika
-{
+namespace pika {
 class Function;
 class Package;
 class String;
@@ -61,6 +60,6 @@ public:
     Package*      ignorePkg; // Ignore debug hooks if this is the current package. Useful if you want to have one package debug the others.
 };
 
-}
+}// pika
 
 #endif

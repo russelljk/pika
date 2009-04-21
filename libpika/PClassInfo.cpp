@@ -8,8 +8,7 @@
 #include "PClassInfo.h"
 #include "PMemPool.h"
 
-namespace pika
-{
+namespace pika {
 
 ClassInfo* ClassInfo::firstClass = 0;
 
@@ -44,4 +43,4 @@ bool ClassInfo::IsDerivedFrom(const ClassInfo* other) const
     return false;
 }
 
-}//pika
+}// pika

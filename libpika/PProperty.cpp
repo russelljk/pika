@@ -11,8 +11,7 @@
 #include "PFunction.h"
 #include "PEngine.h"
 
-namespace pika
-{
+namespace pika {
 PIKA_IMPL(Property)
 
 Property::Property(Engine* eng, String* nm, Function* get, Function* set)

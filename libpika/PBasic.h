@@ -15,13 +15,11 @@
 
 #include "PClassInfo.h"
 
-namespace pika 
-{
+namespace pika {
 
 class Engine;
 class Enumerator;
 class Type;
-
 
 struct NamedConstant 
 {

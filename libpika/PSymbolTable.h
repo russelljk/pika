@@ -5,8 +5,7 @@
 #ifndef PIKA_SYMBOLTABLE_HEADER
 #define PIKA_SYMBOLTABLE_HEADER
 
-namespace pika
-{
+namespace pika {
     class Engine;
     class SymbolTable;
 
@@ -78,7 +77,7 @@ namespace pika
         SymbolTable* parent;
         Symbol*      table[HASHSIZE];
     };
-}
+}// pika
 
 using pika::SymbolTable;
 using pika::Symbol;

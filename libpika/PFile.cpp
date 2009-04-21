@@ -7,8 +7,7 @@
 #include "PPlatform.h"
 #define PIKA_BUFSIZ 1024
 
-namespace pika
-{
+namespace pika {
 
 static bool Pika_fok(FILE* f)
 {

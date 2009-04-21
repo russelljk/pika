@@ -15,15 +15,13 @@
 
 #include "PMemPool.h"
 
-namespace pika
-{
+namespace pika {
 static MemObjPool<Slot> PropertyPool(PIKA_SLOT_POOL_SIZE);
-}
+}// pika
 
 #endif
 
-namespace pika
-{
+namespace pika {
 #if defined(PIKA_32)
 INLINE size_t Pika_Hash64(const u8 X) { return (size_t)X + ((size_t)(X >> 32) * 23); }
 INLINE size_t Pika_Hash32(const u4 X) { return (size_t)X; }
@@ -324,4 +322,4 @@ void Table::Clear()
     count = 0;
 }
 
-}//pika
+}// pika

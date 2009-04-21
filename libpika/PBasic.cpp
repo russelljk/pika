@@ -10,8 +10,7 @@
 #include "PEnumerator.h"
 #include "PTable.h"
 
-namespace pika
-{
+namespace pika {
 
 PIKA_IMPL(Basic)
 

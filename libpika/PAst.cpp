@@ -6,11 +6,9 @@
 #include "PAst.h"
 #include "PSymbolTable.h"
 
-namespace pika
-{
+namespace pika {
 
-namespace
-{
+namespace {
 
 void Pika_FunctionResourceCalculation(
     int           funcline, /* in  */
@@ -81,7 +79,7 @@ void Pika_FunctionResourceCalculation(
     cs.SetLineInfo(prevLine);
 }
 
-}//local namespace
+}//anonymous namespace
 
 void TreeNodeList::operator+=(TreeNode* t)
 {

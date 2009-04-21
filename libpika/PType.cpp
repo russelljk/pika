@@ -13,13 +13,13 @@
 #include "PNativeBind.h"
 #include "PObjectEnumerator.h"
 
-namespace pika
-{
+namespace pika {
 
 struct FilterEnum : ObjectEnumerator
 {
     FilterEnum(Engine* eng, bool values, Basic* obj, Table& tab, Type* ftype)
-            : ObjectEnumerator(eng, values, obj, tab), filterType(ftype) {}
+            : ObjectEnumerator(eng, values, obj, tab), filterType(ftype)
+    {}
     
     virtual bool FilterValue(Value& val, Basic*)
     {
@@ -29,7 +29,10 @@ struct FilterEnum : ObjectEnumerator
     virtual void MarkRefs(Collector* c)
     {
         ObjectEnumerator::MarkRefs(c);
-        if (filterType) filterType->Mark(c);
+        if (filterType)
+        {
+            filterType->Mark(c);
+        }
     }
 private:
     Type* filterType;
@@ -55,7 +58,7 @@ Type::Type(Engine*    eng,
     if (baseType)
     {
         if (!newfn)
-        {            
+        {
             newfn = baseType->newfn;
         }
         baseType->AddSubtype(this);
@@ -88,9 +91,11 @@ Object* Type::Clone()
 
 Enumerator* Type::GetEnumerator(String* enumtype)
 {
+    Engine* eng = GetEngine();
     {
-        Engine* eng = GetEngine();
         GCPAUSE_NORUN(eng);
+        
+        
         Type* filter = 0;
         if (enumtype == eng->AllocString("methods"))
         {
@@ -103,14 +108,14 @@ Enumerator* Type::GetEnumerator(String* enumtype)
         else if (enumtype == eng->AllocString("properties"))
         {
             filter = eng->Property_Type;
-        }        
+        }
         if (filter)
         {
             FilterEnum* filterenum = 0;
             GCNEW(eng, FilterEnum, filterenum, (eng, true, this, this->members, filter));
             return filterenum;
         }
-    }
+    } // GCPAUSE_NORUN
     return ThisSuper::GetEnumerator(enumtype);
 }
 
@@ -124,7 +129,6 @@ void Type::MarkRefs(Collector* c)
 bool Type::IsSubtype(Type* stype)
 {
     Type* t = stype;
-    
     while (t)
     {
         if (t == this)
@@ -187,7 +191,7 @@ String* Type::ToString()
 void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
 {
     GCPAUSE_NORUN(engine);
-    pkg = pkg ? pkg :this;    
+    pkg = pkg ? pkg : this;
     for (RegisterProperty* propdef = rp; propdef < (rp + count); ++propdef)
     {
         String* strname = engine->AllocString(propdef->name);
@@ -231,7 +235,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                 AddFunction(setter);
             }
         }
-
+        
         Property* prop = 0;
         if (getter)
         {
@@ -250,7 +254,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
         }
         
         if (prop)
-        {            
+        {
             AddProperty(prop);
         }
         else
@@ -261,9 +265,9 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
 }
 
 void Type::EnterMethods(RegisterFunction* fns, size_t count, Package* pkg)
-{    
+{
     GCPAUSE_NORUN(engine);
-    pkg = pkg ? pkg :this;    
+    pkg = pkg ? pkg : this;
     for (size_t i = 0; i < count; ++i)
     {
         String* methodName = engine->AllocString(fns[i].name);
@@ -277,9 +281,9 @@ void Type::EnterMethods(RegisterFunction* fns, size_t count, Package* pkg)
 }
 
 void Type::EnterClassMethods(RegisterFunction* fns, size_t count, Package* pkg)
-{    
+{
     GCPAUSE_NORUN(engine);
-    pkg = pkg ? pkg :this;
+    pkg = pkg ? pkg : this;
     for (size_t i = 0; i < count; ++i)
     {
         String* methodName = engine->AllocString(fns[i].name);
@@ -417,7 +421,7 @@ static int Type_create(Context* ctx, Value& self)
     Engine*  eng  = ctx->GetEngine();
     String*  name = ctx->GetStringArg(0);
     Type*    base = ctx->GetArgT<Type>(1);
-    Package* loc  = ctx->GetArgT<Package>(2);    
+    Package* loc  = ctx->GetArgT<Package>(2);
     Type*    meta = ctx->GetArgT<Type>(3);
     Type*    res  = Type::Create(eng, name, base, base->GetNewFn(), loc, meta);
     
@@ -444,10 +448,10 @@ void InitTypeAPI(Engine* eng)
     
     static RegisterFunction TypeClassMethods[] =
     {
-         { "create", Type_create, 4, 0, 1 },
+        { "create", Type_create, 4, 0, 1 },
     };
     
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));
-    eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));    
+    eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));
     Pkg_World->SetSlot("Type", eng->Type_Type);
 }

@@ -5,8 +5,7 @@
 #ifndef PIKA_LOCALSOBJECT_HEADER
 #define PIKA_LOCALSOBJECT_HEADER
 
-namespace pika 
-{
+namespace pika {
 /*  LocalsObject
  *
  *  Provides script access to local variables of a given function and its parents at a given position in its bytecode.

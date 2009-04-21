@@ -11,13 +11,10 @@
 #include "PPackage.h"
 #include "PType.h"
 
-namespace pika
-{
+namespace pika {
 
-//  NativeVarType /////////////////////////////////////////////////////////////////////////////////////////
 
 /** Native type of an argument or return value. Currently not used for anything other than metadata. */
-
 enum NativeVarType 
 {
     BTNull,
@@ -32,8 +29,6 @@ enum NativeVarType
     BTObject,
     BTVal
 };
-
-// VarType /////////////////////////////////////////////////////////////////////////////////////////
 
 /** Binds a native function's parameter by 
   * converting the script object into a native C++ type.

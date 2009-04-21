@@ -7,8 +7,7 @@
 #ifndef PIKA_VALUE_HEADER
 #   include "PValue.h"
 #endif
-namespace pika
-{
+namespace pika {
 
 class Collector;
 class GCObject;

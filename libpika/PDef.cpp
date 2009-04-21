@@ -11,8 +11,7 @@
 #include "PString.h"
 #include "PLiteralPool.h"
 
-namespace pika
-{
+namespace pika {
 
 Bytecode::Bytecode(code_t* cd, u2 len)
     : code(0),

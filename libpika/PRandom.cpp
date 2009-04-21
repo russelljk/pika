@@ -44,8 +44,7 @@
 */
 #include "PRandom.h"
 
-namespace pika
-{
+namespace pika {
 
 PIKA_IMPL(Random)
 

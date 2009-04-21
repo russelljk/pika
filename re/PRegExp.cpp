@@ -34,11 +34,9 @@ TODO: Add an enumerator.
 #define NUM_MATCHES  128
 #define ERR_BUF_SZ   1024
 
-namespace pika
-{
+namespace pika {
 
-namespace
-{
+namespace {
 
 // Converts an integer index (possibly bogus) into the range [0-len] ... inclusive.
 INLINE size_t IntToIndex(int const i, size_t const len)

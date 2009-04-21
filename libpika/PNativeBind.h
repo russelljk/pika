@@ -14,8 +14,7 @@
 extern PIKA_API int HookedFunction_Hook(Context*, Value&);
 extern PIKA_API int HookedFunction_StaticHook(Context*, Value&);
 
-namespace pika
-{
+namespace pika {
 
 struct NativeMethodBase;
 

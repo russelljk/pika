@@ -81,5 +81,5 @@ struct ImportData {
     Package* result;  //!< [out] The result of the import.
 };
 
-}
+}// pika
 #endif

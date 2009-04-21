@@ -4,8 +4,7 @@
  */
 #include "Pika.h"
 
-namespace pika
-{
+namespace pika {
 
 LiteralPool::LiteralPool(Engine* eng) : engine(eng) {}
 
@@ -66,4 +65,4 @@ void LiteralPool::MarkRefs(Collector* c)
     }
 }
 
-}//pika
+}// pika

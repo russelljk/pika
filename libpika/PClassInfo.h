@@ -5,8 +5,7 @@
 #ifndef PIKA_CLASSINFO_HEADER
 #define PIKA_CLASSINFO_HEADER
 
-namespace pika 
-{
+namespace pika {
 
 class PIKA_API ClassInfo 
 {
@@ -30,7 +29,7 @@ private:
     static ClassInfo* firstClass;
 };
 
-}//pika
+}// pika
 
 #define PIKA_REG(ACLASS)                                                                            \
     public:  static ClassInfo* StaticGetClass();                                                    \

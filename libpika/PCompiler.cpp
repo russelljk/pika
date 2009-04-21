@@ -65,8 +65,7 @@ case op:                                                                        
 //
 // We don't want to do any non-trivial conversions or report Type-Errors on operations.
 // Basically do the most we can do without changing the result of the program.
-namespace pika
-{
+namespace pika {
 
 void DoConstantFold(Instr* ir, LiteralPool* lp)
 {

@@ -5,8 +5,7 @@
 #ifndef PIKA_TOKENDEF_HEADER
 #define PIKA_TOKENDEF_HEADER
 
-namespace pika
-{
+namespace pika {
 
 #ifdef TOKEN_DEF
 #undef TOKEN_DEF

@@ -9,8 +9,7 @@
 #include "PCompiler.h"
 #include "PParser.h"
 
-namespace pika
-{
+namespace pika {
 
 // Start a new block at the Instr x.
 
@@ -23,8 +22,7 @@ namespace pika
 #define PIKA_BLOCKEND(cs)                   \
     cs->endOfBlock = oldEndOfBlock
 
-namespace
-{
+namespace {
 
 INLINE const char* GetSourceOf(CompileState* cs)
 {
@@ -250,7 +248,7 @@ void WarnNonLocalJumps(CompileState* state, Instr* start, Instr* end, int line)
     }
 }
 #endif
-}// namespace
+}// anonymous namespace
 
 Instr* TreeNode::GenerateCode()
 {
@@ -2299,4 +2297,4 @@ Instr* ParenExpr::GenerateCode()
     return expr->GenerateCode();
 }
 
-}// namespace pika
+}// pika

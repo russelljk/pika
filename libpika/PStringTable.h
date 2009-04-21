@@ -5,8 +5,7 @@
 #ifndef PIKA_STRINGTABLE_HEADER
 #define PIKA_STRINGTABLE_HEADER
 
-namespace pika
-{
+namespace pika {
 
 // StringTable /////////////////////////////////////////////////////////////////////////////////////
 // TODO: Slots should be resizable.
@@ -37,6 +36,6 @@ private:
     Engine* engine;
 };
 
-}
+}// pika
 
 #endif

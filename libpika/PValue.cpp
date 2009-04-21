@@ -4,8 +4,8 @@
  */
 #include "Pika.h"
 
-namespace pika 
-{
+namespace pika {
+
 static const char* STypeNames[] = 
 {
 /*  0  */ "Null",

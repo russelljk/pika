@@ -21,8 +21,7 @@
 #   include "PFunction.h"
 #endif
 
-namespace pika
-{
+namespace pika {
 class LexicalEnv;
 class Function;
 class Package;
@@ -518,6 +517,6 @@ struct PIKA_API SafeValue
     Context* context;
 };
 
-}//pika
+}// pika
 
 #endif

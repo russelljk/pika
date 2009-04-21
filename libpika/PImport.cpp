@@ -128,8 +128,7 @@ static Package* Pika_importScript(Context* ctx, String* name)
     return 0;
 }
 
-namespace pika
-{
+namespace pika {
 
 // ModuleImportHook ////////////////////////////////////////////////////////////////////////////////
 
@@ -194,7 +193,7 @@ struct ScriptImportHook : IHook
     virtual void Release(HookEvent) { Pika_delete(this); }
 };
 
-}//namespace pika
+}// pika
 
 void Initialize_ImportAPI(Engine* eng)
 {

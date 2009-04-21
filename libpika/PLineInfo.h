@@ -9,8 +9,7 @@
 #   include "PConfig.h"
 #endif
 
-namespace pika
-{
+namespace pika {
 
 class String;
 
@@ -22,16 +21,16 @@ struct LineInfo
 
 struct LocalVarInfo
 {
-    String* name;    // Local's name
+    INLINE LocalVarInfo() : name(0), beg(0), end(0) {}
     
+    // Local's name
+    String* name;
     // Range of this local is visible in the function's bytecode.
     // Use the function's LineInfo buffer to convert the bytecode offsets into line numbers.
     ptrdiff_t beg;
     ptrdiff_t end;
-
-    INLINE LocalVarInfo() : name(0), beg(0), end(0) {}
 };
 
-}
+}// pika
 
 #endif

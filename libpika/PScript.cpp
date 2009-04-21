@@ -11,8 +11,7 @@
 #   include <iostream>
 #endif
 
-namespace pika
-{
+namespace pika {
 
 PIKA_IMPL(Script)
 

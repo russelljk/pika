@@ -6,8 +6,7 @@
 #include "PMemory.h"
 #include "PMemPool.h"
 
-namespace pika
-{
+namespace pika {
 
 #if 1
 
@@ -203,4 +202,4 @@ MemObjArena::~MemObjArena()
     Pika_free(Start);
 }
 
-}
+}// pika

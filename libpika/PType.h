@@ -9,8 +9,7 @@
 #   include "PPackage.h"
 #endif
 
-namespace pika
-{
+namespace pika {
 
 /////////////////////////////////////////////// Type ///////////////////////////////////////////////
 
@@ -18,8 +17,7 @@ namespace pika
   * Types can be created through the class statement in scripts and by the static
   * Type::Create method from C++.
   */
-class PIKA_API Type : public Package
-{
+class PIKA_API Type : public Package {
     PIKA_DECL(Type, Package)
 public:
     Type(Engine*    eng,
@@ -124,7 +122,7 @@ public:
     /** Adds a type method. */
     void AddMethod(Function*);
     void AddClassMethod(Function*);
-        
+    
     Type_NewFn  GetNewFn() const { return newfn; }
 protected:
     /** Adds a subtype. Called by derived types when they are created. */
@@ -137,5 +135,5 @@ protected:
     Array*     subtypes; // all types that are direct descendence of this type
 };
 
-}
+}// pika
 #endif

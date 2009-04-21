@@ -5,8 +5,7 @@
 #ifndef PIKA_FILE_HEADER
 #define PIKA_FILE_HEADER
 
-namespace pika
-{
+namespace pika {
 
 /* Simple file class based on C file-streams. */
 

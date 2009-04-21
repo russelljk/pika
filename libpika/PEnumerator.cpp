@@ -11,8 +11,8 @@
 #include "PObject.h"
 #include "PType.h"
 
-namespace pika
-{
+namespace pika {
+
 PIKA_IMPL(Enumerator)
 
 Type* Enumerator::GetType() const { return engine->Enumerator_Type; }

@@ -273,6 +273,16 @@ static int Primitive_getType(Context* ctx, Value& self)
     case TAG_boolean:   ctx->Push(eng->Boolean_Type); return 1;
     case TAG_integer:   ctx->Push(eng->Integer_Type); return 1;
     case TAG_real:      ctx->Push(eng->Real_Type);    return 1;
+    default:
+        if (self.tag >= TAG_basic)
+        {
+            Type* type = 0;
+            if (type = self.val.basic->GetType())
+            {
+                ctx->Push(type);
+                return 1;
+            }
+        }
     }
     return 0;
 }
@@ -478,9 +488,9 @@ static int Dummy_PrintLn(Context* ctx, Value& self)
 #define PIKA_MAX_POS_ARGS 16
 
 static String* Pika_sprintp(Context* ctx,    // context
-                             String*  fmt,    // format string
-                             u2       argc,   // argument count + 1
-                             String*  args[]) // arguments, args[0] is ignored
+                            String*  fmt,    // format string
+                            u2       argc,   // argument count + 1
+                            String*  args[]) // arguments, args[0] is ignored
 {
     Engine* eng = ctx->GetEngine();
     TStringBuffer& buff = eng->string_buff;
@@ -593,7 +603,7 @@ static int Dummy_sprintp(Context* ctx, Value& self)
     ctx->Push( res );
     return 1;
 }
-    
+
 static int Global_range(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
@@ -632,8 +642,8 @@ static int Global_each(Context* ctx, Value&)
     pint_t hi = ctx->GetIntArg(1);
     Value  fn = ctx->GetArg(2);
     if (lo > hi)
-        Swap(lo,hi);
-    
+        Swap(lo, hi);
+        
     for (pint_t i = lo; i < hi; ++i)
     {
         ctx->CheckStackSpace(3);
@@ -649,29 +659,6 @@ static int Global_each(Context* ctx, Value&)
     return 0;
 }
 
-static int Global_addSearchPath(Context* ctx, Value&)
-{
-    u2 a = 0;
-    pint_t count = 0;
-    Engine* eng = ctx->GetEngine();
-    for ( a = 0; a < ctx->GetArgCount(); ++a )
-    {
-        Value& v = ctx->GetArg( a );
-        
-        if (v.tag != TAG_string)
-            continue;
-            
-        String* path = v.val.str;
-        if ( !path->HasNulls() && Pika_FileExists( path->GetBuffer() ) )
-        {
-            eng->AddSearchPath( path );
-            ++count;
-        }
-    }
-    ctx->Push( count );
-    return 1;
-}
-    
 int Error_toString(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
@@ -701,7 +688,7 @@ int Error_init(Context* ctx, Value& self)
     ctx->Push(obj);
     return 1;
 }
-    
+
 int null_Function(Context*, Value&) { return 0; }
 
 static void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
@@ -728,30 +715,19 @@ static void Function_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
-static int Basic_getType(Context* ctx, Value& self)
-{
-    if (self.tag >= TAG_basic)
-    {
-        ctx->Push(self.val.basic->GetType());
-        return 1;
-    }
-    return 0;
-}
-
 extern void Object_NewFn(Engine*, Type*, Value&);
 extern void Package_NewFn(Engine*, Type*, Value&);
 extern void TypeObj_NewFn(Engine*, Type*, Value&);
 extern void Array_NewFn(Engine*, Type*, Value&);
 
-namespace pika
-{
+namespace pika {
 
 class GCPause : public Object
 {
     PIKA_DECL(GCPause, Object)
 public:
     GCPause(Engine* eng, Type* t)
-    : Object(eng, t)
+            : Object(eng, t)
     {
         this->isPaused = false;
     }
@@ -821,7 +797,7 @@ void Engine::InitializeWorld()
         this->loading_String    = AllocString("loading");
         this->length_String     = AllocString("length");
         
-        this->Object_String     = AllocString("Object");        
+        this->Object_String     = AllocString("Object");
         this->Enumerator_String = AllocString("Enumerator");
         this->Property_String   = AllocString("Property");
         this->userdata_String   = AllocString("UserData");
@@ -843,17 +819,19 @@ void Engine::InitializeWorld()
         
         String*  Imports_Str = AllocString(IMPORTS_STR);
         String*  Types_Str   = AllocString("baseTypes");
-                
-        Basic_Type   = Type::Create(this, AllocString("BasicObj"),  0,            0,             Pkg_World, 0);
+        Type* Value_Type   = Type::Create(this, AllocString("T"),   0,            0,             Pkg_World, 0);
+        Basic_Type   = Type::Create(this, AllocString("BasicObj"),  Value_Type,   0,             Pkg_World, 0);
         Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object_NewFn,  Pkg_World, 0);
         Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package_NewFn, Pkg_World, 0);
-        Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, TypeObj_NewFn, Pkg_World, 0);        
+        Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, TypeObj_NewFn, Pkg_World, 0);
         
-        Type* TypeType_Type    = Type::Create(this, AllocString("Type Type"),     Type_Type, 0, Pkg_World, 0);
-        Type* PackageType_Type = Type::Create(this, AllocString("Package Type"),  Type_Type, 0, Pkg_World, TypeType_Type);
-        Type* BasicType_Type   = Type::Create(this, AllocString("BasicObj Type"), Type_Type, 0, Pkg_World, TypeType_Type);
-        Type* ObjectType_Type  = Type::Create(this, AllocString("Object Type"),   Type_Type, 0, Pkg_World, TypeType_Type);
+        Type* TypeType_Type    = Type::Create(this, AllocString("Type-Type"),     Type_Type, 0, Pkg_World, 0);
+        Type* PackageType_Type = Type::Create(this, AllocString("Package-Type"),  Type_Type, 0, Pkg_World, TypeType_Type);
+        Type* ValueType_Type   = Type::Create(this, AllocString("T-Type"),        Type_Type, 0, Pkg_World, TypeType_Type);
+        Type* BasicType_Type   = Type::Create(this, AllocString("BasicObj-Type"), Type_Type, 0, Pkg_World, TypeType_Type);
+        Type* ObjectType_Type  = Type::Create(this, AllocString("Object-Type"),   Type_Type, 0, Pkg_World, TypeType_Type);
         
+        Value_Type   ->SetType( ValueType_Type  );
         Basic_Type   ->SetType( BasicType_Type  );
         Object_Type  ->SetType( ObjectType_Type  );
         Package_Type ->SetType( PackageType_Type );
@@ -881,7 +859,7 @@ void Engine::InitializeWorld()
         NativeFunction_Type->SetFinal(true);
         NativeFunction_Type->SetAbstract(true);
         
-        NativeMethod_Type   = Type::Create(this, AllocString("NativeMethod"),   Function_Type, 0, Pkg_World);        
+        NativeMethod_Type   = Type::Create(this, AllocString("NativeMethod"),   Function_Type, 0, Pkg_World);
         NativeMethod_Type->SetFinal(true);
         NativeMethod_Type->SetAbstract(true);
         
@@ -913,24 +891,24 @@ void Engine::InitializeWorld()
         .Method(&GCPause::UnPause, "onDispose")
         .PropertyR("paused?", &GCPause::IsPaused, 0);
         
-        // Basic - methods /////////////////////////////////////////////////////////////////////////
+        // T - methods /////////////////////////////////////////////////////////////////////////
         
-        static RegisterProperty Basic_properties[] =
+        static RegisterProperty Value_properties[] =
         {
-            { "type",  Basic_getType,  "getType", 0, 0 },           
+            { "type", Primitive_getType, "getType", 0, 0 },
         };
-        
-        Basic_Type->EnterProperties(Basic_properties, countof(Basic_properties));
+            
+        Value_Type->EnterProperties(Value_properties, countof(Value_properties));
         this->Pkg_World->SetSlot(this->AllocString("BasicObj"), this->Basic_Type);
         
         // Error ///////////////////////////////////////////////////////////////////////////////////
         
         static RegisterFunction Error_Functions[] =
         {
-            { OPINIT_CSTR,  Error_init,     1, 0, 1 },
-            {"toString",    Error_toString, 0, 0, 1 },
+            { OPINIT_CSTR, Error_init,     1, 0, 1 },
+            { "toString",  Error_toString, 0, 0, 1 },
         };
-        
+            
         String* Error_String = AllocString("Error");
         Error_Type           = Type::Create(this, Error_String, Object_Type, Error_NewFn, Pkg_World);
         
@@ -977,24 +955,20 @@ void Engine::InitializeWorld()
         
         static RegisterFunction DummyFunctions[] =
         {
-            { "printp",        Dummy_printp,         0, 1, 0 },
-            { "sprintp",       Dummy_sprintp,        0, 1, 0 },
-            { "print",         Dummy_Print,          0, 1, 0 },
-            { "println",       Dummy_PrintLn,        0, 1, 0 },
-            { "say",           Dummy_PrintLn,        0, 1, 0 },
-            { "range",         Global_range,         0, 1, 0 },
-            { "each",          Global_each,          3, 0, 1 },
+            { "printp",  Dummy_printp,  0, 1, 0 },
+            { "sprintp", Dummy_sprintp, 0, 1, 0 },
+            { "print",   Dummy_Print,   0, 1, 0 },
+            { "println", Dummy_PrintLn, 0, 1, 0 },
+            { "say",     Dummy_PrintLn, 0, 1, 0 },
+            { "range",   Global_range,  0, 1, 0 },
+            { "each",    Global_each,   3, 0, 1 },
         };
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
         Pkg_World->SetType(Package_Type);
         
-        static RegisterProperty Value_properties[] =
-        {
-            { "type", Primitive_getType, "getType", 0, 0 },
-        };
         
         // Null ////////////////////////////////////////////////////////////////////////////////////////
-
+        
         static RegisterFunction Null_Functions[] =
         {
             { "toString",   Null_toString,  0, 0, 0 },
@@ -1003,23 +977,22 @@ void Engine::InitializeWorld()
             { "toNumber",   Null_toNumber,  0, 0, 0 },
             { "toBoolean",  Null_toBoolean, 0, 0, 0 },
         };
-
+            
         static RegisterFunction Null_ClassMethods[] =
         {
             { OPNEW_CSTR,  Null_init, 0, 1, 0 },
         };
-        
-        Null_Type = Type::Create(this, AllocString("Null"), 0, 0, Pkg_World);
+            
+        Null_Type = Type::Create(this, AllocString("Null"), Value_Type, 0, Pkg_World);
         Null_Type->EnterMethods(Null_Functions, countof(Null_Functions));
-        Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));        
+        Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));
         Null_Type->SetFinal(true);
         Null_Type->SetAbstract(true);
-        Null_Type->SetType(Type_Type);/// XXX: ????        
-        Null_Type->EnterProperties(Value_properties, countof(Value_properties));
+        Null_Type->SetType(Type_Type);/// XXX: ????
         Pkg_World->SetSlot("Null", Null_Type);
         
         // Boolean /////////////////////////////////////////////////////////////////////////////////////
-
+        
         static RegisterFunction Boolean_Functions[] =
         {
             { "toString",   Boolean_toString,  0, 0, 0 },
@@ -1028,20 +1001,18 @@ void Engine::InitializeWorld()
             { "toNumber",   Boolean_toNumber,  0, 0, 0 },
             { "toBoolean",  Boolean_toBoolean, 0, 0, 0 },
         };
-        
+            
         static RegisterFunction Boolean_ClassMethods[] =
         {
             { OPNEW_CSTR,   Boolean_init,      0, 1, 0 },
         };
-        
-        Boolean_Type  = Type::Create(this, AllocString("Boolean"), 0, 0, Pkg_World);
+            
+        Boolean_Type  = Type::Create(this, AllocString("Boolean"), Value_Type, 0, Pkg_World);
         Boolean_Type->EnterMethods(Boolean_Functions, countof(Boolean_Functions));
         Boolean_Type->EnterClassMethods(Boolean_ClassMethods, countof(Boolean_ClassMethods));
         Pkg_World->SetSlot("Boolean", Boolean_Type);
         Boolean_Type->SetFinal(true);
         Boolean_Type->SetAbstract(true);
-        
-        Boolean_Type->EnterProperties(Value_properties, countof(Value_properties));        
         
         // Integer ////////////////////////////////////////////////////////////////////////////////
         
@@ -1051,26 +1022,25 @@ void Engine::InitializeWorld()
             { "toInteger",  Integer_toInteger, 0, 0, 0 },
             { "toReal",     Integer_toReal,    0, 0, 0 },
             { "toNumber",   Integer_toNumber,  0, 0, 0 },
-            { "toBoolean",  Integer_toBoolean, 0, 0, 0 },            
-        }; 
-        
+            { "toBoolean",  Integer_toBoolean, 0, 0, 0 },
+        };
+            
         static RegisterFunction Integer_ClassMethods[] =
         {
             { OPNEW_CSTR, Integer_init, 0, 1, 0 },
-        };   
-        
-        Integer_Type  = Type::Create(this, AllocString("Integer"), 0, 0, Pkg_World);
+        };
+            
+        Integer_Type  = Type::Create(this, AllocString("Integer"), Value_Type, 0, Pkg_World);
         Integer_Type->EnterMethods(Integer_Functions, countof(Integer_Functions));
         Integer_Type->EnterClassMethods(Integer_ClassMethods, countof(Integer_ClassMethods));
-        Integer_Type->EnterProperties(Value_properties, countof(Value_properties));
         Integer_Type->SetSlot("MAX", (pint_t)PINT_MAX);
         Integer_Type->SetSlot("MIN", (pint_t)PINT_MIN);
         Integer_Type->SetFinal(true);
         Integer_Type->SetAbstract(true);
         Pkg_World->SetSlot("Integer", Integer_Type);
-           
+        
         // Real ///////////////////////////////////////////////////////////////////////////////////
-
+        
         static RegisterFunction Real_Functions[] =
         {
             { "toString",   Real_toString,  0, 0, 0 },
@@ -1081,23 +1051,22 @@ void Engine::InitializeWorld()
             { "nan?",       Real_isnan,     0, 0, 0 },
             // TODO:: Finite? Infinite? SignBit etc...
         };
-        
+            
         static RegisterFunction Real_ClassMethods[] =
         {
             { OPNEW_CSTR,   Real_init,      0, 1, 0 },
         };
-        
-        Real_Type  = Type::Create(this, AllocString("Real"), 0, 0, Pkg_World);
+            
+        Real_Type  = Type::Create(this, AllocString("Real"), Value_Type, 0, Pkg_World);
         Real_Type->EnterMethods(Real_Functions, countof(Real_Functions));
         Real_Type->EnterClassMethods(Real_ClassMethods, countof(Real_ClassMethods));
         Real_Type->SetFinal(true);
         Real_Type->SetAbstract(true);
-        Real_Type->EnterProperties(Value_properties, countof(Value_properties));        
-        Pkg_World->SetSlot("Real", Real_Type);        
+        Pkg_World->SetSlot("Real", Real_Type);
         //----------------------------------------------------------------------------------------------
         
         Initialize_ImportAPI(this);
-                
+        
         CreateRoots();
         
     }// GCPAUSE

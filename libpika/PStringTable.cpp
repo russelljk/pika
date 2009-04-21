@@ -6,8 +6,7 @@
 #include "PStringTable.h"
 #include "PPlatform.h"
 
-namespace pika
-{
+namespace pika {
 
 PIKA_FORCE_INLINE bool Pika_strsame(const char* a, size_t lena, const char* b, size_t lenb)
 {
@@ -158,4 +157,4 @@ String* StringTable::Get(const char* cstr, size_t len)
     return newstr;
 }
 
-}//pika
+}// pika

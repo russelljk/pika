@@ -11,8 +11,7 @@
 
 #define PIKA_keyword(x) { x, Token2String::GetNames()[x - TOK_global], 0 }
 
-namespace pika
-{
+namespace pika {
 
 struct KeywordDescriptor
 {

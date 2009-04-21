@@ -5,8 +5,7 @@
 #ifndef PIKA_PROPERTY_HEADER
 #define PIKA_PROPERTY_HEADER
 
-namespace pika
-{
+namespace pika {
 /** Properties provide access to class members through the use of getter and setter functions.
   * 
   * A property may we Read-Write, Read only or Write only. When written to or read from the

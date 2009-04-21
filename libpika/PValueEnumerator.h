@@ -5,8 +5,7 @@
 #ifndef PIKA_VALUEENUMERATOR_HEADER
 #define PIKA_VALUEENUMERATOR_HEADER
 
-namespace pika
-{
+namespace pika {
 
 // ValueEnumerator /////////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +30,6 @@ protected:
 };
 
 PIKA_API Enumerator* CreateRangeEnumerator(Engine*, pint_t from, pint_t to, pint_t step);
-}
+}// pika
 
 #endif

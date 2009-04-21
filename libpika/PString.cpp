@@ -14,8 +14,7 @@
 #include "PTokenizer.h"
 #include "PPackage.h"
 
-namespace pika
-{
+namespace pika {
 
 INLINE int Pika_StringCompare(const char* a, size_t lena, const char* b, size_t lenb)
 {

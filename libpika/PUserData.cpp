@@ -4,8 +4,7 @@
  */
 #include "Pika.h"
 
-namespace pika
-{
+namespace pika {
 
 PIKA_IMPL(UserData)
 

@@ -9,8 +9,7 @@
 #   include "PBasic.h"
 #endif
 
-namespace pika
-{
+namespace pika {
 class StringTable;
 class StringApi;
 class StringEnumerator;

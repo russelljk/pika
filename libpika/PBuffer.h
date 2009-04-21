@@ -20,8 +20,7 @@
 
 #include <iterator>
 
-namespace pika
-{
+namespace pika {
 
 // XXX: Export exception handling methods so that PikaError does not need to be included.
 
@@ -609,6 +608,6 @@ public:
     INLINE ConstIterator    End()   const { return ConstIterator(elements + size); }
 };
 
-}//pika
+}// pika
 
 #endif

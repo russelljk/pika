@@ -4,8 +4,7 @@
  */
 #include "Pika.h"
 
-namespace pika
-{
+namespace pika {
 
 const char* Exception::Static_Error_Formats[MAX_ERROR_KIND] =
 {
@@ -74,4 +73,4 @@ void RaiseException(const char *msg, ...)
     }
 }
 
-}//pika
+}// pika

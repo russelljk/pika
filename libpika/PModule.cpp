@@ -7,8 +7,8 @@
 #include "PString.h"
 #include "PPlatform.h"
 
-namespace pika
-{
+namespace pika {
+
 PIKA_IMPL(Module)
 
 Module::Module(Engine* eng, Type* moduleType,
@@ -112,7 +112,7 @@ Package* Module::ImportResult()
     return result ? result : this;
 }
 
-}//namespace pika
+}// pika
 
 static void Module_newFn(Engine* eng, Type* type, Value& res)
 {

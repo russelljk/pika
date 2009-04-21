@@ -9,8 +9,7 @@
 #include "PMemory.h"
 #include "PPlatform.h"
 
-namespace pika
-{
+namespace pika {
 
 SymbolTable::SymbolTable(SymbolTable* parent, bool global, bool with, bool isfunc, bool inherit)
         : defaultGlobal(global),

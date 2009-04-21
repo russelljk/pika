@@ -217,7 +217,7 @@ PIKA_OPCODE(OP_pushmember)
                            "Attempt to read member '%s' from self object of type '%s'.",
                            engine->ToString(this, name)->GetBuffer(),
                            engine->GetTypenameOf(self)->GetBuffer());
-    }    
+    }
     Push(self);
     Push(name);
     
@@ -301,7 +301,7 @@ PIKA_OPCODE(OP_setmember)
 {
     u2 index = GetShortOperand(instr);
     const Value& name = closure->GetLiteral(index);
-
+    
     if (!self.IsObject())
     {
         ReportRuntimeError(Exception::ERROR_runtime,
@@ -333,7 +333,7 @@ PIKA_OPCODE(OP_pop)
     Pop();
 }
 PIKA_NEXT()
-
+/* Store the top stack value in the accumulator (see OP_retacc). */
 PIKA_OPCODE(OP_acc)
 {
     acc = PopTop();

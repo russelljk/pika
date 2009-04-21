@@ -67,8 +67,7 @@
 #   define MAX_RANDOM  0x7FFFFFFFFFFFFFFFULL
 #endif
 
-namespace pika
-{
+namespace pika {
 #ifndef RANDOM_64_BIT
 typedef s4      randint_t;
 typedef u4      randuint_t;
@@ -90,14 +89,14 @@ public:
     static Random*  Create(Engine* eng, Type* type);
     
     randuint_t      NextRandom();
-    preal_t           NextReal();
+    preal_t         NextReal();
     randint_t       NextUInt();
     
     virtual void    Init(Context* ctx);    
     virtual String* ToString();
-    pint_t            Next(Context* ctx);
+    pint_t          Next(Context* ctx);
     
-    pint_t            GetSeed();
+    pint_t          GetSeed();
     void            SetSeed(pint_t s);
         
     Array*          Generate(pint_t amt);
@@ -109,6 +108,6 @@ protected:
     randuint_t      seed;
 };
 
-}
+}// pika
 
 #endif

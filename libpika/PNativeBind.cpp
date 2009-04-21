@@ -4,8 +4,7 @@
  */
 #include "Pika.h"
 #include "PEngine.h"
-namespace pika
-{
+namespace pika {
 
 // NativeDef
 
