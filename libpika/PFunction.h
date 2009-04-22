@@ -50,6 +50,19 @@ public:
     bool   mustClose; //!< Do local variables need to survive beyond the function call?
 };
 
+class PIKA_API Defaults : public GCObject
+{
+public:
+    Defaults(Value* v, size_t l);    
+    virtual void MarkRefs(Collector* c);
+        
+    virtual ~Defaults();
+    
+    static Defaults* Create(Engine*, Value*, size_t);
+    Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
+    size_t length;    //!< Number of lexEnv
+};
+
 class PIKA_API Function : public Object 
 {
     PIKA_DECL(Function, Object)
@@ -80,7 +93,8 @@ public:
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
     String*             GetName();
     
-    
+    INLINE  Value*      DefaultValue(size_t at) { return defaults__ ? defaults__->values+at : 0; }
+    INLINE  size_t      DefaultsCount() const { return defaults__ ? defaults__->length : 0; }
     INLINE  bool        MustClose()  const { return def->mustClose; }    
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
     
@@ -91,8 +105,7 @@ public:
     bool                IsLocatedIn(Package*);
     virtual String*     GetDotPath();
     
-    u4           numDefaults; //!< Default values count.
-    Value*       defaults;    //!< Default values for parameters.
+    Defaults*    defaults__;
     LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
     Def*         def;         //!< Function definition, may be shared with other functions.
     Function*    parent;      //!< The parent function we are defined inside (for nested functions only).

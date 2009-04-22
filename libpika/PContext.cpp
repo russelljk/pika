@@ -920,15 +920,16 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         // Bytecode function with a varags parameter.
         
         bool adjustForVarArgs = def->isVarArg && !nativecall;
-        int  argstart         = argc;
+        int  argstart         = argc;        
+        size_t numDefaults    = fun->DefaultsCount();
         
         // Number of arguments for which no default value was specified.
         int numRegularArgs = (adjustForVarArgs) ?
-                             (param_count - (int)fun->numDefaults - 1)  : // Remove the vararg parameter from the regular arg count.
-                             (param_count - (int)fun->numDefaults);
+                             (param_count - (int)numDefaults - 1)  : // the "- 1" is to Remove the VarArg parameter from the arg count.
+                             (param_count - (int)numDefaults);
                              
         int const amttopush = numRegularArgs - argstart;
-        int const defstart  = Clamp<int>(-amttopush, 0, (int)fun->numDefaults);
+        int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
         
         // Arguments with no default value will be set to null.
         for (int p = 0; p < amttopush; ++p)
@@ -937,9 +938,11 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         }
         
         // Arguments with a default value will be set to their default value.
-        for (u4 a = defstart; a < fun->numDefaults; ++a)
+        for (size_t a = defstart; a < numDefaults; ++a)
         {
-            Push(fun->defaults[a]);
+            Value* defval = fun->DefaultValue(a);
+            ASSERT(defval);
+            Push(*defval);
         }
         
         // Create an empty variable arguments Array if needed.

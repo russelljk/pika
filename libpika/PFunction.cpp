@@ -87,14 +87,34 @@ LexicalEnv* LexicalEnv::Create(Engine* eng, bool close)
     return ov;
 }
 
+Defaults::Defaults(Value* v, size_t l) : length(l) 
+{
+    size_t amt = sizeof(Value)*length;
+    values = (Value*)Pika_malloc(amt);
+    Pika_memcpy(values, v, amt);
+}
+
+void Defaults::MarkRefs(Collector* c)
+{
+    MarkValues(c, values, values + length);
+}
+
+Defaults::~Defaults() { if (values) Pika_free(values); }
+    
+Defaults* Defaults::Create(Engine* eng, Value* v, size_t l)
+{
+    Defaults* defs;
+    GCNEW(eng, Defaults, defs, (v, l));
+    return defs;
+}
+
 // Function ////////////////////////////////////////////////////////////////////////////////////////
 
 PIKA_IMPL(Function)
 
 Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* parent_func)
         : ThisSuper(eng, p),
-        numDefaults(0),
-        defaults(0),
+        defaults__(0),
         lexEnv(0),
         def(funcdef),
         parent(parent_func),
@@ -122,7 +142,7 @@ Function* Function::Create(Engine* eng, RegisterFunction* rf, Package* loc)
     return Create(eng, def, loc, 0);
 }
 
-Function::~Function() { if (defaults) Pika_free(defaults); }
+Function::~Function() {}
 
 void Function::BeginCall(Context* ctx)
 {
@@ -137,11 +157,7 @@ void Function::MarkRefs(Collector* c)
     if (def)        def->Mark(c);
     if (lexEnv)     lexEnv->Mark(c);
     if (location)   location->Mark(c);
-    
-    if (defaults && numDefaults)
-    {
-        MarkValues(c, defaults, defaults + numDefaults);
-    }
+    if (defaults__) defaults__->Mark(c);
 }
 
 int Function::DetermineLineNumber(code_t* xpc)
@@ -269,8 +285,7 @@ classtype(tclass)
     if (f)
     {
         lexEnv = f->lexEnv;
-        numDefaults = f->numDefaults;
-        defaults = f->defaults;
+        defaults__ = f->defaults__;
     }
 }
 
@@ -372,8 +387,7 @@ ClassMethod::ClassMethod(Engine* eng, Function* f, Type* tclass)
     if (f)
     {
         lexEnv = f->lexEnv;
-        numDefaults = f->numDefaults;
-        defaults = f->defaults;
+        defaults__ = f->defaults__;
     }
 }
 
