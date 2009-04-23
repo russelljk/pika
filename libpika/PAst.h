@@ -1348,7 +1348,9 @@ struct IndexExpr : DotExpr
     IndexExpr(Expr* l, Expr* r) : DotExpr(l, r)
     {
     }
-    
+    virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
+    virtual Instr*  GenerateCode();
+    virtual Instr*  GenerateCodeSet();    
     //virtual Opcode GetOpcode() const { return OP_indexget; }
 };
 

@@ -208,10 +208,10 @@ protected:
     /* These methods each execute a certain group of opcodes. They are meant to be called from Context::Run (only!)
      * because override methods that are called will be inlined.
      */
-    void    ArithOpBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
-    void    BitOpBinary  (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
-    void    CompOpBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
-    void    ArithOpUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
+    void    OpArithBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
+    void    OpBitBinary  (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
+    void    OpCompBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
+    void    OpArithUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
     void    OpSuper();    
     bool    DoPropertyGet(int& numcalls, Property* prop);
     bool    DoPropertySet(int& numcalls, Property* prop);    

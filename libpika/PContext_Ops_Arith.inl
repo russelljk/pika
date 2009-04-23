@@ -3,13 +3,13 @@
  *  See Copyright Notice in Pika.h
  */
 
-PIKA_OPCODE(OP_add)  ArithOpBinary(OP_add,  OVR_add,  OVR_add_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_sub)  ArithOpBinary(OP_sub,  OVR_sub,  OVR_sub_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_mul)  ArithOpBinary(OP_mul,  OVR_mul,  OVR_mul_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_div)  ArithOpBinary(OP_div,  OVR_div,  OVR_div_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_idiv) ArithOpBinary(OP_idiv, OVR_idiv, OVR_idiv_r, numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_mod)  ArithOpBinary(OP_mod,  OVR_mod,  OVR_mod_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_pow)  ArithOpBinary(OP_pow,  OVR_pow,  OVR_pow_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_add)  OpArithBinary(OP_add,  OVR_add,  OVR_add_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_sub)  OpArithBinary(OP_sub,  OVR_sub,  OVR_sub_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_mul)  OpArithBinary(OP_mul,  OVR_mul,  OVR_mul_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_div)  OpArithBinary(OP_div,  OVR_div,  OVR_div_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_idiv) OpArithBinary(OP_idiv, OVR_idiv, OVR_idiv_r, numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_mod)  OpArithBinary(OP_mod,  OVR_mod,  OVR_mod_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_pow)  OpArithBinary(OP_pow,  OVR_pow,  OVR_pow_r,  numcalls); PIKA_NEXT()
 
 PIKA_OPCODE(OP_eq)
 {
@@ -146,14 +146,14 @@ PIKA_OPCODE(OP_ne)
 }
 PIKA_NEXT()
 
-PIKA_OPCODE(OP_lt)  CompOpBinary(OP_lt,  OVR_lt,  OVR_lt_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_gt)  CompOpBinary(OP_gt,  OVR_gt,  OVR_gt_r,  numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_lte) CompOpBinary(OP_lte, OVR_lte, OVR_lte_r, numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_gte) CompOpBinary(OP_gte, OVR_gte, OVR_gte_r, numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_lt)  OpCompBinary(OP_lt,  OVR_lt,  OVR_lt_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_gt)  OpCompBinary(OP_gt,  OVR_gt,  OVR_gt_r,  numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_lte) OpCompBinary(OP_lte, OVR_lte, OVR_lte_r, numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_gte) OpCompBinary(OP_gte, OVR_gte, OVR_gte_r, numcalls); PIKA_NEXT()
 
-PIKA_OPCODE(OP_bitand)  BitOpBinary(OP_bitand, OVR_bitand,  OVR_bitand_r,   numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_bitor)   BitOpBinary(OP_bitor,  OVR_bitor,   OVR_bitor_r,    numcalls); PIKA_NEXT()
-PIKA_OPCODE(OP_bitxor)  BitOpBinary(OP_bitxor, OVR_bitxor,  OVR_bitxor_r,   numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_bitand)  OpBitBinary(OP_bitand, OVR_bitand,  OVR_bitand_r,   numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_bitor)   OpBitBinary(OP_bitor,  OVR_bitor,   OVR_bitor_r,    numcalls); PIKA_NEXT()
+PIKA_OPCODE(OP_bitxor)  OpBitBinary(OP_bitxor, OVR_bitxor,  OVR_bitxor_r,   numcalls); PIKA_NEXT()
 
 PIKA_OPCODE(OP_xor) 
 {
@@ -169,19 +169,19 @@ PIKA_NEXT()
 // Left shift //////////////////////////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_lsh)   
-    BitOpBinary(OP_lsh,  OVR_lsh,   OVR_lsh_r,    numcalls); 
+    OpBitBinary(OP_lsh,  OVR_lsh,   OVR_lsh_r,    numcalls); 
 PIKA_NEXT()
 
 // Right shift /////////////////////////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_rsh)
-    BitOpBinary(OP_rsh,  OVR_rsh,   OVR_rsh_r,    numcalls);
+    OpBitBinary(OP_rsh,  OVR_rsh,   OVR_rsh_r,    numcalls);
 PIKA_NEXT()
 
 // Unsigned right shift ////////////////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_ursh)
-    BitOpBinary(OP_ursh, OVR_ursh,  OVR_ursh_r,   numcalls);
+    OpBitBinary(OP_ursh, OVR_ursh,  OVR_ursh_r,   numcalls);
 PIKA_NEXT()
 
 // Boolean not /////////////////////////////////////////////////////////////////////////////////////
@@ -241,25 +241,25 @@ PIKA_NEXT()
 // Increment (prefix AND postfix) //////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_inc)
-    ArithOpUnary(OP_inc,  OVR_inc, numcalls);
+    OpArithUnary(OP_inc,  OVR_inc, numcalls);
 PIKA_NEXT()
 
 // Decrement (prefix AND postfix) //////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_dec)
-    ArithOpUnary(OP_dec,  OVR_dec, numcalls);
+    OpArithUnary(OP_dec,  OVR_dec, numcalls);
 PIKA_NEXT()
 
 // Prefix positive (+) /////////////////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_pos)
-    ArithOpUnary(OP_pos,  OVR_pos, numcalls);
+    OpArithUnary(OP_pos,  OVR_pos, numcalls);
 PIKA_NEXT()
 
 // Prefix negative (-) /////////////////////////////////////////////////////////////////////////////
 
 PIKA_OPCODE(OP_neg) 
-    ArithOpUnary(OP_neg,  OVR_neg, numcalls);
+    OpArithUnary(OP_neg,  OVR_neg, numcalls);
 PIKA_NEXT()
 
 // Concat with space ///////////////////////////////////////////////////////////////////////////////

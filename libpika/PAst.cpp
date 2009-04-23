@@ -50,8 +50,7 @@ void Pika_FunctionResourceCalculation(
     
     if ((*symtab)->IncrementDepth() > PIKA_MAX_NESTED_FUNCTIONS)
     {
-        cs.SyntaxError(funcline, "max nested functions depth reached %d.", PIKA_MAX_NESTED_FUNCTIONS);
-        RaiseException(Exception::ERROR_syntax, "DotExpr");
+        cs.SyntaxException(Exception::ERROR_syntax, funcline, "max nested functions depth reached %d.", PIKA_MAX_NESTED_FUNCTIONS);
     }
     
     if (args)
@@ -875,6 +874,11 @@ DotExpr::DotExpr(Expr *l, Expr *r) : BinaryExpr(Expr::EXPR_dot, l, r) {}
 void DotExpr::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     BinaryExpr::CalculateResources(st, cs);
+}
+
+void IndexExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+{
+    DotExpr::CalculateResources(st, cs);
 }
 
 FunExpr::~FunExpr() { Pika_delete(symtab); }

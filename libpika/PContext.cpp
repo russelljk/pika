@@ -446,7 +446,7 @@ void Context::DoResume()
     }
 }
 
-INLINE void Context::CompOpBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
+INLINE void Context::OpCompBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
 {
     Value& b = Top();
     Value& a = Top1();
@@ -569,7 +569,7 @@ INLINE void Context::CompOpBinary(const Opcode op, const OpOverride ovr, const O
                        
 }
 
-INLINE void Context::ArithOpUnary(const Opcode op, const OpOverride ovr, int& numcalls)
+INLINE void Context::OpArithUnary(const Opcode op, const OpOverride ovr, int& numcalls)
 {
     Value& a = Top();
     if (a.tag == TAG_integer)
@@ -609,7 +609,7 @@ INLINE void Context::ArithOpUnary(const Opcode op, const OpOverride ovr, int& nu
     }
 }
 
-INLINE void Context::BitOpBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
+INLINE void Context::OpBitBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
 {
     Value& b = Top();
     Value& a = Top1();
@@ -662,7 +662,7 @@ INLINE void Context::BitOpBinary(const Opcode op, const OpOverride ovr, const Op
     return;
 }
 
-INLINE void Context::ArithOpBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
+INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
 {
     Value& b = Top();
     Value& a = Top1();

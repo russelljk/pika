@@ -1292,7 +1292,7 @@ Instr* DotExpr::GenerateCode()
     if (left->kind  == Expr::EXPR_load && (((LoadExpr*)left)->loadkind == LoadExpr::LK_self) &&
             right->kind == Expr::EXPR_member)
     {
-        // We can optimize a self.field[.field], expression so that we do not have to perform
+        // We can optimize a self.field[] expression so that we do not have to perform
         // a OP_pushself and OP_pushliteral
         
         MemberExpr* m = (MemberExpr*)right;
@@ -1339,6 +1339,9 @@ Instr* DotExpr::GenerateCodeSet()
         return ileft;
     }
 }
+
+Instr* IndexExpr::GenerateCode() { return DotExpr::GenerateCode(); }
+Instr* IndexExpr::GenerateCodeSet() { return DotExpr::GenerateCodeSet(); }
 
 Instr* DotBindExpr::GenerateCode()
 {
