@@ -1351,7 +1351,7 @@ struct IndexExpr : DotExpr
     virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr*  GenerateCode();
     virtual Instr*  GenerateCodeSet();    
-    //virtual Opcode GetOpcode() const { return OP_indexget; }
+    virtual Opcode GetOpcode() const { return OP_subget; }
 };
 
 /** A dot expression in which the value being retrieved and the object it belongs to are bound together as one value.

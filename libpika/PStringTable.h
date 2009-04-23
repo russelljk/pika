@@ -8,16 +8,14 @@
 namespace pika {
 
 // StringTable /////////////////////////////////////////////////////////////////////////////////////
-// TODO: Slots should be resizable.
 
 class StringTable
 {
     static size_t const ENTRY_SIZE = 2048;
 public:
     StringTable(Engine*);
-
     ~StringTable();
-
+    
     String* Get(const char* cstr);
     String* Get(const char*, size_t);
 private:
@@ -27,7 +25,7 @@ private:
     
     void Sweep();
     void SweepAll();
-
+    
     void Clear();
     
     size_t size;

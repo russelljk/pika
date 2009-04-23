@@ -221,7 +221,7 @@ PIKA_OPCODE(OP_pushmember)
     Push(self);
     Push(name);
     
-    OpDotGet(numcalls, oc);
+    OpDotGet(numcalls, oc, OVR_get);
 }
 PIKA_NEXT()
 /*
@@ -312,7 +312,7 @@ PIKA_OPCODE(OP_setmember)
     Push( self );
     Push( name );
     
-    OpDotSet(numcalls, oc);
+    OpDotSet(numcalls, oc, OVR_set);
 }
 PIKA_NEXT()
 /*

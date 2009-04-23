@@ -38,7 +38,7 @@ static size_t const MAX_STRTABLE_SIZE  = GetMaxSize<String*>() / 8;
 void StringTable::Grow()
 {
     size_t nsize = size << 1;
-
+    
     if (nsize < size ||             // Addition over-flow or
         nsize >= MAX_STRTABLE_SIZE) // Bigger than max size allowed
     {
@@ -62,16 +62,16 @@ void StringTable::Grow()
     for (size_t i = 0; i < oldSize; i++)
     {
         String* current = oldEntries[i];
-
+        
         while (current)
         {
             String* next = current->next;
-
+            
             size_t hashcode = current->GetHashCode() & (size - 1);
-
+            
             current->next = entries[hashcode];
             entries[hashcode] = current;
-
+            
             current = next;
         }
     }
@@ -84,9 +84,9 @@ void StringTable::SweepAll()
     {
         String* curr = 0;
         String* next = 0;
-
+        
         curr = entries[i];
-
+        
         while (curr)
         {
             next = curr->next;
@@ -103,7 +103,7 @@ void StringTable::Sweep()
     {
         String*  curr =  entries[i];
         String** ptrto = &entries[i];
-
+        
         while (curr)
         {
             if (!(curr->gcflags & GCObject::Persistent) && (curr->gcflags & GCObject::ReadyToCollect))

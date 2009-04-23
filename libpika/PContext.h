@@ -215,8 +215,8 @@ protected:
     void    OpSuper();    
     bool    DoPropertyGet(int& numcalls, Property* prop);
     bool    DoPropertySet(int& numcalls, Property* prop);    
-    void    OpDotGet(int& numcalls, Opcode oc);
-    void    OpDotSet(int& numcalls, Opcode oc);    
+    void    OpDotGet(int& numcalls, Opcode oc, OpOverride ovr);
+    void    OpDotSet(int& numcalls, Opcode oc, OpOverride ovr);    
     bool    OpUnpack(u2);    
     bool    OpBind();    
     bool    OpCat(bool sp);    

@@ -124,7 +124,7 @@ struct ValueComp
     Value comparison_func;  // Comparison Function
 };
 
-bool Array::GetSlot(const Value& key, Value& res)
+bool Array::BracketRead(const Value& key, Value& res)
 {
     size_t index = 0;
     
@@ -133,10 +133,10 @@ bool Array::GetSlot(const Value& key, Value& res)
         res = elements[index];
         return true;
     }
-    return ThisSuper::GetSlot(key, res);
+    return ThisSuper::BracketRead(key, res);
 }
 
-bool Array::SetSlot(const Value& key, Value& value, u4 attr)
+bool Array::BracketWrite(const Value& key, Value& value, u4 attr)
 {
     size_t index = 0;
     
@@ -146,7 +146,7 @@ bool Array::SetSlot(const Value& key, Value& value, u4 attr)
         WriteBarrier(value);
         return true;
     }
-    return ThisSuper::SetSlot(key, value, attr);
+    return ThisSuper::BracketWrite(key, value, attr);
 }
 
 bool Array::GetIndexOf(const Value& key, size_t &index)

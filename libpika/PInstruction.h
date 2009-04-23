@@ -229,6 +229,10 @@ INLINE int OpcodeStackChange(Instr *ir)
     }
     case OP_dotget:         return -1;
     case OP_dotset:         return -3;
+    
+    case OP_subget:         return -1;
+    case OP_subset:         return -3;
+    
     case OP_delete:         return -2;
     
     case OP_locals:         return  1;

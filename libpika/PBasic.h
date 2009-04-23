@@ -56,7 +56,10 @@ public:
     
     virtual bool GetSlot(const Value& key, Value& result) { return false; }
     virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0) { return false; }
-
+    
+    virtual bool BracketRead(const Value& key, Value& result) { return false; }
+    virtual bool BracketWrite(const Value& key, Value& value, u4 attr = 0) { return false; }
+    
     virtual bool CanSetSlot(const Value& key) { return true;  }
     virtual bool HasSlot(const Value& key)    { return false; }
     virtual bool DeleteSlot(const Value& key) { return false; }

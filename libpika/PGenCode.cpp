@@ -1340,12 +1340,34 @@ Instr* DotExpr::GenerateCodeSet()
     }
 }
 
-Instr* IndexExpr::GenerateCode() { return DotExpr::GenerateCode(); }
-Instr* IndexExpr::GenerateCodeSet() { return DotExpr::GenerateCodeSet(); }
+Instr* IndexExpr::GenerateCode()
+{ 
+    Instr* iop    = Instr::Create(OP_subget);
+    Instr* ileft  = left->GenerateCode();
+    Instr* iright = right->GenerateCode();
+    
+    ileft->
+    Attach(iright)->
+    Attach(iop);
+    
+    return ileft;
+}
+
+Instr* IndexExpr::GenerateCodeSet()
+{ 
+        Instr* iop = Instr::Create(OP_subset);
+        Instr* ileft = left->GenerateCode();
+        Instr* iright = right->GenerateCode();
+        
+        ileft->Attach(iright);
+        iright->Attach(iop);
+        
+        return ileft; 
+}
 
 Instr* DotBindExpr::GenerateCode()
 {
-    Instr* iop    = Instr::Create(OP_dotget);
+    Instr* iop    = Instr::Create(OP_dotget); // TODO: OP_subget
     Instr* ileft  = left->GenerateCode();
     Instr* idup   = Instr::Create(OP_dup);
     Instr* iright = right->GenerateCode();
@@ -1364,7 +1386,7 @@ Instr* DotBindExpr::GenerateCode()
 
 Instr* DotBindExpr::GenerateCodeSet()
 {
-    Instr* iop    = Instr::Create(OP_dotset);
+    Instr* iop    = Instr::Create(OP_dotset); // TODO: OP_subset
     Instr* ileft  = left->GenerateCode();
     Instr* idup   = Instr::Create(OP_dup);
     Instr* iright = right->GenerateCode();

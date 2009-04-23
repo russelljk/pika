@@ -1414,8 +1414,9 @@ void Context::ReportRuntimeError(Exception::Kind kind, const char* msg, ...)
   *
   * @param numcalls         [in|out] Reference to the integer that holds the number of inlined calls made.
   * @param oc               [in]     Current opcode.
+  * @param ovr              [in]     Override relative to oc.
   */
-void Context::OpDotSet(int& numcalls, Opcode oc)
+void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
 {
     // [ ...      ]
     // [ value    ]
@@ -1437,7 +1438,7 @@ void Context::OpDotSet(int& numcalls, Opcode oc)
             Value setfn;
             setfn.SetNull();
             
-            if (GetOverrideFrom(engine, obj.val.object, OVR_set, setfn))
+            if (GetOverrideFrom(engine, obj.val.object, ovr, setfn))
             {
                 Swap(prop, obj);
                 Swap(obj, val);
@@ -1453,8 +1454,17 @@ void Context::OpDotSet(int& numcalls, Opcode oc)
                 return;
             }
         }
+        bool success;
+        if (oc == OP_subset)
+        {
+            success = obj.val.basic->BracketWrite(prop, val);
+        }
+        else
+        {
+            success = obj.val.basic->SetSlot(prop, val);
+        }
         
-        if (!obj.val.basic->SetSlot(prop, val))
+        if (!success)
         {
             // If we couldn't write it might be because prop is a property.
             
@@ -1534,7 +1544,7 @@ void Context::OpDotSet(int& numcalls, Opcode oc)
 // as needed. Depending on the object in question, a missing member may
 // cause an exception.
 
-void Context::OpDotGet(int& numcalls, Opcode oc)
+void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 {
     // [ ...      ]
     // [ object   ]
@@ -1626,14 +1636,24 @@ void Context::OpDotGet(int& numcalls, Opcode oc)
         
         // Call the opGet override method if present.
         Basic* basic = obj.val.basic;
-        if (!basic->GetSlot(prop, res))
+        bool success;
+        if (oc == OP_subget)
+        {
+            success = basic->BracketRead(prop, res);
+        }
+        else
+        {
+            success = basic->GetSlot(prop, res); 
+        }       
+        
+        if (!success)
         {
             if (obj.tag == TAG_object)
             {
                 Value getfn;
                 getfn.SetNull();
                 
-                if (GetOverrideFrom(engine, obj.val.object, OVR_get, getfn))
+                if (GetOverrideFrom(engine, obj.val.object, ovr, getfn))
                 {
                     Swap(prop, obj);
                     Push(getfn);

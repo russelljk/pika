@@ -30,8 +30,8 @@ protected:
 public:
     virtual ~Array() {}
     
-    virtual bool GetSlot(const Value&, Value&);
-    virtual bool SetSlot(const Value&, Value&, u4 attr = 0);
+    virtual bool BracketRead(const Value&, Value&);
+    virtual bool BracketWrite(const Value&, Value&, u4 attr = 0);
     
     virtual void        MarkRefs(Collector*);
     virtual Object*     Clone();

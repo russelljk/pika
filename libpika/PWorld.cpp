@@ -55,6 +55,8 @@ static const char* StaticOpStrings[] =
     "opCall",
     "opGet",
     "opSet",
+    "opGetAt",
+    "opSetAt",
     "opDel",
     OPINIT_CSTR,
     "opAdd_r",

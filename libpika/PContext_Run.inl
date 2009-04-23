@@ -164,16 +164,28 @@ void Context::Run()
             
             PIKA_OPCODE(OP_dotget)
             {
-                OpDotGet(numcalls, oc);
+                OpDotGet(numcalls, oc, OVR_get);
             }
             PIKA_NEXT()
             
             PIKA_OPCODE(OP_dotset)
             {
-                OpDotSet(numcalls, oc);
+                OpDotSet(numcalls, oc, OVR_set);
             }
             PIKA_NEXT()
             
+            PIKA_OPCODE(OP_subget)
+            {
+                OpDotGet(numcalls, oc, OVR_getat);
+            }
+            PIKA_NEXT()
+            
+            PIKA_OPCODE(OP_subset)
+            {
+                OpDotSet(numcalls, oc, OVR_setat);
+            }
+            PIKA_NEXT()
+                        
             PIKA_OPCODE(OP_delete)
             {
                 Value& prop = Top();
