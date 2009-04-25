@@ -253,33 +253,33 @@ private:
     /*  
         Circular list of all GCObjects we are resposible for.
         
-        -----------------------------------------------------
-        **              Collector layout                   **
-        -----------------------------------------------------
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::              Collector layout                   ::
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::
         
                              black 
-                     +----> ^    v
+                     .----> ^    v
              sweep--/      /      \
                    /      ^        v
                   /      /          \
-                  +---> ^            v
+                  '---> ^            v
                       white <--<--< gray 
                             ^     ^
                             |     |
-                            +--+--+
+                            '--+--'
                                |
                              scan 
         
         Scan object moves from gray list during the scan phase.
         Sweep object moves through the white list freeing each un-reachable object during the sweep phase.
         
-        -----------------------------------------------------
-        **                 Root objects                    **
-        -----------------------------------------------------
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::                 Root objects                    ::
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::
         
                            .-head--->---.
                            |            |
-                           ^            v <-- All root objects are contained inside a circular list.
+                           ^            v <<:::: All root objects are contained inside a circular list.
                            |            |
                            '-----<------'
     
@@ -292,6 +292,23 @@ private:
     
     RootObject* head; // Circular list of all root objects.
 };
+
+INLINE void MarkValue(Collector* c, Value& v)
+{
+    ASSERT(v.tag < MAX_TAG);
+
+    if (v.tag >= TAG_gcobj && v.val.gcobj)
+        v.val.gcobj->Mark(c);
+}
+
+INLINE void MarkValues(Collector* c, Value *begin, Value* end)
+{
+    for (Value *curr = begin; curr < end; ++curr)
+    {
+        MarkValue(c, *curr);
+    }
+}
+
 
 }// pika
 

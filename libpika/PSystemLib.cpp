@@ -14,8 +14,6 @@
 
 extern void InitRandomAPI(Package*, Engine* eng);
 
-// Math Constants /////////////////////////////////////////////////////////////////////////////////
-
 #define PIKA_PI         ((preal_t) 3.14159265358979323846264338327950288  )
 #define PIKA_E          ((preal_t) 2.71828182845904523536028747135266250  )
 #define PIKA_LN10       ((preal_t) 2.30258509299404568401799145468436421  )
@@ -25,9 +23,7 @@ extern void InitRandomAPI(Package*, Engine* eng);
 #define PIKA_SQRT1_2    ((preal_t) 0.707106781186547524400844362104849039 )
 #define PIKA_SQRT2      ((preal_t) 1.41421356237309504880168872420969808  )
 
-// OS.Sleep ///////////////////////////////////////////////////////////////////////////////////////
-
-static int OS_sleep(Context* ctx, Value&)
+static int os_sleep(Context* ctx, Value&)
 {
     if (1 != ctx->GetArgCount())
         ctx->WrongArgCount();
@@ -50,30 +46,22 @@ static int OS_sleep(Context* ctx, Value&)
     return 0;
 }
 
-// OS.Clock ///////////////////////////////////////////////////////////////////////////////////////
-
-static preal_t OS_Clock()
+static preal_t os_clock()
 {
     return static_cast<preal_t>(clock()) / static_cast<preal_t>(CLOCKS_PER_SEC);
 }
 
-// OS.Time ////////////////////////////////////////////////////////////////////////////////////////
-
-static pint_t OS_Time()
+static pint_t os_time()
 {
     return (pint_t)Pika_Milliseconds();
 }
 
-// Math.Round /////////////////////////////////////////////////////////////////////////////////////
-
-static pint_t Math_Round(preal_t r)
+static pint_t math_round(preal_t r)
 {
     return ((pint_t)CopySign(Floor(r + (preal_t)0.5), r));
 }
 
-// Math.Power /////////////////////////////////////////////////////////////////////////////////////
-
-static preal_t Math_Power(preal_t f, preal_t p)
+static preal_t math_power(preal_t f, preal_t p)
 {
     int    sign = (f < 0 ? -1 : 1);
     preal_t absf = (f < 0 ? -f : f);
@@ -88,9 +76,7 @@ static preal_t Math_Power(preal_t f, preal_t p)
     }
 }
 
-// Math.Abs ///////////////////////////////////////////////////////////////////////////////////////
-
-static int Math_Abs(Context* ctx, Value&)
+static int math_Abs(Context* ctx, Value&)
 {
     ctx->CheckParamCount(1);
     Value& arg0 = ctx->GetArg(0);
@@ -114,26 +100,24 @@ static int Math_Abs(Context* ctx, Value&)
     return 0;
 }
 
-// OS.System **************************************************************************************
-
-static int OS_System(Nullable<const char*> str)
+static int os_system(Nullable<const char*> str)
 {
     return system(str);
 }
 
-// TODO: Math.max should handle >= 2 args and any number type
-static pint_t Math_max(pint_t a, pint_t b)
+// TODO: math_max should handle >= 2 args and any number type
+static pint_t math_max(pint_t a, pint_t b)
 {
     return (a >= b) ? a : b;
 }
 
-// TODO: Math.min should handle >= 2 args and any number type
-static pint_t Math_min(pint_t a, pint_t b)
+// TODO: math_min should handle >= 2 args and any number type
+static pint_t math_min(pint_t a, pint_t b)
 {
     return (a <= b) ? a : b;
 }
 
-static int OS_getFullPath(Context* ctx, Value&)
+static int os_getFullPath(Context* ctx, Value&)
 {
     Engine* eng  = ctx->GetEngine();
     String* arg0 = ctx->GetStringArg(0);
@@ -152,7 +136,7 @@ static int OS_getFullPath(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_getCurrentDir(Context* ctx, Value&)
+static int os_getCurrentDir(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     char* res = Pika_GetCurrentDirectory();
@@ -169,7 +153,7 @@ static int OS_getCurrentDir(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_removeFile(Context* ctx, Value&)
+static int os_removeFile(Context* ctx, Value&)
 {
     u4      argc = ctx->GetArgCount();
     String* src  = 0;
@@ -189,7 +173,7 @@ static int OS_removeFile(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_moveFile(Context* ctx, Value&)
+static int os_moveFile(Context* ctx, Value&)
 {
     u4      argc    = ctx->GetArgCount();
     String* src     = 0;
@@ -211,7 +195,7 @@ static int OS_moveFile(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_copyFile(Context* ctx, Value&)
+static int os_copyFile(Context* ctx, Value&)
 {
     u4      argc    = ctx->GetArgCount();
     String* src     = 0;
@@ -322,7 +306,7 @@ private:
     const char*     entry;
 };
 
-static int OS_readDir(Context* ctx, Value&)
+static int os_readDir(Context* ctx, Value&)
 {
     Engine*  eng  = ctx->GetEngine();
     String*  path = ctx->GetStringArg(0);
@@ -332,7 +316,7 @@ static int OS_readDir(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_fileExtOf(Context* ctx, Value&)
+static int os_fileExtOf(Context* ctx, Value&)
 {
     String* path = ctx->GetStringArg(0);
     const char* extension = Pika_rindex(path->GetBuffer(), '.');
@@ -348,7 +332,7 @@ static int OS_fileExtOf(Context* ctx, Value&)
     return 1;
 }
 
-static int OS_addSearchPath(Context* ctx, Value&)
+static int os_addSearchPath(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     for (size_t a = 0; a < ctx->GetArgCount(); ++a)
@@ -387,7 +371,7 @@ static String* FindFileName(Engine* eng, String* path)
     return 0;
 }
 
-static int OS_fileNameOf(Context* ctx, Value&)
+static int os_fileNameOf(Context* ctx, Value&)
 {
     String* path = ctx->GetStringArg(0);
     String* name = FindFileName(ctx->GetEngine(), path);
@@ -424,12 +408,12 @@ pint_t Rotr(pint_t x, pint_t n)
 int math_lib_load(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
-    Package* world_Package = eng->GetWorld();
-    String*  math_String = eng->AllocString("math");
-    Package* math_Package = Package::Create(eng, math_String, world_Package);
+    GCPAUSE(eng);
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-        
+    Package* world_Package = eng->GetWorld();
+    String*  math_String   = eng->AllocString("math");
+    Package* math_Package  = Package::Create(eng, math_String, world_Package);
+    
     SlotBinder<Object>(eng, math_Package, math_Package)
     .StaticMethod( Rotl,         "rotl")
     .StaticMethod( Rotr,         "rotr")
@@ -444,16 +428,16 @@ int math_lib_load(Context* ctx, Value&)
     .StaticMethod( ArcTan,       "arcTan")
     .StaticMethod( ArcTan2,      "arcTan2")
     .StaticMethod( Sqrt,         "sqrt")
-    .StaticMethod( Math_min,     "min")
-    .StaticMethod( Math_max,     "max")
-    .StaticMethod( Math_Round,   "round")
-    .StaticMethod( Math_Power,   "power")
+    .StaticMethod( math_min,     "min")
+    .StaticMethod( math_max,     "max")
+    .StaticMethod( math_round,   "round")
+    .StaticMethod( math_power,   "power")
     .StaticMethod( Log10,        "log10")
     .StaticMethod( Log,          "log")
     .StaticMethod( Floor,        "floor")
     .StaticMethod( Ceil,         "ceiling")
     .StaticMethod( Exp,          "exp")
-    .Register    ( Math_Abs,     "abs")
+    .Register    ( math_Abs,     "abs")
     .Constant    ( PIKA_PI,      "PI")
     .Constant    ( PIKA_E,       "E")
     .Constant    ( PIKA_LN10,    "LN10")
@@ -470,22 +454,19 @@ int math_lib_load(Context* ctx, Value&)
     return 1;
 }
 
-void InitSystemLIB(Engine* eng)
+int os_lib_load(Context* ctx, Value&)
 {
-
-    Package* World_Package = eng->GetWorld();
-    String*  math_String   = eng->AllocString("math");
-    //Package* Math_Package  = eng->OpenPackage(Math_String, World_Package, false);
-    String*  OS_String     = eng->AllocString("os");
-    Package* OS_Package    = eng->OpenPackage(OS_String, World_Package, false);
+    Engine* eng = ctx->GetEngine();
+    GCPAUSE(eng);
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    Package* world_Package = eng->GetWorld();
+    String*  os_String     = eng->AllocString("os");
+    Package* os_Package    = eng->OpenPackage(os_String, world_Package, false);
     
-	SlotBinder<Object>(eng, OS_Package, OS_Package)
-    .Register    ( OS_sleep,                 "sleep")
-    .StaticMethod( OS_Clock,                 "clock")
-    .StaticMethod( OS_System,                "system")
-    .StaticMethod( OS_Time,                  "time")
+	SlotBinder<Object>(eng, os_Package, os_Package)
+    .StaticMethod( os_clock,                 "clock")
+    .StaticMethod( os_system,                "system")
+    .StaticMethod( os_time,                  "time")
     .StaticMethod( getenv,                   "getEnv")
     .StaticMethod( setenv,                   "setEnv")
     .StaticMethod( unsetenv,                 "unSetEnv")
@@ -495,24 +476,40 @@ void InitSystemLIB(Engine* eng)
     .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
     .StaticMethod( Pika_RemoveDirectory,     "RemoveDir")   // Removes a directory.
     .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
-    .Register    ( OS_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
-    .Register    ( OS_moveFile,              "moveFile")    // Moves a file to a new location.
-    .Register    ( OS_copyFile,              "copyFile")    // Copies a file to a new location.
-    .Register    ( OS_removeFile,            "removeFile")  // Removes a file.
-    .Register    ( OS_getCurrentDir,         "getCurrDir")  // Returns the current directory.
-    .Register    ( OS_getFullPath,           "getFullPath")
-    .Register    ( OS_fileExtOf,             "fileExtOf")
-    .Register    ( OS_fileNameOf,            "fileNameOf")
-    .Register    ( OS_addSearchPath,         "addSearchPath")
+    .Register    ( os_sleep,                 "sleep")       // Sleep a given number of ms.
+    .Register    ( os_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
+    .Register    ( os_moveFile,              "moveFile")    // Moves a file to a new location.
+    .Register    ( os_copyFile,              "copyFile")    // Copies a file to a new location.
+    .Register    ( os_removeFile,            "removeFile")  // Removes a file.
+    .Register    ( os_getCurrentDir,         "getCurrDir")  // Returns the current directory.
+    .Register    ( os_getFullPath,           "getFullPath")
+    .Register    ( os_fileExtOf,             "fileExtOf")
+    .Register    ( os_fileNameOf,            "fileNameOf")
+    .Register    ( os_addSearchPath,         "addSearchPath")
     ;
-    
-    static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };
-    
-    Value mathfn(Function::Create(eng, &math_FuncDef, World_Package));
-    
-    eng->PutImport(math_String, mathfn);
-    ////////////////////////////////////////////////////////////////////////////////////////////////
         
+    eng->PutImport(os_String, os_Package);
+    ctx->Push(os_Package);
+    return 1;
+}
+
+void InitSystemLIB(Engine* eng)
+{
+    Package* World_Package = eng->GetWorld();
+    
+    { // Setup 'math' package as an import.
+    String* math_String = eng->AllocString("math");
+    static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };
+    Value mathfn(Function::Create(eng, &math_FuncDef, World_Package));
+    eng->PutImport(math_String, mathfn);
+    }
+    
+    { // Setup 'os' package as an import.
+    String*  os_String = eng->AllocString("os");
+    static RegisterFunction os_FuncDef = { "os", os_lib_load, 0, 0, 0 };    
+    Value osfn(Function::Create(eng, &os_FuncDef, World_Package));
+    eng->PutImport(os_String, osfn);
+    }
 }
 
 

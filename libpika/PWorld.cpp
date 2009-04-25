@@ -661,7 +661,7 @@ static int Global_each(Context* ctx, Value&)
     return 0;
 }
 
-int Error_toString(Context* ctx, Value& self)
+static int Error_toString(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
     Value vmsg;
@@ -679,7 +679,7 @@ int Error_toString(Context* ctx, Value& self)
     return 1;
 }
 
-int Error_init(Context* ctx, Value& self)
+static int Error_init(Context* ctx, Value& self)
 {
     GCPAUSE(ctx->GetEngine());
     
@@ -691,7 +691,7 @@ int Error_init(Context* ctx, Value& self)
     return 1;
 }
 
-int null_Function(Context*, Value&) { return 0; }
+extern int null_Function(Context*, Value&);
 
 static void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
 {

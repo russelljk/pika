@@ -248,15 +248,18 @@ String* Array::ToString()
             // An array this could lead to an infinite loop, so just print ellipsis.
             res = engine->AllocString("[...]");
         }
-        else if (elements[i].IsObject())
+        else if (elements[i].IsString())
+        {
+            res = elements[i].val.str;
+        }
+        else if (elements[i].tag >= TAG_basic)
         {
             // Same danger as an array can occur if the Object and this Array have a cyclical references.
-            res = engine->AllocStringFmt("{%s instance:%p}", elements[i].val.object->GetType()->GetName()->GetBuffer(), elements[i].val.object);
+            res = engine->AllocStringFmt("{%s instance:%p}", elements[i].val.basic->GetType()->GetName()->GetBuffer(), elements[i].val.object);
         }
         else
         {
             // Its a non object value.
-            // TODO: It is possible that a UserData object could hold reference to this Array.
             res = engine->ToString(ctx, elements[i]);
         }
         
@@ -356,8 +359,8 @@ Array::Array(Engine* eng, Type* arrType, size_t length, Value* elems)
 Enumerator* Array::GetEnumerator(String *enumtype)
 {
     if (enumtype == engine->elements_String ||
-            enumtype == engine->indices_String  ||
-            enumtype == engine->emptyString)
+        enumtype == engine->indices_String  ||
+        enumtype == engine->emptyString)
     {
         Enumerator* e = 0;
         PIKA_NEW(ArrayEnumerator, e, (engine, (enumtype == engine->indices_String), this));
@@ -433,8 +436,10 @@ Array* Array::Map(Value m)
         {
             ctx->Run();
         }
+        
+        // user might resize the vector behind our backs!
         if (i < elements.GetSize())
-        { // user might resize the vector behind our backs!
+        {             
             elements[i] = ctx->PopTop();
         }
     }

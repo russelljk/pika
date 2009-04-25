@@ -45,11 +45,8 @@ HookedFunction* HookedFunction::Create(Engine* eng,
 
 Object* HookedFunction::Clone()
 {
-    HookedFunction* bf = 0;
-    
-    PIKA_NEW(HookedFunction, bf, (engine, GetType(), def, ndef, info, location));
-    engine->AddToGC(bf);
-        
+    HookedFunction* bf = 0;    
+    GCNEW(engine, HookedFunction, bf, (engine, GetType(), def, ndef, info, location));        
     return bf;
 }
 

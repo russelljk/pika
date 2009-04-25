@@ -319,6 +319,24 @@ struct SlotBinder
         return *this;
     }
     
+    SlotBinder& RegisterClassMethod(Nativecode_t code,
+                         const char*  cname,
+                         u2           argc    = 0,
+                         bool         varargs = true,
+                         bool         strict  = false)
+    {
+        if (!object->IsDerivedFrom(Type::StaticGetClass()))
+            return Register(code, cname, argc, varargs, strict);
+        
+        String* name = engine->AllocString(cname);        
+        Def* fn = Def::CreateWith(engine, name,
+            code, argc, varargs, strict, 0);
+
+        Function* closure = ClassMethod::Create(engine, 0, fn, package, (Type*)object);
+        object->AddFunction(closure);
+        return *this;
+    }
+        
     ClassInfo* class_info;
     Package*   package;
     Engine*    engine;

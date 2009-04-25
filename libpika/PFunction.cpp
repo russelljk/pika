@@ -19,14 +19,6 @@
 
 namespace pika {
 
-PIKA_FORCE_INLINE void MarkValues(Collector* c, Value *begin, Value* end)
-{
-    for (Value *curr = begin; curr < end; ++curr)
-    {
-        MarkValue(c, *curr);
-    }
-}
-
 // LexicalEnv //////////////////////////////////////////////////////////////////////////////////////////
 
 LexicalEnv::LexicalEnv(bool close)
@@ -600,7 +592,7 @@ static int Function_gen(Context* ctx, Value& self)
 }
 
 // TODO: it currently takes our argc which causes a problem
-static int Function_GenerateAs(Context* ctx, Value& self)
+static int Function_genAs(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
@@ -627,7 +619,7 @@ static int Function_GenerateAs(Context* ctx, Value& self)
     return 1;
 }
 
-static int Function_printBytecode(Context* ctx, Value& self)
+static int Function_printBytecode(Context* ctx, Value&)
 {
     String* str = ctx->GetStringArg(0);
     size_t len = str->GetLength();
@@ -680,7 +672,7 @@ static int LocalsObject_getParent(Context* ctx, Value& self)
 }
 
 
-extern int null_Function(Context*, Value&);
+int null_Function(Context*, Value&) { return 0; }
 
 static int Function_call(Context* ctx, Value& self)
 {
@@ -691,7 +683,7 @@ static int Function_call(Context* ctx, Value& self)
     {
     case 2:
         selfObj = ctx->GetArg(0);
-        args = ctx->GetArgT<Array>(1);
+        args = ctx->GetArgT<Array>(1); 
         break;
     case 1:
         args = ctx->GetArgT<Array>(0);
@@ -710,16 +702,15 @@ void InitFunctionAPI(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
     .Method(&Function::Apply,               "apply")
-    .RegisterMethod(Function_getBytecode,     "getBytecode")
-    .RegisterMethod(Function_getText,         "getText")
-    .RegisterMethod(Function_getLocal,        "getLocal")
-    .RegisterMethod(Function_getLocalCount,   "getLocalCount")
-    .RegisterMethod(Function_printBytecode,   "printBytecode")
-    .RegisterMethod(Function_call,            "call")
-    .RegisterMethod(Function_gen,             "generate")
-    .RegisterMethod(Function_GenerateAs,      "generateAs")
-    .RegisterMethod(Function_call,            "opCall")
-    .RegisterMethod(Function_printLiterals,   "printLiterals")
+    .RegisterMethod(Function_getBytecode,   "getBytecode")
+    .RegisterMethod(Function_getText,       "getText")
+    .RegisterMethod(Function_getLocal,      "getLocal")
+    .RegisterMethod(Function_getLocalCount, "getLocalCount")
+    .RegisterMethod(Function_call,          "call")
+    .RegisterMethod(Function_gen,           "gen")
+    .RegisterMethod(Function_genAs,         "genAs")
+    .RegisterMethod(Function_printLiterals, "printLiterals")
+    .RegisterClassMethod(Function_printBytecode,    "printBytecode")
     .PropertyR("name",      &Function::GetName,     "getName")
     .PropertyR("location",  &Function::GetLocation, "getLocation")
     .PropertyR("parent",    &Function::GetParent,   "getParent")

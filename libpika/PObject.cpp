@@ -242,19 +242,6 @@ int Object_remove(Context* ctx, Value& self)
     return 0;
 }
 
-int Object_setSlot(Context* ctx, Value& self)
-{
-    Value& name = ctx->GetArg(0);
-    Value& val  = ctx->GetArg(1);
-    Object* obj = self.val.object;
-    Value res(NULL_VALUE);
-    if (!obj->SetSlot(name, val))
-    {
-        //call property
-    }
-    return 0;
-}
-
 static int Object_getEnumerator(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
@@ -313,7 +300,7 @@ static int Object_toString(Context* ctx, Value& self)
     return 1;
 }
 
-static int Object_getSlotFrom(Context* ctx, Value& self)
+static int Object_rawDotRead(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -322,6 +309,18 @@ static int Object_getSlotFrom(Context* ctx, Value& self)
     {
         ctx->Push(res);
         return 1;
+    }
+    return 0;
+}
+
+static int Object_rawDotWrite(Context* ctx, Value& self)
+{
+    Object* obj = ctx->GetObjectArg(0);
+    Value   name = ctx->GetArg(1);
+    Value   val  = ctx->GetArg(2);
+    Value   res(NULL_VALUE);
+    if (obj->SetSlot(name, val))
+    {
     }
     return 0;
 }
@@ -387,7 +386,7 @@ void InitObjectAPI(Engine* eng)
     {
         { "import", Global_import, 0, 1, 0 },
     };
-
+    
     Pkg_World->AddNative(GlobalFunctions, countof(GlobalFunctions));
     
     // Object /////////////////////////////////////////////////////////////////
@@ -399,12 +398,12 @@ void InitObjectAPI(Engine* eng)
         { "clone",          Object_clone,         0, 0, 0 },
         { OPINIT_CSTR,      Object_init,          0, 1, 0 },
         { "toString",       Object_toString,      0, 0, 0 },
-        { "setSlot",        Object_setSlot,       2, 0, 1 },
     };
     
     static RegisterFunction Object_ClassMethods[] =
     {
-        { "getSlotFrom",    Object_getSlotFrom,     2, 0, 1 },
+        { "rawDotRead",  Object_rawDotRead,  2, 0, 1 },
+        { "rawDotWrite", Object_rawDotWrite, 3, 0, 1 },
     };
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));

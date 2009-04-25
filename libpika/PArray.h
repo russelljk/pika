@@ -40,6 +40,9 @@ public:
     
     virtual String*  ToString();
     
+    INLINE Value& operator[](size_t i) { return elements[i]; }
+    INLINE const Value& operator[](size_t i) const { return elements[i]; }
+        
     Array*  Slice(pint_t from, pint_t to);
     Array*  Map(Value fn);    
     Array*  Sort(Value fn);    

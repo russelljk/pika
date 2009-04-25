@@ -110,14 +110,6 @@ protected:
     Engine* engine;
 };
 
-INLINE void MarkValue(Collector* c, Value& v)
-{
-    ASSERT(v.tag < MAX_TAG);
-
-    if (v.tag >= TAG_gcobj && v.val.gcobj)
-        v.val.gcobj->Mark(c);
-}
-
 }// pika
 
 #endif

@@ -98,14 +98,6 @@ void InitContextAPI(Engine* eng)
     eng->GetWorld()->SetSlot(Context_String, eng->Context_Type);
 }
 
-PIKA_FORCE_INLINE void MarkValues(Collector* c, Value *begin, Value* end)
-{
-    for (Value *curr = begin; curr < end; ++curr)
-    {
-        MarkValue(c, *curr);
-    }
-}
-
 namespace pika {
 
 // Enumerates each yielded value for the given Context.
@@ -594,10 +586,10 @@ INLINE void Context::OpArithUnary(const Opcode op, const OpOverride ovr, int& nu
         default: break;
         }
     }
-    else if (a.tag == TAG_object)
+    else if (a.tag >= TAG_basic)
     {
-        Object* obj = a.val.object;
-        if (SetupOverrideUnary(obj, ovr))
+        Basic* bas = a.val.basic;
+        if (SetupOverrideUnary(bas, ovr))
             ++numcalls;
     }
     else
