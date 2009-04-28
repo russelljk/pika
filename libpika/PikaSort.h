@@ -9,14 +9,14 @@ namespace pika {
 
 #define INSERTION_SORT_CUTOFF 20
 
-template<typename _Iter, typename _Comp>
+template<typename IterT, typename CompT>
 inline void
-insertion_sort(_Iter left, _Iter right, _Comp compfn)
+insertion_sort(IterT left, IterT right, CompT compfn)
 {
-    for (_Iter i = left + 1; i < right; ++i)
+    for (IterT i = left + 1; i < right; ++i)
     {   
-        typename std::iterator_traits<_Iter>::value_type store = *i;       
-        _Iter j = i - 1; 
+        typename std::iterator_traits<IterT>::value_type store = *i;       
+        IterT j = i - 1; 
         for (; j >= left; --j)
         {
             if(compfn(store, *j))
@@ -30,11 +30,11 @@ insertion_sort(_Iter left, _Iter right, _Comp compfn)
     }
 }
 
-template<typename _Iter, typename _Comp>
-inline _Iter
-median3(_Iter left, _Iter right, _Comp compfn)
+template<typename IterT, typename CompT>
+inline IterT
+median3(IterT left, IterT right, CompT compfn)
 {
-    _Iter center =  left + (right - left) / 2;
+    IterT center =  left + (right - left) / 2;
     
     if (compfn(*center , *left))
         std::swap(*left, *center);
@@ -45,19 +45,19 @@ median3(_Iter left, _Iter right, _Comp compfn)
     return right;
 }
 
-template<typename _Iter, typename _Comp>
+template<typename IterT, typename CompT>
 inline void
-quick_sort(_Iter left, _Iter right, _Comp compfn)
+quick_sort(IterT left, IterT right, CompT compfn)
 {
     size_t stride = right - left;
     if (stride > INSERTION_SORT_CUTOFF)
     {
-        _Iter pivot = median3(left, right - 1, compfn);
-        _Iter i     = left;
-        _Iter store = left;
-        _Iter stop  = right - 1;
+        IterT pivot = median3(left, right - 1, compfn);
+        IterT i     = left;
+        IterT store = left;
+        IterT stop  = right - 1;
         
-        for (_Iter i = left; i < stop; ++i)
+        for (IterT i = left; i < stop; ++i)
         {
             if (compfn(*i, *pivot))
             {
@@ -76,9 +76,9 @@ quick_sort(_Iter left, _Iter right, _Comp compfn)
     }
 }
 
-template<typename _Iter, typename _Comp>
+template<typename IterT, typename CompT>
 inline void
-pika_sort(_Iter left, _Iter right, _Comp compfn)
+pika_sort(IterT left, IterT right, CompT compfn)
 {
     quick_sort(left, right, compfn);
 }

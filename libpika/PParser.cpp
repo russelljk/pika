@@ -755,11 +755,11 @@ Stmt* Parser::DoFinallyBlock(Stmt* in)
     
     if (Optional(TOK_finally))
     {
-        Stmt* finallydBlock = DoStatementList(Static_end_terms);
+        Stmt* finalizeBlock = DoStatementList(Static_end_terms);
         
         Match(TOK_end);
         
-        PIKA_NEWNODE(FinallyStmt, out, (in, finallydBlock));
+        PIKA_NEWNODE(FinallyStmt, out, (in, finalizeBlock));
         out->line = in->line;
     }
     else
@@ -805,10 +805,10 @@ Stmt* Parser::DoWithStatement()
         
         Match(TOK_end);
         Stmt* out = 0;
-        Stmt* finallydBlock = 0;
-        PIKA_NEWNODE(EmptyStmt, finallydBlock, ());
-        finallydBlock->line = eline;
-        PIKA_NEWNODE(FinallyStmt, out, (stmt, finallydBlock));
+        Stmt* finalizeBlock = 0;
+        PIKA_NEWNODE(EmptyStmt, finalizeBlock, ());
+        finalizeBlock->line = eline;
+        PIKA_NEWNODE(FinallyStmt, out, (stmt, finalizeBlock));
         out->line = eline;
         return out;
     }    

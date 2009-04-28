@@ -1346,11 +1346,11 @@ void VariableTarget::CalculateResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-FinallyStmt::FinallyStmt(Stmt* block, Stmt* ensured_block)
-        : Stmt(Stmt::STMT_ensureblock),
+FinallyStmt::FinallyStmt(Stmt* block, Stmt* finalize_block)
+        : Stmt(Stmt::STMT_finallyblock),
         block(block),
         symtab(0),
-        ensured_block(ensured_block) {}
+        finalize_block(finalize_block) {}
         
 FinallyStmt::~FinallyStmt() { Pika_delete(symtab); }
 
@@ -1361,8 +1361,8 @@ void FinallyStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
         
     PIKA_NEW(SymbolTable, symtab, (st, false, false, false, false));
     
-    if (ensured_block)
-        ensured_block->CalculateResources(symtab, cs);
+    if (finalize_block)
+        finalize_block->CalculateResources(symtab, cs);
 }
 
 WithStatement::WithStatement(Expr* e, Stmt* b)

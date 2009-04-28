@@ -39,7 +39,7 @@ namespace pika {
                     bool global  = false, // Variables default to global scope
                     bool with    = false, // Variables default to slot_table
                     bool func    = false, // Default for functions
-                    bool inherit = true); // Inherits parent's scope (currently unset only for catch|ensure blocks)
+                    bool inherit = true); // Inherits parent's scope (currently false only for catch & finally blocks)
 
         ~SymbolTable();
 

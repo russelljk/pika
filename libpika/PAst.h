@@ -452,7 +452,7 @@ struct Stmt : TreeNode
         STMT_yield,
         STMT_try,
         STMT_raise,
-        STMT_ensureblock,
+        STMT_finallyblock,
         STMT_with,
         STMT_case,
         STMT_assert,
@@ -494,7 +494,7 @@ struct AssertStmt : Stmt
 
 struct FinallyStmt : Stmt
 {
-    FinallyStmt(Stmt* block, Stmt* ensured_block);
+    FinallyStmt(Stmt* block, Stmt* finalize_block);
     virtual ~FinallyStmt();
     
     virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
@@ -502,7 +502,7 @@ struct FinallyStmt : Stmt
     
     Stmt* block;
     SymbolTable* symtab;
-    Stmt* ensured_block;
+    Stmt* finalize_block;
 };
 
 // RaiseStmt //////////////////////////////////////////////////////////////////////////////////

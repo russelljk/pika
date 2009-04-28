@@ -198,21 +198,21 @@ void FinallyBlockBreaks(Instr* start, Instr* end, Instr* target)
         case BREAK_LOOP:
         case CONTINUE_LOOP:
         {
-            Instr* icallensure = Instr::Create(OP_callensure);
-            Instr* ipopensure  = Instr::Create(OP_pophandler);
+            Instr* icallfinally = Instr::Create(OP_callfinally);
+            Instr* ipopfinally  = Instr::Create(OP_pophandler);
             
-            icallensure->next = ipopensure;
-            ipopensure->prev  = icallensure;
-            Instr* iprev      = curr->prev;
-            ipopensure->next  = curr;
-            icallensure->prev = iprev;
-            curr->prev        = ipopensure;
+            icallfinally->next = ipopfinally;
+            ipopfinally->prev  = icallfinally;
+            Instr* iprev       = curr->prev;
+            ipopfinally->next  = curr;
+            icallfinally->prev = iprev;
+            curr->prev         = ipopfinally;
             
-            icallensure->SetTarget(target);
+            icallfinally->SetTarget(target);
             
             if (iprev)
             {
-                iprev->next = icallensure;
+                iprev->next = icallfinally;
             }
         }
         //  Fall through
@@ -241,7 +241,7 @@ void WarnNonLocalJumps(CompileState* state, Instr* start, Instr* end, int line)
         case BREAK_LOOP:
         case CONTINUE_LOOP:
         {
-            state->SyntaxWarning(WARN_severe, line, "jumping out of an ensure block is not recommended.");
+            state->SyntaxWarning(WARN_severe, line, "jumping out of an finally block is not recommended.");
         }
         default: continue;
         }
@@ -1695,40 +1695,40 @@ Instr* SliceExpr::GenerateCode()
 
 Instr* DeclarationTarget::GenerateCodeSet()
 {
-    Instr* iassign = 0;
-    
     if (with)
     {
-        iassign = Instr::Create(OP_setmember); // member
-        iassign->operand = nameindex;
+        Instr* isetMember = Instr::Create(OP_setmember); // member
+        isetMember->operand = nameindex;
+        return isetMember;        
     }
     else if (symbol->isGlobal)
     {
-        iassign = Instr::Create(OP_setglobal); // global
-        iassign->operand = nameindex;
+        Instr* isetGlobal = Instr::Create(OP_setglobal); // global
+        isetGlobal->operand = nameindex;
+        return isetGlobal;
     }
     else
     {
-        iassign = Instr::Create(OP_setlocal); // local
-        iassign->operand   = symbol->offset;
-        iassign->operandu1 = 1;
-        iassign->target = state->endOfBlock;
+        Instr* isetLocal = Instr::Create(OP_setlocal); // local
+        isetLocal->operand = symbol->offset;
+        isetLocal->operandu1 = 1;
+        isetLocal->target = state->endOfBlock;
+        return isetLocal;
     }
-    
-    return iassign;
+    return 0;
 }
 
 Instr* NamedTarget::GenerateCodeWith(Instr* body)
 {
-    Instr* get       = name->GenerateCode();
+    Instr* get = name->GenerateCode();
     Instr* enterWith = Instr::Create(OP_pushwith);
     Instr* exitWith  = Instr::Create(OP_popwith);
     
     get->
-        Attach(enterWith)->
-        Attach(body)->
-        Attach(exitWith);
-        
+    Attach(enterWith)->
+    Attach(body)->
+    Attach(exitWith);
+    
     HandleBlockBreaks(body,
                       exitWith,
                       OP_popwith,
@@ -1750,14 +1750,15 @@ Instr* PropertyDecl::GeneratePropertyCode()
     
     if (isetter->line >= igetter->line)
     {
-        iname->Attach(igetter);
-        igetter->Attach(isetter);
-        isetter->Attach(iprop);
+        iname->
+        Attach(igetter)->
+        Attach(isetter)->
+        Attach(iprop)
+        ;
     }
     else
     {
-        /*
-         * we output in the order specified by the user
+        /* we output in the order specified by the user
          * then swap the getter and setter before creating the
          * property.
          *
@@ -1765,20 +1766,20 @@ Instr* PropertyDecl::GeneratePropertyCode()
          * OP_property recieves its name | getter | setter in the correct order.
          */
         Instr* iswap = Instr::Create(OP_swap);
-        iname->Attach(isetter);
-        isetter->Attach(igetter);
-        igetter->Attach(iswap);
-        iswap->Attach(iprop);
-    }
-    
+        iname->
+        Attach(isetter)->
+        Attach(igetter)->
+        Attach(iswap)->
+        Attach(iprop)
+        ;
+    }    
     return iname;
 }
 
 Instr* PropertyDecl::GenerateCode()
 {
     Instr* iexpr = GeneratePropertyCode();
-    Instr* iassign = NamedTarget::GenerateCodeSet();
-    
+    Instr* iassign = NamedTarget::GenerateCodeSet();    
     iexpr->Attach(iassign);
     return iexpr;
 }
@@ -1932,48 +1933,48 @@ Instr* FinallyStmt::DoStmtCodeGen()
      *     An exception is raised in the block and we have to unwind the stack and call the enclosing
      *     handler (if present).
      * 
-     * For all 3 we want to 'ensure' that the ensure block will always be called as the block is terminated.
+     * For all 3 we want to ensure that the finally block will always be called as the block is terminated.
      * 
      * ---------------------------------------------------------------------------------------------
      * 
      * 1.) Normal
-     *     A. Insert OP_callensure at the end of the block with the ensure block as the target.
-     *     B. When the ensure block returns we jump to the finished label.
+     *     A. Insert OP_callfinally at the end of the block with the finally block as the target.
+     *     B. When the finally block returns we jump to the finished label.
      *   
      * 2.) Non-local-jump
-     *     A. Insert OP_callensure before each jump with the ensure block as the target.
-     *     B. When the ensure block returns the non-local-jump is performed, exiting the block.
+     *     A. Insert OP_callfinally before each jump with the finally block as the target.
+     *     B. When the finally block returns the non-local-jump is performed, exiting the block.
      *  
      * 3.) Exception
-     *     A.  Jump to invoke_ensure.
-     *         (Note that the entire block is actually a try-block, so invoke_ensure is our
+     *     A.  Jump to invoke_finally.
+     *         (Note that the entire block is actually a try-block, so invoke_finally is our
      *         'catch' handler.)
-     *     B. Call ensure block
+     *     B. Call finally block
      *     C. Reraise the exception
      *
      * ---------------------------------------------------------------------------------------------
      *  
      * start:
-     *      pushensure  [ target: invoke_ensure ]
+     *      pushfinally  [ target: invoke_finally ]
      *      <block>
-     *      callensure  [ target: ensured       ]
-     *      jump        [ target: finished      ]
-     * ensured:
-     *      <ensure block>
+     *      callfinally  [ target: finalize       ]
+     *      jump         [ target: finished       ]
+     * finalize:
+     *      <finally block>
      *      jump to address on top of address stack
-     * invoke_ensure:
-     *      callensure  [ target: ensured       ]
+     * invoke_finally:
+     *      callfinally  [ target: finalize       ]
      *      raise
      * finished:
      */
     Instr* ibegin     = Instr::Create(OP_nop);
     Instr* iblock     = block ? block->GenerateCode() : Instr::Create(OP_nop);
-    Instr* iretensure = Instr::Create(OP_retensure);
+    Instr* iretfinally = Instr::Create(OP_retfinally);
     
-    PIKA_BLOCKSTART(state, iretensure);
+    PIKA_BLOCKSTART(state, iretfinally);
     // START BLOCK----------------------------------------------------------------------------------
     
-    Instr* iensured_block = ensured_block ? ensured_block->GenerateCode() : Instr::Create(OP_nop);
+    Instr* ifinalize_block = finalize_block ? finalize_block->GenerateCode() : Instr::Create(OP_nop);
     
     if (block->kind == Stmt::STMT_with)
     {
@@ -1982,45 +1983,45 @@ Instr* FinallyStmt::DoStmtCodeGen()
         ibegin = ientry;
         
         Instr* ipopwith = Instr::Create(OP_popwith);
-        ipopwith->Attach(iensured_block);
-        iensured_block = ipopwith;
+        ipopwith->Attach(ifinalize_block);
+        ifinalize_block = ipopwith;
     }
     
     // END BLOCK------------------------------------------------------------------------------------
     PIKA_BLOCKEND(state);
     
-    Instr* ipushensure   = Instr::Create(OP_pushensure);
-    Instr* ipopensure    = Instr::Create(OP_pophandler);
-    Instr* icallensure   = Instr::Create(OP_callensure);
+    Instr* ipushfinally   = Instr::Create(OP_pushfinally);
+    Instr* ipopfinally    = Instr::Create(OP_pophandler);
+    Instr* icallfinally   = Instr::Create(OP_callfinally);
     Instr* ijmptoend     = Instr::Create(OP_jump);
     Instr* ifinished     = Instr::Create(JMP_TARGET);
-    Instr* invoke_ensure = Instr::Create(OP_callensure);
+    Instr* invoke_finally = Instr::Create(OP_callfinally);
     Instr* reraise       = Instr::Create(OP_raise);
     
     ibegin->
-    Attach(ipushensure)->
+    Attach(ipushfinally)->
     Attach(iblock)->
-    Attach(ipopensure)->
-    Attach(icallensure)->       // stack call -> pop ensure
+    Attach(ipopfinally)->
+    Attach(icallfinally)->       // stack call -> pop finally
     Attach(ijmptoend)->
-    Attach(iensured_block)->
-    Attach(iretensure)->        // jsr
-    Attach(invoke_ensure)->
+    Attach(ifinalize_block)->
+    Attach(iretfinally)->        // jsr
+    Attach(invoke_finally)->
     Attach(reraise)->
     Attach(ifinished);
     
-    ipushensure->SetTarget(invoke_ensure);
-    invoke_ensure->SetTarget(iensured_block);
-    icallensure->SetTarget(iensured_block);
+    ipushfinally->SetTarget(invoke_finally);
+    invoke_finally->SetTarget(ifinalize_block);
+    icallfinally->SetTarget(ifinalize_block);
     ijmptoend->SetTarget(ifinished);
     
     FinallyBlockBreaks(ibegin,          // Start of the block.
-                       iensured_block,  // End of the block.
-                       iensured_block); // Target for OP_callensure, the beginning of the ensure block.
+                       ifinalize_block,  // End of the block.
+                       ifinalize_block); // Target for OP_callfinally, the beginning of the finally block.
 #if defined(ENABLE_SYNTAX_WARNINGS)                      
     WarnNonLocalJumps(state,
-                      iensured_block,
-                      iretensure,
+                      ifinalize_block,
+                      iretfinally,
                       line);
 #endif
     return ibegin;
@@ -2095,8 +2096,8 @@ Instr* WithStatement::DoHeader()
 
 Instr* WithStatement::DoStmtCodeGen()
 {
-    // A <using> statement is always wrapped inside of an ensure block.
-    // The ensure will handle any cleanup required even from a return / break / or continue.
+    // A <using> statement is always wrapped inside of an finally block.
+    // The finally-block will handle any cleanup required even from a return / break / or continue.
     
     //Instr* iwith = with->GenerateCode();
     //Instr* ipushwith = Instr::Create(OP_pushwith);

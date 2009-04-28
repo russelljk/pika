@@ -134,8 +134,8 @@
 
     DECL_OP( OP_raise,          "raise",        1, OF_none,     "" )
                                                                     
-    DECL_OP( OP_retensure,      "retensure",    1, OF_none,     "" )
-    DECL_OP( OP_callensure,     "callensure",   3, OF_target,   "" )
+    DECL_OP( OP_retfinally,     "retfinally",    1, OF_none,     "" )
+    DECL_OP( OP_callfinally,    "callfinally",   3, OF_target,   "" )
     
     DECL_OP( OP_pushwith,       "pushwith",     1, OF_none,     "" )
     DECL_OP( OP_popwith,        "popwith",      1, OF_none,     "" )

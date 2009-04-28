@@ -946,7 +946,7 @@ void Context::Run()
             }
             PIKA_NEXT()
             
-            PIKA_OPCODE(OP_retensure)
+            PIKA_OPCODE(OP_retfinally)
             {
                 ASSERT(!addressStack.IsEmpty());
                 
@@ -956,14 +956,14 @@ void Context::Run()
             }
             PIKA_NEXT()
             
-            PIKA_OPCODE(OP_callensure)
+            PIKA_OPCODE(OP_callfinally)
             {
                 code_t* byte_code_start = closure->GetBytecode();
-                u2 ensure_offset = GetShortOperand(instr);
+                u2 finally_offset = GetShortOperand(instr);
                 size_t offset = pc - byte_code_start;
                 
                 addressStack.Push(offset);
-                pc = byte_code_start + ensure_offset;
+                pc = byte_code_start + finally_offset;
             }
             PIKA_NEXT()
                         

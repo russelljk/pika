@@ -139,7 +139,7 @@ protected:
     
     int AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int argdiff, bool nativecall);
     
-    AddressStack   addressStack;    //!< Stack of addresses used by the ensure statement.
+    AddressStack   addressStack;    //!< Stack of addresses used by the finally statement.
     ExceptionStack handlers;        //!< Stack of ExceptionBlocks used for exception handling.    
     ScopeStack     scopes;          //!< Stack of scopes
     ScopeIter      scopesTop;       //!< Top of the scopes stack, the last used scope.

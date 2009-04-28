@@ -50,27 +50,21 @@ String*   Property::GetName()   { return name; }
 Property* Property::CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter)
 {
     Property* prop = 0;
-    PIKA_NEW(Property, prop, (eng, name, getter, setter));
-    eng->AddToGC(prop);
-
+    GCNEW(eng, Property, prop, (eng, name, getter, setter));
     return prop;
 }
 
 Property* Property::CreateRead(Engine* eng, String* name, Function* getter)
 {
     Property* prop = 0;
-    PIKA_NEW(Property, prop, (eng, name, getter, 0));
-    eng->AddToGC(prop);
-
+    GCNEW(eng, Property, prop, (eng, name, getter, 0));
     return prop;
 }
 
 Property* Property::CreateWrite(Engine* eng, String* name, Function* setter)
 {
     Property* prop = 0;
-    PIKA_NEW(Property, prop, (eng, name, 0, setter));
-    eng->AddToGC(prop);
-
+    GCNEW(eng, Property, prop, (eng, name, 0, setter));    
     return prop;
 }
 

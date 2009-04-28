@@ -286,8 +286,8 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_pushtry:
     case OP_pophandler:    
     case OP_raise:    
-    case OP_retensure:
-    case OP_callensure:     return  0;
+    case OP_retfinally:
+    case OP_callfinally:     return  0;
         
     case OP_pushwith:       return -1;
     case OP_popwith:        return  0;

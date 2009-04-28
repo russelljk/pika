@@ -41,7 +41,7 @@ enum Opcode
     OPCODE_MAX,
 };
 
-#define OP_pushensure OP_pushtry
+#define OP_pushfinally OP_pushtry
 
 extern const char*          OpcodeNames[OPCODE_MAX];
 extern const int            OpcodeLengths[OPCODE_MAX];
