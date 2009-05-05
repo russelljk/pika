@@ -1,0 +1,10 @@
+prefix=@PIKA_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: pika
+Description: Pika programming language
+Version: @pika_LIB_VERSION@
+Libs: -L${libdir} -lpika @PKG_CONFIG_ADD_LIBS@
+Cflags: -I${includedir}/Pika

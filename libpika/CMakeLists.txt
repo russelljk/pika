@@ -96,15 +96,35 @@ add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
 
 target_link_libraries (pika ${ADD_LIBS})
 
+# -------------------------------------------------------------------------
+# Change list format from "a;b;c" to "-la -lb -lc" for the pkg-config file.
+# -------------------------------------------------------------------------
+
+set (PKG_CONFIG_ADD_LIBS "")
+foreach (lib ${ADD_LIBS})
+    # The if statement keeps PKG_CONFIG_ADD_LIBS from starting with whitespace.
+    # It probably doesn't matter but it keeps the output looking nice.
+
+    if (PKG_CONFIG_ADD_LIBS STREQUAL "")
+	set (PKG_CONFIG_ADD_LIBS "-l${lib}")
+    else (PKG_CONFIG_ADD_LIBS STREQUAL "")
+	set (PKG_CONFIG_ADD_LIBS "${PKG_CONFIG_ADD_LIBS} -l${lib}")
+    endif (PKG_CONFIG_ADD_LIBS STREQUAL "")
+endforeach (lib)
+
+# -------------------------------------------------------------------------
+# Set version numbers
+# -------------------------------------------------------------------------
+
 set (pika_LIB_VERSION_MAJOR "0")
 set (pika_LIB_VERSION_MINOR "1")
 set (pika_LIB_VERSION_PATCH "0")
 
 set (pika_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
 
-# what about SOVERSION
 set_target_properties (pika PROPERTIES VERSION   ${pika_LIB_VERSION}
                                        SOVERSION ${pika_LIB_VERSION})
+
 #--------------------- Install  -----------------------
 
 set (PIKA_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
@@ -115,10 +135,10 @@ install (FILES ${pika_LIB_HEADERS}
 install (TARGETS pika 
          LIBRARY DESTINATION lib)
 
-#--------------------- Generate pika.pc -----------------------
+#--------------------- Generate + Install pika.pc -----------------------
 
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc" @ONLY)
 
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc"
+install (FILES       "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc"
          DESTINATION "lib/pkgconfig"
          COMPONENT   "pkgconfig")
