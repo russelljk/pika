@@ -1,6 +1,10 @@
+#
+# CMakeLists.txt for pikacurses
+# TODO: Install library and headers
+# TODO: support pdcurses
+#
 message (STATUS "********* Starting pikacurses library *********")
 
-# TODO: support pdcurses
 # Disable 'unsecure' warnings in VC++
 
 if (WIN32)

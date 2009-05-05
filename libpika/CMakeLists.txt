@@ -1,4 +1,6 @@
-
+#
+# CMakeLists.txt for pika
+#
 message (STATUS "********* Starting pika library *********")
 
 # Disable 'unsecure' warnings in VC++
@@ -69,9 +71,9 @@ check_function_exists (strtok   HAVE_STRTOK)
 check_function_exists (strtok_r HAVE_STRTOK_R)
 check_function_exists (strtok_s HAVE_STRTOK_S)
 
-#--------------------- Generate config.h -----------------------
+#--------------------- Generate pika_config.h -----------------------
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/pika_config.h)
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika_config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/pika_config.h")
 
 #---------------------- Target Files --------------------------
 
@@ -96,14 +98,27 @@ target_link_libraries (pika ${ADD_LIBS})
 
 set (pika_LIB_VERSION_MAJOR "0")
 set (pika_LIB_VERSION_MINOR "1")
+set (pika_LIB_VERSION_PATCH "0")
 
-set (pika_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}")
+set (pika_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
 
 # what about SOVERSION
-set_target_properties(pika PROPERTIES VERSION ${pika_LIB_VERSION}
-                                      SOVERSION ${pika_LIB_VERSION})
+set_target_properties (pika PROPERTIES VERSION   ${pika_LIB_VERSION}
+                                       SOVERSION ${pika_LIB_VERSION})
+#--------------------- Install  -----------------------
 
-install(FILES ${pika_LIB_HEADERS} DESTINATION include/Pika)
+set (PIKA_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set (PIKA_INCLUDE_DIR    "include/Pika")
 
-install (TARGETS pika
-	 LIBRARY DESTINATION lib)
+install (FILES ${pika_LIB_HEADERS} 
+         DESTINATION PIKA_INCLUDE_DIR)
+install (TARGETS pika 
+         LIBRARY DESTINATION lib)
+
+#--------------------- Generate pika.pc -----------------------
+
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc" @ONLY)
+
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc"
+         DESTINATION "lib/pkgconfig"
+         COMPONENT   "pkgconfig")

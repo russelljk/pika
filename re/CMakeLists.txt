@@ -1,3 +1,7 @@
+#
+# CMakeLists.txt for pikaRegExp
+# TODO: Install library and headers
+#
 message (STATUS "********* Starting pikaRegExp library *********")
 
 # Disable 'unsecure' warnings in VC++
