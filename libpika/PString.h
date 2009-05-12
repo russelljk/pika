@@ -34,6 +34,7 @@ public:
     virtual Enumerator* GetEnumerator(String*);
     virtual Type*       GetType() const;
     virtual bool        GetSlot(const Value& key, Value& result);
+    virtual bool        BracketRead(const Value& key, Value& result);
     virtual bool        SetSlot(const Value& key, Value& value, u4 attr = 0);
     virtual bool        CanSetSlot(const Value& key);
     virtual bool        DeleteSlot(const Value& key);

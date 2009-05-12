@@ -333,6 +333,17 @@ Type* String::GetType() const
 
 bool String::GetSlot(const Value& key, Value& result)
 {
+    if (key.tag == TAG_string && key.val.str == engine->length_String)
+    {
+        result.Set((pint_t)length);
+        return true;
+    }
+    
+    return engine->String_Type->GetField(key, result);
+}
+
+bool String::BracketRead(const Value& key, Value& result)
+{
     if ((key.tag == TAG_integer))
     {
         // If its a valid index into the string.
@@ -347,16 +358,10 @@ bool String::GetSlot(const Value& key, Value& result)
         {
             return false;
          }
-    } 
-    else if (key.tag == TAG_string && key.val.str == engine->length_String)
-    {
-        result.Set((pint_t)length);
-        return true;
     }
-    
-    return engine->String_Type->GetField(key, result);
+    return ThisSuper::BracketRead(key, result);
 }
-
+    
 bool String::SetSlot(const Value& key, Value& value, u4 attr) { return false; }
 bool String::CanSetSlot(const Value& key) { return false; }
 bool String::DeleteSlot(const Value& key) { return false; }
