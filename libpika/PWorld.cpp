@@ -347,6 +347,24 @@ static int Real_isnan(Context* ctx, Value& self)
     return 1;
 }
 
+static int Real_integer(Context* ctx, Value& self)
+{
+    preal_t r = self.val.real;
+    preal_t i = 0.0;
+    modf(r, &i);
+    ctx->Push(i);
+    return 1;
+}
+
+static int Real_fraction(Context* ctx, Value& self)
+{
+    preal_t r = self.val.real;
+    preal_t i = 0.0;
+    preal_t f = modf(r, &i);
+    ctx->Push(f);
+    return 1;
+}
+
 /*
 static int Real_IsIntegral(Context* ctx, Value& self)
 {
@@ -792,36 +810,33 @@ void Engine::InitializeWorld()
         
         GCNEW(this, PathManager, paths, (this));
         
-        this->missing_String    = AllocString("missing!");
+        this->Array_String      = AllocString("Array");
+        this->Enumerator_String = AllocString("Enumerator");
+        this->Object_String     = AllocString("Object");
         this->OpDispose_String  = AllocString("onDispose");
         this->OpUse_String      = AllocString("onUse");
-        
-        this->loading_String    = AllocString("loading");
-        this->length_String     = AllocString("length");
-        
-        this->Object_String     = AllocString("Object");
-        this->Enumerator_String = AllocString("Enumerator");
         this->Property_String   = AllocString("Property");
-        this->userdata_String   = AllocString("UserData");
-        this->null_String       = AllocString("null");
-        this->values_String     = AllocString("values");
-        this->keys_String       = AllocString("keys");
         this->elements_String   = AllocString("elements");
+        this->false_String      = AllocString("false");
         this->indices_String    = AllocString("indices");
-        this->Array_String      = AllocString("Array");
-        
-        this->toNumber_String  = AllocString("toNumber");
-        this->toString_String  = AllocString("toString");
-        this->toInteger_String = AllocString("toInteger");
-        this->toReal_String    = AllocString("toReal");
-        this->toBoolean_String = AllocString("toBoolean");
-        this->true_String      = AllocString("true");
-        this->false_String     = AllocString("false");
-        this->message_String   = AllocString("message");
+        this->keys_String       = AllocString("keys");
+        this->length_String     = AllocString("length");
+        this->loading_String    = AllocString("loading");
+        this->message_String    = AllocString("message");
+        this->missing_String    = AllocString("missing!");
+        this->null_String       = AllocString("null");
+        this->toBoolean_String  = AllocString("toBoolean");
+        this->toInteger_String  = AllocString("toInteger");
+        this->toNumber_String   = AllocString("toNumber");
+        this->toReal_String     = AllocString("toReal");
+        this->toString_String   = AllocString("toString");
+        this->true_String       = AllocString("true");
+        this->userdata_String   = AllocString("UserData");
+        this->values_String     = AllocString("values");
         
         String*  Imports_Str = AllocString(IMPORTS_STR);
         String*  Types_Str   = AllocString("baseTypes");
-        Type* Value_Type   = Type::Create(this, AllocString("T"),   0,            0,             Pkg_World, 0);
+        Type*    Value_Type  = Type::Create(this, AllocString("T"),   0,            0,             Pkg_World, 0);
         Basic_Type   = Type::Create(this, AllocString("BasicObj"),  Value_Type,   0,             Pkg_World, 0);
         Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object_NewFn,  Pkg_World, 0);
         Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package_NewFn, Pkg_World, 0);
@@ -895,12 +910,12 @@ void Engine::InitializeWorld()
         
         // T - methods /////////////////////////////////////////////////////////////////////////
         
-        static RegisterProperty Value_properties[] =
+        static RegisterProperty Value_Properties[] =
         {
             { "type", Primitive_getType, "getType", 0, 0 },
         };
-            
-        Value_Type->EnterProperties(Value_properties, countof(Value_properties));
+        
+        Value_Type->EnterProperties(Value_Properties, countof(Value_Properties));
         this->Pkg_World->SetSlot(this->AllocString("BasicObj"), this->Basic_Type);
         
         // Error ///////////////////////////////////////////////////////////////////////////////////
@@ -910,7 +925,7 @@ void Engine::InitializeWorld()
             { OPINIT_CSTR, Error_init,     1, 0, 1 },
             { "toString",  Error_toString, 0, 0, 1 },
         };
-            
+        
         String* Error_String = AllocString("Error");
         Error_Type           = Type::Create(this, Error_String, Object_Type, Error_NewFn, Pkg_World);
         
@@ -979,12 +994,12 @@ void Engine::InitializeWorld()
             { "toNumber",   Null_toNumber,  0, 0, 0 },
             { "toBoolean",  Null_toBoolean, 0, 0, 0 },
         };
-            
+        
         static RegisterFunction Null_ClassMethods[] =
         {
             { OPNEW_CSTR,  Null_init, 0, 1, 0 },
         };
-            
+        
         Null_Type = Type::Create(this, AllocString("Null"), Value_Type, 0, Pkg_World);
         Null_Type->EnterMethods(Null_Functions, countof(Null_Functions));
         Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));
@@ -1003,12 +1018,12 @@ void Engine::InitializeWorld()
             { "toNumber",   Boolean_toNumber,  0, 0, 0 },
             { "toBoolean",  Boolean_toBoolean, 0, 0, 0 },
         };
-            
+        
         static RegisterFunction Boolean_ClassMethods[] =
         {
             { OPNEW_CSTR,   Boolean_init,      0, 1, 0 },
         };
-            
+        
         Boolean_Type  = Type::Create(this, AllocString("Boolean"), Value_Type, 0, Pkg_World);
         Boolean_Type->EnterMethods(Boolean_Functions, countof(Boolean_Functions));
         Boolean_Type->EnterClassMethods(Boolean_ClassMethods, countof(Boolean_ClassMethods));
@@ -1026,12 +1041,12 @@ void Engine::InitializeWorld()
             { "toNumber",   Integer_toNumber,  0, 0, 0 },
             { "toBoolean",  Integer_toBoolean, 0, 0, 0 },
         };
-            
+        
         static RegisterFunction Integer_ClassMethods[] =
         {
             { OPNEW_CSTR, Integer_init, 0, 1, 0 },
         };
-            
+        
         Integer_Type  = Type::Create(this, AllocString("Integer"), Value_Type, 0, Pkg_World);
         Integer_Type->EnterMethods(Integer_Functions, countof(Integer_Functions));
         Integer_Type->EnterClassMethods(Integer_ClassMethods, countof(Integer_ClassMethods));
@@ -1053,15 +1068,22 @@ void Engine::InitializeWorld()
             { "nan?",       Real_isnan,     0, 0, 0 },
             // TODO:: Finite? Infinite? SignBit etc...
         };
-            
+        
+        static RegisterProperty Real_Properties[] =
+        {
+            { "integer", Real_integer, "getInteger", 0, 0 },
+            { "fraction", Real_fraction, "getFraction", 0, 0 },
+        };
+        
         static RegisterFunction Real_ClassMethods[] =
         {
             { OPNEW_CSTR,   Real_init,      0, 1, 0 },
         };
-            
+        
         Real_Type  = Type::Create(this, AllocString("Real"), Value_Type, 0, Pkg_World);
         Real_Type->EnterMethods(Real_Functions, countof(Real_Functions));
         Real_Type->EnterClassMethods(Real_ClassMethods, countof(Real_ClassMethods));
+        Real_Type->EnterProperties(Real_Properties, countof(Real_Properties));
         Real_Type->SetFinal(true);
         Real_Type->SetAbstract(true);
         Pkg_World->SetSlot("Real", Real_Type);

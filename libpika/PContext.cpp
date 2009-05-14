@@ -713,7 +713,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
             case OP_div:  div_num(a.val.real, b.val.real); break;
             case OP_idiv:                
                 div_num(a.val.real, b.val.real); 
-                a.Set(RealToInteger(a.val.real)); // TODO: convert integer to real
+                a.Set(Pika_RealToInteger(a.val.real)); // TODO: convert integer to real
                 break;
             case OP_mod:  mod_num(a.val.real, b.val.real); break;
             case OP_pow:  pow_num(a.val.real, b.val.real); break;
@@ -754,7 +754,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
             case OP_div: div_num(a.val.real, b.val.real); break;
             case OP_idiv:
                 div_num(a.val.real, b.val.real);
-                a.Set(RealToInteger(a.val.real));
+                a.Set(Pika_RealToInteger(a.val.real));
                 break;
             case OP_mod: mod_num(a.val.real, b.val.real); break;
             case OP_pow: pow_num(a.val.real, b.val.real); break;
@@ -774,7 +774,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
             case OP_div: div_num(a.val.real, b.val.real); break;
             case OP_idiv:
                 div_num(a.val.real, b.val.real);
-                a.Set(RealToInteger(a.val.real));
+                a.Set(Pika_RealToInteger(a.val.real));
                 break;
             case OP_mod: mod_num(a.val.real, b.val.real); break;
             case OP_pow: pow_num(a.val.real, b.val.real); break;
@@ -2347,9 +2347,9 @@ pint_t Context::GetIntArg(u2 arg)
     
     if (v.tag != TAG_integer)
     {
-        if (v.tag == TAG_real && NumberIsIntegral(v.val.real))
+        if (v.tag == TAG_real && Pika_RealIsInteger(v.val.real))
         {
-            return RealToInteger(v.val.real);
+            return Pika_RealToInteger(v.val.real);
         }
         ArgumentTagError(arg, (ValueTag)v.tag, TAG_integer);
     }

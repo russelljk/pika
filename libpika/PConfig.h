@@ -200,15 +200,15 @@ typedef             s4              pint_t;
 
 #if defined(PIKA_64BIT_REAL)
 typedef double preal_t;
-PIKA_FORCE_INLINE preal_t Pika_Absf(preal_t x)  { return fabs(x); }
-PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
-                                   preal_t y)   { return copysign(x, y); }
-PIKA_FORCE_INLINE preal_t ArcCos(preal_t x)     { return acos(x); }
-PIKA_FORCE_INLINE preal_t ArcSin(preal_t x)     { return asin(x); }
-PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)     { return atan(x); }
+PIKA_FORCE_INLINE preal_t Pika_Absf(preal_t x) { return fabs(x); }
+PIKA_FORCE_INLINE preal_t ArcCos(preal_t x)    { return acos(x); }
+PIKA_FORCE_INLINE preal_t ArcSin(preal_t x)    { return asin(x); }
+PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)    { return atan(x); }
 PIKA_FORCE_INLINE preal_t ArcTan2(preal_t x,
-                                  preal_t y)    { return atan2(x, y); }
+                                  preal_t y)   { return atan2(x, y); }
 PIKA_FORCE_INLINE preal_t Ceil(preal_t x)   { return ceil(x); }
+PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
+                                   preal_t y)  { return copysign(x, y); }
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return cos(x); }
 PIKA_FORCE_INLINE preal_t Cosh(preal_t x)   { return cosh(x); }
 PIKA_FORCE_INLINE preal_t Exp(preal_t x)    { return exp(x); }
@@ -226,15 +226,15 @@ PIKA_FORCE_INLINE preal_t Tan(preal_t x)    { return tan(x); }
 PIKA_FORCE_INLINE preal_t Tanh(preal_t x)   { return tanh(x); }
 #else
 typedef float preal_t;
-PIKA_FORCE_INLINE preal_t Pika_Absf(preal_t x)  { return (preal_t)fabs(x); }
-PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
-                                   preal_t y)   { return (preal_t)copysignf(x, y);}
-PIKA_FORCE_INLINE preal_t ArcCos(preal_t x)     { return (preal_t)acosf(x); }
-PIKA_FORCE_INLINE preal_t ArcSin(preal_t x)     { return (preal_t)asinf(x); }
-PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)     { return (preal_t)atanf(x); }
+PIKA_FORCE_INLINE preal_t Pika_Absf(preal_t x) { return (preal_t)fabs(x); }
+PIKA_FORCE_INLINE preal_t ArcCos(preal_t x)    { return (preal_t)acosf(x); }
+PIKA_FORCE_INLINE preal_t ArcSin(preal_t x)    { return (preal_t)asinf(x); }
+PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)    { return (preal_t)atanf(x); }
 PIKA_FORCE_INLINE preal_t ArcTan2(preal_t x,
-                                  preal_t y)    { return (preal_t)atan2f(x, y);}
+                                  preal_t y)   { return (preal_t)atan2f(x, y);}
 PIKA_FORCE_INLINE preal_t Ceil(preal_t x)   { return (preal_t)ceilf(x); }
+PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
+                                   preal_t y)  { return (preal_t)copysignf(x, y);}
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return (preal_t)cosf(x); }
 PIKA_FORCE_INLINE preal_t Cosh(preal_t x)   { return (preal_t)coshf(x); }
 PIKA_FORCE_INLINE preal_t Exp(preal_t x)    { return (preal_t)expf(x); }
@@ -252,9 +252,9 @@ PIKA_FORCE_INLINE preal_t Tan(preal_t x)    { return (preal_t)tanf(x); }
 PIKA_FORCE_INLINE preal_t Tanh(preal_t x)   { return (preal_t)tanhf(x); }
 #endif
 
-PIKA_FORCE_INLINE pint_t RealToInteger(preal_t x)       { return (pint_t)x; }
-PIKA_FORCE_INLINE bool NumberIsIntegral(preal_t x)      { return modf(x, &x) == 0; }
-PIKA_FORCE_INLINE bool Pika_RealToBoolean(preal_t x)    { return Pika_isnan((double)x) == 0 && x != (preal_t)0.0; }
+PIKA_FORCE_INLINE pint_t Pika_RealToInteger(preal_t x) { return (pint_t)x; }
+PIKA_FORCE_INLINE bool   Pika_RealIsInteger(preal_t x) { return modf(x, &x) == 0; }
+PIKA_FORCE_INLINE bool   Pika_RealToBoolean(preal_t x) { return Pika_isnan((double)x) == 0 && x != (preal_t)0.0; }
 
 #define PIKA_BUFFER_MAX_LEN     (PINT_MAX)             // Max length a vector or other buffer may be.
 #define PIKA_STRING_MAX_LEN     (PIKA_BUFFER_MAX_LEN) // Max length a string may be.

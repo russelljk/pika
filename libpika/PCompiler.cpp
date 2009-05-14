@@ -42,7 +42,7 @@ case op:                                                                        
                     fun(res1.val.real, res2.val.real);                                               \
                     if (op == OP_idiv)                                                               \
                     {                                                                                \
-                        prevprev->operand = lp->Add(RealToInteger(res1.val.real));                   \
+                        prevprev->operand = lp->Add(Pika_RealToInteger(res1.val.real));                   \
                     }                                                                                \
                     else                                                                             \
                     {                                                                                \
