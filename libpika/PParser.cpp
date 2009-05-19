@@ -2029,37 +2029,6 @@ Expr* Parser::DoPrefixExpression()
     return DoPostfixExpression();
 }
 
-Expr* Parser::DoNewExpression()
-{
-    Match(TOK_new);
-    
-    Expr* callExpr = DoPostfixExpression();
-    
-    if (callExpr->kind == Expr::EXPR_call)
-    {
-        CallExpr* ce = (CallExpr*)callExpr;
-        ce->kind = Expr::EXPR_new;
-    }
-    else
-    {
-        CallExpr* ce = 0;
-        ExprList* callArgs = 0;
-        
-        if (IsPrimaryExpression()                       &&
-           (tstream.GetPrevType() == TOK_identifier)    &&
-           (tstream.GetLineNumber() == tstream.GetPreviousLineNumber()))
-        {
-            callArgs = DoExpressionList();
-        }
-        PIKA_NEWNODE(CallExpr, ce, (callExpr, callArgs));
-        ce->kind = Expr::EXPR_new;
-        callExpr = ce;
-        
-        //state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), "new must be followed by a call expression");
-    }
-    return callExpr;
-}
-
 bool Parser::IsPrimaryExpression()
 {
     switch (tstream.GetType())
@@ -2069,7 +2038,6 @@ bool Parser::IsPrimaryExpression()
     case '!': // not
     case '\\':// lambda expression
 //  case '[':   // We have a problem between array index [] and array literals [] with paren free calls
-    case TOK_new:
     case TOK_function:
     case TOK_identifier:
     case TOK_stringliteral:
@@ -2327,9 +2295,6 @@ Expr* Parser::DoPrimaryExpression()
         return fun;
     }
     break;
-    
-    case TOK_new:
-        return DoNewExpression();
     
     case TOK_identifier:     expr = DoIdExpression();             break;
     case TOK_stringliteral:  expr = DoStringLiteralExpression();  break;

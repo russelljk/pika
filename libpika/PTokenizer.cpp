@@ -73,7 +73,6 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_package),
     PIKA_keyword(TOK_using),
     PIKA_keyword(TOK_when),
-    PIKA_keyword(TOK_new),
     PIKA_keyword(TOK_bind),
     PIKA_keyword(TOK_assert),
     PIKA_keyword(TOK_delete),

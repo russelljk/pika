@@ -87,7 +87,6 @@
     
     DECL_OP( OP_unpack,         "unpack",       3, OF_w,        "" )
     
-    DECL_OP( OP_new,            "new",          3, OF_w,        "" )
     DECL_OP( OP_tailcall,       "tailcall",     3, OF_w,        "" )
     DECL_OP( OP_call,           "call",         4, OF_bw,       "" )
 

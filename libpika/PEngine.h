@@ -12,7 +12,7 @@
 #endif
 
 #define OPINIT_CSTR "init"
-#define OPNEW_CSTR  "opNew"
+#define NEW_CSTR    "new"
 #define OPSLICE_STR "opSlice"
 #define IMPORTS_STR "imports"
 

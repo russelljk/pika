@@ -946,7 +946,7 @@ static RegisterFunction String_ClassMethods[] =
     { "cat",        StringApi::concat,      0, 1, 0 },
     { "catSp",      StringApi::concatSpace, 0, 1, 0 },
     { "fromByte",   StringApi::fromByte,    1, 0, 1 },
-    { OPNEW_CSTR,   StringApi::init,        1, 0, 1 },
+    { NEW_CSTR,   StringApi::init,        1, 0, 1 },
 };
 
 static void String_newFn(Engine* eng, Type* type, Value& res)

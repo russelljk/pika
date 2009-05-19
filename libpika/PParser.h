@@ -187,7 +187,6 @@ private:
     Expr*           DoPrefixExpression();
     Expr*           DoPostfixExpression();
     Expr*           DoPrimaryExpression();
-    Expr*           DoNewExpression();
     
     Id*             DoIdentifier();
     IdExpr*         DoIdExpression();

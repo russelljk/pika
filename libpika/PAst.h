@@ -773,9 +773,7 @@ struct CallExpr : Expr
             
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
-    
-    bool IsNewCall();
-    
+        
     Expr* left;
     ExprList* args;
     u2 retc;

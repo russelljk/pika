@@ -449,7 +449,7 @@ void InitTypeAPI(Engine* eng)
     
     static RegisterFunction TypeFunctions[] =
     {
-        { "create", Type_alloc,  0, 1, 0 },
+        { "new", Type_alloc,  0, 1, 0 },
     };
     
     static RegisterFunction TypeClassMethods[] =

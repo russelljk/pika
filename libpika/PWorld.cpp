@@ -50,7 +50,6 @@ static const char* StaticOpStrings[] =
     "opCat",
     "opBind",
     "opUnpack",
-    OPNEW_CSTR,
     "",         // N/A (tail call)
     "opCall",
     "opGet",
@@ -997,7 +996,7 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Null_ClassMethods[] =
         {
-            { OPNEW_CSTR,  Null_init, 0, 1, 0 },
+            { NEW_CSTR,  Null_init, 0, 1, 0 },
         };
         
         Null_Type = Type::Create(this, AllocString("Null"), Value_Type, 0, Pkg_World);
@@ -1021,7 +1020,7 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Boolean_ClassMethods[] =
         {
-            { OPNEW_CSTR,   Boolean_init,      0, 1, 0 },
+            { NEW_CSTR,   Boolean_init,      0, 1, 0 },
         };
         
         Boolean_Type  = Type::Create(this, AllocString("Boolean"), Value_Type, 0, Pkg_World);
@@ -1044,7 +1043,7 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Integer_ClassMethods[] =
         {
-            { OPNEW_CSTR, Integer_init, 0, 1, 0 },
+            { NEW_CSTR, Integer_init, 0, 1, 0 },
         };
         
         Integer_Type  = Type::Create(this, AllocString("Integer"), Value_Type, 0, Pkg_World);
@@ -1077,7 +1076,7 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Real_ClassMethods[] =
         {
-            { OPNEW_CSTR,   Real_init,      0, 1, 0 },
+            { NEW_CSTR,   Real_init,      0, 1, 0 },
         };
         
         Real_Type  = Type::Create(this, AllocString("Real"), Value_Type, 0, Pkg_World);

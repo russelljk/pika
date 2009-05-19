@@ -44,7 +44,6 @@ TOKEN_DEF(TOK_downto,         "downto")
 
 TOKEN_DEF(TOK_is,             "is")
 TOKEN_DEF(TOK_has,            "has")
-TOKEN_DEF(TOK_new,            "new")
 TOKEN_DEF(TOK_bind,           "bind")
 
 TOKEN_DEF(TOK_true,           "true")

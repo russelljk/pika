@@ -213,7 +213,6 @@ INLINE int OpcodeStackChange(Instr *ir)
         --operand;
         return operand;
     }
-    case OP_new:
     case OP_tailcall:
     {
         int operand = ir->operand;

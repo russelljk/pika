@@ -417,11 +417,6 @@ Instr* LocalDecl::GenerateCode()
     return irep;
 }
 
-bool CallExpr::IsNewCall()
-{
-    return kind == Expr::EXPR_new;
-}
-
 Instr* CallExpr::GenerateCode()
 {
     Expr::Kind   k       = left->kind;
@@ -480,7 +475,7 @@ Instr* CallExpr::GenerateCode()
         curr = curr->next;
     }
     
-    Instr* icall = Instr::Create(IsNewCall() ? OP_new : OP_call);
+    Instr* icall = Instr::Create(OP_call);
     icall->operand   = numargs;
     icall->operandu1 = retc ? retc : 1;
     if (iargs)

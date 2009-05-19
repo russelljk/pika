@@ -82,7 +82,6 @@ enum OpOverride
     OVR_cat,    
     OVR_bind,
     OVR_unpack,
-    OVR_new,
     OVR_unused2,
     OVR_call,
     OVR_get,
