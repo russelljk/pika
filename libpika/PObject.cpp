@@ -48,8 +48,6 @@ void Object::MarkRefs(Collector* c)
     if (type) type->Mark(c);
 }
 
-
-
 String* Object::ToString()
 {
     return String::ConcatSpace(this->GetType()->GetName(), engine->AllocString("instance"));
@@ -113,29 +111,7 @@ bool Object::SetSlot(const Value& key, Value& val, u4 attr)
         WriteBarrier(val);
     if (!members.Set(key, val, attr))
     {
-#if 0
-        if (val.IsProperty())
-        {
-            Property* p = val.val.property;
-            if (!p->CanSet())
-                return false;
-            Function* setter = p->GetSetter();
-            Context* ctx = engine->GetActiveContextSafe();
-            ctx->Push(val);
-            ctx->Push(this);
-            ctx->Push(getter);
-            if (ctx->SetupCall(1))
-                ctx->Run();
-            val = ctx->PopTop();
-            return true;
-        }
-        else
-        {
-#endif
-            return false;
-#if 0
-        }
-#endif
+        return false;
     }
     return true;
 }
@@ -149,21 +125,6 @@ bool Object::GetSlot(const Value& key, Value& result)
             return false;
         }
     }
-#if 0
-    if (result.IsProperty())
-    {
-        Property* p = result.val.property;
-        if (!p->CanGet())
-            return false;
-        Function* getter = p->GetGetter();
-        Context* ctx = engine->GetActiveContextSafe();
-        ctx->Push(this);
-        ctx->Push(getter);
-        if (ctx->SetupCall(0))
-            ctx->Run();
-        result = ctx->PopTop();
-    }
-#endif
     return true;
 }
 
@@ -365,12 +326,6 @@ extern int Global_import(Context*, Value&);
 void Object_NewFn(Engine* eng, Type* obj_type, Value& res)
 {
     Object* obj = Object::StaticNew(eng, obj_type);
-    res.Set(obj);
-}
-
-void TypeObj_NewFn(Engine* eng, Type* obj_type, Value& res)
-{
-    Object* obj = Type::Create(eng, eng->AllocString(""), 0, TypeObj_NewFn, obj_type->GetLocation(), obj_type);
     res.Set(obj);
 }
 

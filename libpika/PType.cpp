@@ -429,6 +429,12 @@ static int Type_create(Context* ctx, Value& self)
     return 1;
 }
 
+void TypeObj_NewFn(Engine* eng, Type* obj_type, Value& res)
+{
+    Object* obj = Type::Create(eng, eng->AllocString(""), 0, TypeObj_NewFn, obj_type->GetLocation(), obj_type);
+    res.Set(obj);
+}
+
 void InitTypeAPI(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -443,7 +449,7 @@ void InitTypeAPI(Engine* eng)
     
     static RegisterFunction TypeFunctions[] =
     {
-        { "newInstance", Type_alloc,  0, 1, 0 },
+        { "create", Type_alloc,  0, 1, 0 },
     };
     
     static RegisterFunction TypeClassMethods[] =
