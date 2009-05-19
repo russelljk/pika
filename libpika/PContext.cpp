@@ -2443,6 +2443,7 @@ pint_t Context::ArgToInt(u2 arg)
         {
             ArgumentTagError(arg, (ValueTag)temp.tag, TAG_integer);
         }
+        return temp.val.integer;
     }
     return v.val.integer;
 }
@@ -2458,6 +2459,7 @@ preal_t Context::ArgToReal(u2 arg)
         {
             ArgumentTagError(arg, (ValueTag)temp.tag, TAG_real);
         }
+        return temp.val.real;
     }
     return v.val.real;
 }
