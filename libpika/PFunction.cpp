@@ -545,10 +545,10 @@ static int Function_getLocal(Context* ctx, Value& self)
     
     if (fn->lexEnv)
     {
-        pint_t count = static_cast<pint_t>(fn->lexEnv->length);
+        pint_t count = static_cast<pint_t>(fn->lexEnv->Length());
         if (idx >= 0 && idx < count)
         {
-            ctx->Push(fn->lexEnv->values[idx]);
+            ctx->Push(fn->lexEnv->At(idx));
             return 1;
         }
     }
@@ -563,7 +563,7 @@ static int Function_getLocalCount(Context* ctx, Value& self)
     pint_t count = 0;
     if (fn->lexEnv)
     {
-        count = static_cast<pint_t>(fn->lexEnv->length);
+        count = static_cast<pint_t>(fn->lexEnv->Length());
     }
     
     ctx->Push(count);

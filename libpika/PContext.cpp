@@ -391,7 +391,7 @@ void Context::GrowStack(size_t min_amt)
     // current activation needs its lexEnv set to the new stack pointer
     
     if (env)
-        env->Set(bsp, env->length);
+        env->Set(bsp, env->Length());
 }
 
 void Context::DoSuspend(Value* v, size_t amt)
@@ -2034,29 +2034,28 @@ Value& Context::GetOuter(u2 idx, u1 depth)
     Function* curr = closure;
     int n = depth;
     
-    while (--n)
-    { /* must use prefix operator-- */
+    while (--n) // Must use prefix operator--.
+    { 
         ASSERT(curr);
         curr = curr->parent;
     }
     ASSERT(curr);
-    
-#if defined (PIKA_CHECK_LEX_ENV)
+#if !defined (PIKA_CHECK_LEX_ENV)
     if ( !curr || !curr->lexEnv )
     {
-        /* Shouldn't happen under properly compiled script. */
+        // Shouldn't happen under properly compiled script.
         RaiseException("Attempt to access invalid bound variable of depth %d and index of %d.",
                        depth,
                        idx);
     }
-    else if (curr->lexEnv->length <= idx)
+    else if (curr->lexEnv->Length() <= idx)
     {
         RaiseException("Attempt to access invalid bound variable of index %d at depth %d.",
                        depth,
                        idx);
     }
 #endif
-    return curr->lexEnv->values[idx];
+    return curr->lexEnv->At(idx);
 }
 
 void Context::SetOuter(const Value& outer, u2 idx, u1 depth)

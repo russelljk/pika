@@ -39,11 +39,15 @@ public:
     INLINE bool IsValid()     const { return values != 0; }
     INLINE bool IsAllocated() const { return allocated;   }
     
+    INLINE size_t Length() const { return length; }
+    INLINE Value& At(size_t idx) { return values[idx]; }
+    INLINE const Value& At(size_t idx) const { return values[idx]; }
+            
     void Allocate();
     void Deallocate();
-    
+        
     static LexicalEnv* Create(Engine*, bool);
-    
+private:    
     Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
     size_t length;    //!< Number of lexEnv
     bool   allocated; //!< If true values point to a heap allocated buffer otherwise they point to the Context's stack.

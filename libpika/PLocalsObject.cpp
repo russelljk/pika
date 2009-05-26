@@ -83,9 +83,9 @@ bool LocalsObject::GetSlot(const Value& key, Value& result)
     {
         pint_t indexof = result.val.integer;
         
-        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length)
+        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->Length())
         {
-            result = lexEnv->values[indexof];
+            result = lexEnv->At(indexof);
             return true;
         }
     }
@@ -99,7 +99,7 @@ bool LocalsObject::HasSlot(const Value& key)
     {
         pint_t indexof = result.val.integer;
         
-        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length)
+        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->Length())
         {     
             return true;
         }
@@ -114,10 +114,10 @@ bool LocalsObject::SetSlot(const Value& key, Value& value, u4 attr)
     {
         pint_t indexof = result.val.integer;
         
-        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->length)
+        if (lexEnv && indexof >= 0 && indexof < (pint_t)lexEnv->Length())
         {
             WriteBarrier(value);
-            lexEnv->values[indexof] = value;
+            lexEnv->At(indexof) = value;
             return true;
         }
     }
