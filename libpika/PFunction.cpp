@@ -106,7 +106,7 @@ PIKA_IMPL(Function)
 
 Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* parent_func)
         : ThisSuper(eng, p),
-        defaults__(0),
+        defaults(0),
         lexEnv(0),
         def(funcdef),
         parent(parent_func),
@@ -149,7 +149,7 @@ void Function::MarkRefs(Collector* c)
     if (def)        def->Mark(c);
     if (lexEnv)     lexEnv->Mark(c);
     if (location)   location->Mark(c);
-    if (defaults__) defaults__->Mark(c);
+    if (defaults) defaults->Mark(c);
 }
 
 int Function::DetermineLineNumber(code_t* xpc)
@@ -277,7 +277,7 @@ classtype(tclass)
     if (f)
     {
         lexEnv = f->lexEnv;
-        defaults__ = f->defaults__;
+        defaults = f->defaults;
     }
 }
 
@@ -379,7 +379,7 @@ ClassMethod::ClassMethod(Engine* eng, Function* f, Type* tclass)
     if (f)
     {
         lexEnv = f->lexEnv;
-        defaults__ = f->defaults__;
+        defaults = f->defaults;
     }
 }
 

@@ -62,7 +62,12 @@ public:
         
     virtual ~Defaults();
     
+    INLINE       Value* Values()       { return values; }
+    INLINE const Value* Values() const { return values; }
+    INLINE       size_t Length() const { return length; }
+    
     static Defaults* Create(Engine*, Value*, size_t);
+private:
     Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
     size_t length;    //!< Number of lexEnv
 };
@@ -97,8 +102,8 @@ public:
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
     String*             GetName();
     
-    INLINE  Value*      DefaultValue(size_t at) { return defaults__ ? defaults__->values+at : 0; }
-    INLINE  size_t      DefaultsCount() const { return defaults__ ? defaults__->length : 0; }
+    INLINE  Value*      DefaultValue(size_t at) { return defaults ? defaults->Values() + at : 0; }
+    INLINE  size_t      DefaultsCount() const { return defaults ? defaults->Length(): 0; }
     INLINE  bool        MustClose()  const { return def->mustClose; }    
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
     
@@ -109,7 +114,7 @@ public:
     bool                IsLocatedIn(Package*);
     virtual String*     GetDotPath();
     
-    Defaults*    defaults__;
+    Defaults*    defaults;
     LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
     Def*         def;         //!< Function definition, may be shared with other functions.
     Function*    parent;      //!< The parent function we are defined inside (for nested functions only).

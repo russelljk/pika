@@ -270,10 +270,7 @@ void Context::Run()
                     if (defaultArgc)
                     {
                         u4 num = Min(defaultArgc, (u2)fun->numArgs);
-                        //function->numDefaults = num;
-                        //function->defaults = (Value*)Pika_malloc(sizeof(Value) * num);
-                        function->defaults__ = Defaults::Create(engine, GetStackPtr() - num, num);
-                        //Pika_memcpy(function->defaults, GetStackPtr() - num, sizeof(Value) * num);
+                        function->defaults = Defaults::Create(engine, GetStackPtr() - num, num);
                     }
                     
                     Swap(vdef, vself);
