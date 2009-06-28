@@ -70,8 +70,8 @@ public:
 
     static Defaults* Create(Engine*, Value*, size_t);
 private:
-    Value* values;    //!< Default values for parameters.
-    size_t length;    //!< Number of default values.
+    Value* values; //!< Default values for parameters.
+    size_t length; //!< Number of default values.
 };
 
 class PIKA_API Function : public Object 
@@ -80,7 +80,7 @@ class PIKA_API Function : public Object
 protected:
     Function(Engine*, Type*, Def*, Package*, Function*);
 public:
-    virtual            ~Function();
+    virtual ~Function();
     
     /** Create a new Function object.
       * @param eng      [in] The Engine to create the object in
@@ -114,7 +114,7 @@ public:
     bool                IsLocatedIn(Package*);
     virtual String*     GetDotPath();
     
-    Defaults*    defaults;
+    Defaults*    defaults;    //!< Default values for specified arguments. May be NULL.
     LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
     Def*         def;         //!< Function definition, may be shared with other functions.
     Function*    parent;      //!< The parent function we are defined inside (for nested functions only).
@@ -153,8 +153,10 @@ public:
     virtual ~ClassMethod();
     
     virtual Type*   GetClassType() const { return classtype; }
+    
     virtual void    BeginCall(Context*);
     virtual void    MarkRefs(Collector*);
+    
     virtual String* GetDotPath();
     
     static ClassMethod* Create(Engine*, Function*, Type*);    
@@ -170,15 +172,15 @@ class PIKA_API BoundFunction : public Function
 protected:
     BoundFunction(Engine*, Type*, Function*, Value&);
 public:    
-    virtual              ~BoundFunction();
+    virtual ~BoundFunction();
     
     static BoundFunction* Create(Engine*, Function*, Value&);
     
-    virtual Function*     GetBoundFunction() const { return closure;}
-    virtual Value         GetBoundSelf() const { return self; }
+    virtual Function* GetBoundFunction() const { return closure;}
+    virtual Value     GetBoundSelf()     const { return self; }
     
-    virtual void          BeginCall(Context*);
-    virtual void          MarkRefs(Collector*);
+    virtual void BeginCall(Context*);
+    virtual void MarkRefs(Collector*);
 protected:
     Function*   closure; //!< The bound function.
     Value       self;    //!< The bound <code>self</code> object.

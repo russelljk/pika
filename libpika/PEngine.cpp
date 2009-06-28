@@ -160,13 +160,9 @@ bool Engine::CallHook(HookEvent he, void* data)
     
     while (curr)
     {
-        IHook* h = curr->hook;
-        
-        if (h)
-        {
-            if (h->OnEvent(he, data))
-                return true;
-        }
+        IHook* h = curr->hook;        
+        if (h && h->OnEvent(he, data))
+            return true;
         curr = curr->next;
     }
     return false;
@@ -182,7 +178,6 @@ void Engine::AddHook(HookEvent he, IHook* h)
 
 bool Engine::RemoveHook(HookEvent he, IHook* h)
 {
-    // TODO: untested
     HookEntry** pointerTo = &(hooks[he]);
     HookEntry*  current   =   hooks[he];
     
@@ -190,13 +185,10 @@ bool Engine::RemoveHook(HookEvent he, IHook* h)
     {
         if (h == current->hook)
         {
-            *pointerTo = current->next;
-            
+            *pointerTo = current->next;            
             if (h)
-                h->Release(he);
-                
-            Pika_free(current);
-            
+                h->Release(he);                
+            Pika_free(current);            
             return true;
         }
         pointerTo = &(current->next);
@@ -219,8 +211,8 @@ Engine::Engine()
         false_String(0), message_String(0), dot_String(0), missing_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
         Basic_Type(0), Object_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
         NativeMethod_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
-        LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
-        ArithmeticError_Type(0), OverflowError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), AssertError_Type(0),
+        LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
+        ArithmeticError_Type(0), OverflowError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
         Locals_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0), Enumerator_Type(0), Property_Type(0),
         paths(0),
         string_table(0),
@@ -267,21 +259,21 @@ void Engine::UnloadAllModules()
 
 Package* Engine::OpenPackage(String* name, Package* where, bool overwrite_always, u4 flags)
 {
-    if (!where)
-    {
+    if (!where)    
         where = Pkg_World;
-    }
     
-    Value pkgvar;
-    if (!overwrite_always && where->GetSlot(name, pkgvar))
-    {
-        if (pkgvar.IsDerivedFrom(Package::StaticGetClass()))
+    {   Value pkgvar;
+        
+        if (!overwrite_always && where->GetSlot(name, pkgvar))
         {
-            return pkgvar.val.package;
-        }
-        else
-        {
-            RaiseException(Exception::ERROR_runtime, "package %s could not be created because of name conflict", name->GetBuffer());
+            if (pkgvar.IsDerivedFrom(Package::StaticGetClass()))
+            {
+                return pkgvar.val.package;
+            }
+            else
+            {
+                RaiseException(Exception::ERROR_runtime, "package %s could not be created because of name conflict", name->GetBuffer());
+            }
         }
     }
     
@@ -290,32 +282,14 @@ Package* Engine::OpenPackage(String* name, Package* where, bool overwrite_always
     return pkg;
 }
 
-Package* Engine::OpenPackageUnique(String* name, Package* where)
-{
-    if (!where)
-    {
-        where = Pkg_World;
-    }
-    
-    Value pkgvar;
-    
-    if (where->GetSlot(name, pkgvar))
-    {
-        RaiseException(Exception::ERROR_runtime, "package %s could not be opened because of name conflict", name->GetBuffer());
-    }
-    
-    Package* pkg = Package::Create(this, name, where);
-    where->SetSlot(name, pkg);
-    return pkg;
-}
 
 Package* Engine::OpenPackageDotPath(String* name, Package* where, bool overwrite_always)
 {
-    Package*       pkg  = where ? where : this->GetWorld();
-    const char*    cstr = name->GetBuffer();
-    const char*    curr = cstr;
-    const char*    end  = cstr + name->GetLength();
-    TStringBuffer  buff;
+    Package*      pkg  = where ? where : this->GetWorld();
+    const char*   cstr = name->GetBuffer();
+    const char*   curr = cstr;
+    const char*   end  = cstr + name->GetLength();
+    TStringBuffer buff;
     
     while (curr <= end)
     {
@@ -478,26 +452,18 @@ Script* Engine::Compile(String* name, Context* parent)
     try
     {        
         yyin.open(name->GetBuffer());
-        //FILE* yyin = fopen(name->GetBuffer(), "rb");
-        
-        if (!yyin)
-        {
+        if (!yyin)        
             return 0;
-        }
-        
-        // create context for this script
         
         LiteralPool* literals  = 0;
         u2 loadindex = 0;
         
-        // Create the CompileState and Parser, use std::auto_ptr so that they are deleted in-case of exception ot early return.
-        std::auto_ptr<CompileState> compinfo(new CompileState(this));
-        
-        Parser* parserptr = new Parser(compinfo.get(), &yyin); // !!! Constructor may throw an exception.
-        std::auto_ptr<Parser> parser(parserptr);
+        // Create the CompileStste and Parser.
+        std::auto_ptr<CompileState> compinfo(new CompileState(this));   
+        std::auto_ptr<Parser>       parser(new Parser(compinfo.get(), &yyin));
         
         // Try to compile the script.
-        try 
+        try
         {
             Program* tree = parser->DoParse();
             tree->CalculateResources(0, *compinfo);
@@ -738,7 +704,7 @@ String* Engine::ToString(Context* ctx, const Value& v)
     case TAG_def:    return AllocString("<def>");
     case TAG_string: return v.val.str ? v.val.str : emptyString;
     
-        // TODO: Fix the enumerator's and userdata's toString conversion.
+    // TODO: Fix the enumerator's and userdata's toString conversion.
         
     case TAG_enumerator: return AllocString("enumerator");
     case TAG_property:   return String::ConcatSpace(Property_String, v.val.property->GetName());

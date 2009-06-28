@@ -24,34 +24,25 @@ template class PIKA_API Buffer<LocalVarInfo>;
 class Context;
 class Function;
 class LiteralPool;
-/*
-    Native function.
-    ctx:
-        Context the function is called from.
-    self:
-        Self object
 
-    return:
-        number of return values (0 - PIKA_MAX_RETC).
-*/
 typedef int (*Nativecode_t)(Context* ctx, Value& self);
 
 struct RegisterFunction
 {
-    const char*  name;
-    Nativecode_t code;
-    u2           argc;
-    bool         varargs;
-    bool         strict;
+    const char*  name;    //!< Name of the function.
+    Nativecode_t code;    //!< Pointer to the function.
+    u2           argc;    //!< Number of arguments expected.
+    bool         varargs; //!< Function takes a variable number of arguments.
+    bool         strict;  //!< Function must be called with the correct number of arguments.
 };
 
 struct RegisterProperty
 {
-    const char*     name;
-    Nativecode_t    getter;
-    const char*     getterName;
-    Nativecode_t    setter;
-    const char*     setterName;
+    const char*  name;
+    Nativecode_t getter;
+    const char*  getterName;
+    Nativecode_t setter;
+    const char*  setterName;
 };
 
 class Bytecode
@@ -110,16 +101,13 @@ public:
     void            SetBytecode(code_t* bc, u2 len);
     INLINE code_t*  GetBytecode() const { return(bytecode) ? bytecode->code : 0; }
 
-    //TODO: AddLocalVar and SetLocalRange assume that the CompileState and this Def assign the var the same offset.
+    //TODO: AddLocalVar and SetLocalRange assume that the CompileState and Def assign the var the same offset.
+    //      The offset of the var should be tracked by only one class.
+    
     void AddLocalVar(Engine*, const char*);
     void SetLocalRange(size_t local, size_t start, size_t end);
     void SetSource(Engine* eng, const char* buff, size_t len);
-    
-    // return < 0 on failure
-    int OffsetOfLocal(const String* str) const;
-    
-    //TODO: Should a name actually matter or does it belong at closure creating time.
-    
+           
     String*          name;        //!< Declared name.
     String*          source;      //!< Source code.
     Def*             parent;      //!< Parent function.
@@ -130,8 +118,9 @@ public:
     u2               stackLimit;  //!< Stack space needed for execution.
     Buffer<LineInfo> lineInfo;    //!< Mapping of source code line numbers to bytecode position.
     
-    /** Ranges for all local variables (including arguments) in this def. It should be noted that this runs
-      * from the local declaration to the end of its block, no further calculations are performed.
+    /** Ranges for all local variables (including arguments) in this function. It should be noted that this runs
+      * from the local declaration to the end of the block it is declared in. Parameters will exist for the entire 
+      * function's life time. No further calculations are performed.
       */
     Buffer<LocalVarInfo> localsInfo;
     

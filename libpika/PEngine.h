@@ -60,7 +60,8 @@ struct PIKA_API PathManager : GCObject
     virtual bool    Finalize();
     virtual void    AddPath(String* str);
 private:
-    bool IsValidFile(const char*);
+    bool IsValidFile(const char*); 
+    
     Buffer<String*> searchPaths;
     Engine*         engine;
 };
@@ -189,7 +190,6 @@ public:
                                 bool overwrite_always = false);
     
     Package* OpenPackage(String* name, Package* where, bool overwrite_always, u4 flags = 0);
-    Package* OpenPackageUnique(String* name, Package* where);
     
     String* AllocString(const char*);
     String* AllocString(const char*, size_t);
@@ -285,6 +285,7 @@ public:
     Type*       Type_Type;
     Type*       Error_Type;
     Type*           RuntimeError_Type;
+    Type*               AssertError_Type;
     Type*           TypeError_Type;
     Type*           ReferenceError_Type;
     Type*           ArithmeticError_Type;
@@ -292,7 +293,7 @@ public:
     Type*           SyntaxError_Type;
     Type*           IndexError_Type;
     Type*           SystemError_Type;  
-    Type*               AssertError_Type;
+
     Type*   Locals_Type;
     Type*   String_Type;
     Type*   Null_Type;

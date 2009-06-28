@@ -19,11 +19,7 @@ struct KeywordDescriptor
     const char* name;  // The name of the token, (can be any valid identifier).
     size_t      length;// length of the name, filled in at runtime.
 };
-/*
- * TODO: Can a hashtable or tree be used to reduce the amount of time it takes to lookup tokens?
- *       For most scripts this is not a problem; but a large number of scripts could
- *       slow down the tokenizer.
- */
+
 static KeywordDescriptor static_keywords[] =
 {
     // Keywords.

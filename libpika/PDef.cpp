@@ -55,17 +55,6 @@ Def::~Def()
     Pika_delete(bytecode);
 }
 
-int Def::OffsetOfLocal(const String* str) const
-{
-    Buffer<LocalVarInfo>::ConstIterator enditer = localsInfo.End();
-    for (Buffer<LocalVarInfo>::ConstIterator iter = localsInfo.Begin(); iter != enditer; ++iter)
-    {
-        if ((*iter).name == str)
-            return (int)localsInfo.IndexOf(iter);
-    }
-    return -1;
-}
-
 void Def::MarkRefs(Collector* c)
 {
     if (parent)     parent->Mark(c);
