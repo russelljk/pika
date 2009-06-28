@@ -849,7 +849,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         {
             String* dotname = fun->GetLocation()->GetDotName();
             RaiseException(Exception::ERROR_runtime,
-                           "Too many arguments for function '%s.%s'. Expected  %d %s but was given %d.",
+                           "Too many arguments for function '%s.%s'. Expected exactly %d %s but was given %d.",
                            dotname->GetBuffer(),
                            def->name->GetBuffer(),
                            param_count,
@@ -913,28 +913,37 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         
         bool adjustForVarArgs = def->isVarArg && !nativecall;
         int  argstart         = argc;        
-        size_t numDefaults    = fun->DefaultsCount();
+        Defaults* defaults    = fun->defaults;
         
-        // Number of arguments for which no default value was specified.
-        int numRegularArgs = (adjustForVarArgs) ?
-                             (param_count - (int)numDefaults - 1)  : // the "- 1" is to Remove the VarArg parameter from the arg count.
-                             (param_count - (int)numDefaults);
-                             
-        int const amttopush = numRegularArgs - argstart;
-        int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
-        
-        // Arguments with no default value will be set to null.
-        for (int p = 0; p < amttopush; ++p)
+        if (defaults)
         {
-            PushNull();
+            size_t const numDefaults = defaults->Length();
+            int const numRegularArgs = (adjustForVarArgs) ? param_count - (int)numDefaults - 1
+                                                          : param_count - (int)numDefaults;
+            int const amttopush = numRegularArgs - argstart;
+            int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
+            
+            // Arguments with no default value will be set to null.
+            for (int p = 0; p < amttopush; ++p)
+            {
+                PushNull();
+            }
+         
+            // Arguments with a default value will be set to their default value.
+            for (size_t a = defstart; a < numDefaults; ++a)
+            {
+                Value& defval = defaults->At(a);                
+                Push(defval);
+            }
         }
-        
-        // Arguments with a default value will be set to their default value.
-        for (size_t a = defstart; a < numDefaults; ++a)
+        else
         {
-            Value* defval = fun->DefaultValue(a);
-            ASSERT(defval);
-            Push(*defval);
+            int const numRegularArgs = (adjustForVarArgs) ? param_count - 1 : param_count;            
+            int const amttopush = numRegularArgs - argstart;
+            for (int p = 0; p < amttopush; ++p)
+            {
+                PushNull();
+            }            
         }
         
         // Create an empty variable arguments Array if needed.

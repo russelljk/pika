@@ -56,20 +56,22 @@ private:
 
 class PIKA_API Defaults : public GCObject
 {
-public:
-    Defaults(Value* v, size_t l);    
-    virtual void MarkRefs(Collector* c);
-        
+protected:
+    Defaults(Value* v, size_t l);
+public:    
     virtual ~Defaults();
+        
+    virtual void MarkRefs(Collector* c);
     
-    INLINE       Value* Values() { return values; }
-    INLINE const Value* Values() const { return values; }
-    INLINE       size_t Length() const { return length; }
-    
+    INLINE size_t Length() const { return length; }
+
+    INLINE Value& At(size_t idx) { return values[idx]; }
+    INLINE const Value& At(size_t idx) const { return values[idx]; }
+
     static Defaults* Create(Engine*, Value*, size_t);
 private:
-    Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
-    size_t length;    //!< Number of lexEnv
+    Value* values;    //!< Default values for parameters.
+    size_t length;    //!< Number of default values.
 };
 
 class PIKA_API Function : public Object 
@@ -102,8 +104,6 @@ public:
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
     String*             GetName();
     
-    INLINE  Value*      DefaultValue(size_t at) { return defaults ? defaults->Values() + at : 0; }
-    INLINE  size_t      DefaultsCount() const { return defaults ? defaults->Length(): 0; }
     INLINE  bool        MustClose()  const { return def->mustClose; }    
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
     
