@@ -62,7 +62,7 @@ public:
         
     virtual ~Defaults();
     
-    INLINE       Value* Values()       { return values; }
+    INLINE       Value* Values() { return values; }
     INLINE const Value* Values() const { return values; }
     INLINE       size_t Length() const { return length; }
     
@@ -133,7 +133,7 @@ public:
     
     virtual Type*   GetClassType() { return classtype; }
     virtual void    BeginCall(Context*);
-    virtual void    MarkRefs(Collector*);    
+    virtual void    MarkRefs(Collector*);
     virtual String* GetDotPath();
     
     static InstanceMethod* Create(Engine*, Function*, Type*);
@@ -148,13 +148,13 @@ class PIKA_API ClassMethod : public Function
     PIKA_DECL(ClassMethod, Function)
 protected:
     ClassMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
-    ClassMethod(Engine*, Function*, Type*);    
+    ClassMethod(Engine*, Function*, Type*);
 public:
     virtual ~ClassMethod();
     
     virtual Type*   GetClassType() const { return classtype; }
     virtual void    BeginCall(Context*);
-    virtual void    MarkRefs(Collector*);    
+    virtual void    MarkRefs(Collector*);
     virtual String* GetDotPath();
     
     static ClassMethod* Create(Engine*, Function*, Type*);    

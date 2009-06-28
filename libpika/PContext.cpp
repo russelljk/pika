@@ -376,7 +376,7 @@ void Context::GrowStack(size_t min_amt)
         if (!fun)
             continue;
             
-        Def* def = fun->def;
+        Def* def = fun->GetDef();
         
         if (def->nativecode)
             continue;
@@ -973,7 +973,7 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
     if (engine->Function_Type->IsInstance(frameVar))
     {
         Function* fun = frameVar.val.function;
-        Def* def = fun->def;
+        Def* def = fun->GetDef();
         
         // Adjust argc to match the definition's param_count.
         int  param_count = def->numArgs;
