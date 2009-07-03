@@ -59,25 +59,25 @@ size_t const Table::MAX_TABLE_SLOTS = GetMaxSize<Slot>();
 size_t const Table::MAX_TABLE_SIZE  = GetMaxSize<Slot>() / 2;
 
 Table::Table()
-        : slots(0),
+        : rows(0),
         count(0),
         size(8)
 {
-    slots = (Slot**)Pika_calloc(size, sizeof(Slot*));
+    rows = (Slot**)Pika_calloc(size, sizeof(Slot*));
     count = 0;
 }
 
 Table::Table(const Table& other)
-        : slots(0),
+        : rows(0),
         count(0),
         size(other.size)
 {
-    slots = (Slot**)Pika_calloc(size, sizeof(Slot*));
+    rows = (Slot**)Pika_calloc(size, sizeof(Slot*));
     count = other.count;
 
     for (size_t i = 0; i < size; ++i)
     {
-        Slot* p = other.slots[i];
+        Slot* p = other.rows[i];
 
         while (p)
         {
@@ -88,8 +88,8 @@ Table::Table(const Table& other)
             Slot *temp = 0;
             PIKA_NEW(Slot, temp, (p->key, p->val, p->attr));
 #endif
-            temp->next = slots[i];
-            slots[i] = temp;
+            temp->next = rows[i];
+            rows[i] = temp;
 
             p = p->next;
         }
@@ -99,7 +99,7 @@ Table::Table(const Table& other)
 Table::~Table()
 {
     Clear();
-    Pika_free(slots);
+    Pika_free(rows);
 }
 
 void Table::Grow()
@@ -113,15 +113,15 @@ void Table::Grow()
     }
 
     size_t oldSize  = size;
-    Slot** oldNodes = slots;
+    Slot** oldNodes = rows;
 
     size  = nsize;
-    slots = (Slot**)Pika_calloc(size, sizeof(Slot*));
+    rows = (Slot**)Pika_calloc(size, sizeof(Slot*));
 
-    if (!slots)
+    if (!rows)
     {
         size  = oldSize;
-        slots = oldNodes;
+        rows = oldNodes;
 
         RaiseException("Table::Grow memory allocation failed.");
     }
@@ -137,8 +137,8 @@ void Table::Grow()
 
             size_t hashcode = Pika_HashValue(current->key) & (size - 1);
 
-            current->next = slots[hashcode];
-            slots[hashcode] = current;
+            current->next = rows[hashcode];
+            rows[hashcode] = current;
 
             current = next;
         }
@@ -149,7 +149,7 @@ void Table::Grow()
 bool Table::Set(const Value& key, Value& value, u4 attr)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
-    Slot*  current  = slots[hashcode];
+    Slot*  current  = rows[hashcode];
 
     while (current)
     {
@@ -183,17 +183,34 @@ bool Table::Set(const Value& key, Value& value, u4 attr)
     PIKA_NEW(Slot, temp, (key, value, attr));
 #endif
 
-    temp->next = slots[hashcode];
-    slots[hashcode] = temp;
+    temp->next = rows[hashcode];
+    rows[hashcode] = temp;
     ++count;
 
     return true;
 }
 
+bool Table::SetAttr(const Value& key, u4 attr)
+{
+    size_t hashcode = Pika_HashValue(key) & (size - 1);
+    Slot*  current  = rows[hashcode];
+    
+    while (current)
+    {
+        if (key == current->key)
+        {
+            current->attr = attr;
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
+}
+
 Table::ESlotState Table::CanSet(const Value& key)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
-    Slot* current = slots[hashcode];
+    Slot* current = rows[hashcode];
 
     while (current)
     {
@@ -209,7 +226,7 @@ Table::ESlotState Table::CanSet(const Value& key)
 bool Table::CanInherit(const Value& key)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
-    Slot* current = slots[hashcode];
+    Slot* current = rows[hashcode];
 
     while (current)
     {
@@ -225,7 +242,7 @@ bool Table::CanInherit(const Value& key)
 bool Table::Exists(const Value& key)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
-    Slot *current = slots[hashcode];
+    Slot *current = rows[hashcode];
 
     while (current)
     {
@@ -239,7 +256,7 @@ bool Table::Exists(const Value& key)
 bool Table::Get(const Value& key, Value& res)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
-    const Slot* current = slots[hashcode];
+    const Slot* current = rows[hashcode];
 
     while (current)
     {
@@ -257,8 +274,8 @@ bool Table::Get(const Value& key, Value& res)
 bool Table::Remove(const Value& key)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
-    Slot** ptr_to   = &(slots[hashcode]);
-    Slot*  current  = slots[hashcode];
+    Slot** ptr_to   = &(rows[hashcode]);
+    Slot*  current  = rows[hashcode];
 
     while (current)
     {
@@ -289,7 +306,7 @@ void Table::DoMark(Collector* c)
 
     for (size_t b = 0; b < size ; ++b)
     {
-        Slot* e = slots[b];
+        Slot* e = rows[b];
 
         while (e)
         {
@@ -304,7 +321,7 @@ void Table::Clear()
 {
     for (size_t i = 0; i < size; ++i)
     {
-        Slot* curr = slots[i];
+        Slot* curr = rows[i];
 
         while (curr)
         {
@@ -317,7 +334,7 @@ void Table::Clear()
 #endif
             curr = next;
         }
-        slots[i] = 0;
+        rows[i] = 0;
     }
     count = 0;
 }

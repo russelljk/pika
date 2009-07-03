@@ -36,7 +36,7 @@ public:
             size_t s = 0;
             for (bin = 0; bin < sz; ++bin)
             {
-                curr = table.slots[bin];
+                curr = table.rows[bin];
                 
                 while (curr)
                 {

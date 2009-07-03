@@ -59,7 +59,7 @@ public:
         {
             for (index = 0; index < owner->size; ++index) 
             {
-                pos = owner->slots[index];
+                pos = owner->rows[index];
                 if (pos) 
                 {
                     break;
@@ -81,7 +81,7 @@ public:
                 ++index;
                 for (; index < owner->size; ++index) 
                 {
-                    pos = owner->slots[index];
+                    pos = owner->rows[index];
                     if (pos)
                         break;
                 }
@@ -110,6 +110,7 @@ public:
         
     bool Exists(const Value& key);
     bool Set(const Value& key, Value& value, u4 attrs = 0);
+    bool SetAttr(const Value& key, u4 attrs = 0);
     bool Get(const Value& key, Value& res);
     
     enum ESlotState
@@ -119,21 +120,29 @@ public:
         SS_nil = 1 << 2, // Slot does not exist.
     };
     ESlotState CanSet(const Value& key);
-    
+
+    /** Determines if a slot can be overloaded by a child table. */
     bool CanInherit(const Value& key);
+    
+    /** Removes a slot from this table. Returns false if the slot does not 
+      * exist or has the attribute ATTR_nodelete. */
     bool Remove(const Value& key);
-
+    
+    /** Returns a forward iterator. 
+      * @note Changing the table may invalidate the iterator. */
     Iterator GetIterator() { return Iterator(this); }
-
+    
     void DoMark(class Collector*);
+    
+    /** Completely removes all Slots in this table. Will not resize the array though. */
     void Clear();
     
-    Slot** slots; //!< Linear array of slots. Each position in the array may have more than 1 chained slot.
+    Slot** rows;  //!< Linear array of slots. Each position in the array may have more than 1 chained slot.
     size_t count; //!< The number of elements in the table.
     size_t size;  //!< The length of the slots member variable.
 
-    static size_t const MAX_TABLE_SLOTS;
-    static size_t const MAX_TABLE_SIZE;
+    static size_t const MAX_TABLE_SLOTS; //!< Maximum number of slots a table can have.
+    static size_t const MAX_TABLE_SIZE;  //!< Maximum number of rows a table can have.
 };
 
 }// pika
