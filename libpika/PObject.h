@@ -62,6 +62,8 @@ public:
     virtual bool  GetSlot(const Value& key, Value& result);
     virtual bool  HasSlot(const Value& key);
     virtual bool  DeleteSlot(const Value& key);
+    virtual bool  BracketRead(const Value& key, Value& result);
+    virtual bool  BracketWrite(const Value& key, Value& value, u4 attr = 0);
     
     virtual void  MarkRefs(Collector*);
 

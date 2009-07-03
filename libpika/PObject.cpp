@@ -145,6 +145,20 @@ bool Object::CanSetSlot(const Value& key)
     return members.CanSet(key);
 }
 
+bool Object::BracketRead(const Value& key, Value& result)
+{
+    return GetSlot(key, result); 
+}
+
+bool Object::BracketWrite(const Value& key, Value& val, u4 attr)
+{ 
+    if (key.IsCollectible())
+        WriteBarrier(key);
+    if (val.IsCollectible())
+        WriteBarrier(val);
+    return members.Set(key, val, attr | Slot::ATTR_forcewrite);
+}
+
 Object* Object::Clone()
 {
     Object* newObject = 0;
@@ -321,6 +335,17 @@ static int Enumerator_advance(Context* ctx, Value& self)
     return 0;
 }
 
+static int Property_toString(Context* ctx, Value& self)
+{
+    Engine*   eng    = ctx->GetEngine();
+    Property* prop   = self.val.property;
+    String*   type   = prop->GetType()->GetName();
+    String*   name   = prop->GetName();
+    String*   result = eng->AllocStringFmt("%s %s", type->GetBuffer(), name->GetBuffer());
+    ctx->Push(result);
+    return 1;
+}
+
 extern int Global_import(Context*, Value&);
 
 void Object_NewFn(Engine* eng, Type* obj_type, Value& res)
@@ -392,8 +417,13 @@ void InitObjectAPI(Engine* eng)
     Pkg_World->SetSlot("Enumerator", eng->Enumerator_Type);
     
     // Property ///////////////////////////////////////////////////////////////
-    
+    static RegisterFunction Property_Functions[] =
+    {
+        { "toString", Property_toString, 0, 0, 0 },
+    };
+        
     eng->Property_Type = Type::Create(eng, eng->AllocString("Property"), eng->Basic_Type, 0, Pkg_World);
+    eng->Property_Type->EnterMethods(Property_Functions, countof(Property_Functions));
     eng->Property_Type->SetFinal(true);
     eng->Property_Type->SetAbstract(true);
     Pkg_World->SetSlot("Property", eng->Property_Type);

@@ -126,27 +126,25 @@ struct ValueComp
 
 bool Array::BracketRead(const Value& key, Value& res)
 {
-    size_t index = 0;
-    
+    size_t index = 0;    
     if (GetIndexOf(key, index))
     {
         res = elements[index];
         return true;
     }
-    return ThisSuper::BracketRead(key, res);
+    return false;
 }
 
 bool Array::BracketWrite(const Value& key, Value& value, u4 attr)
 {
-    size_t index = 0;
-    
+    size_t index = 0;    
     if (GetIndexOf(key, index))
     {
         elements[index] = value;
         WriteBarrier(value);
         return true;
     }
-    return ThisSuper::BracketWrite(key, value, attr);
+    return false;
 }
 
 bool Array::GetIndexOf(const Value& key, size_t &index)

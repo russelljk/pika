@@ -107,7 +107,7 @@ public:
     Table(const Table& other);
 
     ~Table();
-
+    
     bool Exists(const Value& key);
     bool Set(const Value& key, Value& value, u4 attrs = 0);
     bool Get(const Value& key, Value& res);

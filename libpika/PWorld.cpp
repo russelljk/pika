@@ -437,51 +437,14 @@ static int Boolean_init(Context* ctx, Value& self)
 
 ///////////////////////////////////////////// World ////////////////////////////////////////////////
 
-int PrintValue(Context* ctx, Value& v)
-{
-    int obj_type = v.tag;
-    switch (obj_type)
-    {
-    case TAG_null:
-        std::cout << "null";
-        break;
-    case TAG_boolean:
-        if (v.val.index)
-            std::cout << "true";
-        else
-            std::cout << "false";
-        break;
-    case TAG_integer:
-        std::cout << v.val.integer;
-        break;
-    case TAG_real:
-        std::cout << v.val.real;
-        break;
-    case TAG_index:
-        std::cout << v.val.index;
-        break;
-    case TAG_string:
-        std::cout << v.val.str->GetBuffer();
-        break;
-    case TAG_object:
-    {
-        String* str = ctx->GetEngine()->ToString(ctx, v);
-        std::cout << str->GetBuffer();
-    }
-    break;
-    default:
-        std::cout << std::hex << v.val.index;
-    }
-    return 0;
-}
-
 static int Dummy_Print(Context* ctx, Value& self)
 {
     u4 argc = ctx->GetArgCount();
     GCPAUSE(ctx->GetEngine());
     for (u4 i = 0; i < argc; ++i)
     {
-        PrintValue(ctx, ctx->GetArg(i));
+        String* str  = ctx->GetEngine()->ToString(ctx, ctx->GetArg(i));
+        std::cout << str->GetBuffer();
         if (i + 1 < argc)
             std::cout << " ";
     }
@@ -495,9 +458,8 @@ static int Dummy_PrintLn(Context* ctx, Value& self)
     
     for (u4 i = 0; i < argc; ++i)
     {
-        Value*  argv = ctx->GetArgs();
-        String* str  = ctx->GetEngine()->ToString(ctx, argv[i]);
-        puts(str->GetBuffer());
+        String* str = ctx->GetEngine()->ToString(ctx, ctx->GetArg(i));
+        std::cout << str->GetBuffer() << std::endl;
     }
     return 0;
 }

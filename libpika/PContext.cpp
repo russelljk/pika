@@ -1458,7 +1458,15 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
         bool success;
         if (oc == OP_subset)
         {
-            success = obj.val.basic->BracketWrite(prop, val);
+            if (!(success = obj.val.basic->BracketWrite(prop, val)))
+            {
+                //  Member cannot be written.
+                ReportRuntimeError(Exception::ERROR_runtime,
+                                   "Attempt to set [ '%s' ] of '%s'.",
+                                   engine->ToString(this, prop)->GetBuffer(),
+                                   engine->GetTypenameOf(obj)->GetBuffer());
+                return;
+            }
         }
         else
         {
@@ -1507,9 +1515,9 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
                 {
                     //  Property is read only
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "Attempt to set property '%s' for '%s'. Property does not support writing.",
+                                       "Attempt to set property '%s' of '%s'. Property does not support writing.",
                                        engine->ToString(this, prop)->GetBuffer(),
-                                       engine->ToString(this, obj)->GetBuffer());
+                                       engine->GetTypenameOf(obj)->GetBuffer());
                     return;
                 }
             }
@@ -1517,9 +1525,9 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
             {
                 //  Member cannot be written.
                 ReportRuntimeError(Exception::ERROR_runtime,
-                                   "Attempt to set member '%s' for '%s'.",
+                                   "Attempt to set member '%s' of '%s'.",
                                    engine->ToString(this, prop)->GetBuffer(),
-                                   engine->ToString(this, obj)->GetBuffer());
+                                   engine->GetTypenameOf(obj)->GetBuffer());
                 return;
             }
             return;
@@ -1533,9 +1541,9 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
     else
     {
         ReportRuntimeError(Exception::ERROR_runtime,
-                           "Attempt to set member '%s' for '%s'.",
+                           "Attempt to set member '%s' of '%s'.",
                            engine->ToString(this, prop)->GetBuffer(),
-                           engine->ToString(this, obj)->GetBuffer());
+                           engine->GetTypenameOf(obj)->GetBuffer());
         return;
     }
 }
@@ -1677,7 +1685,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         }
     }
     
-    if (res.tag == TAG_property)
+    if (res.tag == TAG_property && oc != OP_subget)
     {
         // The result is a Property
         // So we need to call its accessor function.
