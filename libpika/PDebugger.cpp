@@ -53,8 +53,7 @@ void Debugger::OnInstr(Context* ctx, code_t* xpc, Function* fn)
         code_t* currpos = def->lineInfo[i].pos;
         code_t* nextpos = (i == def->lineInfo.GetSize() - 1) ? currpos : def->lineInfo[i + 1].pos;
         
-        if ((pc == currpos) || (pc >= currpos && pc < nextpos) || (pc >= currpos && (i == def->lineInfo.GetSize() - 1)))
-            // ((pc == currpos) || ((pc >= currpos) && ((pc < nextpos) || (i == def->lineInfo.GetSize() - 1)))) TODO: TEST Simplified line <<=
+        if ((pc == currpos) || (pc >= currpos && (pc < nextpos || i == def->lineInfo.GetSize() - 1)))
         {
             if (def->lineInfo[i].line != lineData.line)
             {

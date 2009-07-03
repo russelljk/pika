@@ -145,36 +145,41 @@ void Function::MarkRefs(Collector* c)
 {
     ThisSuper::MarkRefs(c);
     
-    if (parent)     parent->Mark(c);
-    if (def)        def->Mark(c);
-    if (lexEnv)     lexEnv->Mark(c);
-    if (location)   location->Mark(c);
+    if (parent)   parent->Mark(c);
+    if (def)      def->Mark(c);
+    if (lexEnv)   lexEnv->Mark(c);
+    if (location) location->Mark(c);
     if (defaults) defaults->Mark(c);
 }
 
 int Function::DetermineLineNumber(code_t* xpc)
 {
-    if (!def) return -1; // return a bogus line number.
+    if (!def)
+        return -1; // return a bogus line number.
     
-    int lineno = def->line; // return the def's line.
+    int lineno = def->line; // The starting line of the function.
     
     code_t* pc = (xpc - 1);
     
     size_t lastline = def->lineInfo.GetSize();
+    
+    // No line information so return the lineno.
     if (!lastline)
         return lineno;
+    
+    // Loop through each line in the function.
     lastline -= 1;
     for (size_t i = 0; i <= lastline; ++i)
     {
+        // Get the bytecode position of both this and the next line (if available).
         code_t* currpos = def->lineInfo[i].pos;
         code_t* nextpos = (i == lastline) ? currpos : def->lineInfo[i + 1].pos;
         
-//      if (pc == currpos || (pc > currpos && ((pc < nextpos) || (i == lastline))))
-
-        if ((pc == currpos) || (pc >= currpos && pc < nextpos) || (pc >= currpos && (i == lastline)))
+        if (pc == currpos || 
+           (pc > currpos && ((pc < nextpos) || (i == lastline))))
         {
             lineno = def->lineInfo[i].line;
-            break;
+            break;        
         }
     }
     return lineno;
