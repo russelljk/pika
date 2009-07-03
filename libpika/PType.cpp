@@ -349,7 +349,8 @@ bool Type::GetField(const Value& key, Value& result)
 
 bool Type::CanSetField(const Value& key)
 {
-    if (!members.CanSet(key))
+    Table::ESlotState ss = members.CanSet(key);
+    if (Table::SS_no == ss)
     {
         return false;
     }

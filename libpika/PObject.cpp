@@ -140,9 +140,14 @@ bool Object::DeleteSlot(const Value& key)
 
 bool Object::CanSetSlot(const Value& key)
 {
-    if (type && !type->CanSetField(key))
-        return false;
-    return members.CanSet(key);
+    Table::ESlotState ss = members.CanSet(key);
+    switch (ss)
+    {
+    case Table::SS_yes: return true;
+    case Table::SS_no:  return false;
+    case Table::SS_nil: return (type && !type->CanSetField(key)) ? false : true;
+    };
+    return true;
 }
 
 bool Object::BracketRead(const Value& key, Value& result)

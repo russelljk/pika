@@ -107,11 +107,19 @@ public:
     Table(const Table& other);
 
     ~Table();
-    
+        
     bool Exists(const Value& key);
     bool Set(const Value& key, Value& value, u4 attrs = 0);
     bool Get(const Value& key, Value& res);
-    bool CanSet(const Value& key);
+    
+    enum ESlotState
+    {
+        SS_yes = 1,      // Slot exists and can be set.
+        SS_no  = 1 << 1, // Slot is a property or marked as final.
+        SS_nil = 1 << 2, // Slot does not exist.
+    };
+    ESlotState CanSet(const Value& key);
+    
     bool CanInherit(const Value& key);
     bool Remove(const Value& key);
 

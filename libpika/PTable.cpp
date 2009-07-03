@@ -190,7 +190,7 @@ bool Table::Set(const Value& key, Value& value, u4 attr)
     return true;
 }
 
-bool Table::CanSet(const Value& key)
+Table::ESlotState Table::CanSet(const Value& key)
 {
     size_t hashcode = Pika_HashValue(key) & (size - 1);
     Slot* current = slots[hashcode];
@@ -199,11 +199,11 @@ bool Table::CanSet(const Value& key)
     {
         if (key == current->key)
         {
-            return (current->val.tag != TAG_property) && !(current->attr & Slot::ATTR_final);
+            return (current->val.tag != TAG_property) && !(current->attr & Slot::ATTR_final) ? SS_yes : SS_no;
         }
         current = current->next;
     }
-    return true;
+    return SS_nil;
 }
 
 bool Table::CanInherit(const Value& key)

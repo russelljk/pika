@@ -51,7 +51,7 @@ bool Package::GetGlobal(const Value& key, Value& res)
 
 bool Package::SetGlobal(const Value& key, Value& val, u4 attr)
 {
-    if (!members.CanSet(key))
+    if (!ThisSuper::CanSetSlot(key))
     {
         if (!(attr & Slot::ATTR_forcewrite))
         {
