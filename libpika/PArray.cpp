@@ -232,11 +232,10 @@ Array* Array::Unshift(Value& v)
 String* Array::ToString()
 {
     GCPAUSE_NORUN(engine);
-    String* beg = engine->AllocString("[");
-    String* curr = beg;
-    size_t len = elements.GetSize();
-    Context* ctx = engine->GetActiveContextSafe();
+    size_t    len = elements.GetSize();
+    Context*  ctx = engine->GetActiveContextSafe();
     String* comma = engine->AllocString(",");
+    String*  curr = engine->AllocString("[");
     
     for (size_t i = 0; i < len; ++i)
     {
@@ -252,8 +251,10 @@ String* Array::ToString()
         }
         else if (elements[i].tag >= TAG_basic)
         {
-            // Same danger as an array can occur if the Object and this Array have a cyclical references.
-            res = engine->AllocStringFmt("{%s instance:%p}", elements[i].val.basic->GetType()->GetName()->GetBuffer(), elements[i].val.object);
+            // Same danger with array elements can occur if an basic Object element and this Array have a cyclical references.
+            res = engine->AllocStringFmt("{%s instance:%p}", 
+                                         elements[i].val.basic->GetType()->GetName()->GetBuffer(), 
+                                         elements[i].val.object);
         }
         else
         {
@@ -274,6 +275,7 @@ String* Array::ToString()
     curr = String::ConcatSpace(curr, end);
     return curr;
 }
+
 /** Removes and returns the first element. */
 Value Array::Shift()
 {

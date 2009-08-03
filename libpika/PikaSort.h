@@ -36,12 +36,9 @@ median3(IterT left, IterT right, CompT compfn)
 {
     IterT center =  left + (right - left) / 2;
     
-    if (compfn(*center , *left))
-        std::swap(*left, *center);
-    if (compfn(*right , *left))
-        std::swap(*left, *right);
-    if (compfn(*right , *center))
-        std::swap(*right, *center);
+    if (compfn(*center, *left))   std::swap(*left,  *center);
+    if (compfn(*right,  *left))   std::swap(*left,  *right);
+    if (compfn(*right,  *center)) std::swap(*right, *center);
     return right;
 }
 

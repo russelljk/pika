@@ -294,6 +294,11 @@ String* String::ToUpper()
 
 String* String::ConcatSpace(String* a, String* b)
 {
+    return ConcatSep(a, b, ' ');
+}
+
+String* String::ConcatSep(String* a, String* b, char sep)
+{
     ASSERT(a && b);
     Engine* eng = a->GetEngine();
     
@@ -307,7 +312,7 @@ String* String::ConcatSpace(String* a, String* b)
     if (alen)
         Pika_memcpy(&eng->string_buff[0], a->buffer, alen * sizeof(char));
         
-    eng->string_buff[alen] = ' ';
+    eng->string_buff[alen] = sep;
     
     if (blen)
         Pika_memcpy(&eng->string_buff[alen + 1], b->buffer, blen * sizeof(char));

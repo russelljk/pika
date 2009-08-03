@@ -446,11 +446,11 @@ Script* Engine::Compile(String* name, Context* parent)
     
     // parse the file
     PutImport(str_dot_name, Value(AllocString("compiling")));
-    
-    std::ifstream yyin;
+        
     // Try to open the file and create the CompileState + Parser.
     try
     {        
+        std::ifstream yyin;
         yyin.open(name->GetBuffer());
         if (!yyin)        
             return 0;
@@ -500,7 +500,7 @@ Script* Engine::Compile(String* name, Context* parent)
         Context* context = Context::Create(this, this->Context_Type);
         context->state = Context::SUSPENDED;
         
-        Value closure;
+        Value closure = NULL_VALUE;
         const Value& f = literals->Get(loadindex); // main fuction for the script.
         
         context->package = script;
@@ -875,7 +875,7 @@ String* Engine::GetTypenameOf(Value& v)
     case TAG_integer:    return Integer_Type->GetName();
     case TAG_real:       return Real_Type->GetName();    
     case TAG_string:     return String_Type->GetName();
-    case TAG_enumerator: return AllocString("Enumerator"); // TODO: we need the subclasses of enumerator
+    case TAG_enumerator: return Enumerator_Type->GetName();
     case TAG_property:   return Property_Type->GetName();
     case TAG_userdata:
     {
@@ -887,10 +887,9 @@ String* Engine::GetTypenameOf(Value& v)
     }
     case TAG_object:
     {
-        ASSERT(v.val.object);
-        
-        Object* obj     = v.val.object;
-        Type*   objType = obj->GetType();
+        ASSERT(v.val.object);        
+        Object* obj = v.val.object;
+        Type* objType = obj->GetType();
         if (objType)
             return objType->GetName();
     }

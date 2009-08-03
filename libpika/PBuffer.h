@@ -22,7 +22,7 @@
 
 namespace pika {
 
-// XXX: Export exception handling methods so that PikaError does not need to be included.
+// XXX: Export exception handling methods so that PError does not need to be included.
 
 ////////////////////////////////////////////// Buffer //////////////////////////////////////////////
 /** Resizable template Buffer class. */
@@ -171,7 +171,7 @@ public:
         INLINE bool	operator> (const Indexer& rhs) const { return index >  rhs.index; }
     };
     
-    /** Basic iterator that has (partial?) compatibility with the C++ STL. */
+    /** Basic iterator. */
     class Iterator
     {
         T* myPtr;
@@ -235,7 +235,7 @@ public:
         INLINE bool	operator> (const Iterator& rhs) const { return myPtr >  rhs.myPtr; }
     };
     
-    /** Basic constant iterator that has (partial?) compatibility with the C++ STL. */
+    /** Basic constant iterator. */
     class ConstIterator
     {
         const T* myPtr;

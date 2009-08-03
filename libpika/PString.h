@@ -46,6 +46,7 @@ public:
     // ----- api ---------------------------------------------------------------
     
     static String*      Concat(String* a, String* b);
+    static String*      ConcatSep(String* a, String* b, char sep);
     static String*      ConcatSpace(String* a, String* b);
     static String*      Multiply(String*, pint_t);
         

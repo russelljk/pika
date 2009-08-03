@@ -156,6 +156,8 @@ bool Table::Set(const Value& key, Value& value, u4 attr)
         if (key == current->key)
         {
             current->val = value;
+            if (attr) 
+                current->attr = attr;
             return true;
         }
         current = current->next;

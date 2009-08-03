@@ -157,11 +157,9 @@ int Function::DetermineLineNumber(code_t* xpc)
     if (!def)
         return -1; // return a bogus line number.
     
-    int lineno = def->line; // The starting line of the function.
-    
-    code_t* pc = (xpc - 1);
-    
-    size_t lastline = def->lineInfo.GetSize();
+    int     lineno   = def->line; // The starting line of the function.    
+    code_t* pc       = (xpc - 1);    
+    size_t  lastline = def->lineInfo.GetSize();
     
     // No line information so return the lineno.
     if (!lastline)
@@ -488,16 +486,16 @@ void Function::InitWithBody(String* body)
     std::auto_ptr<Parser>       parser(new Parser(cs.get(), body->GetBuffer(), body->GetLength()));
     
     Program* tree = parser->DoFunctionParse();
-    
-    tree->CalculateResources(0, *cs); // TODO: delete result??
+    ASSERT(tree);
+    tree->CalculateResources(0, *cs);
     
     if (cs->HasErrors())
-        RaiseException(Exception::ERROR_syntax, "Attempt to compile script.\n");
+        RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");
         
     tree->GenerateCode();
     
     if (cs->HasErrors())
-        RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script.\n");
+        RaiseException(Exception::ERROR_syntax, "Attempt to generate code failed.\n");
         
     def = tree->def;
     location = engine->GetWorld();
