@@ -709,6 +709,11 @@ void Tokenizer::ReadControl()
             tokenType = TOK_decrement;
             GetLook();
             
+        }        
+        else if (look == '>')
+        {
+            tokenType = TOK_implies;
+            GetLook();
         }
         else if (look == '=')
         {

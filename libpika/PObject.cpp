@@ -79,7 +79,7 @@ void Object::AddProperty(Property* p)
 {
     // Without forcewrite a property write will fail if 
     // there is a previous property with the same name some where in the lookup chain.
-    SetSlot(p->GetName(), p, Slot::ATTR_forcewrite); 
+    SetSlot(p->Name(), p, Slot::ATTR_forcewrite); 
 }
 
 void Object::SetType(Type* t)
@@ -345,7 +345,7 @@ static int Property_toString(Context* ctx, Value& self)
     Engine*   eng    = ctx->GetEngine();
     Property* prop   = self.val.property;
     String*   type   = prop->GetType()->GetName();
-    String*   name   = prop->GetName();
+    String*   name   = prop->Name();
     String*   result = eng->AllocStringFmt("%s %s", type->GetBuffer(), name->GetBuffer());
     ctx->Push(result);
     return 1;

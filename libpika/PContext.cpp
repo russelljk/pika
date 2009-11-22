@@ -1492,7 +1492,7 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
                     //  [ obj   ]
                     //  [ prop  ]< Top
                     
-                    prop.Set(pprop->GetSetter());
+                    prop.Set(pprop->Setter());
                     
                     //  [ ....            ]
                     //  [ value           ]
@@ -1608,7 +1608,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
                     //  [ .... ]
                     //  [ obj  ]< Top
                     
-                    Push(property->GetGetter());
+                    Push(property->Getter());
                     
                     //  [ .... ]
                     //  [ obj  ]
@@ -1704,7 +1704,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
             //  [ .... ]
             //  [ obj  ]< Top
             
-            Push(property->GetGetter());
+            Push(property->Getter());
             
             //  [ .... ]
             //  [ obj  ]
@@ -1724,7 +1724,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
             // Property is write only.
             ReportRuntimeError(Exception::ERROR_runtime,
                                "Attempt to get property '%s' from '%s'. Property does not support reading.",
-                               property->GetName()->GetBuffer(),
+                               property->Name()->GetBuffer(),
                                engine->ToString(this, obj)->GetBuffer());
             return;
         }
@@ -1741,7 +1741,7 @@ bool Context::DoPropertyGet(int& numcalls, Property* prop)
     if (!prop->CanGet())
         return false;
     
-    Push(prop->GetGetter());
+    Push(prop->Getter());
             
     //  [ .... ]
     //  [ obj  ]
@@ -1768,7 +1768,7 @@ bool Context::DoPropertySet(int& numcalls, Property* prop)
     //  [ obj   ]
     //          < Top
     
-    Push(prop->GetSetter());
+    Push(prop->Setter());
                     
     //  [ ....            ]
     //  [ value           ]

@@ -43,9 +43,9 @@ void Property::MarkRefs(Collector* c)
 bool Property::CanSet() { return setter != 0; }
 bool Property::CanGet() { return getter != 0; }
 
-Function* Property::GetGetter() { return getter; }
-Function* Property::GetSetter() { return setter; }
-String*   Property::GetName()   { return name; }
+Function* Property::Getter() { return getter; }
+Function* Property::Setter() { return setter; }
+String*   Property::Name()   { return name; }
 
 Property* Property::CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter)
 {

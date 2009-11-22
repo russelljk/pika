@@ -213,7 +213,7 @@ private:
     FieldList*      DoDictionaryExpressionFields();
     
     bool            IsPrimaryExpression();
-    ParamDecl*      DoFunctionParameters();
+    ParamDecl*      DoFunctionParameters(bool close=true);
     
     void            Match(int x);
     bool            Optional(int x);

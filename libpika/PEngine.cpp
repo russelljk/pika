@@ -707,7 +707,7 @@ String* Engine::ToString(Context* ctx, const Value& v)
     // TODO: Fix the enumerator's and userdata's toString conversion.
         
     case TAG_enumerator: return AllocString("enumerator");
-    case TAG_property:   return String::ConcatSpace(Property_String, v.val.property->GetName());
+    case TAG_property:   return String::ConcatSpace(Property_String, v.val.property->Name());
     
     case TAG_userdata:   return AllocString("userdata");
     

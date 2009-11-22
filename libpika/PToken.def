@@ -91,7 +91,7 @@ TOKEN_DEF(TOK_divassign,      "/*")
 TOKEN_DEF(TOK_modassign,      "%=")
 TOKEN_DEF(TOK_starstar,       "**")
 TOKEN_DEF(TOK_lessgreater,    "<>")
-
+TOKEN_DEF(TOK_implies,        "->")
 TOKEN_DEF(TOK_identifier,     "<identifier>")
 TOKEN_DEF(TOK_stringliteral,  "<string literal>")
 TOKEN_DEF(TOK_integerliteral, "<integer literal>")

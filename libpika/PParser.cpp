@@ -142,29 +142,25 @@ Parser::~Parser() {}
 
 Program* Parser::DoParse()
 {
-    tstream.Initialize();
-    
-    DoScript();
-    
+    tstream.Initialize();    
+    DoScript();    
     return root;
 }
 
 Program* Parser::DoFunctionParse()
 {
-    tstream.Initialize();
-    
-    DoFunctionScript();
-    
+    tstream.Initialize();    
+    DoFunctionScript();    
     return root;
 }
 
 void Parser::DoScript()
 {
-    const int terms[] = {0};
+    const int terms[] = { 0 };
     
-    size_t beg = tstream.curr.begOffset;
-    Stmt* stmts = DoStatementList(terms);
-    size_t end = tstream.prev.endOffset;
+    size_t beg   = tstream.curr.begOffset;
+    Stmt*  stmts = DoStatementList(terms);
+    size_t end   = tstream.prev.endOffset;
     
     PIKA_NEWNODE(Program, root, (stmts, beg, end));
 }
@@ -180,9 +176,9 @@ void Parser::DoFunctionScript()
         
     ParamDecl* params = DoFunctionParameters();
     
-    size_t beg = tstream.curr.begOffset;
-    Stmt* stmts = DoStatementList(terms);
-    size_t end = tstream.prev.endOffset;
+    size_t beg   = tstream.curr.begOffset;
+    Stmt*  stmts = DoStatementList(terms);
+    size_t end   = tstream.prev.endOffset;
     
     Match(TOK_end);
     PIKA_NEWNODE(FunctionProg, root, (stmts, beg, end, params));
@@ -2063,7 +2059,8 @@ Expr* Parser::DoPostfixExpression()
     {
         if (IsPrimaryExpression() && tstream.GetPrevType() == TOK_identifier)
         {
-            /*//////////////////////////////////////////////////////////////////////////////////////
+            /*
+            --------------------------------------------------------------------------------------------
             
             Call expression WITHOUT parenthesis.
             
@@ -2075,14 +2072,8 @@ Expr* Parser::DoPostfixExpression()
             FIXED:  5'hello' attempts to call the literal 5 with the argument 'hello'. This is now
             a compile time error because the previous token MUST be an identifier.            
           
-            --------------------------------------------------------------------------------------------
-            
-            TODO:  This may need to be changed.
-            Epecially if we ever change how dot-expr are composed.
-            
-            TODO:  What about [] reads.
-            
-            //////////////////////////////////////////////////////////////////////////////////////*/
+            --------------------------------------------------------------------------------------------           
+            */
             Expr*     lhs  = expr;
             ExprList* args = DoExpressionList();
             
@@ -2267,15 +2258,19 @@ Expr* Parser::DoPrimaryExpression()
         Match(')');
     }
     break;
-    case '\\':
+    case '\\': 
     {
+        // Lambda Expression
+        // '\\' (arg1, ... ,argN) ':' <expression>
+        // '\\' ':' <expression>
+        
         int line = tstream.GetLineNumber();
         Match('\\');
         ParamDecl* params = 0;
         
-        if (tstream.GetType() != ':')
-            params = DoFunctionParameters();
-        Match(':');
+        if (tstream.GetType() != TOK_implies)
+            params = DoFunctionParameters(false);
+        Match(TOK_implies);
         
         size_t beg = tstream.curr.begOffset;
         Expr* expr = DoExpression();
@@ -2531,12 +2526,14 @@ Expr* Parser::DoFunctionExpression()
     {
         id = DoIdentifier();
     }
-    
+#if defined(PIKA_OPTIONAL_PARAMETERS)    
     if (tstream.GetType() == '(')
     {
         params = DoFunctionParameters();
     }
-    
+#else
+    params = DoFunctionParameters();
+#endif    
     Stmt* body = DoFunctionBody();
     size_t end = tstream.prev.endOffset;
     
@@ -2703,11 +2700,12 @@ FieldList* Parser::DoDictionaryExpressionFields()
     return fields;
 }
 
-ParamDecl* Parser::DoFunctionParameters()
+ParamDecl* Parser::DoFunctionParameters(bool close)
 {
     ParamDecl* params = 0;
     ParamDecl* currParam = 0;
     bool def_vals = false;
+#if defined(PIKA_OPTIONAL_PARAMETERS)
     bool close = false; // Are the parameters inclosed inside ()
     
     if (tstream.GetPreviousLineNumber() != tstream.GetLineNumber())
@@ -2720,6 +2718,12 @@ ParamDecl* Parser::DoFunctionParameters()
     {
         close = Optional('(');
     }
+#else
+    if (close)
+        Match('(');
+    else
+        close = Optional('(');
+#endif
     
     while (tstream.GetType() != ')' && !tstream.IsEndOfStream())
     {
