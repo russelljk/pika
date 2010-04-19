@@ -11,6 +11,9 @@ namespace pika {
 template<typename T>
 INLINE size_t GetMaxSize() { return size_t(-1) / sizeof(T); }
 
+// determines if a + b > max(size_t)
+INLINE bool SizeAdditionOverflow(size_t a, size_t b) { return ((size_t(-1)) - a) < b; }
+
 template<typename T>
 struct Nullable
 {

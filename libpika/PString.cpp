@@ -373,6 +373,8 @@ bool String::DeleteSlot(const Value& key) { return false; }
 
 Enumerator* String::GetEnumerator(String* enumtype)
 {
+    // "lines" "words" might be useful to have. line world enumerate each substring separated by '\n'. words are chars+numbers,
+    //  separated by whitespace.
     if (enumtype == engine->elements_String || enumtype == engine->indices_String || enumtype == engine->emptyString)
     {
         Enumerator* e = 0;
@@ -967,6 +969,7 @@ void InitStringAPI(Engine* eng)
     eng->String_Type->SetAbstract(true);    
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
     eng->String_Type->EnterClassMethods(String_ClassMethods, countof(String_ClassMethods));
-    
+    Value string_MAX((pint_t)PIKA_STRING_MAX_LEN);
+    eng->String_Type->SetSlot("MAX", string_MAX);
     eng->GetWorld()->SetSlot("String", eng->String_Type);
 }

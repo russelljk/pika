@@ -132,14 +132,14 @@
 
 PIKA_MODULE_EXPORT          Declaration needed to export a function from a shared library.
 
-PIKA_ALIGN [default 8]      Don't lower this, but you can up it to another power of 2 (or more) if needed.
-                            This only effects mem pools and userdata alignment NOT std allocation methods
+PIKA_ALIGN [default 8]      Don't lower this, but you can increase it to another power of 2 (or more) if needed.
+                            This only effects mem pools and userdata alignment NOT standard C allocation methods
                             like malloc and realloc.
 
 PIKA_PATH_SEP_CHAR          System path seperator char.
 PIKA_PATH_SEP               System path seperator string.
-PIKA_LIB_PREFIX             Prefix of user loaded shared libs.
-PIKA_LIB_EXT                Extension for user loaded shared libs.
+PIKA_LIB_PREFIX             Prefix of user loaded shared libs. 
+PIKA_LIB_EXT                System extension used for modules (shared libraries).
 
 u1                          1 byte unsigned integer
 u2                          2 byte unsigned integer
@@ -151,11 +151,11 @@ s2                          2 byte signed integer
 s4                          4 byte signed integer
 s8                          8 byte signed integer
 
-PIKA_32                     Defined iff pointers are 32bit. < (Mutually exclusive)
-PIKA_64                     Defined iff pointers are 64bit. < 
+PIKA_32                     Defined iff pointers are 32bit < (mutually)
+PIKA_64                     Defined iff pointers are 64bit < (exclusive)
 
 PIKA_WIN                    Windows                 < 
-PIKA_NIX                    Unix, Linux or BSD      < (Mutually exclusive)
+PIKA_NIX                    Unix, Linux or BSD      < (mutually exclusive)
 PIKA_MAC                    Mac OS X                < 
 
 PIKA_MAX_PATH               Maximum length a system path can be.

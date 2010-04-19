@@ -83,8 +83,11 @@ String* File::ReadLine()
 
     GCPAUSE_NORUN(engine);
 
-    if (!Pika_fgetln(handle, engine->string_buff)) return 0;
-    if (!engine->string_buff.GetSize())          return engine->emptyString;
+    if (!Pika_fgetln(handle, engine->string_buff))
+        return 0;
+
+    if (!engine->string_buff.GetSize()) 
+        return engine->emptyString;
 
     String* str = engine->AllocString(engine->string_buff.GetAt(0),
                                       engine->string_buff.GetSize());

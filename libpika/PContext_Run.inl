@@ -409,10 +409,14 @@ void Context::Run()
                     else
                     {
 #   if 0
-                        // Retrieves the class if it has been previously declared.
-                        // Not used because it causes name collisions. 
-                        // ie 2 classes in different packages with the same name 
+                        // Retrieves and reopens the class if it has been previously declared.
+                        // ¡¡¡ Not used because it causes name collisions !!!
+                        // i.e. 2 classes in different packages with the same name 
                         // both derived from the same basetype.
+                        
+                        // Alternatively we could use the complete "package[.subpackage]*.class" name to
+                        // idenitify classes.
+                        
                         Type*  search   = 0;                        
                         Array* subtypes = super->GetSubtypes();
                                                 

@@ -213,10 +213,10 @@ public:
     void ScanRoots(Collector* c);
     void SweepStringTable();
     
-    Debugger* GetDebugger() { return dbg; }
+    Debugger* GetDebugger()            { return dbg; }
     Debugger* SetDebugger(Debugger* d) { Debugger* old = dbg; dbg = d; return old; }
     
-    INLINE Context* GetActiveContext() const { return active_context; }
+    INLINE Context* GetActiveContext()     const { return active_context; }
     INLINE Context* GetActiveContextSafe() const
     {
         if (!active_context)

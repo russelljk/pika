@@ -673,11 +673,15 @@ Value Array::CatLhs(Value& rhs)
     Value res(NULL_VALUE);
     if (engine->Array_Type->IsInstance(rhs))
     {
+        // Concatenate the 2 Arrays together.
         Array* arr = Cat(this, (Array*)rhs.val.object);
         res.Set(arr);
     }
-    else 
+    else
     {
+        // Array concatenation with a non-Array object.
+        // We convert both arguments to string and
+        // concatenate the results.
         String* str = this->ToString();
         String* rhstr = engine->emptyString;
         if (rhs.IsString())

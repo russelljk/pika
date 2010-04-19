@@ -88,18 +88,38 @@ bool PathManager::IsValidFile(const char* path)
 
 String* PathManager::FindFile(String* file)
 {
-    char* temp = (char*)Pika_malloc(sizeof(char) * (PIKA_MAX_PATH + 1));
+    // first determine the maximum length our path string can be
+    size_t max_sz = 0;
+    for (size_t i = 0; i < searchPaths.GetSize(); ++i) // should move this to AddPath and keep an instance variable maxPathSize
+    {
+        size_t const sz = searchPaths[i]->GetLength();
+        if (sz > max_sz || max_sz == 0)
+        {
+            max_sz = sz;
+        }
+    }
+    size_t const file_name_sz = file->GetLength();
+    size_t BUFF_SZ = file_name_sz + max_sz;
+    
+    if (SizeAdditionOverflow(max_sz, file_name_sz) || // bigger than max(size_t) or
+        BUFF_SZ > PIKA_STRING_MAX_LEN) // Too big the fit in a String 
+    {
+        BUFF_SZ = PIKA_STRING_MAX_LEN;
+    }
+    
+    // allocate a temp buffer
+    char* temp = (char*)Pika_malloc(sizeof(char) * (BUFF_SZ + 1));
     int oldErrno = errno;
     errno = 0;
     for (size_t i = 0; i < searchPaths.GetSize(); ++i)
     {
         String* currpath = searchPaths[i];
         
-        if (Pika_snprintf(temp, PIKA_MAX_PATH, "%s%s", currpath->GetBuffer(), file->GetBuffer()) < 0)
+        if (Pika_snprintf(temp, BUFF_SZ, "%s%s", currpath->GetBuffer(), file->GetBuffer()) < 0)
         {
             continue;
         }
-        temp[PIKA_MAX_PATH] = '\0';
+        temp[BUFF_SZ] = '\0';
         
         if (IsValidFile(temp))
         {

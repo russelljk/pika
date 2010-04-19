@@ -42,7 +42,7 @@ public:
     
     INLINE Value& operator[](size_t i) { return elements[i]; }
     INLINE const Value& operator[](size_t i) const { return elements[i]; }
-        
+    
     Array*  Slice(pint_t from, pint_t to);
     Array*  Map(Value fn);    
     Array*  Sort(Value fn);    
@@ -60,7 +60,7 @@ public:
     Value   Pop();
     
     void    SetLength(ssize_t);
-        
+    
     Value   CatRhs(Value& lhs);
     Value   CatLhs(Value& rhs);
     
@@ -76,7 +76,7 @@ public:
     
     INLINE size_t GetLength() { return elements.GetSize();  }   //!< Retrieves the size of the array.
     INLINE Value* GetAt(s4 idx) { return elements.GetAt(idx); } //!< Retrieves a pointer to the element at the given index.
-
+    
     static Array*   Cat(Array* lhs, Array* rhs);
     static Array*   Create(Engine*, Type*, size_t length, Value *elems);
     static size_t   GetMax();

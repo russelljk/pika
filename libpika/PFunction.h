@@ -51,9 +51,15 @@ private:
     Value* values;    //!< Local variables. Points to the Context's stack if allocated is false.
     size_t length;    //!< Number of lexEnv
     bool   allocated; //!< If true values point to a heap allocated buffer otherwise they point to the Context's stack.
-    bool   mustClose; //!< Do local variables need to survive beyond the function call?
+    bool   mustClose; //!< Do local variables need to survive beyond the function's execution?
 };
 
+/*
+ * Defaults: Would be nice if this was an actual Object, where the programmer could change default values at
+ *           runtime. The downside is that it by changing default values the declaration will no longer match
+ *           the runtime behavior. Also should code outside of the function be allowed to change a function's 
+ *           default values or should that privilege be restricted to the body of the function in question?
+ */
 class PIKA_API Defaults : public GCObject
 {
 protected:

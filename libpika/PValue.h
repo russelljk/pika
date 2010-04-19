@@ -62,7 +62,7 @@ enum NullEnum { NULL_VALUE = 0 };
 class PIKA_API Value
 {
 public:
-    INLINE Value() {}
+    INLINE  Value() {}
     INLINE  Value(NullEnum)         : tag(TAG_null)       { val.index = 0; }
     INLINE  Value(pint_t i)         : tag(TAG_integer)    { CLEAR_BITS(); val.integer = i; }
     INLINE  Value(preal_t r)        : tag(TAG_real)       { CLEAR_BITS(); val.real = r; }
