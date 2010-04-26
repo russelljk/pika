@@ -18,6 +18,6 @@ say( [1,  2, 3, "a", 'b'] ) # array literal
 
 o = { name: "Bob", age: 34, occupation: "World Ruler", info: [1,2,3,4] } # object literal
 
-foreach x in o
+for x in o
     say x @ ": " @ o[x]
 end

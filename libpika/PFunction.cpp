@@ -717,8 +717,8 @@ void InitFunctionAPI(Engine* eng)
     .PropertyR("name",      &Function::GetName,     "getName")
     .PropertyR("location",  &Function::GetLocation, "getLocation")
     .PropertyR("parent",    &Function::GetParent,   "getParent")
-    .Constant(PIKA_MAX_RETC, "MAX_RET_COUNT")
-    .Constant(PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
+    .Constant((pint_t)PIKA_MAX_RETC, "MAX_RET_COUNT")
+    .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
     
     SlotBinder<BoundFunction>(eng, eng->BoundFunction_Type)
