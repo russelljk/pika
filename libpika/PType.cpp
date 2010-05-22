@@ -12,6 +12,7 @@
 #include "PFunction.h"
 #include "PNativeBind.h"
 #include "PObjectEnumerator.h"
+#include "PParser.h"
 
 namespace pika {
 
@@ -389,6 +390,53 @@ void Type::AddClassMethod(Function* f)
     }
 }
 
+Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Package* pkg)
+{
+    Engine* eng = ctx->GetEngine();
+    if (!name) name = eng->emptyString;
+    if (!base) base = eng->Object_Type;
+    if (!pkg)  pkg  = eng->GetWorld();
+    
+    Type* type = Type::Create(eng, name, base, base->GetNewFn(), pkg);
+    if (type)
+    {
+        Program* tree = 0;               
+        ctx->Push(type);
+        
+        {   GCPAUSE_NORUN(eng);
+            std::auto_ptr<CompileState> cs    ( new CompileState(eng) );
+            std::auto_ptr<Parser>       parser( new Parser(cs.get(), 
+                                                           body->GetBuffer(),
+                                                           body->GetLength()) );
+            
+            tree = parser->DoParse();
+            if (!tree)
+                RaiseException(Exception::ERROR_syntax, "Attempt to generate type \"%s\" parse tree failed.\n", name->GetBuffer());
+            tree->CalculateResources(0, *cs);
+            
+            if (cs->HasErrors())
+                RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");
+            
+            tree->GenerateCode();
+            
+            if (cs->HasErrors())
+                RaiseException(Exception::ERROR_syntax, "Attempt to generate code failed.\n");       
+            
+            Function* entryPoint = Function::Create(eng, 
+                                                    tree->def, // Type's body
+                                                    type);     // Set the Type the package            
+            // Run the script
+            ctx->PushNull();        // Self object.
+            ctx->Push(entryPoint);  // Class entryPoint function.
+        } // GC Pause
+        
+        ctx->SetupCall(0);  // Call entryPoint with no arguments.
+        ctx->Run();         // Call the entryPoint and initialize the Type.        
+        ctx->Pop(2);         // [return value] [type]                   
+    }   
+    return type;
+}
+
 }// pika
 
 static int Type_alloc(Context* ctx, Value& self)
@@ -436,6 +484,40 @@ void TypeObj_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+/* Type.createWith 
+ * Creates a new Type object with the given class body, name, base Type and located in the given package.
+ * @param body  class body script
+ * @param name  class name [default ""]
+ * @param base  base class [default Object]
+ * @param pkg   parent package  [default world]
+ */
+static int Type_createWith(Context* ctx, Value& self)
+{
+    u2 argc = ctx->GetArgCount();    
+    String* body = 0;
+    String* name = 0;
+    Type* base = 0;
+    Package* pkg= 0;
+    
+    switch (argc)
+    {
+        case 4: pkg = ctx->GetArgT<Package>(3);
+        case 3: base = ctx->GetArgT<Type>(2);
+        case 2: name = ctx->GetStringArg(1);
+        case 1: body = ctx->GetStringArg(0);          
+            break;
+        default:
+            ctx->WrongArgCount();
+            break;
+    }
+    Type* type = Type::CreateWith(ctx, body, name, base, pkg);
+    if (type) {
+        ctx->Push(type);
+        return 1;
+    }
+    return 0;
+}
+
 void InitTypeAPI(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -455,7 +537,8 @@ void InitTypeAPI(Engine* eng)
     
     static RegisterFunction TypeClassMethods[] =
     {
-        { "create", Type_create, 4, 0, 1 },
+        { "create",     Type_create, 4, 0, 1 },
+        { "createWith", Type_createWith, 4, 1, 0 },
     };
     
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));

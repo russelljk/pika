@@ -94,6 +94,18 @@ public:
       * @note               This function will create a metatype automatically.
       */
     static Type* Create(Engine* eng, String* name, Type* base, Type_NewFn createFn, Package* pkg);
+
+    /** Creates a new type from a script.
+     * 
+     * @param ctx          [in] Pointer to the Context to use.
+     * @param body         [in] class body text.
+     * @param base         [in] Type we are deriving from (or null).
+     * @param createFn     [in] Native construction method.
+     * @param pkg          [in] Location this package lives in. (may be null).
+     * @result             The newly created type.
+     * @note               This function will create a metatype automatically.
+     */
+    static Type* CreateWith(Context* ctx, String* body, String* name, Type* base, Package* pkg);
     
     /** Creates a new type.
       * 
@@ -106,7 +118,7 @@ public:
       * @result             The newly created type.
       */
     static Type* Create(Engine* eng, String* name, Type* base, Type_NewFn createFn, Package* pkg, Type* meta);
-    
+            
     INLINE Type*    GetBase()     { return baseType;   } //!< Returns the Type's base type or super type.
     INLINE Package* GetLocation() { return GetSuper(); } //!< Returns the package that the class statement was declared in.
     

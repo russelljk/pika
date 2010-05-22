@@ -468,6 +468,7 @@ Script* Engine::Compile(String* name, Context* parent)
     PutImport(str_dot_name, Value(AllocString("compiling")));
         
     // Try to open the file and create the CompileState + Parser.
+    Def* entry_def = 0;
     try
     {        
         std::ifstream yyin;
@@ -476,7 +477,7 @@ Script* Engine::Compile(String* name, Context* parent)
             return 0;
         
         LiteralPool* literals  = 0;
-        u2 loadindex = 0;
+
         
         // Create the CompileStste and Parser.
         std::auto_ptr<CompileState> compinfo(new CompileState(this));   
@@ -500,9 +501,9 @@ Script* Engine::Compile(String* name, Context* parent)
                 RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script %s.\n", name->GetBuffer());
             }
             
-            loadindex = tree->index;
+//          loadindex = tree->index;
             literals = compinfo->literals;
-            
+            entry_def = tree->def;
         }
         catch (Exception&)
         {
@@ -521,11 +522,11 @@ Script* Engine::Compile(String* name, Context* parent)
         context->state = Context::SUSPENDED;
         
         Value closure = NULL_VALUE;
-        const Value& f = literals->Get(loadindex); // main fuction for the script.
+//        const Value& f = literals->Get(loadindex); // main fuction for the script.
         
         context->package = script;
         context->prev    = parent;
-        context->DoClosure(f.val.def, closure); // create the closure
+        context->DoClosure(entry_def, closure); // create the closure
         
         script->Initialize(literals, context, closure.val.function);
         

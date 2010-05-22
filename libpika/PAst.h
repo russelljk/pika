@@ -227,12 +227,12 @@ struct Program : TreeNode
     virtual void   CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
     
-    u2              index;
-    Def*    def;
-    Stmt*           stmts;
-    SymbolTable*    symtab;
-    size_t          scriptBeg;
-    size_t          scriptEnd;
+    u2           index;     // Index of def in state->literals
+    Def*         def;       // Script's function body.
+    Stmt*        stmts;     // Script's body as AST
+    SymbolTable* symtab;    // Symbol table
+    size_t       scriptBeg;
+    size_t       scriptEnd;
 };
 
 struct FunctionProg : Program

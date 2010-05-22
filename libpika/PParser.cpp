@@ -153,7 +153,7 @@ Program* Parser::DoFunctionParse()
     DoFunctionScript();    
     return root;
 }
-
+    
 void Parser::DoScript()
 {
     const int terms[] = { 0 };
