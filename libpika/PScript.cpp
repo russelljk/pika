@@ -3,7 +3,7 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
-
+#include "PParser.h"
 #define PIKA_RUNPROFILE
 
 #if defined(PIKA_RUNPROFILE)
@@ -43,6 +43,47 @@ void Script::Initialize(LiteralPool* lp, Context* ctx, Function* entry)
     WriteBarrier(entryPoint);
 }
 
+Script* Script::CreateWithBuffer(Engine* eng, String* buff, String* name, Package* loc)
+{
+    Program* tree = 0;    
+    Script* script = 0; 
+    if (!loc) loc = eng->GetWorld();
+    if (!name) name = eng->emptyString;
+    
+    {   GCPAUSE_NORUN(eng);
+        std::auto_ptr<CompileState> cs    ( new CompileState(eng) );
+        std::auto_ptr<Parser>       parser( new Parser(cs.get(), 
+                                                       buff->GetBuffer(),
+                                                       buff->GetLength()) );
+        
+        tree = parser->DoParse();
+        if (!tree)
+            RaiseException(Exception::ERROR_syntax, "Attempt to generate type \"%s\" parse tree failed.\n", name->GetBuffer());
+        tree->CalculateResources(0, *cs);
+        
+        if (cs->HasErrors())
+            RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");
+        
+        tree->GenerateCode();
+        
+        if (cs->HasErrors())
+            RaiseException(Exception::ERROR_syntax, "Attempt to generate code failed.\n");       
+        
+        script = Script::Create(eng, name, loc);
+        Function* entryPoint = Function::Create(eng, 
+                                                tree->def, // Type's body
+                                                script);   // Set the Type the package
+        
+        Context* ctx = Context::Create(eng, eng->Context_Type);
+        
+        eng->GetGC()->ForceToGray(script);
+        script->Initialize(cs->literals, ctx, entryPoint);
+    } // GC Pause
+    //if (!script->Run(0))
+    //    RaiseException(Exception::ERROR_runtime, "Attempt to run script from buffer.");    
+    return script;
+}
+
 void Script::MarkRefs(Collector* c)
 {
     ThisSuper::MarkRefs(c);
@@ -55,11 +96,10 @@ void Script::MarkRefs(Collector* c)
 
 bool Script::Run(Array* args)
 {
-    if (running || firstRun) return false;
+    if ( running ||    firstRun) return false;
     if (!context || !entryPoint) return false;
-    if (context->IsInvalid()) return false;
-    {
-        GCPAUSE(engine); // pause gc
+    
+    {   GCPAUSE(engine); // pause gc
         const char* args_str = "__arguments";
         if (args)
         {
@@ -103,6 +143,32 @@ bool Script::Run(Array* args)
     return context->GetState() == Context::DEAD || context->GetState() == Context::SUSPENDED;
 }
 
+static int Script_createWith(Context* ctx, Value& self)
+{
+    u2 argc = ctx->GetArgCount();    
+    String* buff = 0;
+    String* name = 0;
+    Package* pkg= 0;
+    
+    switch (argc)
+    {
+        case 3: pkg = ctx->GetArgT<Package>(2);
+        case 2: name = ctx->GetStringArg(1);
+        case 1: buff = ctx->GetStringArg(0);          
+            break;
+        default:
+            ctx->WrongArgCount();
+            break;
+    }
+    Script* s = Script::CreateWithBuffer(ctx->GetEngine(), buff, name, pkg);
+    if (s)
+    {
+        ctx->Push(s);
+        return 1;
+    }
+    return 0;
+}
+
 Script* Script::Create(Engine* eng, String* name, Package* pkg)
 {
     Script* s = 0;
@@ -119,10 +185,42 @@ static void Script_newFn(Engine* eng, Type* type, Value& res)
     res.Set(s);
 }
 
+static int Script_run(Context* ctx, Value& self)
+{
+    Script* s = (Script*)self.val.object;
+    Array* args = 0;
+    if (ctx->GetArgCount() == 1) {
+        if (!ctx->GetArg(0).IsNull())
+            args = ctx->GetArgT<Array>(0);
+    } else if (ctx->GetArgCount() != 0) {
+        ctx->WrongArgCount();
+    }
+    bool res = s->Run(args);
+    if (res)
+        ctx->PushTrue();
+    else
+        ctx->PushFalse();
+    return 1;
+}
+
 void InitScriptAPI(Engine* eng)
 {
     eng->Script_Type = Type::Create(eng,
                                     eng->AllocString("Script"),
                                     eng->Package_Type,
                                     Script_newFn, eng->GetWorld());
+    
+    static RegisterFunction ScriptMethods[] =
+    {
+        { "run", Script_run, 0, 1, 0 },
+    };
+    
+    static RegisterFunction Script_PUB_Methods[] =
+    {
+        { "fromBuffer", Script_createWith, 3, 1, 0 },
+    };
+    eng->Script_Type->EnterMethods(ScriptMethods, countof(ScriptMethods));
+    eng->Script_Type->EnterClassMethods(Script_PUB_Methods, countof(Script_PUB_Methods));
+    
+    eng->GetWorld()->SetSlot("Script", eng->Script_Type);
 }

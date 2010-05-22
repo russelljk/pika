@@ -500,8 +500,7 @@ Script* Engine::Compile(String* name, Context* parent)
             {
                 RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script %s.\n", name->GetBuffer());
             }
-            
-//          loadindex = tree->index;
+                        
             literals = compinfo->literals;
             entry_def = tree->def;
         }
@@ -519,14 +518,9 @@ Script* Engine::Compile(String* name, Context* parent)
         // Create an initialize a Context for the Script.
         // The context will execute the Script's bytecode.
         Context* context = Context::Create(this, this->Context_Type);
-        context->state = Context::SUSPENDED;
-        
-        Value closure = NULL_VALUE;
-//        const Value& f = literals->Get(loadindex); // main fuction for the script.
-        
-        context->package = script;
-        context->prev    = parent;
-        context->DoClosure(entry_def, closure); // create the closure
+        Value closure = Function::Create(this, 
+                                         entry_def, // Type's body
+                                         script);   // Set the Type the package
         
         script->Initialize(literals, context, closure.val.function);
         

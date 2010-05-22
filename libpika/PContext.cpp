@@ -15,7 +15,6 @@
 #include "PNativeBind.h"
 #include "PContext_Ops.inl"
 
-
 const char* GetContextStateName(Context::EState state)
 {
     switch (state)
@@ -23,7 +22,7 @@ const char* GetContextStateName(Context::EState state)
     case Context::SUSPENDED: return "suspended";
     case Context::RUNNING:   return "running";
     case Context::DEAD:      return "dead";
-    case Context::INVALID:   return "invalid";
+    case Context::UNUSED:   return "unused";
     default:                 return "uninitialized"; // context's state member is uninitialized garbage.
     }
 }
@@ -85,12 +84,12 @@ void InitContextAPI(Engine* eng)
     .Constant((pint_t)Context::SUSPENDED,   "SUSPENDED")
     .Constant((pint_t)Context::RUNNING,     "RUNNING")
     .Constant((pint_t)Context::DEAD,        "DEAD")
-    .Constant((pint_t)Context::INVALID,     "INVALID")
+    .Constant((pint_t)Context::UNUSED,      "UNUSED")
     .StaticMethodVA(&Context::Suspend,      "suspend")
     .Method(&Context::IsSuspended,          "suspended?")
     .Method(&Context::IsRunning,            "running?")
     .Method(&Context::IsDead,               "dead?")
-    .Method(&Context::IsInvalid,            "invalid?")
+    .Method(&Context::IsUnused,             "unused?")
     .Method(&Context::ToBoolean,            "toBoolean")
     .PropertyR("state", &Context::GetState, "getState")
     ;
@@ -288,7 +287,7 @@ Enumerator* Context::GetEnumerator(String*)
 
 Context::Context(Engine* eng, Type* obj_type)
         : ThisSuper(eng, obj_type),
-        state(INVALID),
+        state(UNUSED),
         prev(0),
         stack(0),
         pc(0),
@@ -317,7 +316,7 @@ Context::Context(Engine* eng, Type* obj_type)
     esp = stack + PIKA_INIT_OPERAND_STACK;
 }
 
-void Context::MakeInvalid()
+void Context::MakeUnused()
 {
     ASSERT(esp);
     sp = bsp = stack;
@@ -335,7 +334,7 @@ void Context::MakeInvalid()
     closure         = 0;
     package         = 0;
     env             = 0;
-    state           = INVALID;
+    state           = UNUSED;
     prev            = 0;
     pc              = 0;
     newCall         = false;
@@ -2126,7 +2125,7 @@ void Context::Init(Context* ctx)
 {
     if (ctx->GetArgCount() != 1)
         RaiseException("Context.init requires exactly 1 argument.");
-    if (state != INVALID)
+    if (state != UNUSED)
         RaiseException("Cannot initialize a context that has been used.");
     Value& f = ctx->GetArg(0);
     WriteBarrier(f);
@@ -2156,7 +2155,7 @@ void Context::Setup(Context* ctx)
         return;
     }
     
-    if (IsInvalid())
+    if (IsUnused())
     {
         prev = ctx;
         
@@ -2984,7 +2983,7 @@ Context::EErrRes Context::OpException(Exception& e)
         // No exception handler so we need to kill this context and either pass the
         // exception on to our parent or quit.
         
-        state = INVALID;
+        state = UNUSED;
         Deactivate();
         --numRuns;
         

@@ -164,7 +164,7 @@ public:
     
     Script* Compile(const char* name);
     Script* Compile(String* name, Context* parent = 0);
-    
+       
     INLINE Package*   GetWorld() { return Pkg_World; }
     INLINE Collector* GetGC()    { return gc; }
     

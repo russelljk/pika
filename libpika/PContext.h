@@ -106,8 +106,8 @@ class PIKA_API Context : public Object
 {
     PIKA_DECL(Context, Object)
 protected:
-    friend class Engine;
     friend class ContextEnum;
+    
     Context(Engine*, Type*);
 public:
     virtual ~Context();
@@ -123,7 +123,7 @@ public:
         SUSPENDED, //!< Context has yielded control to another Context.
         RUNNING,   //!< Context is running.
         DEAD,      //!< Context has finished running and exited cleanly.
-        INVALID,   //!< Context has not been initialized or exited abruptly.
+        UNUSED,   //!< Context has not been initialized or exited abruptly.
     };
         
     enum EErrRes
@@ -135,7 +135,7 @@ public:
     
     void ReportRuntimeError(Exception::Kind kind, const char* msg, ...);
 protected:
-    void MakeInvalid();
+    void MakeUnused();
     
     int AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int argdiff, bool nativecall);
     
@@ -238,7 +238,7 @@ public:
     INLINE bool IsSuspended() const { return state == SUSPENDED; }
     INLINE bool IsRunning()   const { return state == RUNNING;   }
     INLINE bool IsDead()      const { return state == DEAD;      }
-    INLINE bool IsInvalid()   const { return state == INVALID;   }
+    INLINE bool IsUnused()    const { return state == UNUSED;   }
     
     INLINE pint_t GetState() const { return state; }
     
