@@ -98,6 +98,7 @@ target_link_libraries (pika ${ADD_LIBS})
 
 # -------------------------------------------------------------------------
 # Change list format from "a;b;c" to "-la -lb -lc" for the pkg-config file.
+# TODO::add these to the package config file.
 # -------------------------------------------------------------------------
 
 set (PKG_CONFIG_ADD_LIBS "")
@@ -131,7 +132,7 @@ set (PIKA_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 set (PIKA_INCLUDE_DIR    "include/Pika")
 
 install (FILES ${pika_LIB_HEADERS} 
-         DESTINATION PIKA_INCLUDE_DIR)
+         DESTINATION ${PIKA_INCLUDE_DIR})
 install (TARGETS pika 
          LIBRARY DESTINATION lib)
 

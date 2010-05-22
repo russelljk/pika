@@ -16,7 +16,7 @@ note: (don't type the > character)
 > make
 > sudo make install
 
-The first line creates a directory to house all the build files. This will keep the project and source directory clean. 
+The first line creates a directory to house all the build files. You can run cmake from the root directory if you prefer but the method described above will keep the source directory clean.
 
 The second line invokes CMake at the projects root directory. You define constants for CMake using the -D option (for example '-DPCRE_PATH=/usr/include/'). CMake can also create project files for IDEs such as Xcode, Eclipse and Visual Studio by using the -G option (ie '-G Xcode' creates an Xcode project). Typing cmake --help will list all generators supported on your platform.
 
