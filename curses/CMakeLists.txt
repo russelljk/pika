@@ -56,13 +56,16 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake-curses_config.h.in
     
 set (curses_LIB_SRCS PCurses.cpp)
 set (curses_LIB_HEADERS PCurses.h curses_config.h)
-    
+
 source_group (include FILES ${curses_LIB_HEADERS})
 source_group (source  FILES ${curses_LIB_SRCS})
     
 include_directories (${Pika_SOURCE_DIR}/libpika)
+
 link_directories (${Pika_BINARY_DIR}/libpika)
     
 add_library (pikacurses SHARED ${curses_LIB_SRCS} ${curses_LIB_HEADERS})
 target_link_libraries (pikacurses ${ADD_LIBS} pika)
+
+
 

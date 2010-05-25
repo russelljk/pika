@@ -6,8 +6,6 @@ message (STATUS "********* Starting pikaRegExp library *********")
 
 # Disable 'unsecure' warnings in VC++
 
-SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 if (WIN32)
     if (MSVC)
         add_definitions(-D_SCL_SECURE_NO_WARNINGS)
@@ -57,6 +55,7 @@ source_group (include FILES ${re_LIB_HEADERS})
 source_group (source  FILES ${re_LIB_SRCS})
 
 include_directories (${Pika_SOURCE_DIR}/libpika)
+
 link_directories (${Pika_BINARY_DIR}/libpika)
 
 add_library (pikaRegExp SHARED ${re_LIB_SRCS} ${re_LIB_HEADERS})
