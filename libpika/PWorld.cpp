@@ -617,6 +617,17 @@ static int Global_range(Context* ctx, Value& self)
     return 1;
 }
 
+static int Global_gcRun(Context* ctx, Value&)
+{
+    bool full_run = ctx->ArgToBool(0);
+    if (full_run) {
+        ctx->GetEngine()->GetGC()->FullRun();
+    } else {
+        ctx->GetEngine()->GetGC()->IncrementalRun();
+    }
+    return 0;
+}
+
 static int Global_each(Context* ctx, Value&)
 {
     pint_t lo = ctx->GetIntArg(0);
@@ -940,6 +951,7 @@ void Engine::InitializeWorld()
             { "say",     Dummy_PrintLn, 0, 1, 0 },
             { "range",   Global_range,  0, 1, 0 },
             { "each",    Global_each,   3, 0, 1 },
+            { "gcRun",   Global_gcRun,  1, 0, 1 },
         };
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
         Pkg_World->SetType(Package_Type);

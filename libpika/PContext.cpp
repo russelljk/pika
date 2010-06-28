@@ -22,7 +22,7 @@ const char* GetContextStateName(Context::EState state)
     case Context::SUSPENDED: return "suspended";
     case Context::RUNNING:   return "running";
     case Context::DEAD:      return "dead";
-    case Context::UNUSED:   return "unused";
+    case Context::UNUSED:    return "unused";
     default:                 return "uninitialized"; // context's state member is uninitialized garbage.
     }
 }
@@ -97,14 +97,15 @@ void InitContextAPI(Engine* eng)
     eng->GetWorld()->SetSlot(Context_String, eng->Context_Type);
 }
 
-namespace pika {
+namespace pika
+{
 
 // Enumerates each yielded value for the given Context.
 class ContextEnum : public Enumerator
 {
 public:
     ContextEnum(Engine* eng, Context* ctx)
-            : Enumerator(eng), val(NULL_VALUE), context(ctx), prev(ctx->prev)
+        : Enumerator(eng), val(NULL_VALUE), context(ctx), prev(ctx->prev)
     {}
     
     virtual ~ContextEnum()
@@ -286,24 +287,24 @@ Enumerator* Context::GetEnumerator(String*)
 }
 
 Context::Context(Engine* eng, Type* obj_type)
-        : ThisSuper(eng, obj_type),
-        state(UNUSED),
-        prev(0),
-        stack(0),
-        pc(0),
-        sp(0),
-        bsp(0),
-        esp(0),
-        closure(0),
-        package(0),
-        env(0),
-        newCall(false),
-        argCount(0),
-        retCount(1),
-        numTailCalls(0),
-        numRuns(0),
-        nativeCallDepth(0),
-        acc(NULL_VALUE)
+    : ThisSuper(eng, obj_type),
+      state(UNUSED),
+      prev(0),
+      stack(0),
+      pc(0),
+      sp(0),
+      bsp(0),
+      esp(0),
+      closure(0),
+      package(0),
+      env(0),
+      newCall(false),
+      argCount(0),
+      retCount(1),
+      numTailCalls(0),
+      numRuns(0),
+      nativeCallDepth(0),
+      acc(NULL_VALUE)
 {
     scopes.Resize(PIKA_INIT_SCOPE_STACK);
     scopesTop = scopes.Begin();
@@ -703,15 +704,15 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
         case TAG_real:
         {
             // integer op real
-            a.Set((preal_t)a.val.integer);            
+            a.Set((preal_t)a.val.integer);
             switch (op)
             {
             case OP_add:  add_num(a.val.real, b.val.real); break;
             case OP_sub:  sub_num(a.val.real, b.val.real); break;
-            case OP_mul:  mul_num(a.val.real, b.val.real); break;            
+            case OP_mul:  mul_num(a.val.real, b.val.real); break;
             case OP_div:  div_num(a.val.real, b.val.real); break;
-            case OP_idiv:                
-                div_num(a.val.real, b.val.real); 
+            case OP_idiv:
+                div_num(a.val.real, b.val.real);
                 a.Set(Pika_RealToInteger(a.val.real)); // TODO: convert integer to real
                 break;
             case OP_mod:  mod_num(a.val.real, b.val.real); break;
@@ -911,14 +912,14 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         // Bytecode function with a varags parameter.
         
         bool adjustForVarArgs = def->isVarArg && !nativecall;
-        int  argstart         = argc;        
+        int  argstart         = argc;
         Defaults* defaults    = fun->defaults;
         
         if (defaults)
         {
             size_t const numDefaults = defaults->Length();
             int const numRegularArgs = (adjustForVarArgs) ? param_count - (int)numDefaults - 1
-                                                          : param_count - (int)numDefaults;
+                                       : param_count - (int)numDefaults;
             int const amttopush = numRegularArgs - argstart;
             int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
             
@@ -927,22 +928,22 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
             {
                 PushNull();
             }
-         
+            
             // Arguments with a default value will be set to their default value.
             for (size_t a = defstart; a < numDefaults; ++a)
             {
-                Value& defval = defaults->At(a);                
+                Value& defval = defaults->At(a);
                 Push(defval);
             }
         }
         else
         {
-            int const numRegularArgs = (adjustForVarArgs) ? param_count - 1 : param_count;            
+            int const numRegularArgs = (adjustForVarArgs) ? param_count - 1 : param_count;
             int const amttopush = numRegularArgs - argstart;
             for (int p = 0; p < amttopush; ++p)
             {
                 PushNull();
-            }            
+            }
         }
         
         // Create an empty variable arguments Array if needed.
@@ -1264,13 +1265,13 @@ bool Context::SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res)
         //  [  obj   ] self object
         //  [  rhs   ]
         // swap lhs and rhs so that obj will be at the top of the stack.
-        Swap(Top(), Top1());   
-        //  [  rhs   ] argument 0 
-        //  [  obj   ] self object
-        Push(meth);        
+        Swap(Top(), Top1());
         //  [  rhs   ] argument 0
         //  [  obj   ] self object
-        //  [ meth   ] method        
+        Push(meth);
+        //  [  rhs   ] argument 0
+        //  [  obj   ] self object
+        //  [ meth   ] method
         if (res)
         {
             *res = true;
@@ -1587,7 +1588,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         }
         
         if (!value_type->GetField(prop, res))
-        {           
+        {
             if (res.tag == TAG_property)
             {
                 // The result is a Property
@@ -1651,8 +1652,8 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         }
         else
         {
-            success = basic->GetSlot(prop, res); 
-        }       
+            success = basic->GetSlot(prop, res);
+        }
         
         if (!success)
         {
@@ -1739,9 +1740,9 @@ bool Context::DoPropertyGet(int& numcalls, Property* prop)
 {
     if (!prop->CanGet())
         return false;
-    
+        
     Push(prop->Getter());
-            
+    
     //  [ .... ]
     //  [ obj  ]
     //  [ getter function ]< Top
@@ -1761,14 +1762,14 @@ bool Context::DoPropertySet(int& numcalls, Property* prop)
 {
     if (!prop->CanSet())
         return false;
-
+        
     //  [ ....  ]
     //  [ value ]
     //  [ obj   ]
     //          < Top
     
     Push(prop->Setter());
-                    
+    
     //  [ ....            ]
     //  [ value           ]
     //  [ obj             ]
@@ -2051,7 +2052,7 @@ Value& Context::GetOuter(u2 idx, u1 depth)
     int n = depth;
     
     while (--n) // Must use prefix operator--.
-    { 
+    {
         ASSERT(curr);
         curr = curr->parent;
     }
@@ -2234,12 +2235,12 @@ void Context::Suspend(Context* ctx)
     {
         ctx->ReportRuntimeError(Exception::ERROR_runtime,
                                 "cannot yield from this context: no context to yield to.");
-    }                
+    }
     
     if (ctx->nativeCallDepth > 1) // 1 is for this function call
     {
-       ctx-> ReportRuntimeError(Exception::ERROR_runtime,
-                                "cannot yield across a native call.");
+        ctx-> ReportRuntimeError(Exception::ERROR_runtime,
+                                 "cannot yield across a native call.");
     }
     
     u4 count = ctx->GetArgCount();
@@ -2260,7 +2261,7 @@ void Context::MarkRefs(Collector* c)
     
     // Mark previous scopes.
     
-    for (;a != scopesTop; ++a)
+    for (; a != scopesTop; ++a)
     {
         a->DoMark(c);
         
@@ -2275,7 +2276,7 @@ void Context::MarkRefs(Collector* c)
     
     // Mark exception handlers.
     
-    for (;e != handlers.End(); ++e)
+    for (; e != handlers.End(); ++e)
     {
         e->DoMark(c);
     }
@@ -2710,7 +2711,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         switch (a)
         {
         
-        /* Boolean */            
+            /* Boolean */
         case 'B':
         case 'b':
         {
@@ -2735,7 +2736,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* Enumerator */        
+        /* Enumerator */
         case 'E':
         case 'e':
         {
@@ -2747,7 +2748,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* Integer */        
+        /* Integer */
         case 'I':
         case 'i':
         {
@@ -2774,7 +2775,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* Object */        
+        /* Object */
         case 'O':
         case 'o':
         {
@@ -2786,7 +2787,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* Real */        
+        /* Real */
         case 'R':
         case 'r':
         {
@@ -2814,7 +2815,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* String */        
+        /* String */
         case 'S':
         case 's':
         {
@@ -2844,7 +2845,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* UserData */        
+        /* UserData */
         case 'U':
         case 'u':
         {
@@ -2856,7 +2857,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
         }
         break;
         
-        /* Skip */        
+        /* Skip */
         case  'X':
         case  'x':
             break;

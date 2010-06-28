@@ -323,6 +323,11 @@ Type* Type::Create(Engine* eng, String* name, Type* base, Type_NewFn fn, Package
     return obj;
 }
 
+Type* Type::NewType(String* nm, Package* l)
+{
+    return Type::Create(engine, nm, this, 0, l); 
+}
+    
 bool Type::GetGlobal(const Value& key, Value& result) {return GetSlot(key, result);}
 
 bool Type::SetGlobal(const Value& key, Value& val, u4 attr) {return SetSlot(key, val, attr);}

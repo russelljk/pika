@@ -10,13 +10,18 @@
 
 namespace pika {
 
-ClassInfo* ClassInfo::firstClass = 0;
-
+ClassInfo** ClassInfo::GetFirstClass()
+{
+    static ClassInfo* first_class = 0;
+    return &first_class;
+}
+    
 ClassInfo::ClassInfo(const char* n, ClassInfo* s)
     : name(n), super(s)
 {
-    next = firstClass;
-    firstClass = this;
+    ClassInfo** firstClass = GetFirstClass();
+    next = *firstClass;
+    *firstClass = this;
 }
 
 ClassInfo::~ClassInfo() {}

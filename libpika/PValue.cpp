@@ -4,23 +4,24 @@
  */
 #include "Pika.h"
 
-namespace pika {
-
-static const char* STypeNames[] = 
+namespace pika
 {
-/*  0  */ "Null",
-/*  1  */ "Boolean",
-/*  2  */ "Integer",
-/*  3  */ "Real",
-/*  4  */ "Index",
-/*  5  */ "GCObj",
-/*  6  */ "Def",
-/*  7  */ "String",
-/*  8  */ "Enumerator",
-/*  9  */ "Property",
-/* 10  */ "UserData",
-/* 11  */ "Object",
-/* 12  */ "Invalid Tag",
+
+static const char* STypeNames[] =
+{
+    /*  0  */ "Null",
+    /*  1  */ "Boolean",
+    /*  2  */ "Integer",
+    /*  3  */ "Real",
+    /*  4  */ "Index",
+    /*  5  */ "GCObj",
+    /*  6  */ "Def",
+    /*  7  */ "String",
+    /*  8  */ "Enumerator",
+    /*  9  */ "Property",
+    /* 10  */ "UserData",
+    /* 11  */ "Object",
+    /* 12  */ "Invalid Tag",
 };
 
 PIKA_API const char* GetTypeString(u2 e)
@@ -38,7 +39,7 @@ bool Value::IsDerivedFrom(ClassInfo* c)
 const char* ScriptException::GetMessage() const
 {
     Value res(NULL_VALUE);
-    if (msg) 
+    if (msg)
         return msg;
     else if (var.IsString())
         return var.val.str->GetBuffer();

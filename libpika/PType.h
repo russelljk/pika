@@ -42,6 +42,13 @@ public:
     
     virtual bool GetGlobal(const Value& key, Value& result);
     virtual bool SetGlobal(const Value& key, Value& val, u4 attr = 0);
+
+    /** Creates an new type. This object will be the base type of the new type.
+     * 
+     * @param name     [in] The name of the type.
+     * @param location [in] The location of the type.
+     */    
+    virtual Type* NewType(String* name, Package* location);
     
     /** Creates an new instance of this type.
       * 

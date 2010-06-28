@@ -19,7 +19,8 @@
 #   define CLEAR_BITS()
 #endif
 
-namespace pika {
+namespace pika
+{
 
 class String;
 class Def;
@@ -37,8 +38,7 @@ class ClassInfo;
 class GCObject;
 struct UserDataInfo;
 
-enum ValueTag
-{
+enum ValueTag {
 /*  0  */ TAG_null,
 /*  1  */ TAG_boolean,
 /*  2  */ TAG_integer,
@@ -47,7 +47,7 @@ enum ValueTag
 /*  5  */ TAG_gcobj,
 /*  6  */ TAG_def,
 /*  7  */ TAG_string,
-          TAG_basic = TAG_string,
+/*  -  */ TAG_basic = TAG_string,
 /*  8  */ TAG_enumerator,
 /*  9  */ TAG_property,
 /* 10  */ TAG_userdata,
@@ -136,17 +136,16 @@ public:
 #endif
     }
     
-    union
-    {
-        pint_t    integer;
-        preal_t   real;
-        size_t  index;
-        Def*    def;
-        Basic*  basic;
-        String* str;
-        Object* object;
-        Type*   type;
-        Package* package;
+    union {
+        pint_t      integer;
+        preal_t     real;
+        size_t      index;
+        Def*        def;
+        Basic*      basic;
+        String*     str;
+        Object*     object;
+        Type*       type;
+        Package*    package;
         Context*    context;
         Property*   property;
         UserData*   userdata;
@@ -154,7 +153,7 @@ public:
         Function*   function;
         Enumerator* enumerator;
     }
-        val;
+    val;
     int tag;
 };
 
@@ -162,12 +161,12 @@ class PIKA_API ScriptException : public Exception
 {
 public:
     ScriptException(const Value& v)
-            : Exception(Exception::ERROR_script), var(v) {}
-
+        : Exception(Exception::ERROR_script), var(v) {}
+        
     virtual ~ScriptException() {}
-
+    
     virtual const char* GetMessage() const;
-
+    
     Value var;
 };
 

@@ -456,7 +456,12 @@ void Context::Run()
                     
                     if (!newtype)
                     {
-                        newtype = Type::Create(engine, name, super, 0, superPkg);
+                        // TODO: Should the base-type's meta-type be responsible for creation of types.
+                        // Otherwise if a C++ class T derived from class Type is sub-classed in pika the
+                        // subclassed type S will not be derived from T but instead Type.
+                        //
+                        // virtual Type* NewType(name, init_fn, superPkg);
+                        newtype = super->NewType(name, superPkg); // Type::Create(engine, name, super, 0, superPkg);
                     }
 #   endif
                     }

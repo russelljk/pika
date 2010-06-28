@@ -1134,7 +1134,7 @@ Instr* ForeachStmt::DoStmtCodeGen()
     Attach(ijmpTarget);
     
     ibody->DoLoopPatch(ijmpTarget,
-                       ienumadv,
+                       ienumvalid,
                        this->label);
                        
     ijmpback->SetTarget(ienumadv);

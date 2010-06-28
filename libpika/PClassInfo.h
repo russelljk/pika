@@ -12,21 +12,19 @@ class PIKA_API ClassInfo
 public:
     ClassInfo(const char*, ClassInfo*);
     ~ClassInfo();
-
+    
     bool IsDerivedFrom(const ClassInfo* other) const;
-
+    
     INLINE const char*      GetName()  const { return name;  }
     INLINE const ClassInfo* GetSuper() const { return super; }
     INLINE ClassInfo*       GetNext()  const { return next;  }
-
-    static  ClassInfo* GetFirstClass() { return firstClass; }
-    static  ClassInfo* Create(const char* name, ClassInfo* super);
-
+    
+    static ClassInfo*  Create(const char* name, ClassInfo* super);
+    static ClassInfo** GetFirstClass();
 private:
-    const char*       name;
-    const ClassInfo*  super;
-    ClassInfo*        next;
-    static ClassInfo* firstClass;
+    const char*      name;
+    const ClassInfo* super;
+    ClassInfo*       next;
 };
 
 }// pika
