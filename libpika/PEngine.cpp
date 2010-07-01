@@ -724,15 +724,21 @@ String* Engine::ToString(Context* ctx, const Value& v)
     case TAG_enumerator: return AllocString("enumerator");
     case TAG_property:   return String::ConcatSpace(Property_String, v.val.property->Name());
     
-    case TAG_userdata:   return AllocString("userdata");
-    
+    case TAG_userdata:
     case TAG_object:
     {
         Value res;
         CallConversionFunction(ctx, toString_String, v.val.object, res);
-        if (res.tag != TAG_string)
+        if (res.tag != TAG_string) {
+            if (v.tag == TAG_userdata) {
+                if (v.val.userdata && v.val.userdata->GetType()) {
+                    return AllocStringFmt("<userdata %s : %p>", v.val.userdata->GetType()->GetName()->GetBuffer());
+                } else {
+                    return AllocStringFmt("<userdata : %p>", v.val.userdata);
+                }
+            }
             RaiseException("Conversion operator %s failed.", toString_String->GetBuffer());
-            
+        }    
         return res.val.str;
     }
     }

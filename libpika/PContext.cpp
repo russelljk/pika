@@ -786,7 +786,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
         }
     }
     break; // TAG_real
-    
+    /*
     case TAG_string:
     {
         if (b.tag == TAG_integer && op == OP_mul)
@@ -800,9 +800,13 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
         }
     }
     break;
+
+    case TAG_enumerator:
+    case TAG_property:            
+    case TAG_userdata:
     case TAG_object:
     {
-        Object* obj = a.val.object;
+        Basic* obj = a.val.basic;
         bool res = false;
         if (SetupOverrideLhs(obj, ovr, &res))
         {
@@ -811,15 +815,26 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
         if (res) return;
     }
     break;
-    default: break;
+    default: break;*/
+    }
+    // Check for override from the lhs operand
+    if (a.tag >= TAG_basic)
+    {
+        Basic* basic = a.val.basic;
+        bool res = false;
+        
+        if (SetupOverrideLhs(basic, ovr, &res)) {
+            ++numcalls;
+        }
+        if (res)
+            return;
     }
     
-    if (b.tag == TAG_object)
+    if (b.tag >= TAG_basic)
     {
-        Object* obj = b.val.object;
+        Basic* basic = b.val.basic;
         bool res = false;
-        if (SetupOverrideRhs(obj, ovr_r, &res))
-        {
+        if (SetupOverrideRhs(basic, ovr_r, &res)) {
             ++numcalls;
         }
         if (res) return;
@@ -829,7 +844,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
     // lhs and rhs operands.
     
     ReportRuntimeError(Exception::ERROR_runtime,
-                       "Operator %s not defined between objects of type %s and %s.",
+                       "Operator %s not defined between types %s and %s.",
                        engine->GetOverrideString(ovr)->GetBuffer(),
                        engine->GetTypenameOf(a)->GetBuffer(),
                        engine->GetTypenameOf(b)->GetBuffer());
@@ -1866,7 +1881,10 @@ bool Context::OpBind()
     Value& b = Top();
     Value& a = Top1();
     
-    if (a.IsObject())
+    // bind b.a 
+    // bind b[a]
+    
+    if (a.tag >= TAG_basic)
     {
         if (a.IsDerivedFrom(Function::StaticGetClass()))
         {
@@ -1877,11 +1895,11 @@ bool Context::OpBind()
         }
         else
         {
-            Object* obj = a.val.object;
+            Basic* basic = a.val.basic;
             OpOverride ovr = OVR_bind;
             bool res = false;
             
-            if (SetupOverrideLhs(obj, ovr, &res))
+            if (SetupOverrideLhs(basic, ovr, &res))
             {
                 return true;
             }
@@ -1891,13 +1909,14 @@ bool Context::OpBind()
             }
         }
     }
-    else if (b.IsObject())
+    
+    if (b.tag >= TAG_basic)
     {
-        Object* obj = b.val.object;
+        Basic* basic = b.val.basic;
         OpOverride ovr = OVR_bind_r;
         bool res = false;
         
-        if (SetupOverrideRhs(obj, ovr, &res))
+        if (SetupOverrideRhs(basic, ovr, &res))
         {
             return true;
         }
@@ -1907,7 +1926,7 @@ bool Context::OpBind()
         }
     }
     ReportRuntimeError(Exception::ERROR_runtime,
-                       "Unsupported operands for bind operator: '%s' and '%s'.",
+                       "Unsupported operands for bind operator; types '%s' and '%s' used.",
                        engine->GetTypenameOf(a)->GetBuffer(),
                        engine->GetTypenameOf(b)->GetBuffer());
     return false;

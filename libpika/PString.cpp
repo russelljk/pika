@@ -944,6 +944,7 @@ static RegisterFunction String_Methods[] =
     { "substring",  StringApi::slice,       2, 0, 1 },
     { OPSLICE_STR,  StringApi::slice,       2, 0, 1 },
     { "times",      StringApi::times,       1, 0, 1 },
+    { "opMul",      StringApi::times,       1, 0, 1 },
     { "toString",   StringApi::toString,    0, 0, 1 },
     { "reverse",    StringApi::reverse,     0, 0, 1 },
 };

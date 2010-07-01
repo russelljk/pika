@@ -252,7 +252,7 @@ String* Array::ToString()
         else if (elements[i].tag >= TAG_basic)
         {
             // Same danger with array elements can occur if an basic Object element and this Array have a cyclical references.
-            res = engine->AllocStringFmt("{%s instance:%p}", 
+            res = engine->AllocStringFmt("<instance %s : %p>", 
                                          elements[i].val.basic->GetType()->GetName()->GetBuffer(), 
                                          elements[i].val.object);
         }
