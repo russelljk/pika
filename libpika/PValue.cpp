@@ -33,7 +33,7 @@ PIKA_API const char* GetTypeString(u2 e)
 
 bool Value::IsDerivedFrom(ClassInfo* c)
 {
-    return (tag == TAG_object) && val.object && val.object->IsDerivedFrom(c);
+    return (tag >= TAG_basic) && val.basic && val.basic->IsDerivedFrom(c);
 }
 
 const char* ScriptException::GetMessage() const

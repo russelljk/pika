@@ -155,7 +155,7 @@ public:
 template<typename AClass>
 struct SlotBinder
 {
-    SlotBinder(Engine* eng, Object* obj, Package* pkg = 0)
+    SlotBinder(Engine* eng, Basic* obj, Package* pkg = 0)
             : class_info(AClass::StaticGetClass()),
             package(pkg ? pkg : eng->GetWorld()),
             engine(eng),
@@ -340,7 +340,7 @@ struct SlotBinder
     ClassInfo* class_info;
     Package*   package;
     Engine*    engine;
-    Object*    object;
+    Basic*    object;
 };
 
 }// pika

@@ -1,5 +1,9 @@
 syntax: glob
 
+b/**
 build/**
+b2/**
+bx/**
+build_frame/**
 
 .DS_Store

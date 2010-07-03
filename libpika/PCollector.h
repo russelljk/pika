@@ -40,7 +40,9 @@ public:
     virtual ~GCObject() {}
     
     virtual void MarkRefs(Collector*);
-    virtual bool Finalize();
+    
+    // Can the Collector free the object? Return false only if you need to free the object manually.
+    virtual bool Finalize(); 
     
 	INLINE bool IsPersistent() const { return (gcflags & Persistent) ? true : false; }
     

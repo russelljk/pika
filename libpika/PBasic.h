@@ -54,6 +54,8 @@ public:
       */
     virtual Type* GetType() const = 0;
     
+    virtual void AddFunction(Function* f);    
+    virtual void AddProperty(Property* p); 
     virtual bool GetSlot(const Value& key, Value& result) { return false; }
     virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0) { return false; }
     

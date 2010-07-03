@@ -9,7 +9,8 @@
 #include "PEngine.h"
 #include "PEnumerator.h"
 #include "PTable.h"
-
+#include "PFunction.h"
+#include "PProperty.h"
 namespace pika {
 
 PIKA_IMPL(Basic)
@@ -37,6 +38,17 @@ void Basic::EnterConstants(Basic* b, NamedConstant* consts, size_t count)
         Value val(consts[i].value);
         b->SetSlot(vname, val, Slot::ATTR_protected);
     }
+}
+void Basic::AddFunction(Function* f)
+{
+    SetSlot(f->GetName(), f);
+}
+
+void Basic::AddProperty(Property* p)
+{
+    // Without forcewrite a property write will fail if 
+    // there is a previous property with the same name some where in the lookup chain.
+    SetSlot(p->Name(), p, Slot::ATTR_forcewrite); 
 }
 
 void Basic::WriteBarrier(GCObject* gc_obj)

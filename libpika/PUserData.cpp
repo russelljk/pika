@@ -21,8 +21,9 @@ Type* UserData::GetType() const { return type; }
 
 bool UserData::Finalize()
 {
-    if (GetInfo() && GetInfo()->finalize)
-        GetInfo()->finalize(this);
+    if (GetInfo() && GetInfo()->finalize) {
+        return GetInfo()->finalize(this);
+    }
     return true;
 }
 

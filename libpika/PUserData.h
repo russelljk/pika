@@ -7,8 +7,9 @@
 
 namespace pika {
 class UserData;
-
-typedef void (*UserData_fn)  (UserData* ud);
+// UserData_fn: Return false if and only if you want to delete the UserData object, NOT THE DATA, yourself! 
+//              If the data is unmanaged then free it and return true.
+typedef bool (*UserData_fn)  (UserData* ud); 
 typedef bool (*UserData_get) (UserData* ud, const Value& key, Value& result);
 typedef bool (*UserData_set) (UserData* ud, const Value& key, Value& value, u4 attr);
 typedef void (*UserData_mark)(Collector* c, UserData* ud);
@@ -28,13 +29,29 @@ struct UserDataInfo
   * module to be used in pika. The module can provide its own heap allocated pointer 
   * with CreateWithPointer. It can also let pika 'manage' the memory with CreateManaged.  
   * Pika will allocate an aligned block at the end of the UserData object.
+  *
+  * ------------------------------------------------------------------------------------
+  *
+  * C++ notes: If your data needs the C++ operator's new & delete either
+  * A1. Call new and then create the userdata with CreateWithPointer, passing the newly created object
+  * 
+  * B1. Create the userdata object with CreateManaged then override "opNew" and call placement new with the pointer returned from GetData().
+  *     Remember overriding "opNew" will cause "init" not to be called.
+  *
+  * In both cases you should provide a function for UserDataInfo::finalize that will be called when the GC is about to delete the object. 
+  * Remember to return true otherwise the UserData object will not be deleted.
+  * A2. If you use CreateWithPointer you may delete/free the pointer returned from GetData().
+  *
+  * B2. If you used CreateManaged DO NOT call delete or free on the data pointer, instead call 
+  *     the destructor manually: ((T*)GetData())->~T(); for data of type T.
+  *
   */
 PIKA_CLASS_ALIGN(PIKA_ALIGN, UserData) : public Basic
 {
     PIKA_DECL(UserData, Basic)
-protected:
+public:
     UserData(Engine*, Type*, void*, UserDataInfo*);
-    
+protected:    
     Type*         type; // Type of this userdata
     UserDataInfo* info; //
     void*         ptr;  // Pointer to User supplied data.
@@ -71,7 +88,7 @@ public:
       *
       * @result The UserData object ready to be used inside a script.
       */
-    static UserData* CreateManaged(Engine* eng, Type* type, size_t length, UserDataInfo* info);
+    static UserData* CreateManaged(Engine* eng, Type* type, size_t length, UserDataInfo* info);    
 };
 
 INLINE bool Value::HasUserData(UserDataInfo* info) const

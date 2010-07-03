@@ -89,7 +89,7 @@ int HookedFunction_Hook(Context* ctx, Value& self)
                        bm->info->GetName());
     }
     
-    Object* obj = self.val.object;
+    Basic* obj = self.val.basic;
     bm->Invoke(obj, ctx);
     return bm->GetRetCount();
 }
