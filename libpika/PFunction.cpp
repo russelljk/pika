@@ -721,6 +721,14 @@ void InitFunctionAPI(Engine* eng)
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
     
+    SlotBinder<InstanceMethod>(eng, eng->InstanceMethod_Type)
+    .PropertyR("instanceType", &InstanceMethod::GetClassType, "GetInstanceType")
+    ;
+    
+    SlotBinder<ClassMethod>(eng, eng->ClassMethod_Type)
+    .PropertyR("instanceType", &ClassMethod::GetClassType, "GetInstanceType")
+    ;
+    
     SlotBinder<BoundFunction>(eng, eng->BoundFunction_Type)
     .PropertyR("boundFunction",  &BoundFunction::GetBoundFunction,  "getBoundFunction")
     .PropertyR("boundSelf",      &BoundFunction::GetBoundSelf,      "getBoundSelf")

@@ -16,8 +16,8 @@ public:
     StringTable(Engine*);
     ~StringTable();
     
-    String* Get(const char* cstr);
-    String* Get(const char*, size_t);
+    String* Get(const char* cstr, bool = false);
+    String* Get(const char*, size_t, bool =false);
 private:
     friend class Engine;
     

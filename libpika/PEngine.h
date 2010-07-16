@@ -193,6 +193,11 @@ public:
     
     String* AllocString(const char*);
     String* AllocString(const char*, size_t);
+    
+    // No check versions of AllocString. Assures that the Collector will not run during the function call.
+    String* AllocStringNC(const char*);
+    String* AllocStringNC(const char*, size_t);
+    
     String* AllocStringFmt(const char*, ...);
     String* PersistentString(const char*);
     

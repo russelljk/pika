@@ -27,7 +27,8 @@ protected:
 public:
     virtual ~String();
     
-    static String*      Create(Engine*, const char*, size_t);
+    // Do not call this directly unless you know what your doing and how strings behave in Pika
+    static String*      Create(Engine*, const char*, size_t, bool=false);
     
     virtual bool        Finalize();
     

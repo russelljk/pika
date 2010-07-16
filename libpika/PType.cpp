@@ -15,13 +15,13 @@
 #include "PParser.h"
 
 namespace pika {
-
+// Enumerates only object of a certain type
 struct FilterEnum : ObjectEnumerator
 {
     FilterEnum(Engine* eng, bool values, Basic* obj, Table& tab, Type* ftype)
             : ObjectEnumerator(eng, values, obj, tab), filterType(ftype)
     {}
-    
+
     virtual bool FilterValue(Value& val, Basic*)
     {
         return !filterType || filterType->IsInstance(val);
@@ -95,8 +95,7 @@ Enumerator* Type::GetEnumerator(String* enumtype)
     Engine* eng = GetEngine();
     {
         GCPAUSE_NORUN(eng);
-        
-        
+                
         Type* filter = 0;
         if (enumtype == eng->AllocString("methods"))
         {
@@ -531,6 +530,7 @@ void InitTypeAPI(Engine* eng)
     .PropertyR("name",     &Type::GetName,     "getName")
     .PropertyR("location", &Type::GetLocation, "getLocation")
     .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes")
+    .Method(&Type::IsSubtype, "isSubType")
     .Method(&Type::AddMethod, "addMethod")
     .Method(&Type::AddClassMethod, "addClassMethod")
     ;

@@ -121,12 +121,12 @@ void StringTable::Sweep()
     }
 }
 
-String* StringTable::Get(const char *cstr)
+String* StringTable::Get(const char *cstr, bool norun)
 {
-    return Get(cstr, strlen( cstr ));
+    return Get(cstr, strlen( cstr ), norun);
 }
 
-String* StringTable::Get(const char* cstr, size_t len)
+String* StringTable::Get(const char* cstr, size_t len, bool norun)
 {
     if ( len > PIKA_STRING_MAX_LEN )
     {
@@ -151,7 +151,7 @@ String* StringTable::Get(const char* cstr, size_t len)
         hashcode = strhash & (size - 1);
     }
     ++count;
-    String* newstr = String::Create(engine, cstr, len);
+    String* newstr = String::Create(engine, cstr, len, norun);
     newstr->next = entries[hashcode];
     entries[hashcode] = newstr;
     return newstr;

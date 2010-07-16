@@ -558,9 +558,19 @@ String* Engine::AllocString(const char* str)
     return string_table->Get(str);
 }
 
+String* Engine::AllocStringNC(const char* str)
+{
+    return string_table->Get(str, true);
+}
+
 String* Engine::AllocString(const char* str, size_t length)
 {
     return string_table->Get(str, length);
+}
+
+String* Engine::AllocStringNC(const char* str, size_t length)
+{
+    return string_table->Get(str, length, true);
 }
 
 String* Engine::AllocStringFmt(const char* fmt, ...)

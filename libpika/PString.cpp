@@ -116,13 +116,15 @@ String::String(Engine* eng, size_t len, const char* s)
     buffer[length] = 0;
 }
 
-String* String::Create(Engine* eng, const char* str, size_t len)
+String* String::Create(Engine* eng, const char* str, size_t len, bool norun)
 {
     size_t totalSize = len + sizeof(String);
     void* ret = Pika_malloc(totalSize);
     String* s = new(ret) String(eng, len, str);
-    
-    eng->AddToGC(s);
+    if (norun)
+        eng->AddToGC(s);
+    else
+        eng->AddToGCNoRun(s);
     return s;
 }
 
