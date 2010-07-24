@@ -92,7 +92,7 @@ String* PathManager::FindFile(String* file)
     size_t max_sz = 0;
     for (size_t i = 0; i < searchPaths.GetSize(); ++i) // should move this to AddPath and keep an instance variable maxPathSize
     {
-        size_t const sz = searchPaths[i]->GetLength();
+        size_t const sz = searchPaths[i]->GetLength() + 1;
         if (sz > max_sz || max_sz == 0)
         {
             max_sz = sz;
@@ -445,7 +445,6 @@ Script* Engine::Compile(String* name, Context* parent)
             return 0;
         }
     }
-    
     name = fullPath;
     
     String* str_dot_name = FindPackageName(this, fullPath);
