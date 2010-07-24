@@ -106,7 +106,7 @@ endif (UNIX)
 source_group (include FILES ${pika_LIB_HEADERS})
 source_group (source  FILES ${pika_LIB_SRCS})
 
-add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
+add_library (pika STATIC ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
 #set_property (SOURCE ${pika_LIB_HEADERS} PROPERTY MACOSX_PACKAGE_LOCATION Headers)
 
 target_link_libraries (pika ${ADD_LIBS})
@@ -160,7 +160,7 @@ set (PIKA_INCLUDE_DIR    "include/Pika")
 #install (FILES ${pika_LIB_HEADERS} 
 #        DESTINATION ${PIKA_INCLUDE_DIR})
 
-install (TARGETS pika 
+install (TARGETS pika
          LIBRARY        DESTINATION lib
          FRAMEWORK      DESTINATION Library/Frameworks
          # For not OSX Framework build.

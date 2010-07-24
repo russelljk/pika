@@ -560,6 +560,26 @@ static int Function_getLocal(Context* ctx, Value& self)
     return 0;
 }
 
+static int Function_setLocal(Context* ctx, Value& self)
+{
+    GETSELF(Function, fn, "Function");
+    pint_t idx = ctx->GetIntArg(0);
+    Value& val = ctx->GetArg(1);
+    
+    if (fn->lexEnv)
+    {
+        pint_t count = static_cast<pint_t>(fn->lexEnv->Length());
+        if (idx >= 0 && idx < count)
+        {            
+            fn->lexEnv->At(idx) = val;
+            return 0;
+        }
+    }    
+    RaiseException("Attempt to access local variable: %d", (u2)idx);
+    return 0;
+}
+
+
 static int Function_getLocalCount(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
@@ -708,6 +728,7 @@ void InitFunctionAPI(Engine* eng)
     .RegisterMethod(Function_getBytecode,   "getBytecode")
     .RegisterMethod(Function_getText,       "getText")
     .RegisterMethod(Function_getLocal,      "getLocal")
+    .RegisterMethod(Function_setLocal,      "setLocal")    
     .RegisterMethod(Function_getLocalCount, "getLocalCount")
     .RegisterMethod(Function_call,          "call")
     .RegisterMethod(Function_gen,           "gen")

@@ -114,11 +114,23 @@ public:
     INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
     
     virtual void        BeginCall(Context*);    
-    virtual Value       Apply(Value&, Array*);   
-    int                 DetermineLineNumber(code_t* pc);
-    virtual Function*   BindWith(Value&);
-    bool                IsLocatedIn(Package*);
-    virtual String*     GetDotPath();
+    
+    /** Call this function with the given self value and Array of arguments. */
+    virtual Value Apply(Value& self_value, Array* args);
+    
+    /** Returns the line number of the byte code pointer passed. On failure -1 is returned. */
+    int DetermineLineNumber(code_t* pc); 
+    
+    /** Binds this function to the given Value. Any value type will work. The Function and Value need not be related in anyway. */
+    virtual Function* BindWith(Value&);
+    
+    /** Recursively searches the Package hierachy and determines if this Function lies inside. */
+    bool IsLocatedIn(Package*);
+    
+    /** Returns the fully qualified dot seperated path of the function. 
+      * i.e. package0.package1.name for a package hierachy package0->package1->this-function
+      */
+    virtual String* GetDotPath();
     
     Defaults*    defaults;    //!< Default values for specified arguments. May be NULL.
     LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
