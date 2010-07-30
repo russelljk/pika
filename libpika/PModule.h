@@ -57,7 +57,7 @@ public:
     
     virtual bool     IsLoaded() const;
     virtual void     Run();
-    virtual Package* ImportResult();
+    virtual Package* GetImportResult();
 protected:
     Package*      result;    //!< The package return from the module's entry function.
     String*       path;      //!< The system path where this module is located.

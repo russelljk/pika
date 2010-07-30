@@ -26,11 +26,14 @@ protected:
     Context*        context;
     Function*       entryPoint;
     Array*          arguments;
+    Package*        import_value;
     bool            firstRun;
-    bool            running;
+    bool            running;    
 public:    
     static Script*  CreateWithBuffer(Engine*, String*, String*, Package*);
 public:
+    Package*        GetImportResult() { return import_value ? import_value : this; }
+    void            SetImportResult(Package* impres);
     virtual         ~Script();
     virtual Context* GetContext() { return context; }
     virtual void     MarkRefs(Collector* c);

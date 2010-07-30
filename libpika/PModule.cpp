@@ -107,7 +107,7 @@ void Module::Run()
         result = entry(this->GetEngine(), this);
 }
 
-Package* Module::ImportResult()
+Package* Module::GetImportResult()
 {
     return result ? result : this;
 }

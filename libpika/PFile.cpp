@@ -198,20 +198,20 @@ String* File::Read(Context* ctx)
 
     if (argc == 1)
     {
-        pint_t amt = ctx->GetIntArg(0);
-        if (amt < 0)
+        pint_t arg0 = ctx->GetIntArg(0);
+        if (arg0 <= 0)
             return engine->emptyString;
-
+        size_t const amt = (size_t)(arg0);
         engine->string_buff.Resize(amt);
         size_t amtread = fread(engine->string_buff.GetAt(0), 1, amt, handle);
-
+        
         return engine->AllocString(engine->string_buff.GetAt(0), amtread);
     }
     else if (argc == 0)
     {
-        size_t readamt = PIKA_BUFSIZ; // Number of bytes to read at a time.
-        size_t count   = 0;           // Number of bytes read in total.
-        size_t n       = 0;           // Number of bytes we just read.
+        size_t readamt = PIKA_BUFSIZ;   // Number of bytes to read at a time.
+        size_t count = 0;               // Number of bytes read in total.
+        size_t n = 0;                   // Number of bytes we just read.
 
         do
         {

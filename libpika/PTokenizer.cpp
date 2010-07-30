@@ -81,21 +81,6 @@ static KeywordDescriptor static_keywords[] =
 
 #define NumKeywordDescriptors ((sizeof (static_keywords))/(sizeof (KeywordDescriptor)))
 
-INLINE bool IsAscii(int x)  { return isascii(x) != 0; }                 // Is an ascii character.
-INLINE bool IsLetter(int x) { return IsAscii(x) && (isalpha(x) != 0); } // Is an upper or lower case letter
-INLINE bool IsDigit(int x)  { return IsAscii(x) && (isdigit(x) != 0); } // Is a digit.
-INLINE bool IsSpace(int x)  { return IsAscii(x) && (isspace(x) != 0); } // Is white space.
-
-INLINE bool IsUpper(int x)  { return IsAscii(x) && (isupper(x) != 0); } // Is an upper case letter.
-INLINE bool IsLower(int x)  { return IsAscii(x) && (islower(x) != 0); } // Is a lower case letter.
-
-INLINE int  ToLower(int x)  { return(IsLetter(x)) ? tolower(x) : x; }   // Converts a letter to lower case.
-INLINE int  ToUpper(int x)  { return(IsLetter(x)) ? toupper(x) : x; }   // Converts a letter to upper case.
-
-INLINE bool IsLetterOrDigit(int x)   { return IsAscii(x) && (isalnum(x) != 0); } // Is a letter or a digit.
-INLINE bool IsIdentifierExtra(int x) { return x == '_'   || x == '$'; }          // Is part of a valid identifier.
-INLINE bool IsValidDigit(int x)      { return IsDigit(x) || x == '_'; }          // Is part of a valid number literal.
-
 // Convert a character/digit into a radix digit (ie 'f' returns 15).
 INLINE u4 RadixToNumber(int x)
 {

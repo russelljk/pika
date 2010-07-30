@@ -600,6 +600,122 @@ public:
         return 1;
     }
     
+    static int is_letter(Context* ctx, Value& self)
+    {
+        String* src = self.val.str;
+        size_t len = src->GetLength();
+        const char* buff = src->GetBuffer();
+        if (!len)
+        {
+            ctx->PushFalse();        
+            return 1;
+        }
+        for (size_t a = 0; a < len; ++a) {
+            if (!IsLetter(buff[a])) {
+                ctx->PushFalse();
+                return 1;
+            }
+        }
+        ctx->PushTrue();
+        return 1;
+    }
+    
+    static int is_digit(Context* ctx, Value& self)
+    {
+        String* src = self.val.str;
+        size_t len = src->GetLength();
+        const char* buff = src->GetBuffer();
+        
+        if (!len)
+        {
+            ctx->PushFalse();        
+            return 1;
+        }
+        
+        for (size_t a = 0; a < len; ++a)
+        {
+            if (!IsDigit(buff[a]))
+            {
+                ctx->PushFalse();
+                return 1;
+            }
+        }
+        ctx->PushTrue();
+        return 1;
+    }
+    
+    static int is_letterOrDigit(Context* ctx, Value& self)
+    {
+        String* src = self.val.str;
+        size_t len = src->GetLength();
+        const char* buff = src->GetBuffer();
+        
+        if (!len)
+        {
+            ctx->PushFalse();        
+            return 1;
+        }
+        
+        for (size_t a = 0; a < len; ++a)
+        {
+            if (!IsLetterOrDigit(buff[a]))
+            {
+                ctx->PushFalse();
+                return 1;
+            }
+        }
+        ctx->PushTrue();
+        return 1;
+    }
+    
+    static int is_ascii(Context* ctx, Value& self)
+    {
+        String* src = self.val.str;
+        size_t len = src->GetLength();
+        const char* buff = src->GetBuffer();
+        
+        if (!len)
+        {
+            ctx->PushFalse();        
+            return 1;
+        }
+        
+        for (size_t a = 0; a < len; ++a)
+        {
+            if (!IsAscii(buff[a]))
+            {
+                ctx->PushFalse();
+                return 1;
+            }
+        }
+        ctx->PushTrue();
+        return 1;
+    }
+    
+    static int is_whitespace(Context* ctx, Value& self)
+    {
+        String* src = self.val.str;
+        size_t len = src->GetLength();
+        const char* buff = src->GetBuffer();
+        
+        if (!len)
+        {
+            ctx->PushFalse();        
+            return 1;
+        }
+        
+        for (size_t a = 0; a < len; ++a)
+        {
+            if (!IsSpace(buff[a]))
+            {
+                ctx->PushFalse();
+                return 1;
+            }
+        }
+        ctx->PushTrue();
+        return 1;
+    }
+    
     static int firstOf(Context* ctx, Value& self)
     {
         String* setStr = ctx->GetStringArg(0);
@@ -929,26 +1045,32 @@ public:
 
 static RegisterFunction String_Methods[] =
 {
-    { "replaceChar",StringApi::replaceChar, 2, 0, 1 },
-    { "toInteger",  StringApi::toInteger,   0, 0, 0 },
-    { "toReal",     StringApi::toReal,      0, 0, 0 },
-    { "toNumber",   StringApi::toNumber,    0, 0, 0 },
-    { "toLower",    StringApi::toLower,     0, 0, 0 },
-    { "toUpper",    StringApi::toUpper,     0, 0, 0 },
-    { "charAt",     StringApi::charAt,      1, 0, 1 },
-    { "split",      StringApi::split,       1, 0, 0 },
-    { "splitAt",    StringApi::splitAt,     1, 0, 0 },
-    { "byteAt",     StringApi::byteAt,      1, 0, 0 },
-    { "firstOf",    StringApi::firstOf,     2, 1, 0 },
-    { "firstNotOf", StringApi::firstNotOf,  2, 1, 0 },
-    { "lastOf",     StringApi::lastOf,      2, 1, 0 },
-    { "lastNotOf",  StringApi::lastNotOf,   2, 1, 0 },
-    { "substring",  StringApi::slice,       2, 0, 1 },
-    { OPSLICE_STR,  StringApi::slice,       2, 0, 1 },
-    { "times",      StringApi::times,       1, 0, 1 },
-    { "opMul",      StringApi::times,       1, 0, 1 },
-    { "toString",   StringApi::toString,    0, 0, 1 },
-    { "reverse",    StringApi::reverse,     0, 0, 1 },
+    // name, function, argc, strict, varargs
+    { "replaceChar",	StringApi::replaceChar,         2, 0, 1 },
+    { "toInteger",  	StringApi::toInteger,           0, 0, 0 },
+    { "toReal",     	StringApi::toReal,              0, 0, 0 },
+    { "toNumber",       StringApi::toNumber,            0, 0, 0 },
+    { "toLower",        StringApi::toLower,             0, 0, 0 },
+    { "toUpper",        StringApi::toUpper,             0, 0, 0 },
+    { "charAt",         StringApi::charAt,              1, 0, 1 },
+    { "split",          StringApi::split,               1, 0, 0 },
+    { "splitAt",        StringApi::splitAt,             1, 0, 0 },
+    { "byteAt",     	StringApi::byteAt,              1, 0, 0 },
+    { "firstOf",        StringApi::firstOf,             2, 1, 0 },
+    { "firstNotOf",     StringApi::firstNotOf,          2, 1, 0 },
+    { "lastOf",         StringApi::lastOf,              2, 1, 0 },
+    { "lastNotOf",      StringApi::lastNotOf,           2, 1, 0 },
+    { "substring",      StringApi::slice,               2, 0, 1 },
+    { OPSLICE_STR,      StringApi::slice,               2, 0, 1 },
+    { "times",          StringApi::times,               1, 0, 1 },
+    { "opMul",          StringApi::times,               1, 0, 1 },
+    { "toString",       StringApi::toString,            0, 0, 1 },
+    { "reverse",        StringApi::reverse,             0, 0, 1 },
+    { "letter?",        StringApi::is_letter,           0, 0, 1 },  
+    { "letterOrDigit?", StringApi::is_letterOrDigit,    0, 0, 1 },
+    { "digit?",         StringApi::is_digit,            0, 0, 1 },
+    { "ascii?",         StringApi::is_ascii,            0, 0, 1 },
+    { "whitespace?",    StringApi::is_whitespace,       0, 0, 1 },    
 };
 
 static RegisterFunction String_ClassMethods[] =
@@ -963,6 +1085,8 @@ static void String_newFn(Engine* eng, Type* type, Value& res)
 {
     res.Set(eng->emptyString);
 }
+
+
 
 void InitStringAPI(Engine* eng)
 {

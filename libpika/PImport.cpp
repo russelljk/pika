@@ -123,7 +123,7 @@ static Package* Pika_importScript(Context* ctx, String* name)
         //if (diff > 0)
         ctx->Pop(2); // [script] + [return value]
                 
-        return script;
+        return script->GetImportResult();
     }
     return 0;
 }
@@ -156,7 +156,7 @@ struct ModuleImportHook : IHook
                 Value vmod(module);
                 eng->PutImport(name, vmod);
                 
-                importData->result = module->ImportResult();
+                importData->result = module->GetImportResult();
                 return true;
             }
         }
@@ -230,7 +230,7 @@ int Global_import(Context* ctx, Value& self)
             if (eng->Module_Type->IsInstance(res))
             {
                 Module* module = (Module*)res.val.object;
-                ctx->SafePush(module->ImportResult());
+                ctx->SafePush(module->GetImportResult());
                 continue;
             }
             else if (eng->Package_Type->IsInstance(res))

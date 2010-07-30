@@ -14,7 +14,7 @@ if (APPLE AND PIKA_FAT_BINARY)
     set (PIKA_CC_COMPILER    "/usr/bin/gcc-4.0")
     set (CMAKE_C_COMPILER    ${PIKA_CC_COMPILER})
     set (CMAKE_GENERATOR_CC  ${PIKA_CC_COMPILER})
-    
+    set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.0")
     # set the sdk version to 10.4
     set (CMAKE_C_FLAGS     "${CMAKE_C_FLAGS}   -mmacosx-version-min=10.4")
     set (CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.4")    

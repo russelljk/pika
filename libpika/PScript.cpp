@@ -21,8 +21,10 @@ Script::Script(Engine* eng, Type* scriptType, String* name, Package* pkg)
         context(0),
         entryPoint(0),
         arguments(0),
+        import_value(0),
         firstRun(false),
         running(false)
+
 {}
 
 Script::~Script()
@@ -92,6 +94,7 @@ void Script::MarkRefs(Collector* c)
     if (literals) literals->Mark(c);
     if (context) context->Mark(c);
     if (arguments) arguments->Mark(c);
+    if (import_value) import_value->Mark(c);
 }
 
 bool Script::Run(Array* args)
@@ -134,7 +137,7 @@ bool Script::Run(Array* args)
     printf("\t%g", t.Val());
     puts("\n******************");
 #endif
-    engine->PutImport(name, Value(this));
+    engine->PutImport(name, Value(this->GetImportResult()));
     
     firstRun = true;
     
@@ -177,6 +180,15 @@ Script* Script::Create(Engine* eng, String* name, Package* pkg)
     return s;
 }
 
+void Script::SetImportResult(Package* impres)
+{
+    if (impres)
+    {
+        WriteBarrier(impres);
+        import_value = impres;
+    }
+}
+    
 }// pika
 
 static void Script_newFn(Engine* eng, Type* type, Value& res)
@@ -209,6 +221,9 @@ void InitScriptAPI(Engine* eng)
                                     eng->AllocString("Script"),
                                     eng->Package_Type,
                                     Script_newFn, eng->GetWorld());
+    SlotBinder<Script>(eng, eng->Script_Type, eng->GetWorld())
+    .Method(&Script::SetImportResult, "export")
+    ;
     
     static RegisterFunction ScriptMethods[] =
     {
@@ -219,6 +234,7 @@ void InitScriptAPI(Engine* eng)
     {
         { "fromBuffer", Script_createWith, 3, 1, 0 },
     };
+    
     eng->Script_Type->EnterMethods(ScriptMethods, countof(ScriptMethods));
     eng->Script_Type->EnterClassMethods(Script_PUB_Methods, countof(Script_PUB_Methods));
     

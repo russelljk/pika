@@ -256,6 +256,21 @@ PIKA_FORCE_INLINE pint_t Pika_RealToInteger(preal_t x) { return (pint_t)x; }
 PIKA_FORCE_INLINE bool   Pika_RealIsInteger(preal_t x) { return modf(x, &x) == 0; }
 PIKA_FORCE_INLINE bool   Pika_RealToBoolean(preal_t x) { return Pika_isnan((double)x) == 0 && x != (preal_t)0.0; }
 
+INLINE bool IsAscii(int x)  { return isascii(x) != 0; }                 // Is an ascii character.
+INLINE bool IsLetter(int x) { return IsAscii(x) && (isalpha(x) != 0); } // Is an upper or lower case letter
+INLINE bool IsDigit(int x)  { return IsAscii(x) && (isdigit(x) != 0); } // Is a digit.
+INLINE bool IsSpace(int x)  { return IsAscii(x) && (isspace(x) != 0); } // Is white space.
+
+INLINE bool IsUpper(int x)  { return IsAscii(x) && (isupper(x) != 0); } // Is an upper case letter.
+INLINE bool IsLower(int x)  { return IsAscii(x) && (islower(x) != 0); } // Is a lower case letter.
+
+INLINE int  ToLower(int x)  { return(IsLetter(x)) ? tolower(x) : x; }   // Converts a letter to lower case.
+INLINE int  ToUpper(int x)  { return(IsLetter(x)) ? toupper(x) : x; }   // Converts a letter to upper case.
+
+INLINE bool IsLetterOrDigit(int x)   { return IsAscii(x) && (isalnum(x) != 0); } // Is a letter or a digit.
+INLINE bool IsIdentifierExtra(int x) { return x == '_'   || x == '$'; }          // Is part of a valid identifier.
+INLINE bool IsValidDigit(int x)      { return IsDigit(x) || x == '_'; }          // Is part of a valid number literal.
+
 #define PIKA_BUFFER_MAX_LEN     (PINT_MAX)             // Max length a vector or other buffer may be.
 #define PIKA_STRING_MAX_LEN     (PIKA_BUFFER_MAX_LEN) // Max length a string may be.
 #define PIKA_MAX_SLOTS          (0xFFFF)               // Max number of slots an object can have. doesn't effect vectors or strings.
