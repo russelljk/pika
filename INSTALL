@@ -26,7 +26,7 @@ The last line will install it to a system appropriate location. The CMAKE_INSTAL
 
 Module Dependencies
 --------------------
-re - Depends on PCRE, the project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version comptabile with that release should work. 
+re - Depends on PCRE, the project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version compatible with that release should work. 
 
 curses - Depends on curses,ncurses. On Mac and Linux the default installed version will usually work. Unless you use cygwin no Windows backend is available.
 
