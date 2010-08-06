@@ -34,7 +34,7 @@ enum OpcodeFormat
 
 enum Opcode
 {
-#include "POpcode.def"
+#include "POpcodeDef.inl"
     BREAK_LOOP,
     CONTINUE_LOOP,
     JMP_TARGET,

@@ -1122,17 +1122,39 @@ FileScriptStream::FileScriptStream(std::ifstream* fs) : buffer(0), pos(0), buffe
         CheckGood();
     
     stream->seekg(0, std::ios_base::end);
-    size_t len = stream->tellg();    
-    stream->seekg(0, std::ios_base::beg);
+		
+	size_t len = 0;
+    std::streamoff tell_len = stream->tellg(); 
+	
+	// Unfortunately tellg can return -1 in case of failure.
+	if (tell_len < 0) 
+	{
+		RaiseException(Exception::ERROR_system, "bad file or input stream.");
+	}
+	else
+	{
+		len = (size_t)tell_len;
+	}
+    
+	stream->seekg(0, std::ios_base::beg);
     
     CheckGood();
     
     buffer = (char*)Pika_malloc((len + 1));
     bufferLength = len;
     stream->read(buffer, len);
-    
-    CheckGood();
-    
+    try
+	{
+		CheckGood();
+	} 
+	catch(...)
+	{ 
+		// Failed constructor means the destructor will not be called.
+		// This means we need to free the buffer before the constructor is exited.
+		if (buffer)
+			Pika_free(buffer);
+		throw; // re-throw
+	}
     buffer[bufferLength] = EOF;
     CheckBom();
 }

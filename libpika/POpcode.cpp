@@ -16,7 +16,7 @@ namespace pika {
 
 const char* OpcodeNames[OPCODE_MAX] =
     {
-#   include "POpcode.def"
+#   include "POpcodeDef.inl"
         "", "", "",
     };
     
@@ -29,7 +29,7 @@ const char* OpcodeNames[OPCODE_MAX] =
 
 const int OpcodeLengths[OPCODE_MAX] =
 {
-#   include "POpcode.def"
+#   include "POpcodeDef.inl"
     0,
     0,
     0,
@@ -44,7 +44,7 @@ const int OpcodeLengths[OPCODE_MAX] =
 
 const OpcodeFormat OpcodeFormats[OPCODE_MAX] =
 {
-#   include "POpcode.def"
+#   include "POpcodeDef.inl"
     OF_zero,
     OF_zero,
     OF_zero,

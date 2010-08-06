@@ -37,6 +37,8 @@ SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
      CACHE PATH                     "Directory for all Executables.")
 
+SET(CPACK_NSIS_MODIFY_PATH ON)
+
 if (PIKA_JUST_LIB)
     add_subdirectory(libpika)
 else (PIKA_JUST_LIB)

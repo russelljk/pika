@@ -79,7 +79,7 @@ configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika_config.h.in"
 #---------------------- Target Files --------------------------------
 
 set (pika_LIB_SRCS PArray.cpp PAst.cpp PBasic.cpp PByteArray.cpp PClassInfo.cpp PCollector.cpp PCompiler.cpp PContext.cpp PDebugger.cpp PDef.cpp PEngine.cpp PEnumerator.cpp PError.cpp PFile.cpp PFunction.cpp PGenCode.cpp PHooks.cpp Pika.cpp PImport.cpp PLiteralPool.cpp PLocalsObject.cpp PMemory.cpp PMemPool.cpp PModule.cpp PNativeBind.cpp PNativeMethod.cpp PObject.cpp POpcode.cpp PPackage.cpp PParser.cpp PPlatform.cpp PProperty.cpp PRandom.cpp PScript.cpp PString.cpp PStringTable.cpp PSymbolTable.cpp PSystemLib.cpp PTable.cpp PTokenizer.cpp PType.cpp PUserData.cpp PValue.cpp PValueEnumerator.cpp PWorld.cpp)
-set (pika_LIB_HEADERS pika_config.h PArray.h PAst.h PBasic.h PBuffer.h PByteArray.h PByteOrder.h PClassInfo.h PCollector.h PCompiler.h PConfig.h PConfig_Borland.h PConfig_GCC.h PConfig_VisualStudio.h PContext.h PContext_Ops.inl PContext_Ops_Arith.inl PContext_Ops_Call.inl PContext_Ops_Std.inl PContext_Run.inl PDebugger.h PDef.h PEngine.h PEnumerator.h PError.h PFile.h PFunction.h PHooks.h Pika.h PikaSort.h PInstruction.h PLineInfo.h PLiteralPool.h PLocalsObject.h PMemory.h PMemPool.h PModule.h PNativeBind.h PNativeConstMethodDecls.h PNativeMethod.h PNativeMethodDecls.h PNativeStaticMethodDecls.h PObject.h PObjectEnumerator.h POpcode.def POpcode.h PPackage.h PParser.h PPlatform.h PProfiler.h PProperty.h PRandom.h PScript.h PString.h PStringTable.h PSymbolTable.h PTable.h PToken.def PTokenDef.h PTokenizer.h PType.h PUserData.h PUtil.h PValue.h PValueEnumerator.h)
+set (pika_LIB_HEADERS pika_config.h PArray.h PAst.h PBasic.h PBuffer.h PByteArray.h PByteOrder.h PClassInfo.h PCollector.h PCompiler.h PConfig.h PConfig_Borland.h PConfig_GCC.h PConfig_VisualStudio.h PContext.h PContext_Ops.inl PContext_Ops_Arith.inl PContext_Ops_Call.inl PContext_Ops_Std.inl PContext_Run.inl PDebugger.h PDef.h PEngine.h PEnumerator.h PError.h PFile.h PFunction.h PHooks.h Pika.h PikaSort.h PInstruction.h PLineInfo.h PLiteralPool.h PLocalsObject.h PMemory.h PMemPool.h PModule.h PNativeBind.h PNativeConstMethodDecls.h PNativeMethod.h PNativeMethodDecls.h PNativeStaticMethodDecls.h PObject.h PObjectEnumerator.h POpcodeDef.inl POpcode.h PPackage.h PParser.h PPlatform.h PProfiler.h PProperty.h PRandom.h PScript.h PString.h PStringTable.h PSymbolTable.h PTable.h PTokenDef.inl PTokenDef.h PTokenizer.h PType.h PUserData.h PUtil.h PValue.h PValueEnumerator.h)
 
 #------------------------------------------------------------------
 # Convert header list into comma seperated list. "a b c" -> "a;b;c"
@@ -107,6 +107,10 @@ source_group (include FILES ${pika_LIB_HEADERS})
 source_group (source  FILES ${pika_LIB_SRCS})
 
 add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
+if (WIN32)
+    add_definitions(-DPIKA_DLL)
+    add_definitions(-DPIKA_EXPORTS)
+endif (WIN32)
 #set_property (SOURCE ${pika_LIB_HEADERS} PROPERTY MACOSX_PACKAGE_LOCATION Headers)
 
 target_link_libraries (pika ${ADD_LIBS})
@@ -132,8 +136,12 @@ endforeach (lib)
 # -------------------------------------------------------------------------
 
 set (pika_LIB_VERSION_MAJOR "0")
-set (pika_LIB_VERSION_MINOR "1")
+set (pika_LIB_VERSION_MINOR "5")
 set (pika_LIB_VERSION_PATCH "0")
+
+set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
+set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
+set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
 
 set (pika_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
 
@@ -161,8 +169,9 @@ set (PIKA_INCLUDE_DIR    "include/Pika")
 #        DESTINATION ${PIKA_INCLUDE_DIR})
 
 install (TARGETS pika
-         ARCHIVE        DESTINATION lib
+         RUNTIME        DESTINATION bin
          LIBRARY        DESTINATION lib
+         ARCHIVE        DESTINATION lib         
          FRAMEWORK      DESTINATION Library/Frameworks
          # For not OSX Framework build.
          PUBLIC_HEADER  DESTINATION ${PIKA_INCLUDE_DIR}
@@ -181,3 +190,5 @@ if (NOT PIKA_USE_FRAMEWORKS OR WIN32)
 endif (NOT PIKA_USE_FRAMEWORKS OR WIN32)
 
 include(CPack)
+
+SET(CPACK_NSIS_MODIFY_PATH ON)

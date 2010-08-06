@@ -16,7 +16,7 @@ enum ETokenType
 {
     // characters occupy positions 0 - 255
     TOK_min = 257, 
-#   include "PToken.def"
+#   include "PTokenDef.inl"
     TOK_max
 };
 

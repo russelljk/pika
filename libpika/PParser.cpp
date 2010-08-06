@@ -57,7 +57,7 @@ const char** Token2String::GetNames()
 {
     static const char* names[] =
     {
-#       include "PToken.def"
+#       include "PTokenDef.inl"
     };
     return names;
 }
