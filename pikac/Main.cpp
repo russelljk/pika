@@ -29,8 +29,11 @@
 void Pika_DisplayUsage(const char* name)
 {
     std::cerr << '\n' << PIKA_VERSION_STR", "PIKA_COPYRIGHT_STR << '\n';
-    std::cerr << "\nUsage: " << name <<  "[options] file [arguments]\n";
-    std::cerr << "\nArguments:\n\tSpace seperated arguments to pass to the script" << std::endl;
+    std::cerr << "\nUsage: " << name <<  " file [options]\n";
+    std::cerr << "\nOptions:\n";
+    std::cerr << "\t--path, -p       : Add a search path. Multiple paths may be specified.\n";
+    std::cerr << "\t--file, -f       : File to execute.\n";
+    std::cerr << "\t--arg,  -a       : White space seperated arguments i.e. \"arg1 arg2 arg3\"\n" << std::endl;
     
     exit(1);
 }
@@ -64,28 +67,61 @@ struct CommandLine
             const char* curr = args[pos];
             size_t len = strlen(curr);
             
-            if (curr[0] == '-')
+            if (len >= 2 && curr[0] == '-')
             {
-                kind = curr[1];
-                if (len > 2)
+                kind = curr[1]; //set it to - temporarily
+                if (kind == '-' && len > 2) //need more than 2 chars
                 {
-                    options = curr + 2; //skip past "-X" where X is the kind of argument
-                }
-                else
-                {
-                    // Allow a space between the kind and option
-                    int nextPos = pos + 1;
-                    if (nextPos < count)
+                    if (strcmp(curr+2, "path") == 0) 
                     {
-                        const char* nextCurr = args[nextPos];
-                        if (nextCurr[0] != '-')
+                        kind = 'p';
+                    } 
+                    else if (strcmp(curr+2, "file") == 0) 
+                    {
+                        kind = 'f';                        
+                    } 
+                    else if (strcmp(curr+2, "arg") == 0) 
+                    {
+                        kind = 'a';                        
+                    } 
+                    
+                    if (kind != '-') // Should be a space between the kind and option
+                    {
+                        int nextPos = pos + 1;
+                        if (nextPos < count)
                         {
-                            options = nextCurr;
-                            pos += 2;
-                            return;
+                            const char* nextCurr = args[nextPos];
+                            if (nextCurr[0] != '-')
+                            {
+                                options = nextCurr;
+                                pos += 2;
+                                return;
+                            }
                         }
                     }
-                    options = 0;
+                    options = 0; // at this point something went wrong
+                }
+                else {
+                    if (len > 2)
+                    {
+                        options = curr + 2; //skip past "-X" where X is the kind of argument
+                    }
+                    else
+                    {
+                        // Allow a space between the kind and option
+                        int nextPos = pos + 1;
+                        if (nextPos < count)
+                        {
+                            const char* nextCurr = args[nextPos];
+                            if (nextCurr[0] != '-')
+                            {
+                                options = nextCurr;
+                                pos += 2;
+                                return;
+                            }
+                        }
+                        options = 0;
+                    }
                 }
             }
             else
@@ -250,4 +286,5 @@ int main(int argc, char* argv[])
             eng->Release();
         }
     }
+    return 0;
 }

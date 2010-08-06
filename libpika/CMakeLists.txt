@@ -157,8 +157,13 @@ set_target_properties (pika PROPERTIES
                             SOVERSION         ${pika_LIB_VERSION}
                             FRAMEWORK         ${pika_FRAMEWORKS}
                             FRAMEWORK_VERSION ${pika_FRAME_VERSION}
-                            PUBLIC_HEADER     ${pika_PUB_HEADERS}
-                            INSTALL_NAME_DIR  @executable_path/../Frameworks)
+                            PUBLIC_HEADER     ${pika_PUB_HEADERS})
+
+if (PIKA_USE_FRAMEWORKS)
+	set_target_properties (pika PROPERTIES
+			       INSTALL_NAME_DIR @executable_path/../Frameworks)
+endif (PIKA_USE_FRAMEWORKS)
+
 #@loader_path
 #--------------------- Install  -----------------------
 
