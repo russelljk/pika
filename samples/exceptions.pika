@@ -1,41 +1,41 @@
 begin
     function foo()
-        raise new Error("foo failed")
-    # Functions can have a finalizer
+        raise Error.new("foo failed")   
     finally
-        say "finally: exiting foo"
+        # Functions can have a finalizer    
+        print "finally: exiting foo"
     end
 
     function bar(stringerror)
-        raise "string error" if stringerror
-        raise new Error("bar failed")
+        raise "string error" when stringerror
+        raise Error.new("bar failed")
     finally
-        say "finally: exiting bar"
+        print "finally: exiting bar"
     end
         
     try
-        say "try #1: foo()"
+        print "try #1: foo()"
         foo()
     catch e
-        say "caught #1: " @ e.type @@ e
+        print "caught #1: " @ e.type @@ e
     # Try/catch blocks can have a finalizer.
     finally
-        say "finally: exiting handler #1"
+        print "finally: exiting handler #1"
     end
     
     try
         stringerror = true # Change to false to use the second catch block.
-        say "try #2: bar()"
+        print "try #2: bar()"
         bar(stringerror)    
     catch estr is String
-        say "caught #2a: " @ estr.type @@ estr
+        print "caught #2a: " @ estr.type @@ estr
     catch e
-        say "caught #2b: " @ e.type @@ e
+        print "caught #2b: " @ e.type @@ e
     finally
-        say "finally: exiting handler #2"
+        print "finally: exiting handler #2"
     end
     
-# Begin blocks, and other types of blocks, can have a finalizer.
 finally 
-    say "finally: exiting begin block"
+    # begin blocks, loops and other blocks, can have a finalizer.
+    print "finally: exiting begin block"
 end

@@ -1,27 +1,28 @@
-
+# create A as a subclas of Object
 class A
-    function init a
-        self.a = a
+    function init(a)
+        self.a = a  # create instance variable a
     end
 end
 
+# create B as a subclass of A
 class B : A
-    function init a, b
-        super a
-        self.b = b
+    function init(a, b)
+        super a         # call A.init
+        self.b = b      # create instance variable b
     end
 end
 
-a = new A "hi"
-b = new B "bye", 2
+a = A.new("hi")
+b = B.new("bye", 2)
 
-say a.a
-say ""
-say b.a
-say b.b
+print a.a
+print ""
+print b.a
+print b.b
 
-say "a is A:" @@ a is A
-say "a is B:" @@ a is B
+print "a is A:" @@ a is A
+print "a is B:" @@ a is B
 
-say "b is A:" @@ b is A
-say "b is B:" @@ b is B
+print "b is A:" @@ b is A
+print "b is B:" @@ b is B

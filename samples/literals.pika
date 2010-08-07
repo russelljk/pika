@@ -16,7 +16,7 @@ say 'single quote' # string literal
 
 say( [1,  2, 3, "a", 'b'] ) # array literal
 
-o = { name: "Bob", age: 34, occupation: "World Ruler", info: [1,2,3,4] } # object literal
+o = { name: "Bob", age: 34, occupation: "Programmer", skills: ['C++','Pika','html','css'] } # object literal
 
 for x in o
     say x @ ": " @ o[x]
