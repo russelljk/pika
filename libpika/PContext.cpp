@@ -1645,6 +1645,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 #   if defined( PIKA_ALLOW_MISSING_SLOTS )
                 res.SetNull();
 #   else
+
                 ReportRuntimeError(Exception::ERROR_runtime,
                                    "Attempt to read member '%s' of '%s'.",
                                    engine->ToString(this, prop)->GetBuffer(),

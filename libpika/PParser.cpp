@@ -2261,8 +2261,8 @@ Expr* Parser::DoPrimaryExpression()
     case '\\': 
     {
         // Lambda Expression
-        // '\\' (arg1, ... ,argN) ':' <expression>
-        // '\\' ':' <expression>
+        // '\\' (arg1, ... ,argN) '->' <expression>
+        // '\\' '->' <expression>
         
         int line = tstream.GetLineNumber();
         Match('\\');

@@ -1458,6 +1458,10 @@ const char* NameNode::GetName()
             MemberExpr* me = (MemberExpr*)dotexpr->right;
             return me->id->name;
         }
+        else
+        {
+            return "";
+        }
     }
     SHOULD_NEVER_HAPPEN();
     return 0;

@@ -1331,9 +1331,12 @@ struct DotExpr : BinaryExpr
     DotExpr(Expr*, Expr*);
     
     virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
+    
     virtual Instr*  GenerateCode();
     virtual Instr*  GenerateCodeSet();
+    
     virtual Opcode  GetOpcode() const { return OP_dotget; }
+    virtual Opcode  SetOpcode() const { return OP_dotset; } 
 };
 
 /** A binary expression where the right hand expression (rhe) is enclosed in square brackets and placed in a post-fix position
@@ -1347,9 +1350,12 @@ struct IndexExpr : DotExpr
     {
     }
     virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
+    
     virtual Instr*  GenerateCode();
     virtual Instr*  GenerateCodeSet();    
-    virtual Opcode GetOpcode() const { return OP_subget; }
+    
+    virtual Opcode  GetOpcode() const { return OP_subget; }
+    virtual Opcode  SetOpcode() const { return OP_subset; }
 };
 
 /** A dot expression in which the value being retrieved and the object it belongs to are bound together as one value.

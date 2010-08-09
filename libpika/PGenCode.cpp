@@ -336,7 +336,7 @@ Instr* FunctionDecl::GenerateCode()
     {
         Instr* iswap = Instr::Create(OP_swap);
         Instr* irhs  = name->dotexpr->right->GenerateCode();
-        iset = Instr::Create(OP_dotset);
+        iset = Instr::Create(name->dotexpr->SetOpcode());
         
         iswap->
         Attach(irhs)->
@@ -425,9 +425,9 @@ Instr* CallExpr::GenerateCode()
     
     if (k == Expr::EXPR_dot)
     {
+        DotExpr* de = static_cast<DotExpr*>(left);
         Instr* idup = Instr::Create(OP_dup); // duplicate 'self'
-        Instr* idotget = Instr::Create(OP_dotget);
-        DotExpr* de = (DotExpr*)left;
+        Instr* idotget = Instr::Create(de->GetOpcode());
         Instr* dotleft = de->left->GenerateCode();
         Instr* dotright = de->right->GenerateCode();
         
@@ -454,8 +454,7 @@ Instr* CallExpr::GenerateCode()
     else
     {
         ilvalue = left->GenerateCode();
-        Instr* ipushthis = Instr::Create(redirectedcall ? OP_pushself : OP_pushnull);
-        
+        Instr* ipushthis = Instr::Create(redirectedcall ? OP_pushself : OP_pushnull);        
         ipushthis->Attach(ilvalue);
         ilvalue = ipushthis;
     }
