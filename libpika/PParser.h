@@ -194,7 +194,7 @@ private:
     Expr*           DoStringLiteralExpression();
     Expr*           DoIntegerLiteralExpression();
     ExprList*       DoExpressionList();
-    
+    LoadExpr*       DoSelfExpression();
     Expr*           DoFunctionExpression();
     
     // These methods take null terminated arrays of terminator characters //////////////////////////

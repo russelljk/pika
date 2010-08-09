@@ -504,18 +504,36 @@ void Parser::DoBlockBegin(int tok, int prevln, int currln)
                 Expected(tok);
 }
 
+LoadExpr* Parser::DoSelfExpression()
+{
+    LoadExpr* expr = 0;
+    int line = tstream.GetLineNumber();
+    Match(TOK_self);
+    PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_self));
+    expr->line = line;
+    return expr;
+}
+
 NameNode* Parser::DoNameNode(bool canbedot)
 {
     NameNode* name = 0;
     int line = tstream.GetLineNumber();
-    
+    /*
+        id0.id1.[...].idN.name
+        self.id1.[...].idN.name
+     */
     if (tstream.GetNextType() == '.' && canbedot)
     {
         Expr* expr;
         if (tstream.GetType() == TOK_identifier)
+        {
             expr = DoIdExpression();
+        }
         else
-            expr = DoPrimaryExpression();
+        {
+            expr = DoSelfExpression();
+        }
+        
         while (Optional('.'))
         {
             Expr* lhs = expr;
@@ -1005,10 +1023,10 @@ Stmt* Parser::DoFunctionStatement()
     
     StorageKind sk = DoStorageKind();
     
-    if (TOK_function == tstream.GetType() &&
+    if (TOK_function   == tstream.GetType()     && 
         TOK_identifier != tstream.GetNextType() &&
-        TOK_self != tstream.GetNextType() &&
-        STO_none == sk)
+        TOK_self       != tstream.GetNextType() &&
+        STO_none       == sk) // expression cannot have a storage kind
     {
         return DoExpressionStatement(); // possible a function expression (definitely not a function statement)
     }
@@ -2304,9 +2322,7 @@ Expr* Parser::DoPrimaryExpression()
     break;
     case TOK_self:
     {
-        tstream.Advance();
-        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_self));
-        expr->line = line;
+        expr = DoSelfExpression();
     }
     break;
     /*
