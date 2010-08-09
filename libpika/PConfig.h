@@ -40,6 +40,9 @@
 /* Use doubles instead of floats for the type Real. */
 #define PIKA_64BIT_REAL
 
+/* Print out debug information to stdout while running. */
+/* #define PIKA_DEBUG_OUTPUT */
+
 /* Disable the calling of hooks. Speeds up execution but debugging becomes impossible. */
 /* #define PIKA_NO_HOOKS */
 

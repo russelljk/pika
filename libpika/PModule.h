@@ -16,7 +16,7 @@ const char* pikalib_version_Foo()
 #define PIKALIB_PREFIX_ENTER            "pikalib_enter_"
 #define PIKALIB_PREFIX_VER              "pikalib_version_"
 #define PIKA_MODULE(NAME, ENG, MOD)                                                          \
-    PIKA_MODULE_EXPORT const char* pikalib_version_##NAME(void) { return PIKA_VERSION_STR; } \
+    PIKA_MODULE_EXPORT const char* pikalib_version_##NAME(void) { return PIKA_BANNER_STR; } \
     PIKA_MODULE_EXPORT Package*    pikalib_enter_##NAME(Engine* ENG, Module* MOD)
 
 namespace pika {

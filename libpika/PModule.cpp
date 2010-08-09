@@ -57,9 +57,9 @@ void Module::Initialize(String* ver)
                 RaiseException("Could not determine version of module %s.\nMake sure that you provided the correct name and path (case sensitive.)", 
                 name->GetBuffer());
             }
-            else if (StrCmp(ver_fn(), PIKA_VERSION_STR) != 0) // TODO: limit the length of the StrCmp.
+            else if (StrCmp(ver_fn(), PIKA_BANNER_STR) != 0) // TODO: limit the length of the StrCmp.
             {
-                RaiseException("Incorrect version for module %s. Required version %s.", this->name->GetBuffer(), PIKA_VERSION_STR);
+                RaiseException("Incorrect version for module %s. Required version %s.", this->name->GetBuffer(), PIKA_BANNER_STR);
             }
             
             this->entry = (ModuleEntry_t)Pika_GetSymbolAddress(this->handle, this->entryname->GetBuffer());

@@ -4,9 +4,9 @@
  */
 #include "Pika.h"
 #include "PParser.h"
-#define PIKA_RUNPROFILE
 
-#if defined(PIKA_RUNPROFILE)
+
+#if defined(PIKA_DEBUG_OUTPUT)
 #   include "PProfiler.h"
 #   include <iostream>
 #endif
@@ -122,7 +122,7 @@ bool Script::Run(Array* args)
     context->PushNull();
     context->Push(entryPoint);
     context->SetupCall(0);
-#if defined(PIKA_RUNPROFILE)
+#if defined(PIKA_DEBUG_OUTPUT)
     Timer t;
     t.Start();
 #endif
@@ -131,7 +131,7 @@ bool Script::Run(Array* args)
     context->Run();
     
     running = false;
-#if defined(PIKA_RUNPROFILE)
+#if defined(PIKA_DEBUG_OUTPUT)
     t.End();
     puts("\n******************");
     printf("\t%g", t.Val());

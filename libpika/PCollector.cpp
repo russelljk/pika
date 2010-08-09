@@ -149,10 +149,11 @@ Collector::Collector(Engine* eng)
 Collector::~Collector()
 {
     FreeAll();
-    
+#if defined(PIKA_DEBUG_OUTPUT)
     std::cout << "\n*******************************\n";
     std::cout << "Number of gc objects: " << totalObjects;
     std::cout << "\n*******************************\n";
+#endif
 }
 
 void Collector::Pause()

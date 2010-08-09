@@ -91,3 +91,5 @@
 
 /* Define to 1 if you have the `strtok_s' function. */
 #cmakedefine HAVE_STRTOK_S 1
+
+#define PIKA_VER_STR "@pika_LIB_VERSION@"

@@ -71,6 +71,20 @@ check_function_exists (strtok   HAVE_STRTOK)
 check_function_exists (strtok_r HAVE_STRTOK_R)
 check_function_exists (strtok_s HAVE_STRTOK_S)
 
+# -------------------------------------------------------------------------
+# Set version numbers
+# -------------------------------------------------------------------------
+
+set (pika_LIB_VERSION_MAJOR "0")
+set (pika_LIB_VERSION_MINOR "5")
+set (pika_LIB_VERSION_PATCH "0")
+
+set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
+set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
+set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
+
+set (pika_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
+
 #--------------------- Generate pika_config.h -----------------------
 
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika_config.h.in" 
@@ -131,19 +145,7 @@ foreach (lib ${ADD_LIBS})
     endif (PKG_CONFIG_ADD_LIBS STREQUAL "")
 endforeach (lib)
 
-# -------------------------------------------------------------------------
-# Set version numbers
-# -------------------------------------------------------------------------
-
-set (pika_LIB_VERSION_MAJOR "0")
-set (pika_LIB_VERSION_MINOR "5")
-set (pika_LIB_VERSION_PATCH "0")
-
-set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
-set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
-set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
-
-set (pika_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
+#---
 
 if (PIKA_USE_FRAMEWORKS)
     set (pika_FRAMEWORKS "TRUE")

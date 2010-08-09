@@ -1474,8 +1474,7 @@ void AssertStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 
 ClassDecl::~ClassDecl()
 {
-    Pika_delete(symtab);
-    
+    Pika_delete(symtab);    
 }
 
 void ClassDecl::CalculateResources(SymbolTable* st, CompileState& cs)

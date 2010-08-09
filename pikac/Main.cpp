@@ -28,7 +28,7 @@
 // TODO: Specifiy arguments.
 void Pika_DisplayUsage(const char* name)
 {
-    std::cerr << '\n' << PIKA_VERSION_STR", "PIKA_COPYRIGHT_STR << '\n';
+    std::cerr << '\n' << PIKA_BANNER_STR", "PIKA_COPYRIGHT_STR << '\n';
     std::cerr << "\nUsage: " << name <<  " file [options]\n";
     std::cerr << "\nOptions:\n";
     std::cerr << "\t--path, -p       : Add a search path. Multiple paths may be specified.\n";
@@ -41,7 +41,7 @@ void Pika_DisplayUsage(const char* name)
 static void Pika_PrintBanner()
 {
     std::cerr << PIKA_UNDERLINE_STR << '\n' <<
-    PIKA_VERSION_STR   << '\n' <<
+    PIKA_BANNER_STR   << '\n' <<
     PIKA_COPYRIGHT_STR << '\n' <<
     PIKA_UNDERLINE_STR << std::endl;
 }

@@ -25,14 +25,6 @@
 #ifndef PIKA_HEADER
 #define PIKA_HEADER
 
-#define PIKA_VERSION_STR        "Pika 0.5.0"
-#define PIKA_VERSION_MAJOR      0
-#define PIKA_VERSION_MINOR      5
-#define PIKA_VERSION_REVISION   0
-#define PIKA_COPYRIGHT_STR      "Copyright (C) 2006 Russell Kyle"
-#define PIKA_UNDERLINE_STR      "-------------------------------"
-#define PIKA_AUTHOR_STR         "Russell Kyle"
-
 ////////////////////////////////////////// Class Hierarchy /////////////////////////////////////////
 
 namespace pika {
@@ -83,6 +75,11 @@ using pika::UserData;
 #include "PMemory.h"
 #include "PConfig.h"
 #include "PUtil.h"
+
+#define PIKA_BANNER_STR        "Pika "PIKA_VER_STR
+#define PIKA_COPYRIGHT_STR      "Copyright (C) 2006 Russell Kyle"
+#define PIKA_UNDERLINE_STR      "-------------------------------"
+#define PIKA_AUTHOR_STR         "Russell Kyle"
 
 #include "PMemPool.h"
 #include "PBuffer.h"
