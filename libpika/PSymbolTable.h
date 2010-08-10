@@ -36,10 +36,10 @@ namespace pika {
         enum { HASHSIZE = 256 };
 
         SymbolTable(SymbolTable* parent,
-                    bool global  = false, // Variables default to global scope
-                    bool with    = false, // Variables default to slot_table
-                    bool func    = false, // Default for functions
-                    bool inherit = true); // Inherits parent's scope (currently false only for catch & finally blocks)
+                    bool global  = false, // Variables default to global scope. Default for top-level script scope, packages and classes.
+                    bool with    = false, // Variables default to slot_table. Default for with statements.
+                    bool func    = false, // Default for functions.
+                    bool inherit = true); // Inherits parent's scope (currently false only for catch & finally blocks).
 
         ~SymbolTable();
 

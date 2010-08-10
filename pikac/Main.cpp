@@ -31,9 +31,11 @@ void Pika_DisplayUsage(const char* name)
     std::cerr << '\n' << PIKA_BANNER_STR", "PIKA_COPYRIGHT_STR << '\n';
     std::cerr << "\nUsage: " << name <<  " file [options]\n";
     std::cerr << "\nOptions:\n";
-    std::cerr << "\t--path, -p       : Add a search path. Multiple paths may be specified.\n";
-    std::cerr << "\t--file, -f       : File to execute.\n";
-    std::cerr << "\t--arg,  -a       : White space seperated arguments i.e. \"arg1 arg2 arg3\"\n" << std::endl;
+    std::cerr << "\t--arg,  -a    : White space seperated arguments i.e. \"arg1 arg2 arg3\"\n";
+    std::cerr << "\t--file, -f    : File to execute.\n";
+    std::cerr << "\t--path, -p    : Add a search path. Multiple paths may be specified.\n";
+    std::cerr << "\t--supress, -s : Supress startup banner.\n";
+    std::cerr << std::endl;
     
     exit(1);
 }
@@ -48,7 +50,7 @@ static void Pika_PrintBanner()
 
 struct CommandLine
 {
-    CommandLine(int argc, char** argv) : count(argc), args(argv)
+    CommandLine(int argc, char** argv) : has_dash(false), count(argc), args(argv)
     {
         pos  = 1;
         kind = '\0';
@@ -62,12 +64,14 @@ struct CommandLine
     
     void Next()
     {
+        has_dash = false;
         if (pos < count)
         {
             const char* curr = args[pos];
             size_t len = strlen(curr);
-            
-            if (len >= 2 && curr[0] == '-')
+            if (curr[0] == '-')
+                has_dash = true;
+            if (len >= 2 && has_dash)
             {
                 kind = curr[1]; //set it to - temporarily
                 if (kind == '-' && len > 2) //need more than 2 chars
@@ -84,8 +88,12 @@ struct CommandLine
                     {
                         kind = 'a';                        
                     } 
+                    else if (strcmp(curr+2, "supress") == 0) 
+                    {
+                        kind = 's';                        
+                    } 
                     
-                    if (kind != '-') // Should be a space between the kind and option
+                    if (kind != '-' && kind != 's') // Should be a space between the kind and option
                     {
                         int nextPos = pos + 1;
                         if (nextPos < count)
@@ -105,6 +113,10 @@ struct CommandLine
                     if (len > 2)
                     {
                         options = curr + 2; //skip past "-X" where X is the kind of argument
+                    }
+                    else if (kind == 's')
+                    {
+                        options = 0;
                     }
                     else
                     {
@@ -142,8 +154,8 @@ struct CommandLine
     int         Kind()    { return kind; }
     const char* Opt()     { return options; }
     const char* CurrArg() { return (pos < count) ? args[pos] : 0; }
-    
-    bool        is_valid;
+    bool        HasDash() { return has_dash; }
+    bool        has_dash;
     int         count;
     int         pos;
     char**      args;
@@ -154,10 +166,38 @@ struct CommandLine
 Array* CreateArguments(Engine* eng, const char* cstr)
 {
     GCPAUSE_NORUN( eng );
-    String* str  = eng->AllocString(cstr);
+    String* str  = eng->AllocString(cstr ? cstr : "");
     String* delm = eng->AllocString(" \t\n\r");
     
     return str->Split(delm);
+}
+
+void AddArgument(Engine* eng, const char* opt, Array* arguments)
+{
+#if 0
+    Array* opt_arguments = 0;
+
+    if ((opt_arguments = CreateArguments( eng, opt )))
+    {
+        if (arguments)
+        {
+            arguments->Append( opt_arguments );
+        }
+        else
+        {
+            arguments = opt_arguments;
+        }
+    }
+#else
+    String* arg_str = eng->AllocStringNC(opt ? opt : "");
+    Value varg(arg_str);
+    arguments->Push(varg);
+#endif
+}
+
+void ReadExecutePrintLoop(Engine* eng)
+{
+    std::cerr << "REPL: not implemented yet.\nExiting Pika..." << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -170,12 +210,16 @@ int main(int argc, char* argv[])
     
     if (argc >= 2)
     {
+        Array* arguments = 0;
         Engine* eng = 0;
         const char* fileName = 0;
-        Array* arguments = 0;
         try
         {
             eng = Engine::Create();
+            {
+                GCPAUSE_NORUN( eng );
+                arguments = Array::Create(eng, eng->Array_Type, 0, 0);
+            }
             
             CommandLine cl(argc, argv);
             
@@ -187,14 +231,14 @@ int main(int argc, char* argv[])
             
             while (cl)
             {
-                if ((cl.Opt() == 0) || (strlen(cl.Opt()) == 0))
+                if (cl.Opt() == 0)
                 {
                     if (cl.Kind() != 's')
                     {
                         Pika_DisplayUsage(argv[0]);
                     }
                 }
-                
+                                
                 switch (cl.Kind())
                 {
                     /*
@@ -221,19 +265,7 @@ int main(int argc, char* argv[])
                  */
                 case 'a':
                 {
-                    Array* opt_arguments = 0;
-                    
-                    if ((opt_arguments = CreateArguments( eng, cl.Opt() )))
-                    {
-                        if (arguments)
-                        {
-                            arguments->Append( opt_arguments );
-                        }
-                        else
-                        {
-                            arguments = opt_arguments;
-                        }
-                    }
+                    AddArgument(eng, cl.Opt(), arguments);
                 }
                 break;
                 /*
@@ -249,32 +281,57 @@ int main(int argc, char* argv[])
                  */
                 case 's':
                 {
-                    printBanner = printBanner;
+                    if ((cl.Opt() != 0))
+                    {
+                        Pika_DisplayUsage(argv[0]);
+                    }                    
+                    printBanner = false;
                     break;
                 }
-                default:
+                default: 
                 {
-                    std::cerr << "Unknown Option: " << cl.CurrArg();
-                    Pika_DisplayUsage(argv[0]);
+                    if (cl.Kind() == '\0' && cl.Opt())
+                    {
+                        if (!fileName)
+                        {
+                            fileName = cl.Opt();                            
+                        }
+                        else
+                        {
+                            AddArgument(eng, cl.Opt(), arguments);
+                        }
+                    }
+                    else
+                    {
+                        std::cerr << "Unknown Option: " << cl.CurrArg();
+                        Pika_DisplayUsage(argv[0]);
+                    }
                 }
-                }
+                }// switch
                 cl.Next();
             }
             
-            if (printBanner)
+            if (!fileName) 
             {
-                Pika_PrintBanner();
-            }
-            eng->AddEnvPath("PIKA_PATH");
-            Script* script = eng->Compile(fileName);
-            
-            if (script)
-            {
-                script->Run(arguments);
+                ReadExecutePrintLoop(eng);
             }
             else
             {
-                std::cerr << "\n** Could not run script: " << fileName << std::endl;
+                if (printBanner)
+                {
+                    Pika_PrintBanner();
+                }
+                eng->AddEnvPath("PIKA_PATH");
+                Script* script = eng->Compile(fileName);
+                
+                if (script)
+                {
+                    script->Run(arguments);
+                }
+                else
+                {
+                    std::cerr << "\n** Could not run script: " << fileName << std::endl;
+                }
             }
         }
         catch (...)
