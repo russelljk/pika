@@ -42,6 +42,7 @@ struct TokenStream
 {
     TokenStream(CompileState* state, std::ifstream* yyin);
     TokenStream(CompileState* state, const char* buffer, size_t len);
+    TokenStream(CompileState* state, IScriptStream* stream);
     
     ~TokenStream();
     
@@ -52,8 +53,10 @@ struct TokenStream
     INLINE int GetNextType() const { return next.tokenType; }
     INLINE int GetPrevType() const { return prev.tokenType; }
     
-    INLINE bool IsEndOfStream() const { return curr.tokenType == EOF; }
-    
+    INLINE bool IsEndOfStream() const { return curr.tokenType == EOF || curr.tokenType == EOI; }
+    INLINE bool More()  const { return curr.tokenType == EOI; }
+    void            GetMore();
+    void            GetNextMore();
     INLINE pint_t  GetInteger()      const { return curr.value.integer; }
     INLINE preal_t GetReal()         const { return curr.value.real; }
     INLINE char*   GetString()       const { return curr.value.str; }
@@ -108,12 +111,15 @@ public:
     
     Parser(CompileState* cs, std::ifstream* yyin);
     Parser(CompileState* cs, const char* buffer, size_t len);
+    Parser(CompileState* cs, IScriptStream* stream);
     
     ~Parser();
     
     Program*        DoParse();
     Program*        DoFunctionParse();
 private:
+
+    
     void            DoScript();
     void            DoFunctionScript();
     
@@ -215,8 +221,16 @@ private:
     bool            IsPrimaryExpression();
     ParamDecl*      DoFunctionParameters(bool close=true);
     
-    void            Match(int x);
-    bool            Optional(int x);
+    // If another character needs to be present you must call this method. Otherwise the parse could fail in REPL mode.
+    
+    void            REPL_NeedOne(); // Need at least 1 token in the stream.
+    void            REPL_NeedTwo();    // Need at least 2 tokens in the stream.
+    
+    void            Match(int x);       // Match the token x. Works under REPL mode.
+    bool            Optional(int x);    // If token x is the current token Match is called.
+    
+    // Error reporting methods. Makes no attempt to Match.
+    
     void            Expected(int x);
     void            Unexpected(int x);
     

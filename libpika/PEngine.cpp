@@ -427,6 +427,131 @@ void Engine::AddSearchPath(String* path)
 {
     paths->AddPath(path);
 }
+    // Size of REPL buffer. Actual Size is REPL_BUFF_SIZE + 1
+#define REPL_BUFF_SIZE 256
+    
+    bool ReadLine(char* buff, const char* prompt)
+    {
+        Pika_memzero(buff, sizeof(char) * (REPL_BUFF_SIZE + 1));
+        std::cout << prompt;
+        std::cout.flush();
+        return std::cin.getline(buff, REPL_BUFF_SIZE) != NULL;
+    }
+    
+    void Engine::ReadExecutePrintLoop()
+    {
+#if 0
+        const char* std_prompt = "\n>>>";
+        char buff[REPL_BUFF_SIZE+1];
+        while (ReadLine(buff, std_prompt))
+        {
+            std::cout << "length: " << (&buff[0]) << std::endl;            
+        }
+        std::cout << "\nExiting REPL" << std::endl;
+        return;
+#endif        
+        ///////////////////////////////////////////////////////////////////////
+        Context* context = 0;
+        String* repl_script_name = 0;
+        Script* script = 0;
+        REPLStream stream;
+        Def* entry_def = 0;
+        LiteralPool* literals  = 0;
+        Array* args = 0;
+        {   GCPAUSE_NORUN(this);
+            repl_script_name = this->AllocStringNC("read_execute_print_loop");
+            args = Array::Create(this, Array_Type, 0, 0);
+            this->AddToRoots(args);
+            
+            // Create the Script Object.
+            script = Script::Create(this, repl_script_name, Pkg_World);
+            scripts.Push(script); // Add it to the list.
+            this->AddToRoots(script);
+        }// GCPAUSE_NORUN
+        /*
+            TODO: Tokenizer deletes stream object.
+        */
+        stream.NewLoop();
+        while (!stream.IsEof())
+        {
+            try
+            {                
+                std::auto_ptr<CompileState> comp_state(new CompileState(this));   
+                comp_state->repl_mode = true;
+                std::auto_ptr<Parser>       parser  (new Parser(comp_state.get(), &stream));
+                // Try to compile the script.
+                try
+                {
+                    Program* tree = parser->DoParse();
+                    tree->CalculateResources(0, *comp_state);
+                    
+                    if (comp_state->HasErrors())
+                    {
+                        RaiseException(Exception::ERROR_syntax, "Attempt to compile line failed.\n");
+                    }
+                    
+                    tree->GenerateCode();
+                    
+                    if (comp_state->HasErrors())
+                    {
+                        RaiseException(Exception::ERROR_syntax, "Attempt to compile line failed.\n");
+                    }
+                    
+                    literals = comp_state->literals;
+                    entry_def = tree->def;
+                }
+                catch (Exception&)
+                {
+                    std::cout << "Parser error." << std::endl;
+                    stream.NewLoop();
+                    continue;
+                }
+                
+                {   GCPAUSE_NORUN(this);
+                    // Create an initialize a Context for the Script.
+                    // The context will execute the Script's bytecode.
+                     if (!context)
+                     {
+                        context = Context::Create(this, this->Context_Type);
+                        this->AddToRoots(context);
+                    }
+                    else
+                    {
+                        // reset the context instead of creating a new one. 
+                        // We could reuse it with without calling Reset but in case of exception we need to call it.
+                        context->Reset(); 
+                    }
+                    
+                    Value closure = Function::Create(this, 
+                                                     entry_def, // Type's body
+                                                     script);   // Set the Type the package
+                    
+                    script->Initialize(literals, context, closure.val.function);
+                    
+                    // Make sure we don't get GC sweeped the first time around.
+                    gc->ForceToGray(script);
+                }
+                std::cout << "*** Executing Script..." << std::endl;
+                script->Run(args);
+                Context* ctx     = script->GetContext();
+                Value&   res     = ctx->PopTop();                
+                String*  str_res = ToString(ctx, res);
+                if (str_res)
+                {
+                    std::cout << str_res->GetBuffer() << std::endl;
+                }
+                else
+                {
+                    std::cout << "No output.\n";
+                }
+            }
+            catch(...)
+            {
+                std::cout << "Runtime error." << std::endl;
+            }
+            stream.NewLoop();
+        }
+    }
 
 Script* Engine::Compile(String* name, Context* parent)
 {
@@ -476,36 +601,35 @@ Script* Engine::Compile(String* name, Context* parent)
             return 0;
         
         LiteralPool* literals  = 0;
-
         
         // Create the CompileStste and Parser.
-        std::auto_ptr<CompileState> compinfo(new CompileState(this));   
-        std::auto_ptr<Parser>       parser(new Parser(compinfo.get(), &yyin));
+        std::auto_ptr<CompileState> comp_state(new CompileState(this));   
+        std::auto_ptr<Parser>       parser(new Parser(comp_state.get(), &yyin));
         
         // Try to compile the script.
         try
         {
             Program* tree = parser->DoParse();
-            tree->CalculateResources(0, *compinfo);
+            tree->CalculateResources(0, *comp_state);
             
-            if (compinfo->HasErrors())
+            if (comp_state->HasErrors())
             {
                 RaiseException(Exception::ERROR_syntax, "Attempt to compile script %s.\n", name->GetBuffer());
             }
             
             tree->GenerateCode();
             
-            if (compinfo->HasErrors())
+            if (comp_state->HasErrors())
             {
                 RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script %s.\n", name->GetBuffer());
             }
-                        
-            literals = compinfo->literals;
+            
+            literals = comp_state->literals;
             entry_def = tree->def;
         }
         catch (Exception&)
         {
-            compinfo->SyntaxErrorSummary();            
+            comp_state->SyntaxErrorSummary();            
             PutImport(str_dot_name, Value(AllocString("invalid")));
             return 0;
         }

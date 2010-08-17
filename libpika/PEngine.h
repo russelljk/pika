@@ -164,7 +164,8 @@ public:
     
     Script* Compile(const char* name);
     Script* Compile(String* name, Context* parent = 0);
-       
+    void    ReadExecutePrintLoop();
+    
     INLINE Package*   GetWorld() { return Pkg_World; }
     INLINE Collector* GetGC()    { return gc; }
     
@@ -202,7 +203,7 @@ public:
     String* PersistentString(const char*);
     
     String* GetTypenameOf(Value&);
-    
+        
     INLINE String* GetOverrideString(OpOverride ovr) { return override_strings[ovr]; }
     
     void CallConversionFunction(Context* ctx, String* name, Object* c, Value& res);

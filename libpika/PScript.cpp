@@ -35,7 +35,8 @@ void Script::Initialize(LiteralPool* lp, Context* ctx, Function* entry)
     ASSERT(lp);
     ASSERT(ctx);
     ASSERT(entry);
-    
+    if (firstRun)
+        firstRun = false;
     literals   = lp;
     context    = ctx;
     entryPoint = entry;

@@ -15,6 +15,9 @@
 
 #include "PTokenDef.h"
 
+/* End of Input. Used for REPL. Not the same as End of File, and EOI means that more input can be */
+#define EOI (-2) 
+
 namespace pika {
 
 struct CompileState;
@@ -67,6 +70,8 @@ struct IScriptStream
 {
     virtual ~IScriptStream() = 0;
     
+    virtual bool IsREPL() const { return false; }
+        
     /** Get and return the current character in the stream. 
       * The position of the stream should move to the next character before this method returns. */
     virtual int  Get() = 0;
@@ -76,6 +81,7 @@ struct IScriptStream
     
     /** Returns true if we have reached the end of the stream. */
     virtual bool IsEof() = 0;
+    virtual bool IsEoi() { return false; }
 };
 
 /** C file based input stream. 
@@ -115,6 +121,31 @@ struct StdinScriptStream : IScriptStream
     virtual bool IsEof();
 };
 
+struct REPLStream : IScriptStream
+{
+    enum {
+        REPL_BUFF_SZ = 256
+    };
+    
+    REPLStream();
+    
+    virtual ~REPLStream();
+    
+    virtual bool IsREPL() const { return true; }
+    void NewLoop(const char* pmt=0);
+    virtual int  Get();
+    virtual int  Peek();
+    virtual bool IsEof();
+    virtual bool IsEoi();
+    
+    bool GetNewLine(const char* pmt);
+private:
+    char buffer[REPL_BUFF_SZ];
+    size_t pos;
+    size_t bufferLength;
+    bool is_eof;
+};
+
 /** String based input stream. */
 struct StringScriptStream : IScriptStream
 {
@@ -137,7 +168,7 @@ class Tokenizer
 public:
     Tokenizer(CompileState*, std::ifstream* stream);
     Tokenizer(CompileState*, const char* buf, size_t len);
-
+    Tokenizer(CompileState*, IScriptStream* stream);
     virtual ~Tokenizer();
     
     int             Peek();
@@ -153,6 +184,7 @@ public:
     
     void            GetNext();
     void            GetLook();
+    void            GetMoreInput();
     
     void            NumberParseError(const char* msg);
 protected:

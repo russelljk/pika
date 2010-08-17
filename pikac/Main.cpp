@@ -197,14 +197,19 @@ void AddArgument(Engine* eng, const char* opt, Array* arguments)
 
 void ReadExecutePrintLoop(Engine* eng)
 {
-    std::cerr << "REPL: not implemented yet.\nExiting Pika..." << std::endl;
+    std::cerr << "Entering Interactive Session..." << std::endl;
+    eng->ReadExecutePrintLoop();
 }
 
 int main(int argc, char* argv[])
 {
     if (argc == 1)
     {
-        Pika_DisplayUsage(argv[0]);
+        //Pika_DisplayUsage(argv[0]);
+        Engine* eng = Engine::Create();
+        eng->ReadExecutePrintLoop();
+        eng->Release();
+        return 0;
     }
     bool printBanner = true;
     

@@ -449,6 +449,7 @@ static int Dummy_Print(Context* ctx, Value& self)
             std::cout << " ";
     }
     std::cout << std::endl;
+    std::cout.flush();
     return 0;
 }
 

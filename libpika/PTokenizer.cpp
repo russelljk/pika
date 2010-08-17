@@ -439,6 +439,27 @@ Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
     GetLook();
 }
 
+Tokenizer::Tokenizer(CompileState* cs, IScriptStream* stream)
+    : tokenBegin(0),
+    tokenEnd(0),        
+    state(cs),
+    tabIndentSize(4),
+    line(1),
+    col(0),
+    ch(0),
+    prevline(1),
+    prevcol(0),
+    prevch(0),
+    look(EOF),
+    hasUtf8Bom(false),
+    minKeywordLength(0),
+    maxKeywordLength(0xFFFF),
+    script_stream(stream)
+{
+    PrepKeywords();
+    GetLook();
+}
+
 void Tokenizer::PrepKeywords()
 {
     minKeywordLength = 0xFFFF;
@@ -456,7 +477,8 @@ void Tokenizer::PrepKeywords()
 
 Tokenizer::~Tokenizer()
 {
-    Pika_delete(script_stream);
+    if (!script_stream->IsREPL())
+        Pika_delete(script_stream);
 }
 
 void Tokenizer::GetNext()
@@ -553,6 +575,17 @@ void Tokenizer::ReadNumber()
     }
 }
 
+void Tokenizer::GetMoreInput()
+{
+    if (script_stream->IsREPL()) {
+        REPLStream* repl = (REPLStream*)script_stream;
+        repl->NewLoop("...");
+        GetLook();
+        printf("*** Got Look!\n");
+        /*GetNext();*/
+    }
+}
+
 void Tokenizer::ReadIdentifier()
 {
     // [a-zA-Z$_][a-zA-Z0-9$_]*[?!]?
@@ -626,7 +659,7 @@ void Tokenizer::ReadString()
         }
     }
     
-    if (IsEndOfStream() || look != termchar)
+    if (IsEndOfStream() && look != termchar)
         state->SyntaxException(Exception::ERROR_syntax, prevline, prevcol, "unclosed string literal");
         
     GetLook();
@@ -990,7 +1023,7 @@ void Tokenizer::ReadControl()
     break;
         
     default:
-        if (!IsAscii(look) && look != EOF)
+        if (!IsAscii(look) && look != EOF && look != EOI)
             state->SyntaxException(Exception::ERROR_syntax, line, col, "Non-ascii character encountered %d.\n", look);
         tokenType = look;
         GetLook();    
@@ -1042,7 +1075,7 @@ void Tokenizer::ReadSingleLineComment()
 
 bool Tokenizer::IsEndOfStream()
 {
-    return script_stream->IsEof();
+    return script_stream->IsEof() || script_stream->IsEoi();
 }
 
 int Tokenizer::Peek()
@@ -1060,9 +1093,18 @@ void Tokenizer::GetLook()
     if (script_stream && !script_stream->IsEof())
     {
         look = script_stream->Get();
+        if (look == EOI)
+        {
+            // We have reached an end of the currrent line of input from stdin.
+            ++line;       // Start a new line...
+            col = ch = 0; // at column 0.
+            script_buf.Push('\n'); // Treat it as a newline in the script buffer.
+            tokenEnd++;
+            return;
+        }
+        
         script_buf.Push(look);
         tokenEnd++;
-        
         if (IsSpace(look))
         {
             // Look for a valid newline
@@ -1110,6 +1152,7 @@ void Tokenizer::GetLook()
             ++col;
         }
     }
+
     else
     {
         HandleEOS();
@@ -1210,4 +1253,94 @@ int  StdinScriptStream::Get()   { return std::cin.get(); }
 int  StdinScriptStream::Peek()  { return std::cin.peek(); }
 bool StdinScriptStream::IsEof() { return std::cin.eof();  }
 
+
+    REPLStream::REPLStream() : pos(0), bufferLength(0), is_eof(false)
+    {
+        Pika_memzero(buffer, sizeof(buffer));
+    }
+
+    REPLStream::~REPLStream() {}
+    
+    void REPLStream::NewLoop(const char* pmt)
+    {
+        if (is_eof) return;
+        pos = bufferLength = 0;
+        while (GetNewLine(pmt ? pmt : ">>>"))
+        {
+            // Line is non-empty
+            if (bufferLength > 0)
+            {
+                // return the first character in the line.
+                return;
+            }
+        }        
+    }
+    
+    int REPLStream::Get()
+    {
+        if (is_eof)
+        {
+            return EOF;
+        }
+        
+        if (pos < bufferLength)
+        {
+            return buffer[pos++];
+        }
+        else 
+        {            
+            return EOI;
+            // Loop while we get empty lines.
+            //while (GetNewLine())
+//            {
+//                // Line is non-empty
+//                if (bufferLength > 0)
+//                {
+//                    // return the first character in the line.
+//                    return buffer[pos++];
+//                }
+//            }
+        }
+        return EOF;
+    }
+
+    int REPLStream::Peek()
+    {
+        if (is_eof)
+        {
+            return EOF;
+        }
+        
+        if (pos < bufferLength)
+        {
+            return buffer[pos];
+        }
+        return EOI;
+    }
+    
+    bool REPLStream::IsEof()
+    {
+        return is_eof;
+    }
+    
+    bool REPLStream::IsEoi()
+    {
+        return !is_eof && pos >= bufferLength;
+    }
+    
+    bool REPLStream::GetNewLine(const char* pmt)
+    {
+        const char* prompt = pmt ? pmt : ">>>";
+        Pika_memzero(buffer, sizeof(buffer));
+        std::cout << prompt;
+        std::cout.flush();
+        void* res = std::cin.getline(buffer, REPL_BUFF_SZ);
+        is_eof = (res == NULL);
+        if (!is_eof)
+        {
+            bufferLength = strlen(buffer);
+            pos = 0;
+        }
+        return !is_eof;
+    }
 }// pika

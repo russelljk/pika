@@ -160,25 +160,33 @@ struct CompileState
     bool UpdateLineInfo(int line);
     
     // Error Reporting -----------------------------------------------------------------------------
-#if defined(ENABLE_SYNTAX_WARNINGS)    
-
+#if defined(ENABLE_SYNTAX_WARNINGS)
     void SyntaxWarning(WarningLevel level, int line, const char* format, ...);
 #endif
-    void   SyntaxError(int line, const char* format, ...);           
-    void   SyntaxException(Exception::Kind k, int line,          const char *msg, ...);
-    void   SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...); 
-    void   SyntaxErrorSummary();
+    /** Report a syntax error. Do not use if the error is fatal. Under most circumstances an exception is not raised. 
+      * However if the parser is running in REPL mode an exception is thrown because the user can correct its mistake.
+      */
+    void SyntaxError(int line, const char* format, ...);           
+    
+    /** Report a syntax error. An exception of kind 'k' will be raised. */    
+    void SyntaxException(Exception::Kind k, int line,          const char *msg, ...);
+    void SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...); 
+    
+    /** Report a summary of errors and warnings. */
+    void SyntaxErrorSummary();
     
     /** Returns true if syntax errors occurred while parsing and compiling a script. */
     bool HasErrors() const { return errors != 0; }
     
-    void   SetParser(Parser* p) { parser = p; }
+    void SetParser(Parser* p) { parser = p; }
+    
     struct TryState
     {
         bool inTry;
         bool inCatch;               // Are we in a catch block.
         u2   catchVarOffset;        // Location of the caught exception (used to re-raise a caught exception).
     }               trystate;
+    
     TreeNodeList    nodes;          // All the nodes we know about.
     LiteralPool*    literals;       // Literals used in this program. Shared by all child functions.
     Table           literalLookup;
@@ -191,6 +199,7 @@ struct CompileState
     int             warnings;       // Number of warnings found.
     Instr*          endOfBlock;     // Last Instr of the current block (used to track local variable scope.)
     Parser*         parser;
+    bool            repl_mode;      // running in REPL mode.
 };
 
 // TreeNode ////////////////////////////////////////////////////////////////////////////////////////

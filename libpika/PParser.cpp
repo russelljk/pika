@@ -24,6 +24,17 @@ INLINE bool IsNotTerm(const int* terms, const int tok)
     return true;
 }
 
+// Needed for REPL mode. Returns true if the array 'terms' is non-empty.
+INLINE bool HasTerm(const int* terms)
+{
+    size_t count = 0;
+    for (const int* c = terms; *c; ++c)
+    {
+        ++count;
+    }
+    return count > 0;
+}
+
 /* Returns true if the token 'tok' IS a one of the terminating tokens from the array 'terms'. */
 
 INLINE bool IsTerm(const int* terms, const int tok)
@@ -84,6 +95,14 @@ TokenStream::TokenStream(CompileState* state, const char* buffer, size_t len)
     prev.tokenType = curr.tokenType = next.tokenType = EOF;
     PIKA_NEW(Tokenizer, tokenizer, (state, buffer, len));
 }
+    
+TokenStream::TokenStream(CompileState* state, IScriptStream* stream) 
+: state(state), tokenizer(0),
+yyin(0) 
+{
+    prev.tokenType = curr.tokenType = next.tokenType = EOF;
+    PIKA_NEW(Tokenizer, tokenizer, (state, stream));
+}
 
 TokenStream::~TokenStream()
 {
@@ -105,7 +124,7 @@ void TokenStream::Advance()
     tokenizer->GetNext();
     int nxttok = tokenizer->GetTokenType();
     
-    if (nxttok != EOF)
+    if (nxttok != EOF && nxttok != EOI)
     {
         next.tokenType = nxttok;
         next.line = tokenizer->GetLn();
@@ -116,8 +135,45 @@ void TokenStream::Advance()
     }
     else
     {
-        next.tokenType = EOF;
+        next.tokenType = nxttok;
     }
+}
+
+void TokenStream::GetMore()
+{ 
+    if (curr.tokenType == EOI)
+    {
+        Token oldprev = prev;
+        
+        tokenizer->GetMoreInput(); 
+        Advance(); 
+        Advance();
+        
+        if (prev.tokenType == EOI)
+        {
+            prev = oldprev;
+        }
+    }
+}
+
+void TokenStream::GetNextMore()
+{ 
+    tokenizer->GetMoreInput();
+    tokenizer->GetNext();
+    int nxttok = tokenizer->GetTokenType();
+    if (nxttok != EOF && nxttok != EOI)
+    {
+        next.tokenType = nxttok;
+        next.line = tokenizer->GetLn();
+        next.col = tokenizer->GetCol();
+        next.begOffset = tokenizer->GetBeginOffset();
+        next.endOffset = tokenizer->GetEndOffset();
+        next.value = tokenizer->GetVal();
+    }
+    else
+    {
+        next.tokenType = nxttok;
+    }    
 }
 
 // Parser //////////////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +194,13 @@ Parser::Parser(CompileState *cs, const char* buffer, size_t len)
     state->SetParser(this);
 }
 
+    Parser::Parser(CompileState* cs, IScriptStream* stream) : root(0),
+    state(cs),
+    tstream(state, stream)
+{
+    state->SetParser(this);
+}
+
 Parser::~Parser() {}
 
 Program* Parser::DoParse()
@@ -153,7 +216,7 @@ Program* Parser::DoFunctionParse()
     DoFunctionScript();    
     return root;
 }
-    
+
 void Parser::DoScript()
 {
     const int terms[] = { 0 };
@@ -171,6 +234,7 @@ void Parser::DoFunctionScript()
     
     Match(TOK_function);
     
+    REPL_NeedOne();
     if (tstream.GetType() != '(')
         Expected('(');
         
@@ -189,6 +253,15 @@ void Parser::DoFunctionScript()
 
 void Parser::Match(int x)
 {
+    if (tstream.GetType() == EOI)
+    {
+        printf("*** EOI Reached.\n");
+        if (tstream.More())
+        {
+            tstream.GetMore();            
+        }
+        
+    }
     if (tstream.GetType() == x)
         tstream.Advance();
     else
@@ -242,6 +315,10 @@ void Parser::Unexpected(int x)
     {
         state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected end of file reached.");
     }
+    else if (x == EOI)
+    {
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected end of input reached.");
+    }
     else if (x >= Token2String::min && x <= Token2String::max)
     {
         state->SyntaxException(Exception::ERROR_syntax, line, col, "unexpected token '%s'.", Token2String::GetNames()[x-Token2String::diff]);
@@ -271,7 +348,7 @@ void Parser::DoEndOfStatement()
     {
         state->SyntaxException(Exception::ERROR_syntax,
                                tstream.GetLineNumber(),
-                                tstream.GetCol(),
+                               tstream.GetCol(),
                                "end of statement required. expected ';' or \\n");
     }
 }
@@ -349,7 +426,9 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_local:
     case TOK_member:
     {
+        REPL_NeedTwo();
         int next_type = tstream.GetNextType();
+        
         switch (next_type)
         {
         case TOK_function:  stmt = DoFunctionStatement();   break;
@@ -451,6 +530,11 @@ StorageKind Parser::DoStorageKind()
     return STO_none;
 }
 
+/*
+    class <id> [ : <super-expression> ]
+    <statements>*
+    end
+ */
 Stmt* Parser::DoClassStatement()
 {
     const int class_terms[] = { TOK_end, TOK_finally, 0 };
@@ -462,15 +546,18 @@ Stmt* Parser::DoClassStatement()
     
     StorageKind sk = DoStorageKind();
     
+    REPL_NeedTwo();
     Match(TOK_class);
     
     NameNode* name = DoNameNode(sk == STO_none);
     
     if (Optional(':'))
     {
+        REPL_NeedOne();
         super = DoExpression();
     }
     
+    REPL_NeedOne();
     classbody = DoStatementList(class_terms);
     
     PIKA_NEWNODE(ClassDecl, decl, (name, super, classbody, sk));
@@ -485,7 +572,7 @@ Stmt* Parser::DoAssertStatement()
     int line = tstream.GetLineNumber();
     
     Match(TOK_assert);
-    
+    REPL_NeedOne();    
     Expr* expr = DoExpression();
     
     DoEndOfStatement();
@@ -499,9 +586,23 @@ Stmt* Parser::DoAssertStatement()
 void Parser::DoBlockBegin(int tok, int prevln, int currln)
 {
     if (!Optional(tok))
-        if (prevln == currln)        
+    {
+        if (prevln == currln)
+        {
             if (!Optional(';'))
+            {
                 Expected(tok);
+            }
+            else
+            {
+                REPL_NeedOne();
+            }
+        }
+    }
+    else
+    {
+        REPL_NeedOne();
+    }
 }
 
 LoadExpr* Parser::DoSelfExpression()
@@ -525,6 +626,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
     if (tstream.GetNextType() == '.' && canbedot)
     {
         Expr* expr;
+        REPL_NeedOne();
         if (tstream.GetType() == TOK_identifier)
         {
             expr = DoIdExpression();
@@ -538,7 +640,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
         {
             Expr* lhs = expr;
             Expr* rhs = 0;
-            
+            REPL_NeedOne();
             Id* id = DoIdentifier();
             PIKA_NEWNODE(MemberExpr, rhs, (id));
             rhs->line = id->line;
@@ -571,13 +673,15 @@ Stmt* Parser::DoPackageDeclaration()
 {
     int line = tstream.GetLineNumber();
     PkgDecl* decl = 0;
-    Stmt* stmt = 0;
-    
+    Stmt* stmt = 0;    
     StorageKind sk = DoStorageKind();
     
+    REPL_NeedTwo();
     Match(TOK_package);
-    
+     
     NameNode* id = DoNameNode(sk == STO_none);
+    
+    REPL_NeedOne();
     Stmt* body = DoStatementList(Static_end_terms);
     
     Match(TOK_end);
@@ -596,10 +700,25 @@ CaseList* Parser::DoCaseList(const int* terms)
     
     while (Optional(TOK_when))
     {
+        REPL_NeedOne();
         ExprList* matches = DoExpressionList();
-        
+
+        REPL_NeedOne();
         if (!Optional(':'))
         {
+            /*
+            ==========================================================             
+            If the entire list is on the same line we don't need to 
+            Match ':'.
+            ----------------------------------------------------------
+            Example:
+         
+            case x
+            when 1, 2, 3
+                print 'OK' # OK because print is on the next line.
+            end
+            ==========================================================
+            */
             ExprList* curr = matches;
             while (curr && curr->next)
                 curr = curr->next;
@@ -609,6 +728,7 @@ CaseList* Parser::DoCaseList(const int* terms)
                 Expected(':');
         }
         
+        REPL_NeedOne();
         Stmt* body = DoStatementListBlock(terms);
         
         CaseList* c;
@@ -633,13 +753,18 @@ Stmt* Parser::DoCaseStatement()
     const int terms[] = { TOK_else, TOK_end, TOK_when, 0 };
     
     Match(TOK_case);
+    REPL_NeedOne();
     
     Expr* selector = DoExpression();
+    REPL_NeedOne();
+    
     CaseList* cases = DoCaseList(terms);
     Stmt* elsebody = 0;
     
+    REPL_NeedOne();
     if (Optional(TOK_else))
     {
+        REPL_NeedOne();
         elsebody = DoStatementListBlock(Static_end_terms);
     }
     
@@ -660,16 +785,19 @@ Stmt* Parser::DoPropertyStatement()
     bool getfirst = false;
     
     StorageKind sk = DoStorageKind();
-    
+
+    REPL_NeedTwo();
     Match(TOK_property);
     
     NameNode* name = DoNameNode(sk == STO_none);
-    
+
+    REPL_NeedOne();    
+    // Next character must be get or set.
     if (tstream.GetType() != TOK_identifier)
     {
         Unexpected(tstream.GetType());
     }
-    
+        
     if (DoContextualKeyword(getstr, true))
     {
         getfirst = true;
@@ -684,17 +812,22 @@ Stmt* Parser::DoPropertyStatement()
     {
         state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(),  tstream.GetCol(), "expected identifier '%s' or '%s'.", getstr, setstr);
     }
+       
     Match(':');
     
+    REPL_NeedOne();    
     Expr* firstexpr = DoExpression();
     Expr* secondexpr = 0;
     
     DoEndOfStatement();
     
+    REPL_NeedOne();
     if (tstream.GetType() == TOK_identifier)
     {
         DoContextualKeyword(next, false);
         Match(':');
+        
+        REPL_NeedOne();
         secondexpr = DoExpression();
         DoEndOfStatement();
     }
@@ -722,7 +855,8 @@ Stmt* Parser::DoStatementList(const int* terms)
     while (IsNotTerm(terms, tstream.GetType()) && !tstream.IsEndOfStream())
     {
         Stmt* nxtstmt = DoStatement(false);
-        
+        if (HasTerm(terms) && IsNotTerm(terms, tstream.GetType()))
+            REPL_NeedOne();
         if (currstmt)
         {
             Stmt* stmtseq = 0;
@@ -748,6 +882,7 @@ Stmt* Parser::DoStatementList(const int* terms)
 
 Stmt* Parser::DoFunctionBody()
 {
+    REPL_NeedOne();
     const int terms[] = { TOK_end, TOK_finally, 0 };
     Stmt* stmt = DoStatementList(terms);
     return DoFinallyBlock(stmt);
@@ -767,8 +902,10 @@ Stmt* Parser::DoFinallyBlock(Stmt* in)
 {
     Stmt* out = 0;
     
+    REPL_NeedOne();
     if (Optional(TOK_finally))
     {
+        REPL_NeedOne();
         Stmt* finalizeBlock = DoStatementList(Static_end_terms);
         
         Match(TOK_end);
@@ -786,6 +923,7 @@ Stmt* Parser::DoFinallyBlock(Stmt* in)
 
 Stmt* Parser::DoBlockStatement()
 {
+    REPL_NeedTwo();
     Match(TOK_begin);
     const int terms[] = { TOK_end, TOK_finally, 0 };
     Stmt* block = DoStatementListBlock(terms);
@@ -800,12 +938,9 @@ Stmt* Parser::DoWithStatement()
     Match(TOK_using);
     
     Expr* with = DoExpression();
+    REPL_NeedOne();
     DoBlockBegin(TOK_do, with->line, tstream.GetLineNumber());
-    /*if (!Optional(TOK_do))
-    {
-        if (with->line == tstream.GetLineNumber())
-            Expected(TOK_do);
-    }*/
+    
     const int terms[] = { TOK_end, TOK_finally, 0 };
     Stmt* block = DoStatementList(terms);
     
@@ -837,31 +972,33 @@ Stmt* Parser::DoTryStatement()
     int line = tstream.GetLineNumber();
     
     Match(TOK_try);
+    REPL_NeedOne();
     
     const int try_terms[] = { TOK_catch, TOK_finally, 0 };
     Stmt* tryblock = DoStatementListBlock(try_terms);
+    REPL_NeedOne();
+    
     const int terms[] = { TOK_end, TOK_catch, TOK_else, TOK_finally, 0 };
-    
-    
+        
     while (tstream.GetType() == TOK_catch)
     {
         Match(TOK_catch);
+        REPL_NeedOne();
         
         Id* id = DoIdentifier();
+        REPL_NeedOne();
         
         if (Optional(TOK_is))
-        {
-        
+        {            
+            REPL_NeedOne();
             Expr* is = DoExpression();
+            
+            REPL_NeedOne();
             DoBlockBegin(TOK_do, id->line, tstream.GetLineNumber());
-            /*if (!Optional(TOK_do))
-            {
-                if (id->line == tstream.GetLineNumber())
-                    Expected(TOK_do);
-            }*/
             
             Stmt* body = DoStatementListBlock(terms);
             
+            REPL_NeedOne();
             CatchIsBlock* c;
             PIKA_NEWNODE(CatchIsBlock, c, (id, is, body));
             
@@ -876,22 +1013,20 @@ Stmt* Parser::DoTryStatement()
                 state->SyntaxError(tstream.GetLineNumber(), "duplicate untyped catch block (one allowed per try statement.)");
             caughtvar = id;
             DoBlockBegin(TOK_do, caughtvar->line, tstream.GetLineNumber());
-            /*
-            if (!Optional(TOK_do))
-            {
-                if (caughtvar->line == tstream.GetLineNumber())
-                    Expected(TOK_do);
-            }
-            */
+            
             catchblock = DoStatementListBlock(terms);
+            REPL_NeedOne();
             break;
         }
     }
+    
     Stmt* elsebody = 0;
     if (Optional(TOK_else))
     {
+        REPL_NeedOne();
         const int elseterms[] = { TOK_end, TOK_finally, 0 };
         elsebody = DoStatementListBlock(elseterms);
+        REPL_NeedOne();
     }
     
     Stmt* stmt = 0;
@@ -912,7 +1047,7 @@ Stmt* Parser::DoLabeledStatement()
         
         Id* id = DoIdentifier();
         Match(':');
-        
+        REPL_NeedOne();
         Stmt* stmt    = DoStatement(true);
         Stmt* lblstmt = 0;
         
@@ -966,7 +1101,7 @@ Decl* Parser::DoVarDeclaration()
         Match(TOK_global);
         sto = STO_global;
     }
-    
+    REPL_NeedOne();
     do
     {
         VarDecl* nxtdecl = 0;
@@ -999,11 +1134,13 @@ Decl* Parser::DoVarDeclaration()
             break;
             
         Match(',');
+        REPL_NeedOne();
     }
     while (!tstream.IsEndOfStream());
     
     if (Optional('='))
     {
+        REPL_NeedOne();
         VariableTarget* vt;
         
         ExprList* el = DoExpressionList();
@@ -1015,6 +1152,21 @@ Decl* Parser::DoVarDeclaration()
     return firstdecl;
 }
 
+void Parser::REPL_NeedTwo()
+{
+    // TODO: Does the current type need to be checked or can we assume that next==EOI iff curr!=EOF and curr != EOI ?
+    if (tstream.GetNextType() == EOI)
+    {
+        tstream.GetNextMore();          
+    }
+}
+
+void Parser::REPL_NeedOne()
+{
+    if (tstream.More())
+        tstream.GetMore();
+}
+
 Stmt* Parser::DoFunctionStatement()
 {
     FunctionDecl* decl = 0;
@@ -1022,6 +1174,8 @@ Stmt* Parser::DoFunctionStatement()
     size_t beg  = tstream.curr.begOffset;
     
     StorageKind sk = DoStorageKind();
+    
+    REPL_NeedTwo();
     
     if (TOK_function   == tstream.GetType()     && 
         TOK_identifier != tstream.GetNextType() &&
@@ -1035,6 +1189,7 @@ Stmt* Parser::DoFunctionStatement()
     
     NameNode* name = DoNameNode(sk == STO_none); // only allow dot names for functions without a storage specifier.
     ParamDecl* params = DoFunctionParameters();
+    
     Stmt* body = DoFunctionBody();
     size_t end = tstream.prev.endOffset;
     
@@ -1051,6 +1206,8 @@ Stmt* Parser::DoIfStatement()
     IfStmt* stmt = 0;
     Stmt* elsePart = 0;
     bool unless = false;
+    
+    REPL_NeedTwo();
     
     if (!Optional(TOK_if))
     {
@@ -1112,20 +1269,14 @@ Stmt* Parser::DoWhileStatement()
     Stmt* body = 0;
     Stmt* stmt = 0;
     
+    REPL_NeedTwo();
     Match(TOK_while);
     
     cond = DoExpression();
+    REPL_NeedOne(); 
     DoBlockBegin(TOK_do, cond->line, tstream.GetLineNumber());
-    /*
-    if (!Optional(TOK_do))
-    {
-        if (cond->line == tstream.GetLineNumber())
-            Expected(TOK_do);
-    }
-    */
+
     body = DoStatementListBlock(Static_finally_terms);
-    
-    //Match(TOK_end);
     
     PIKA_NEWNODE(CondLoopStmt, stmt, (cond, body, false, false));
     stmt->line = cond->line;
@@ -1139,19 +1290,14 @@ Stmt* Parser::DoUntilStatement()
     Stmt* body = 0;
     Stmt* stmt = 0;
     
+    REPL_NeedTwo();
     Match(TOK_until);
     
     cond = DoExpression();
-    DoBlockBegin(TOK_do, cond->line, tstream.GetLineNumber());
-    /*if (!Optional(TOK_do))
-    {
-        if (cond->line == tstream.GetLineNumber())
-            Expected(TOK_do);
-    }
-    */
-    body = DoStatementListBlock(Static_finally_terms);
+    REPL_NeedOne();
     
-    //Match(TOK_end);
+    DoBlockBegin(TOK_do, cond->line, tstream.GetLineNumber());
+    body = DoStatementListBlock(Static_finally_terms);
     
     PIKA_NEWNODE(CondLoopStmt, stmt, (cond, body, false, true));
     stmt->line = cond->line;
@@ -1167,8 +1313,9 @@ Stmt* Parser::DoLoopStatement()
     
     Match(TOK_loop);
     
+    REPL_NeedOne();
     body = DoStatementListBlock(Static_finally_terms);
-    //Match(TOK_end);
+    
     
     PIKA_NEWNODE(LoopStmt, stmt, (body));
     stmt->line = line;
@@ -1207,8 +1354,10 @@ bool Parser::DoContextualKeyword(const char* key, bool optional)
 void Parser::DoForToHeader(ForToHeader* header)
 {
     Match('=');
+    REPL_NeedOne();
     
     header->from = DoExpression();
+    REPL_NeedOne();
     
     if (!Optional(TOK_to))
     {
@@ -1219,11 +1368,14 @@ void Parser::DoForToHeader(ForToHeader* header)
     {
         header->isdown = false;
     }
+    REPL_NeedOne();
     
     header->to = DoExpression();
     
+    REPL_NeedOne();
     if (Optional(TOK_by))
     {
+        REPL_NeedOne();
         header->step = DoExpression();
     }
     else
@@ -1243,9 +1395,12 @@ Stmt* Parser::DoForStatement()
     header.line = line;
         
     Match(TOK_for);
+    REPL_NeedOne();
+    
     Id* id = DoIdentifier();
     header.id = id;
-    
+
+    REPL_NeedOne();    
     if (tstream.GetType() == TOK_in)
     {
         return DoForEachStatement(&header);
@@ -1265,12 +1420,9 @@ Stmt* Parser::DoForToStatement(ForHeader* fh)
     ForToHeader header = { {0, 0}, 0, 0, 0, false };
     header.head = *fh;
     DoForToHeader(&header);
+    
+    REPL_NeedOne();
     DoBlockBegin(TOK_do, header.step->line, tstream.GetLineNumber());
-    /*if (!Optional(TOK_do))
-    {
-        if (header.step->line == tstream.GetLineNumber())
-            Expected(TOK_do);
-    }*/
     
     body = DoStatementListBlock(Static_finally_terms);
     
@@ -1282,11 +1434,19 @@ Stmt* Parser::DoForToStatement(ForHeader* fh)
 void Parser::DoForEachHeader(ForEachHeader* header)
 {
     Match(TOK_in);
-    
-    if (tstream.GetType() ==  TOK_identifier && tstream.GetNextType() == TOK_of)
+    REPL_NeedOne();
+    REPL_NeedTwo();
+    if (tstream.GetType() == TOK_identifier && tstream.GetNextType() == TOK_of)
     {
         header->of = DoFieldName();
         Match(TOK_of);
+        REPL_NeedOne();
+    }
+    if (tstream.GetType() == TOK_stringliteral && tstream.GetNextType() == TOK_of)
+    {
+        header->of = DoStringLiteralExpression();
+        Match(TOK_of);
+        REPL_NeedOne();
     }
     else
     {
@@ -1295,6 +1455,7 @@ void Parser::DoForEachHeader(ForEachHeader* header)
         of->line = header->head.line;
         header->of = of;
     }
+    REPL_NeedOne();
     header->subject = DoExpression();
 }
 
@@ -1303,19 +1464,11 @@ Stmt* Parser::DoForEachStatement(ForHeader* fh)
     ForEachHeader header = { {0,0}, 0, 0 };
     header.head = *fh;
     DoForEachHeader(&header);
-    
+
+    REPL_NeedOne();
     DoBlockBegin(TOK_do, header.subject->line, tstream.GetLineNumber());
-    /*
-    if (!Optional(TOK_do))
-    {
-        if (header.subject->line == tstream.GetLineNumber())
-            Expected(TOK_do);
-    }
-    */
-    Stmt* body = DoStatementListBlock(Static_finally_terms);
-    
-    //Match(TOK_end);
-    
+        
+    Stmt* body = DoStatementListBlock(Static_finally_terms);    
     Stmt* stmt = 0;
     PIKA_NEWNODE(ForeachStmt, stmt, (header.head.id, header.of, header.subject, body));
     stmt->line = header.head.line;
@@ -1494,12 +1647,10 @@ Stmt* Parser::DoOptionalJumpStatement(Stmt* stmt)
     if (tstream.GetType() == TOK_when)
     {
         bool unless = false;
-        /*if (!Optional(TOK_if))
-        {
-            Match(TOK_unless);
-            unless = true;
-        }*/
+        
         Match(TOK_when);
+
+        REPL_NeedOne();
         Expr* cond = DoExpression();
         Stmt* ifstmt = 0;
         
@@ -1568,7 +1719,7 @@ Stmt* Parser::DoExpressionStatement()
     {
     
         AssignmentStmt::AssignKind akind = GetAssignmentKind(tstream.GetType());
-        
+        REPL_NeedTwo();
         tstream.Advance();
         
         ExprList* lhs = expr;
@@ -1611,9 +1762,12 @@ Expr* Parser::DoNullSelectExpression()
     Expr* expr = DoConditionalExpression();
     
     while (tstream.GetType() == TOK_nullselect)
-    {
+    {        
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoConditionalExpression();
         
         PIKA_NEWNODE(NullSelectExpr, expr, (lhs, rhs));
@@ -1628,13 +1782,16 @@ Expr* Parser::DoConditionalExpression()
     Expr* expr = DoConcatExpression();
     
     if (tstream.GetType() == '?')
-    {
+    {        
         Expr* cond = expr;
+        
+        REPL_NeedTwo();        
         tstream.Advance();
         
         Expr* then = DoExpression();
         
         Match(':');
+        REPL_NeedOne();
         
         Expr* otherwise = DoConditionalExpression();
         
@@ -1649,12 +1806,15 @@ Expr* Parser::DoConcatExpression()
     Expr* expr = DoLogOrExpression();
     
     while (tstream.GetType() == TOK_cat || tstream.GetType() == TOK_catspace)
-    {
-        Expr::Kind k = (tstream.GetType() == TOK_catspace) ? Expr::EXPR_catsp : Expr::EXPR_cat;
-        
+    {        
+        Expr::Kind k = (tstream.GetType() == TOK_catspace) 
+                            ? Expr::EXPR_catsp 
+                            : Expr::EXPR_cat;
         Expr* lhs = expr;
         
+        REPL_NeedTwo();   
         tstream.Advance();
+        
         Expr* rhs = DoLogOrExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1671,9 +1831,11 @@ Expr* Parser::DoLogOrExpression()
     while (tstream.GetType() == TOK_or || tstream.GetType() == TOK_pipepipe)
     {
         Expr::Kind k = Expr::EXPR_or;
-        
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoLogXorExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1690,9 +1852,11 @@ Expr* Parser::DoLogXorExpression()
     while (tstream.GetType() == TOK_xor || tstream.GetType() == TOK_caretcaret)
     {
         Expr::Kind k = Expr::EXPR_xor;
-        
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoLogAndExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1709,9 +1873,11 @@ Expr* Parser::DoLogAndExpression()
     while (tstream.GetType() == TOK_and || tstream.GetType() == TOK_ampamp)
     {
         Expr::Kind k = Expr::EXPR_and;
-        
         Expr* lhs = expr;
+
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoOrExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1728,8 +1894,9 @@ Expr* Parser::DoOrExpression()
     while (tstream.GetType() == '|')
     {
         Expr::Kind k = Expr::EXPR_bitor;
-        
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
         Expr* rhs = DoXorExpression();
         
@@ -1747,9 +1914,11 @@ Expr* Parser::DoXorExpression()
     while (tstream.GetType() == '^')
     {
         Expr::Kind k = Expr::EXPR_bitxor;
-        
         Expr* lhs = expr;
+
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoAndExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1765,10 +1934,12 @@ Expr* Parser::DoAndExpression()
     
     while (tstream.GetType() == '&')
     {
-        Expr::Kind k = Expr::EXPR_bitand;
-        
+        Expr::Kind k = Expr::EXPR_bitand;        
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoEqualExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1793,8 +1964,7 @@ Expr* Parser::DoEqualExpression()
            tstream.GetType() == TOK_is      || 
            tstream.GetType() == TOK_has     )
     {
-        Expr::Kind k;
-        
+        Expr::Kind k;        
         if (tstream.GetType() == TOK_eq)
         {
             k = Expr::EXPR_eq;
@@ -1821,11 +1991,15 @@ Expr* Parser::DoEqualExpression()
         }
         
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
         
         if (k == Expr::EXPR_same && tstream.GetType() == TOK_not)
         {
             k = Expr::EXPR_notsame;
+            
+            REPL_NeedTwo();            
             tstream.Advance();
         }
         
@@ -1851,7 +2025,6 @@ Expr* Parser::DoCompExpression()
             tstream.GetType() == TOK_gte)
     {
         Expr::Kind k;
-        
         if (tstream.GetType() == '<')
         {
             k = Expr::EXPR_lt;
@@ -1870,7 +2043,10 @@ Expr* Parser::DoCompExpression()
         }
         
         Expr* lhs = expr;
+
+        REPL_NeedTwo();        
         tstream.Advance();
+        
         Expr* rhs = DoShiftExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1890,7 +2066,6 @@ Expr* Parser::DoShiftExpression()
             tstream.GetType() == TOK_ursh)
     {
         Expr::Kind k;
-        
         if (tstream.GetType() == TOK_lsh)
         {
             k = Expr::EXPR_lsh;
@@ -1904,7 +2079,10 @@ Expr* Parser::DoShiftExpression()
             k = Expr::EXPR_ursh;
         }
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoAddExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1921,11 +2099,15 @@ Expr* Parser::DoAddExpression()
     
     while (tstream.GetType() == '+' || tstream.GetType() == '-')
     {
-        Expr::Kind k = (tstream.GetType() == '+') ? Expr::EXPR_add : Expr::EXPR_sub;
+        Expr::Kind k = (tstream.GetType() == '+') 
+                ? Expr::EXPR_add 
+                : Expr::EXPR_sub;
         
         Expr* lhs = expr;
         
+        REPL_NeedTwo();
         tstream.Advance();
+        
         Expr* rhs = DoMulExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -1944,9 +2126,8 @@ Expr* Parser::DoMulExpression()
     
     while (tstream.GetType() == '*' || tstream.GetType() == '/' || tstream.GetType() == TOK_div ||
            tstream.GetType() == TOK_mod || tstream.GetType() == '%')
-    {
-        Expr::Kind k;
-        
+    {        
+        Expr::Kind k;        
         if (tstream.GetType() == '*')
         {
             k = Expr::EXPR_mul;
@@ -1965,7 +2146,10 @@ Expr* Parser::DoMulExpression()
         }
         
         Expr* lhs = expr;
+        
+        REPL_NeedTwo();        
         tstream.Advance();
+        
         Expr* rhs = DoPrefixExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -2007,6 +2191,8 @@ Expr* Parser::DoPrefixExpression()
         
         int line = tstream.GetLineNumber();
         Expr::Kind k = GetPrefixType(lextok);
+        
+        REPL_NeedTwo();
         tstream.Advance();
         Expr* operand = DoPrefixExpression();
         Expr* expr = 0;
@@ -2020,6 +2206,8 @@ Expr* Parser::DoPrefixExpression()
     case TOK_bind:
     {
         int line = tstream.GetLineNumber();
+
+        REPL_NeedTwo();
         tstream.Advance();
         
         Expr* operand = DoPrefixExpression();
@@ -2127,6 +2315,8 @@ Expr* Parser::DoPostfixExpression()
             if (line > expr->line)
                 return expr;
             bool unless = false;
+
+            REPL_NeedTwo();
             if (Optional(TOK_unless))
             {
                 unless = true;
@@ -2136,7 +2326,8 @@ Expr* Parser::DoPostfixExpression()
                 Match(TOK_if);
             }
             Expr* cond  = DoExpression();
-                        
+            
+            REPL_NeedTwo();
             Match(TOK_else);
             
             Expr* other = DoExpression();
@@ -2155,8 +2346,9 @@ Expr* Parser::DoPostfixExpression()
             
             if (line > expr->line)
                 return expr;
-                
+            
             Expr* lhs = expr;
+                        
             tstream.Advance();
             PIKA_NEWNODE(UnaryExpr, expr, (Expr::EXPR_postdecr, lhs));
             expr->line = lhs->line;
@@ -2172,6 +2364,8 @@ Expr* Parser::DoPostfixExpression()
             // Check that the '(' occurs on the same line as the callee
             if (tstream.GetLineNumber() != lhs->line)
                 return expr;
+
+            REPL_NeedTwo();
             Match('(');
             const int call_terms[] = { ')', 0 };
             ExprList* callargs = DoOptionalExpressionList(call_terms);
@@ -2190,10 +2384,12 @@ Expr* Parser::DoPostfixExpression()
         {
             Expr* lhs = expr;
             
+            REPL_NeedTwo();
             Match('[');
             
             Expr* rhs = DoExpression();
-            
+
+            REPL_NeedOne();
             if (tstream.GetType() == ']')
             {
                 int line = tstream.GetLineNumber();
@@ -2206,7 +2402,7 @@ Expr* Parser::DoPostfixExpression()
             else
             {
                 Match(TOK_slice);
-                
+                REPL_NeedOne();
                 Expr* fromexpr = rhs;
                 Expr* toexpr = DoExpression();
                 int line = tstream.GetLineNumber();
@@ -2223,6 +2419,7 @@ Expr* Parser::DoPostfixExpression()
         //
         case '.':
         {
+            REPL_NeedTwo();
             tstream.Advance();
             Expr* lhs = expr;
             Expr* rhs = 0;
@@ -2239,6 +2436,7 @@ Expr* Parser::DoPostfixExpression()
         //
         case TOK_starstar:
         {
+            REPL_NeedTwo();
             tstream.Advance();
             
             Expr* lhs = expr;
@@ -2267,6 +2465,7 @@ Expr* Parser::DoPrimaryExpression()
     case '{':          expr = DoDictionaryExpression(); break;
     case '(':
     {
+        REPL_NeedTwo();
         Match('(');
         expr = DoExpression();
         Expr* pexpr=0;
@@ -2279,16 +2478,18 @@ Expr* Parser::DoPrimaryExpression()
     case '\\': 
     {
         // Lambda Expression
-        // '\\' (arg1, ... ,argN) '->' <expression>
-        // '\\' '->' <expression>
+        // \(arg1, ... ,argN)-> <expression>
+        // \-> <expression>
         
         int line = tstream.GetLineNumber();
         Match('\\');
+        REPL_NeedOne();
         ParamDecl* params = 0;
         
         if (tstream.GetType() != TOK_implies)
             params = DoFunctionParameters(false);
         Match(TOK_implies);
+        REPL_NeedOne();
         
         size_t beg = tstream.curr.begOffset;
         Expr* expr = DoExpression();
@@ -2341,6 +2542,7 @@ Expr* Parser::DoPrimaryExpression()
         if (Optional('('))
         {
             const int call_terms[] = { ')', 0 };
+            REPL_NeedOne();
             callargs = DoOptionalExpressionList(call_terms);
             line = tstream.GetLineNumber();
             Match(')');
@@ -2479,7 +2681,11 @@ ExprList* Parser::DoExpressionList()
             
         el = nxtel;
         
-        if (!Optional(','))
+        if (Optional(','))
+        {
+            REPL_NeedOne();
+        }
+        else
         {
             break;
         }
@@ -2496,36 +2702,38 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool optcomma)
     
     while (!tstream.IsEndOfStream() && IsNotTerm(terms, tstream.GetType()) )
     {
+        REPL_NeedTwo();
         Expr* expr = DoExpression();
+        
         ExprList* nxtel = 0;
         
         PIKA_NEWNODE(ExprList, nxtel, (expr));
         
         if (!firstel)
             firstel = nxtel;
-            
+        
         if (el)
             el->next = nxtel;
-            
+        
         el = nxtel;
         
         if (tstream.GetType() != ',' && IsNotTerm(terms, tstream.GetType()) )
         {
             if (IsTerm(terms, EOF))
                 return firstel;
-            else
+            else {
                 Expected(terms[0]);
+            }
         }
         
         if (tstream.GetType() == ',')
         {
             Match(',');
-            
+            REPL_NeedOne();
             if (IsTerm(terms, tstream.GetType()) && !optcomma)
                 Unexpected(terms[0]);
         }
-    }
-    
+    }    
     return firstel;
 }
 
@@ -2536,20 +2744,17 @@ Expr* Parser::DoFunctionExpression()
     int line = tstream.GetLineNumber();
     size_t beg = tstream.curr.begOffset;
     
+    REPL_NeedTwo(); // need '(' as next token    
     Match(TOK_function);
-    
-    if (tstream.GetType() == TOK_identifier && tstream.GetNextType() == '(' && tstream.GetLineNumber() == tstream.GetPreviousLineNumber())
+
+    REPL_NeedTwo();
+    if (tstream.GetType() == TOK_identifier)
     {
         id = DoIdentifier();
+        REPL_NeedTwo();
     }
-#if defined(PIKA_OPTIONAL_PARAMETERS)    
-    if (tstream.GetType() == '(')
-    {
-        params = DoFunctionParameters();
-    }
-#else
     params = DoFunctionParameters();
-#endif    
+    
     Stmt* body = DoFunctionBody();
     size_t end = tstream.prev.endOffset;
     
@@ -2563,7 +2768,8 @@ Expr* Parser::DoFunctionExpression()
 Expr* Parser::DoArrayExpression()
 {
     Expr* expr = 0;
-    
+
+    REPL_NeedTwo();
     Match('[');
     
     const int arr_terms[] = { ']', 0 };
@@ -2583,6 +2789,7 @@ Expr* Parser::DoDictionaryExpression()
 {
     Expr* expr = 0;
     
+    REPL_NeedTwo();
     Match('{');
     
     FieldList* fields = DoDictionaryExpressionFields();
@@ -2600,7 +2807,8 @@ Expr* Parser::DoDictionaryExpression()
 FieldList* Parser::DoDictionaryExpressionFields()
 {
     FieldList* fields = 0;
-    
+
+    REPL_NeedOne();
     while (tstream.GetType() != '}' && !tstream.IsEndOfStream())
     {
         Expr* name = 0;
@@ -2611,6 +2819,7 @@ FieldList* Parser::DoDictionaryExpressionFields()
             int line = tstream.GetLineNumber();
             size_t beg = tstream.curr.begOffset;
             
+            REPL_NeedTwo();
             Match(TOK_function);
             
             Id* id = DoIdentifier();
@@ -2629,10 +2838,12 @@ FieldList* Parser::DoDictionaryExpressionFields()
             const char* next     = 0;
             bool        getfirst = false;
             
+            REPL_NeedTwo();
             Match(TOK_property);
             
             name = DoFieldName();
             
+            REPL_NeedOne();
             if (tstream.GetType() != TOK_identifier)
             {
                 Unexpected(tstream.GetType());
@@ -2654,16 +2865,20 @@ FieldList* Parser::DoDictionaryExpressionFields()
             }
             
             Match(':');
-            
+
+            REPL_NeedOne();            
             Expr* firstexpr = DoExpression();
             Expr* secondexpr = 0;
             
             DoEndOfStatement();
             
+            REPL_NeedOne();            
             if (tstream.GetType() == TOK_identifier)
             {
                 DoContextualKeyword(next, false);
                 Match(':');
+                
+                REPL_NeedOne();                
                 secondexpr = DoExpression();
                 DoEndOfStatement();
             }
@@ -2689,16 +2904,22 @@ FieldList* Parser::DoDictionaryExpressionFields()
                    DoStringLiteralExpression();
                    
             Match(':');
-            
+            REPL_NeedOne();
             value = DoExpression();
+            REPL_NeedOne();
         }
         
+        REPL_NeedOne();
         if (!DoCommaOrNewline())
         {
             if (tstream.GetType() != '}')
             {
                 Expected('}');
             }
+        }
+        else
+        {
+            REPL_NeedOne();
         }
         
         FieldList* nxt = 0;
@@ -2721,25 +2942,17 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
     ParamDecl* params = 0;
     ParamDecl* currParam = 0;
     bool def_vals = false;
-#if defined(PIKA_OPTIONAL_PARAMETERS)
-    bool close = false; // Are the parameters inclosed inside ()
-    
-    if (tstream.GetPreviousLineNumber() != tstream.GetLineNumber())
-    {
-        close = true;
-        if (!Optional('('))
-            return 0;
-    }
-    else
-    {
-        close = Optional('(');
-    }
-#else
+
     if (close)
+    {        
         Match('(');
+        REPL_NeedOne();
+    }
     else
-        close = Optional('(');
-#endif
+    {
+        if (close = Optional('('))
+            REPL_NeedOne();
+    }
     
     while (tstream.GetType() != ')' && !tstream.IsEndOfStream())
     {
@@ -2750,10 +2963,12 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
         if (tstream.GetType() == TOK_rest)
         {
             Match(TOK_rest);
+            REPL_NeedOne();
             rest_param = true;
         }
         
         id = DoIdentifier();
+        REPL_NeedOne();
         
         if (Optional('='))
         {
@@ -2762,7 +2977,10 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
                 state->SyntaxError(tstream.GetLineNumber(), "rest parameter declaration (...) cannot have a default value");
             }
             def_vals = true;
+            
+            REPL_NeedOne();
             def_expr = DoExpression();
+            REPL_NeedOne();
         }
         
         if (def_vals && !def_expr && !rest_param)
@@ -2796,6 +3014,7 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
             else
             {
                 Match(',');
+                REPL_NeedOne();
             }            
 
         }

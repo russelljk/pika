@@ -96,7 +96,8 @@ CompileState::CompileState(Engine* eng)
         errors(0),
         warnings(0),
         endOfBlock(0),
-        parser(0)
+        parser(0),
+        repl_mode(false)
 {
     trystate.inCatch = false;
     trystate.inTry = false;
@@ -280,6 +281,9 @@ void CompileState::SyntaxError(int line,  const char* format, ...)
     va_end(args);
     fprintf(stderr, "\n");
     fflush(stderr);
+    
+    if (repl_mode)
+        throw Exception(Exception::ERROR_syntax);        
 }
 
 /** Issues a syntax error and raises an exception. This function never returns. */

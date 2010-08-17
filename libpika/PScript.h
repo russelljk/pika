@@ -10,8 +10,9 @@
 #endif
 
 namespace pika {
+//
 // Script
-
+//
 class PIKA_API Script : public Package 
 {
     PIKA_DECL(Script, Package)
@@ -29,7 +30,7 @@ protected:
     Package*        import_value;
     bool            firstRun;
     bool            running;    
-public:    
+public:
     static Script*  CreateWithBuffer(Engine*, String*, String*, Package*);
 public:
     Package*        GetImportResult() { return import_value ? import_value : this; }
@@ -40,7 +41,7 @@ public:
     virtual bool     Run(Array* arguments);
     
     static Script*  Create(Engine* eng, String* name, Package* pkg);
-};
+};// Script
 
 }// pika
 

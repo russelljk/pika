@@ -134,9 +134,10 @@ public:
     };
     
     void ReportRuntimeError(Exception::Kind kind, const char* msg, ...);
-protected:
-    void MakeUnused();
-    
+
+    /** Reset the Context to a used state. Slots are not reset. */
+    void Reset();
+protected:   
     int AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int argdiff, bool nativecall);
     
     AddressStack   addressStack;    //!< Stack of addresses used by the finally statement.

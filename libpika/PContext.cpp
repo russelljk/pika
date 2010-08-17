@@ -317,7 +317,7 @@ Context::Context(Engine* eng, Type* obj_type)
     esp = stack + PIKA_INIT_OPERAND_STACK;
 }
 
-void Context::MakeUnused()
+void Context::Reset()
 {
     ASSERT(esp);
     sp = bsp = stack;
