@@ -51,7 +51,7 @@ protected:
 public:
     virtual ~Object();
     
-    virtual Type* GetType() const { return type; }
+    virtual Type* GetType() const;
     virtual void  SetType(Type*);
     
     virtual void  AddFunction(Function*);

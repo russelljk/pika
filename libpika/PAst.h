@@ -160,11 +160,15 @@ struct CompileState
     bool UpdateLineInfo(int line);
     
     // Error Reporting -----------------------------------------------------------------------------
+
 #if defined(ENABLE_SYNTAX_WARNINGS)
+    /** Issues a syntax warning. Prints the message to stderr. */    
     void SyntaxWarning(WarningLevel level, int line, const char* format, ...);
 #endif
+    
     /** Report a syntax error. Do not use if the error is fatal. Under most circumstances an exception is not raised. 
       * However if the parser is running in REPL mode an exception is thrown because the user can correct its mistake.
+      * @note Do not use if the error is not recoverable unless you manually raise an exception.
       */
     void SyntaxError(int line, const char* format, ...);           
     
@@ -172,7 +176,7 @@ struct CompileState
     void SyntaxException(Exception::Kind k, int line,          const char *msg, ...);
     void SyntaxException(Exception::Kind k, int line, int col, const char *msg, ...); 
     
-    /** Report a summary of errors and warnings. */
+    /** Prints a summary of errors and warnings. */
     void SyntaxErrorSummary();
     
     /** Returns true if syntax errors occurred while parsing and compiling a script. */

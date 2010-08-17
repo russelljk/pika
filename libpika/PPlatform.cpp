@@ -5,6 +5,27 @@
 #include "Pika.h"
 #include "PPlatform.h"
 
+int Pika_StringCompare(const char* a, size_t lena, const char* b, size_t lenb)
+{
+    const char* stra = a;
+    const char* strb = b;
+    int res  = 0;
+    size_t len  = 0;
+    
+    while ((res = StrCmp(stra, strb)) == 0)
+    {
+        len += strlen(stra);
+        
+        if (len == lena)
+            return 0;
+            
+        stra = a + len + 1;
+        strb = b + len + 1;
+        len++;
+    }
+    return res;
+}
+
 int Pika_snprintf(char* buff, size_t count, const char* fmt, ...)
 {
     va_list args;
@@ -14,7 +35,7 @@ int Pika_snprintf(char* buff, size_t count, const char* fmt, ...)
     return res;
 }
 
-size_t Pika_strhash(const char* str)
+size_t Pika_StringHash(const char* str)
 {
     size_t hash = 5381;
     int c;
@@ -26,7 +47,7 @@ size_t Pika_strhash(const char* str)
     return hash;
 }
 
-size_t Pika_strhash(const char* str, size_t len)
+size_t Pika_StringHash(const char* str, size_t len)
 {
     size_t hash = 5381;
     int c;
@@ -84,34 +105,3 @@ const char* Pika_rindex(const char* str, int idx)
     return strrchr(str, idx);
 }
 #endif
-
-/*
-#include <dl.h> 
-
-shl_t shl_load(const char *path, int flags, long address); 
-int shl_findsym( 
-     shl_t *handle, 
-     const char *sym, 
-     short type, 
-     void *value 
-); 
-int shl_definesym( 
-     const char *sym, 
-     short type, 
-     long value, 
-     int flags 
-); 
-int shl_getsymbols( 
-     shl_t handle, 
-     short type, 
-     int flags, 
-     void *(*memory) (), 
-     struct shl_symbol **symbols, 
-); 
-int shl_unload(shl_t handle); 
-int shl_get(int index, struct shl_descriptor **desc); 
-int shl_gethandle(shl_t handle, struct shl_descriptor **desc); 
-int shl_get_r(int index, struct shl_descriptor *desc); 
-int shl_gethandle_r(shl_t handle, struct shl_descriptor *desc);
-*/
-

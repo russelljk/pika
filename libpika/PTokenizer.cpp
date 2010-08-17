@@ -581,8 +581,6 @@ void Tokenizer::GetMoreInput()
         REPLStream* repl = (REPLStream*)script_stream;
         repl->NewLoop("...");
         GetLook();
-        printf("*** Got Look!\n");
-        /*GetNext();*/
     }
 }
 

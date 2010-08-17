@@ -873,7 +873,7 @@ void Engine::InitializeWorld()
         // GCPause /////////////////////////////////////////////////////////////////////////////////
         
         String* GCPause_String = AllocString("GCPause");
-        Type* GCPause_Type = Type::Create(this, GCPause_String, Object_Type, GCPause::onNew, Pkg_World, 0);
+        Type* GCPause_Type = Type::Create(this, GCPause_String, Object_Type, GCPause::onNew, Pkg_World);
         this->Pkg_World->SetSlot(GCPause_String, GCPause_Type);
         
         SlotBinder<GCPause>(this, GCPause_Type, this->Pkg_World)

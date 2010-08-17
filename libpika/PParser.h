@@ -223,20 +223,55 @@ private:
     
     // If another character needs to be present you must call this method. Otherwise the parse could fail in REPL mode.
     
-    void            REPL_NeedOne(); // Need at least 1 token in the stream.
-    void            REPL_NeedTwo();    // Need at least 2 tokens in the stream.
+    void            BufferCurrent(); // Need at least 1 token in the stream.
+    void            BufferNext();    // Need at least 2 tokens in the stream.
     
-    void            Match(int x);       // Match the token x. Works under REPL mode.
-    bool            Optional(int x);    // If token x is the current token Match is called.
+    /** Checks for the desired token. If present the token stream is advanced. If EOI is encountered the input stream is buffered.
+      * Otherwise an exception is thrown via Parser::Expected.
+      */    
+    void Match(int x);
+        
+    /** Checks for the desired token. If present the token stream is advanced
+      * and true is returned. Otherwise false is returned and the token stream
+      * remains untouched.
+      */    
+    bool Optional(int x);
     
     // Error reporting methods. Makes no attempt to Match.
     
-    void            Expected(int x);
-    void            Unexpected(int x);
+    /** Throws an exception because expected token (x) is not encountered.
+      * NOTE: the presence of the token is not actually tested use Parser::Match or
+      * Parser::Optional to do that.
+      */    
+    void Expected(int x);
     
-    void            DoEndOfStatement();
-    bool            DoCommaOrNewline();
-    bool            IsEndOfStatement();
+    /** Throws an exception because an un-expected token (x) is encountered. */    
+    void Unexpected(int x);
+    
+    /** Checks for a valid end of statement token: end, ';', '\n', '}' or EOF.
+      * This is basically where optional semicolons are implemented.
+      *
+      * The token stream is advanced iff the current token is ';'.
+      */    
+    void DoEndOfStatement();
+    
+    /** This method behaves much like DoEndOfStatement, but for commas.
+      * Could be used so that function parameters,arguments or array elements are
+      * seperated by either
+      * newlines or commas
+      * 
+      * ie x = [ 1
+      *          2
+      *          3 ]
+      *
+      * instead of x = [ 1, 2, 3 ]
+      */    
+    bool DoCommaOrNewline();
+    
+    /** Determines if DoEndOfStatement will succeed. The token stream will not be
+      * advanced.
+      */    
+    bool IsEndOfStatement();
     
     bool            DoContextualKeyword(const char* key, bool optional = false);
     StorageKind     DoStorageKind();

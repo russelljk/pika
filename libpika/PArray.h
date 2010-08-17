@@ -18,6 +18,23 @@ namespace pika {
 template class PIKA_API Buffer<Value>;
 #endif
 
+/** A User-defined binary-comparison Functor. */
+struct PIKA_API ValueComp
+{    
+    ValueComp(Context* ctx, Value fn);
+    
+    ValueComp(const ValueComp& rhs);
+    
+    ~ValueComp();
+    
+    ValueComp& operator=(const ValueComp& rhs);
+    
+    bool operator()(const Value& l, const Value& r);
+private:
+    Context*  context;
+    Value comparison_func;  // Comparison Function
+};
+    
 class PIKA_API Array : public Object
 {
     PIKA_DECL(Array, Object)
@@ -38,33 +55,64 @@ public:
     virtual Enumerator* GetEnumerator(String*);
     virtual void        Init(Context*);
     
-    virtual String*  ToString();
+    /** Converts the array into a string, formatted as an array literal. */
+    virtual String* ToString();
     
     INLINE Value& operator[](size_t i) { return elements[i]; }
     INLINE const Value& operator[](size_t i) const { return elements[i]; }
     
-    Array*  Slice(pint_t from, pint_t to);
-    Array*  Map(Value fn);    
-    Array*  Sort(Value fn);    
-    Array*  Filter(Value);    
-    Value   Foldr(const Value&, const Value& fn);
-    Value   Fold(const Value&, const Value& fn);    
-    Array*  Append(Array*);
-    Value&  At(pint_t idx);
-    Array*  TakeWhile(Value fn);
-    Array*  DropWhile(Value fn);
-    Array*  Unshift(Value& v);
-    Value   Shift();
+    /** Returns a subset from this array. */
+    Array* Slice(pint_t from, pint_t to);
     
-    Array*  Push(Value& v);
-    Value   Pop();
+    /** Performs the given function on each element. */
+    Array* Map(Value fn);
     
-    void    SetLength(ssize_t);
+    /** Sort the array with given comparison function. */
+    Array* Sort(Value fn);
     
-    Value   CatRhs(Value& lhs);
-    Value   CatLhs(Value& rhs);
+    /** Returns an array where all the elements are filtered through a function. */
+    Array* Filter(Value);
     
-    Array*  Reverse();
+    /** Fold all the elements of the array from left to right. */
+    Value Fold(const Value&, const Value& fn);    
+    
+    /** Fold all the elements of the array from right to left. */
+    Value Foldr(const Value&, const Value& fn);
+
+    /** Appends an array to the end of this array. */
+    Array* Append(Array*);
+
+    /** Returns the element at the given index. */    
+    Value& At(pint_t idx);
+    
+    Array* TakeWhile(Value fn);
+    Array* DropWhile(Value fn);
+
+    /** Add an element to the front of the array. */
+    Array* Unshift(Value& v);
+
+    /** Removes and returns the first element. */
+    Value Shift();
+    
+    /** Add an element to the back of the array. */
+    Array* Push(Value& v);
+    
+    /** Removes and returns the last element. */
+    Value Pop();
+    
+    /** Set the new length of the array. 
+      * If the new size is larger than the current one the new elements are set to null.
+      */
+    void SetLength(ssize_t);
+    
+    /** Concat with this array on the right hand side or lhs. */    
+    Value CatRhs(Value& lhs);
+    
+    /** Concat with this on the left hand side or rhs. */    
+    Value CatLhs(Value& rhs);
+    
+    /** Reverse the elements in the array. */    
+    Array* Reverse();
     
     bool    Empty() const;
     

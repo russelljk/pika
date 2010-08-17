@@ -33,48 +33,51 @@ struct UserDataInfo;
 //                                       ScopeKind                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Type of scope. */
 enum ScopeKind
 {
-    SCOPE_call,     // function call or operator new
-    SCOPE_with,     // using scope
-    SCOPE_package,  // package or class scope
+    SCOPE_call,     //!< function call or operator new
+    SCOPE_with,     //!< using scope
+    SCOPE_package,  //!< package or class scope
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       ScopeInfo                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Information pertaining to a scope. Used by the Context. */
 struct ScopeInfo
 {
     void DoMark(Collector*);
     
-    LexicalEnv*  env;       // lexical environment (variables reachable outside this scope).
-    Function*    closure;   // Function closure.
-    Package*     package;   // Package (global scope).
-    Value        self;      // Self object.
-    code_t*      pc;        // Instruction pointer.
-    size_t       stackTop;  // Top of the stack.
-    size_t       stackBase; // Base of the stack.
-    u4           argCount;  // Argument count (can vary from the functions parameter count).
-    u4           retCount;  // Expected # of return values  >= 1.
-    u4           numTailCalls; // Number of tail calls performed.
-    bool         newCall;      // Is a new expression call.
-    ScopeKind    kind;         // Type of scope we are (tell us which fields we are concerned with).
+    LexicalEnv*  env;          //!< lexical environment (variables reachable outside this scope).
+    Function*    closure;      //!< Function closure.
+    Package*     package;      //!< Package (global scope).
+    Value        self;         //!< Self object.
+    code_t*      pc;           //!< Instruction pointer.
+    size_t       stackTop;     //!< Top of the stack.
+    size_t       stackBase;    //!< Base of the stack.
+    u4           argCount;     //!< Argument count (can vary from the functions parameter count).
+    u4           retCount;     //!< Expected # of return values  >= 1.
+    u4           numTailCalls; //!< Number of tail calls performed.
+    bool         newCall;      //!< Is a new expression call.
+    ScopeKind    kind;         //!< Type of scope we are (tell us which fields we are concerned with).
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                     ExceptionBlock                                            //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Information pertaining to an Exception block. */
 struct ExceptionBlock
 {
     void DoMark(Collector*);
     
-    Package* package;
-    Value    self;
-    size_t   scope;
-    size_t   catchpc;
-    size_t   sp;
+    Package* package; //!< Current package when entering the block.
+    Value    self;    //!< Self object when entering the block.
+    size_t   scope;   //!< Index to the ScopeStack of the current ScopeInfo.
+    size_t   catchpc; //!< Offset of the catch or finally block
+    size_t   sp;      //!< Stack pointer so that we can cleanup.
 };
 
 PIKA_NODESTRUCTOR(ScopeInfo)
@@ -133,6 +136,11 @@ public:
         ER_exit,     //!< Context should stop executing and exit. Usually when the exception originates inside a root Context and no handler is provided.
     };
     
+    /** Raises a formatted engine exception. If a script is being executed the
+      * line and function are reported, otherwise a generic exception is raised.
+      *
+      * @param msg          [in] printf style message to use in the exception.
+      */    
     void ReportRuntimeError(Exception::Kind kind, const char* msg, ...);
 
     /** Reset the Context to a used state. Slots are not reset. */
@@ -208,15 +216,54 @@ protected:
     
     /* These methods each execute a certain group of opcodes. They are meant to be called from Context::Run (only!)
      * because override methods that are called will be inlined.
+     *
+     * @note 
+     * The operands should be push onto the stack before calling.
      */
     void    OpArithBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpBitBinary  (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpCompBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpArithUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
-    void    OpSuper();    
+    
+    /** Finds the super method of the method currently being executed.
+      * @note Result is returned on the stack.
+      */    
+    void OpSuper();
+    
     bool    DoPropertyGet(int& numcalls, Property* prop);
-    bool    DoPropertySet(int& numcalls, Property* prop);    
+    bool    DoPropertySet(int& numcalls, Property* prop);
+
+    /** Reads a member variable from an object. Calls any operator overrides or properties
+      * as needed. Depending on the object in question, a missing member may
+      * cause an exception.
+      * @note
+      * The top of the stack should look like:
+      * 
+      * [ object   ]
+      * [ property ]< Top
+      * 
+      * If successful the Top 2 items on the stack will be replaced by the result:
+      *
+      * [ result ] < Top
+      */
     void    OpDotGet(int& numcalls, Opcode oc, OpOverride ovr);
+    
+    /** Sets an object's slot.
+      *
+      * @param numcalls [in|out] Reference to the integer that holds the number of inlined calls made.
+      * @param oc       [in]     Current opcode.
+      * @param ovr      [in]     Override relative to oc.
+      * @note 
+      * The top of the stack should look like:
+      * 
+      * [ value    ]
+      * [ object   ]
+      * [ property ]< Top
+      *
+      * If successful the Top 2 items on the stack will be replaced by the result:
+      *
+      * [ result ] < Top
+      */
     void    OpDotSet(int& numcalls, Opcode oc, OpOverride ovr);    
     bool    OpUnpack(u2);    
     bool    OpBind();    
@@ -224,9 +271,12 @@ protected:
     bool    OpIs();    
     bool    OpHas();    
     EErrRes OpException(Exception&);
-        
-    void    Activate();
-    void    Deactivate();
+    
+    /** Make this Context the active one. */        
+    void Activate();
+    
+    /** Remove the current active Context. */    
+    void Deactivate();
 public:
     bool    SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
     bool    SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the right hand side
@@ -313,7 +363,12 @@ public:
     INLINE void PushFalse()          { (sp++)->SetFalse(); }   //!< Push the boolean value <i>false</i> onto the stack.
     
     /** Safely Push a Value onto the stack. Supports all Push overloads.
-      * @see Context::Push
+      * @warning 
+      * If you are holding pointers or references to a position in the stack DO NOT CALL THIS METHOD. 
+      * The reason is if the stack has run out of space realloc must be called. There is no guarantee that the pointer 
+      * returned by realloc will be the same as the before.
+      * @see 
+      * Context::Push
       */
     template<typename T>
     INLINE void SafePush(T t)
@@ -340,6 +395,7 @@ public:
     /** Returns a local variable of the current scope.
       * @param idx  [in] Index of the local variable.
       * @result     Reference to the local variable.
+      * @warning
       */
     INLINE Value& GetLocal(u4 idx) { return *(bsp + idx); }
     
@@ -463,8 +519,8 @@ public:
     I : convert to integer
     i : integer
     
-    O : object
-    o : object
+    O : object subclass
+    o : object subclass
     
     R : convert to real
     r : real
@@ -503,6 +559,15 @@ INLINE T* Context::GetArgT(u2 arg)
 
 bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res);
 
+/** Keeps a value safe from the GC.
+  * Since this is a C++ class the destructor will take care of cleanup when the current scope is exited explicitly or implicity.
+  *
+  * @note This is done by pushing the value onto the stack. 
+  *
+  * @warning If the context is not active during a GC cycle it will <b>not</b> be scanned therefore the value is in danger of being freed. 
+  *
+  * @warning Make sure that pushing an object onto the stack will not disturb any operations currently underway.
+  */
 struct PIKA_API SafeValue
 {
     INLINE SafeValue(Context* ctx, Value val) : context(ctx)

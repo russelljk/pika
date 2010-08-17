@@ -188,7 +188,6 @@ PIKA_FORCE_INLINE void Context::PushCallScope()
         GrowScopeStack();
 }
 
-/** Pushes a with scope. Can be a class or a with statement. */
 void Context::PushWithScope()
 {
     ScopeInfo& currA = *scopesTop;
@@ -1342,9 +1341,6 @@ bool Context::SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res)
     return false;
 }
 
-/** Finds the super method of the method currently being executed.
-  * @note   Result is returned on the stack.
-  */
 void Context::OpSuper()
 {
     Function* prop = closure;
@@ -1375,17 +1371,10 @@ void Context::OpSuper()
     }
 }
 
-/** Make this Context the active one. */
 void Context::Activate()   { engine->ChangeContext(this); }
 
-/** Remove the current active Context. */
 void Context::Deactivate() { engine->ChangeContext(0); }
 
-/** Raises a formatted engine exception. If a script is being executed the
-  * line and function are reported, otherwise a generic exception is raised.
-  *
-  * @param msg          [in] printf style message to use in the exception.
-  */
 void Context::ReportRuntimeError(Exception::Kind kind, const char* msg, ...)
 {
     static const size_t BUFSZ = 1024;
@@ -1426,12 +1415,6 @@ void Context::ReportRuntimeError(Exception::Kind kind, const char* msg, ...)
     }
 }
 
-/** Sets an object's slot.
-  *
-  * @param numcalls         [in|out] Reference to the integer that holds the number of inlined calls made.
-  * @param oc               [in]     Current opcode.
-  * @param ovr              [in]     Override relative to oc.
-  */
 void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
 {
     // [ ...      ]
@@ -1562,11 +1545,6 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
         return;
     }
 }
-
-
-// Reads a member variable from an object. Calls any overrides or properties
-// as needed. Depending on the object in question, a missing member may
-// cause an exception.
 
 void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 {

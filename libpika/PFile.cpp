@@ -8,8 +8,10 @@
 #define PIKA_BUFSIZ 1024
 
 namespace pika {
+namespace  {
 
-static bool Pika_fok(FILE* f)
+
+bool Pika_fok(FILE* f)
 {
     if (ferror(f))
     {
@@ -19,7 +21,6 @@ static bool Pika_fok(FILE* f)
     return true;
 }
 
-/*------------------------------------------------------------------------*/
 /** Reads a line from a file.
   *
   * @param fp        [in]    File pointer
@@ -32,7 +33,7 @@ static bool Pika_fok(FILE* f)
 // TODO: (Pika_fgetln) CR, CR + LF, and LF should be supported as valid eol markers
 // TODO: (Pika_fgetln) We need to check to make sure the buffer size does not exceed the MAX buffer size.
 
-static bool Pika_fgetln(FILE* fp, TStringBuffer& buff)
+bool Pika_fgetln(FILE* fp, TStringBuffer& buff)
 {
     size_t bufsiz = PIKA_BUFSIZ;
     size_t len    = 0;
@@ -75,6 +76,7 @@ static bool Pika_fgetln(FILE* fp, TStringBuffer& buff)
     buff.Resize(len);
 
     return true;
+}
 }
 
 String* File::ReadLine()
@@ -132,8 +134,8 @@ PIKA_IMPL(File)
 File::File(Engine* eng, Type* obj_type)
     : ThisSuper(eng, obj_type),
     filename(0), 
-    handle(0)
-    
+    handle(0),
+    use_paths(true)    
 {}
 
 File::~File()
@@ -157,13 +159,13 @@ bool File::Open(String* name, String* opts)
 {
     if (handle) Close();
     GCPAUSE(engine);
-
-    String* fullpath = engine->GetPathManager()->FindFile(name);
-
+    
+    String* fullpath = use_paths ? engine->GetPathManager()->FindFile(name) : 0;
+    
     if (fullpath)
         name = fullpath;
     
-    if ( (handle = fopen(name->GetBuffer(), opts->GetBuffer())) )
+    if ((handle = fopen(name->GetBuffer(), opts->GetBuffer())))
     {
         filename = name;
         return Pika_fok(handle);
@@ -364,6 +366,15 @@ void File::Rewind()
     }
 }
 
+bool File::GetUsePaths() const
+{
+    return use_paths;
+}
+
+void File::SetUsePaths(bool use)
+{
+    use_paths = use;
+}
 }// pika
 
 static bool File_rename(String* oldname, String* newname)
@@ -402,6 +413,9 @@ void InitFileAPI(Engine* eng)
     
     SlotBinder<File>(eng, File_Type, eng->GetWorld())
     .Method(&File::ToBoolean,   "toBoolean")
+    .PropertyRW("usePaths", 
+            &File::GetUsePaths, "getUsePaths", 
+            &File::SetUsePaths, "setUsePaths")
     .Method(&File::Open,        "open")
     .Method(&File::Close,       "close")
     .Method(&File::IsEof,       "eof?")

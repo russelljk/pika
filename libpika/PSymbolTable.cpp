@@ -42,7 +42,7 @@ SymbolTable::~SymbolTable()
 
 Symbol* SymbolTable::Shadow(const char* name)
 {
-    size_t  i = Pika_strhash(name) & (HASHSIZE - 1);
+    size_t  i = Pika_StringHash(name) & (HASHSIZE - 1);
     Symbol* s = 0;
 
     PIKA_NEW(Symbol, s, (name, this, defaultGlobal, IsWithBlock()));
@@ -58,7 +58,7 @@ Symbol* SymbolTable::Put(const char* name)
     size_t  i = 0;
     Symbol* s = 0;
 
-    i = Pika_strhash(name) & (HASHSIZE - 1);
+    i = Pika_StringHash(name) & (HASHSIZE - 1);
 
     for (s = table[i]; s; s = s->next)
     {
@@ -79,7 +79,7 @@ Symbol* SymbolTable::Get(const char* name)
     size_t  i = 0;
     Symbol* s = 0;
 
-    i = Pika_strhash(name) & (HASHSIZE - 1);
+    i = Pika_StringHash(name) & (HASHSIZE - 1);
 
     for (s = table[i]; s; s = s->next)
     {
@@ -97,7 +97,7 @@ bool SymbolTable::IsDefined(const char* name)
     size_t  i = 0;
     Symbol* s = 0;
 
-    i = Pika_strhash(name) & (HASHSIZE - 1);
+    i = Pika_StringHash(name) & (HASHSIZE - 1);
 
     for (s = table[i]; s; s = s->next)
     {

@@ -40,7 +40,10 @@ public:
     virtual void        Rewind();
     virtual pint_t      SetPos(pint_t);
     virtual pint_t      Advance(pint_t);
-
+    
+    bool GetUsePaths() const;    
+    void SetUsePaths(bool use);
+    
     static File* Create(Engine*, Type*);
 
     void SetFilename(String*);
@@ -48,6 +51,7 @@ public:
 private:
     String* filename;
     FILE*   handle;
+    bool use_paths;
 };
 
 }// pika

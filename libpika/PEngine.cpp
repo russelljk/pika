@@ -427,131 +427,111 @@ void Engine::AddSearchPath(String* path)
 {
     paths->AddPath(path);
 }
-    // Size of REPL buffer. Actual Size is REPL_BUFF_SIZE + 1
-#define REPL_BUFF_SIZE 256
-    
-    bool ReadLine(char* buff, const char* prompt)
+
+void Engine::ReadExecutePrintLoop()
+{
+    Context* context = 0;
+    String* repl_script_name = 0;
+    Script* script = 0;
+    REPLStream stream;
+    Def* entry_def = 0;
+    LiteralPool* literals  = 0;
+    Array* args = 0;
+    {   GCPAUSE_NORUN(this);
+        repl_script_name = this->AllocStringNC("read_execute_print_loop");
+        args = Array::Create(this, Array_Type, 0, 0);
+        this->AddToRoots(args);
+        
+        // Create the Script Object.
+        script = Script::Create(this, repl_script_name, Pkg_World);
+        scripts.Push(script); // Add it to the list.
+        this->AddToRoots(script);
+    }// GCPAUSE_NORUN
+    /*
+        TODO: Tokenizer deletes stream object.
+    */
+    stream.NewLoop();
+    while (!stream.IsEof())
     {
-        Pika_memzero(buff, sizeof(char) * (REPL_BUFF_SIZE + 1));
-        std::cout << prompt;
-        std::cout.flush();
-        return std::cin.getline(buff, REPL_BUFF_SIZE) != NULL;
-    }
-    
-    void Engine::ReadExecutePrintLoop()
-    {
-#if 0
-        const char* std_prompt = "\n>>>";
-        char buff[REPL_BUFF_SIZE+1];
-        while (ReadLine(buff, std_prompt))
-        {
-            std::cout << "length: " << (&buff[0]) << std::endl;            
-        }
-        std::cout << "\nExiting REPL" << std::endl;
-        return;
-#endif        
-        ///////////////////////////////////////////////////////////////////////
-        Context* context = 0;
-        String* repl_script_name = 0;
-        Script* script = 0;
-        REPLStream stream;
-        Def* entry_def = 0;
-        LiteralPool* literals  = 0;
-        Array* args = 0;
-        {   GCPAUSE_NORUN(this);
-            repl_script_name = this->AllocStringNC("read_execute_print_loop");
-            args = Array::Create(this, Array_Type, 0, 0);
-            this->AddToRoots(args);
-            
-            // Create the Script Object.
-            script = Script::Create(this, repl_script_name, Pkg_World);
-            scripts.Push(script); // Add it to the list.
-            this->AddToRoots(script);
-        }// GCPAUSE_NORUN
-        /*
-            TODO: Tokenizer deletes stream object.
-        */
-        stream.NewLoop();
-        while (!stream.IsEof())
-        {
+        try
+        {                
+            std::auto_ptr<CompileState> comp_state(new CompileState(this));   
+            comp_state->repl_mode = true;
+            std::auto_ptr<Parser>       parser  (new Parser(comp_state.get(), &stream));
+            // Try to compile the script.
             try
-            {                
-                std::auto_ptr<CompileState> comp_state(new CompileState(this));   
-                comp_state->repl_mode = true;
-                std::auto_ptr<Parser>       parser  (new Parser(comp_state.get(), &stream));
-                // Try to compile the script.
-                try
+            {
+                Program* tree = parser->DoParse();
+                tree->CalculateResources(0, *comp_state);
+                
+                if (comp_state->HasErrors())
                 {
-                    Program* tree = parser->DoParse();
-                    tree->CalculateResources(0, *comp_state);
-                    
-                    if (comp_state->HasErrors())
-                    {
-                        RaiseException(Exception::ERROR_syntax, "Attempt to compile line failed.\n");
-                    }
-                    
-                    tree->GenerateCode();
-                    
-                    if (comp_state->HasErrors())
-                    {
-                        RaiseException(Exception::ERROR_syntax, "Attempt to compile line failed.\n");
-                    }
-                    
-                    literals = comp_state->literals;
-                    entry_def = tree->def;
-                }
-                catch (Exception&)
-                {
-                    std::cout << "Parser error." << std::endl;
-                    stream.NewLoop();
-                    continue;
+                    RaiseException(Exception::ERROR_syntax, "Attempt to compile line failed.\n");
                 }
                 
-                {   GCPAUSE_NORUN(this);
-                    // Create an initialize a Context for the Script.
-                    // The context will execute the Script's bytecode.
-                     if (!context)
-                     {
-                        context = Context::Create(this, this->Context_Type);
-                        this->AddToRoots(context);
-                    }
-                    else
-                    {
-                        // reset the context instead of creating a new one. 
-                        // We could reuse it with without calling Reset but in case of exception we need to call it.
-                        context->Reset(); 
-                    }
-                    
-                    Value closure = Function::Create(this, 
-                                                     entry_def, // Type's body
-                                                     script);   // Set the Type the package
-                    
-                    script->Initialize(literals, context, closure.val.function);
-                    
-                    // Make sure we don't get GC sweeped the first time around.
-                    gc->ForceToGray(script);
-                }
-                std::cout << "*** Executing Script..." << std::endl;
-                script->Run(args);
-                Context* ctx     = script->GetContext();
-                Value&   res     = ctx->PopTop();                
-                String*  str_res = ToString(ctx, res);
-                if (str_res)
+                tree->GenerateCode();
+                
+                if (comp_state->HasErrors())
                 {
-                    std::cout << str_res->GetBuffer() << std::endl;
+                    RaiseException(Exception::ERROR_syntax, "Attempt to compile line failed.\n");
+                }
+                
+                literals = comp_state->literals;
+                entry_def = tree->def;
+            }
+            catch (Exception& e)
+            {
+                std::cerr << "*** Parser error..." << std::endl;
+                e.Report();
+                stream.NewLoop();
+                continue;
+            }
+            
+            {   GCPAUSE_NORUN(this);
+                // Create an initialize a Context for the Script.
+                // The context will execute the Script's bytecode.
+                 if (!context)
+                 {
+                    context = Context::Create(this, this->Context_Type);
+                    this->AddToRoots(context);
                 }
                 else
                 {
-                    std::cout << "No output.\n";
+                    // reset the context instead of creating a new one. 
+                    // We could reuse it with without calling Reset but in case of exception we need to call it.
+                    context->Reset(); 
                 }
+                
+                Value closure = Function::Create(this, 
+                                                 entry_def, // Type's body
+                                                 script);   // Set the Type the package
+                
+                script->Initialize(literals, context, closure.val.function);
+                
+                // Make sure we don't get GC sweeped the first time around.
+                gc->ForceToGray(script);
             }
-            catch(...)
+            script->Run(args);
+            Context* ctx     = script->GetContext();
+            Value&   res     = ctx->PopTop();                
+            String*  str_res = ToString(ctx, res);
+            if (str_res)
             {
-                std::cout << "Runtime error." << std::endl;
+                std::cout << '(' << str_res->GetBuffer() << ')' << std::endl;
             }
-            stream.NewLoop();
         }
+        catch (Exception& e)
+        {
+            std::cerr << "*** Exception Caught..." << std::endl;
+            e.Report();                
+        }
+        catch(...)
+        {
+            std::cerr << "Unknown Exception Encountered..." << std::endl;
+        }
+        stream.NewLoop();
     }
+}
 
 Script* Engine::Compile(String* name, Context* parent)
 {
@@ -712,14 +692,12 @@ String* Engine::AllocStringFmt(const char* fmt, ...)
     return AllocString(buffer);
 }
 
-String* Engine::PersistentString(const char* str)
+void Engine::PersistentString(String* str)
 {
-    String* s = AllocString(str);
-    s->gcflags |= GCObject::Persistent;
-    return s;
+    gc->MoveToGray(str);
+    str->gcflags |= GCObject::Persistent;
 }
 
-/** Convert a value to boolean. The context may be null. */
 bool Engine::ToBoolean(Context* ctx, const Value& v)
 {
     switch (v.tag)
@@ -888,7 +866,6 @@ void Engine::CallConversionFunction(Context* ctx, String* name, Object* c, Value
     {
         RaiseException(Exception::ERROR_runtime, "conversion operator %s not defined.", name->GetBuffer());
     }
-    
     if (c_type->GetField(key, funop))   // XXX: Get Override
     {
         ctx->Push(Value(c));    // push self
@@ -897,8 +874,7 @@ void Engine::CallConversionFunction(Context* ctx, String* name, Object* c, Value
         if (ctx->SetupCall(0))
         {
             ctx->Run();
-        }
-        
+        }        
         res = ctx->PopTop();
     }
     else

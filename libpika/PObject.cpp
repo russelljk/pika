@@ -82,6 +82,15 @@ void Object::AddProperty(Property* p)
     SetSlot(p->Name(), p, Slot::ATTR_forcewrite); 
 }
 
+Type* Object::GetType() const
+{ 
+    if (!type)
+    {
+        RaiseException(Exception::ERROR_type, "attempt to access type of object failed.\n");
+    }
+    return type;
+}
+
 void Object::SetType(Type* t)
 {
     if (!t)

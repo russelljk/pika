@@ -74,55 +74,50 @@ public:
     size_t curr;
 };
 
-/** A User-defined binary-comparison Functor. */
-struct ValueComp
-{    
-    ValueComp(Context* ctx, Value comp)
-            : context(ctx),
-            comparison_func(comp) {}
-    
-    ValueComp(const ValueComp& rhs)
-            : context(rhs.context), comparison_func(rhs.comparison_func) {}
-    
-    ~ValueComp() {}
-    
-    ValueComp& operator=(const ValueComp& rhs)
+ValueComp::ValueComp(Context* ctx, Value fn)
+    : context(ctx),
+    comparison_func(fn) 
+{}
+
+ValueComp::ValueComp(const ValueComp& rhs)
+    : context(rhs.context), comparison_func(rhs.comparison_func)
+{}
+
+ValueComp::~ValueComp() {}
+
+ValueComp& ValueComp::operator=(const ValueComp& rhs)
+{
+    if (this != &rhs)
     {
-        if (this != &rhs)
-        {
-            context = rhs.context;
-            comparison_func  = rhs.comparison_func;
-        }
-        return *this;
+        context = rhs.context;
+        comparison_func  = rhs.comparison_func;
     }
+    return *this;
+}
+
+bool ValueComp::operator()(const Value& l, const Value& r)
+{
+    Engine* eng = context->GetEngine();
     
-    bool operator()(const Value& l, const Value& r)
+    context->CheckStackSpace(4);    // 2 arguments + self + function = 4
+    context->Push(l);               // Left  operand
+    context->Push(r);               // Right operand
+    context->PushNull();            // Self  object
+    context->Push(comparison_func); // Comp  function
+    
+    if (context->SetupCall(2))
     {
-        Engine* eng = context->GetEngine();
-        
-        context->CheckStackSpace(4);    // 2 arguments + self + function = 4
-        context->Push(l);               // Left  operand
-        context->Push(r);               // Right operand
-        context->PushNull();            // Self  object
-        context->Push(comparison_func); // Comp  function
-        
-        if (context->SetupCall(2))
-        {
-            // call the function
-            context->Run();
-        }
-        // convert the return value to boolean.
-        
-        Value& res   = context->Top();
-        bool   bcomp = eng->ToBoolean(context, res);
-        
-        context->Pop();
-        return bcomp;
+        // call the function
+        context->Run();
     }
+    // convert the return value to boolean.
     
-    Context*  context;
-    Value comparison_func;  // Comparison Function
-};
+    Value& res   = context->Top();
+    bool   bcomp = eng->ToBoolean(context, res);
+    
+    context->Pop();
+    return bcomp;
+}
 
 bool Array::BracketRead(const Value& key, Value& res)
 {
@@ -192,7 +187,6 @@ size_t Array::GetMax()
     return Min<size_t>(PIKA_BUFFER_MAX_LEN, GetMaxSize<Value>());
 }
 
-/** Set the new size of the array. */
 void Array::SetLength(ssize_t slen)
 {
     if (slen < 0)
@@ -213,7 +207,6 @@ void Array::SetLength(ssize_t slen)
         elements[oldlen + i].SetNull();
 }
 
-/** Add an element to the front of the array. */
 Array* Array::Unshift(Value& v)
 {
     if (elements.GetSize() >= GetMax())
@@ -228,7 +221,6 @@ Array* Array::Unshift(Value& v)
     return this;
 }
 
-/** Converts the array into a string, formatted as an array literal. */
 String* Array::ToString()
 {
     GCPAUSE_NORUN(engine);
@@ -276,7 +268,6 @@ String* Array::ToString()
     return curr;
 }
 
-/** Removes and returns the first element. */
 Value Array::Shift()
 {
     size_t len = elements.GetSize();
@@ -301,7 +292,6 @@ Value Array::Shift()
 
 bool Array::Empty() const { return elements.GetSize() == 0; }
 
-/** Add an element to the back of the array. */
 Array* Array::Push(Value& v)
 {
     if (elements.GetSize() >= GetMax())
@@ -313,14 +303,12 @@ Array* Array::Push(Value& v)
     return this;
 }
 
-/** Reverse the elements in the array. */
 Array* Array::Reverse()
 {
     std::reverse(elements.Begin(), elements.End());
     return this;
 }
 
-/** Removes and returns the last element. */
 Value Array::Pop()
 {
     size_t len = elements.GetSize();
@@ -395,7 +383,6 @@ void Array::Init(Context* ctx)
     }
 }
 
-/** Returns a subset from this array. */
 Array* Array::Slice(pint_t from, pint_t to)
 {
     Engine::CollectorPause gcp(engine);
@@ -421,7 +408,6 @@ Array* Array::Slice(pint_t from, pint_t to)
     return res;
 }
 
-/** Performs the given function on each element. */
 Array* Array::Map(Value m)
 {
     Context* ctx = engine->GetActiveContextSafe();
@@ -446,7 +432,6 @@ Array* Array::Map(Value m)
     return this;
 }
 
-/** Sort the array with given comparison function. */
 Array* Array::Sort(Value fn)
 {
     Context* ctx = engine->GetActiveContextSafe();
@@ -465,7 +450,6 @@ Array* Array::Sort(Value fn)
     return this;
 }
 
-/** Returns an array where all the elements are filtered through a function. */
 Array* Array::Filter(Value fn)
 {
     //Engine::CollectorPause pauser(engine);
@@ -557,30 +541,7 @@ Array* Array::DropWhile(Value fn)
     Array* nullv = Array::Create(engine, 0, 0, 0);
     return nullv;
 }
-
-/** Fold all the elements of the array from right to left. */
-Value Array::Foldr(const Value& init, const Value& fn)
-{
-    Context* ctx = engine->GetActiveContextSafe();
-    ctx->Push(init);
-    for (pint_t i = (pint_t)elements.GetSize() - 1; (i >= 0) && (i < (pint_t)elements.GetSize()); --i)
-    {
-        ctx->CheckStackSpace(3);
-        // (init) is on the stack.
-        ctx->Push(elements[i]);
-        ctx->PushNull();
-        ctx->Push(fn);
-        
-        if (ctx->SetupCall(2))
-        {
-            ctx->Run();
-        }
-        // result stays on the stack.
-    }
-    return ctx->PopTop();
-}
-
-/** Fold all the elements of the array from left to right. */
+    
 Value Array::Fold(const Value& init, const Value& fn)
 {
     Context*  ctx = engine->GetActiveContextSafe();
@@ -602,7 +563,27 @@ Value Array::Fold(const Value& init, const Value& fn)
     return ctx->PopTop();
 }
 
-/** Appends an array to the end of this array. */
+Value Array::Foldr(const Value& init, const Value& fn)
+{
+    Context* ctx = engine->GetActiveContextSafe();
+    ctx->Push(init);
+    for (pint_t i = (pint_t)elements.GetSize() - 1; (i >= 0) && (i < (pint_t)elements.GetSize()); --i)
+    {
+        ctx->CheckStackSpace(3);
+        // (init) is on the stack.
+        ctx->Push(elements[i]);
+        ctx->PushNull();
+        ctx->Push(fn);
+        
+        if (ctx->SetupCall(2))
+        {
+            ctx->Run();
+        }
+        // result stays on the stack.
+    }
+    return ctx->PopTop();
+}
+
 Array* Array::Append(Array* other)
 {
     for (size_t i = 0; i < other->elements.GetSize(); ++i)
@@ -613,7 +594,6 @@ Array* Array::Append(Array* other)
     return this;
 }
 
-/** Returns the element at the given index. */
 Value& Array::At(pint_t idx)
 {
     if (idx < 0 || (size_t)idx >= elements.GetSize())
@@ -637,7 +617,6 @@ Array* Array::Cat(Array* lhs, Array* rhs)
     return res;
 }
 
-/** Concat with this on the right-hand-side. */
 Value Array::CatRhs(Value& lhs)
 {
     GCPAUSE_NORUN(engine);
@@ -665,7 +644,6 @@ Value Array::CatRhs(Value& lhs)
     return res;
 }
 
-/** Concat with this on the left-hand-side. */
 Value Array::CatLhs(Value& rhs)
 {
     GCPAUSE_NORUN(engine);

@@ -16,27 +16,6 @@
 
 namespace pika {
 
-INLINE int Pika_StringCompare(const char* a, size_t lena, const char* b, size_t lenb)
-{
-    const char* stra = a;
-    const char* strb = b;
-    int res  = 0;
-    size_t len  = 0;
-    
-    while ((res = StrCmp(stra, strb)) == 0)
-    {
-        len += strlen(stra);
-        
-        if (len == lena)
-            return 0;
-            
-        stra = a + len + 1;
-        strb = b + len + 1;
-        len++;
-    }
-    return res;
-}
-
 //////////////////////////////////////////StringEnumerator//////////////////////////////////////////
 
 class StringEnumerator : public Enumerator
@@ -107,7 +86,7 @@ String::String(Engine* eng, size_t len, const char* s)
         : Basic(eng),
         next(0),
         length(len),
-        hashcode(Pika_strhash(s, len))
+        hashcode(Pika_StringHash(s, len))
 {
     if (length && s)
     {
@@ -128,9 +107,9 @@ String* String::Create(Engine* eng, const char* str, size_t len, bool norun)
     return s;
 }
 
-int String::Compare(const String* s) const
+int String::Compare(const String* rhs) const
 {
-    return Pika_StringCompare(buffer, length, s->buffer, s->length);
+    return Pika_StringCompare(buffer, length, rhs->buffer, rhs->length);
 }
 
 String* String::Slice(size_t from, size_t to)

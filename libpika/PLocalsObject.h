@@ -6,13 +6,12 @@
 #define PIKA_LOCALSOBJECT_HEADER
 
 namespace pika {
-/*  LocalsObject
- *
- *  Provides script access to local variables of a given function and its parents at a given position in its bytecode.
- *
- *  Because of the nature of function closures, outer-variables are accessible only when the 
- *  inner-function uses one or more outer-variables from a parent-function.
- */
+
+/** Provides script access to local variables of a given function and its parents at a given position in its bytecode.
+  *
+  * Because of closure optimization, 'outer' variables are accessible only when the 
+  * 'inner' function uses one or more 'outer' variables from one of its parents.
+  */
 class PIKA_API LocalsObject : public Object 
 {
     PIKA_DECL(LocalsObject, Object)
@@ -37,8 +36,8 @@ public:
     using Basic::GetSlot;
     using Basic::SetSlot;
 #   endif
-
-    virtual void        MarkRefs(Collector* c);
+    
+    virtual void MarkRefs(Collector* c);
     virtual Enumerator* GetEnumerator(String*);
 
     // read or write a local-variable by name.
@@ -49,11 +48,11 @@ public:
 
     static LocalsObject* Create(Engine*, Type*, Function*, LexicalEnv*, ptrdiff_t);    
 private:
-    Table         indices;  // Local variable lookup table.
-    LexicalEnv*   lexEnv;   // Function's lexical environment.
-    Function*     function; // Function whose lexEnv we represent.
-    LocalsObject* parent;   // Parent's locals (Lazily created).
-    ptrdiff_t     pos;      // Bytecode position that locals is valid for.
+    Table         indices;  //!< Local variable lookup table.
+    LexicalEnv*   lexEnv;   //!< Function's lexical environment.
+    Function*     function; //!< Function whose lexEnv we represent.
+    LocalsObject* parent;   //!< Parent's locals (Lazily created).
+    ptrdiff_t     pos;      //!< Bytecode position that locals is valid for.
 };
 
 }// pika

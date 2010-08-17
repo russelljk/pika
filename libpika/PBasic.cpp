@@ -17,11 +17,18 @@ PIKA_IMPL(Basic)
 
 bool Basic::SetSlot(const char* key, Value& value, u4 attr)
 {
-    String* strKey = engine->AllocString(key);
+    String* strKey = engine->AllocStringNC(key);
     Value vkey(strKey);
     return SetSlot(vkey, value, attr);
 }
 
+bool Basic::BracketWrite(const char* key, Value& value, u4 attr)
+{
+    String* strKey = engine->AllocStringNC(key);
+    Value vkey(strKey);
+    return BracketWrite(vkey, value, attr);
+}
+    
 Enumerator* Basic::GetEnumerator(String*)
 {
     return DummyEnumerator::Create(engine);
@@ -39,6 +46,7 @@ void Basic::EnterConstants(Basic* b, NamedConstant* consts, size_t count)
         b->SetSlot(vname, val, Slot::ATTR_protected);
     }
 }
+
 void Basic::AddFunction(Function* f)
 {
     SetSlot(f->GetName(), f);

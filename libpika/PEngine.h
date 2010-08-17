@@ -59,6 +59,15 @@ struct PIKA_API PathManager : GCObject
     virtual void    MarkRefs(Collector* c);
     virtual bool    Finalize();
     virtual void    AddPath(String* str);
+    
+    INLINE size_t GetSize() const { return searchPaths.GetSize(); }
+    
+    INLINE String* At(size_t idx) {
+        if (idx < GetSize())
+            return searchPaths[idx];
+        return 0;
+    }
+    
 private:
     bool IsValidFile(const char*); 
     
@@ -200,19 +209,25 @@ public:
     String* AllocStringNC(const char*, size_t);
     
     String* AllocStringFmt(const char*, ...);
-    String* PersistentString(const char*);
+    
+    /** Make a String persistent. */
+    void PersistentString(String*);
     
     String* GetTypenameOf(Value&);
         
     INLINE String* GetOverrideString(OpOverride ovr) { return override_strings[ovr]; }
     
     void CallConversionFunction(Context* ctx, String* name, Object* c, Value& res);
-    // TODO: explicit conv func for all
-    bool    ToBoolean(Context* ctx, const Value& v);
-    bool    ToInteger(Value& v);
-    bool    ToIntegerExplicit(Context* ctx, Value& v);
-    bool    ToReal(Value& v);
-    bool    ToRealExplicit(Context* ctx, Value& v);
+            
+    /** Convert a value to boolean. If the context is null then only implicit conversions will be performed. */
+    bool ToBoolean(Context* ctx, const Value& v);
+    
+    bool ToInteger(Value& v);
+    bool ToIntegerExplicit(Context* ctx, Value& v);
+    
+    bool ToReal(Value& v);
+    bool ToRealExplicit(Context* ctx, Value& v);
+    
     String* ToString(Context* ctx, const Value& v);
     
     void CreateRoots();
@@ -299,7 +314,7 @@ public:
     Type*           SyntaxError_Type;
     Type*           IndexError_Type;
     Type*           SystemError_Type;  
-
+    
     Type*   Locals_Type;
     Type*   String_Type;
     Type*   Null_Type;
@@ -308,22 +323,22 @@ public:
     Type*   Real_Type;
     Type*   Enumerator_Type;
     Type*   Property_Type;
-
+    
     Type*   GetBaseType(String*);
     void    AddBaseType(String*, Type*);
 private:
-    HookEntry*      hooks[HE_max];
-    PathManager*    paths;
-    String*         override_strings[NUM_OVERRIDES];
-    StringTable*    string_table;
-    Package*        Pkg_World;
-    Package*        Pkg_Imports;
-    Package*        Pkg_Types;
-    Context*        active_context;
-    Debugger*       dbg;
-    Collector*      gc;
-    Buffer<Module*> modules;
-    Buffer<Script*> scripts;
+    HookEntry*      hooks[HE_max];  //!< Debug hooks into the interpreter
+    PathManager*    paths;          //!< Paths used for importing
+    String*         override_strings[NUM_OVERRIDES]; //!<
+    StringTable*    string_table;   //!< String table
+    Package*        Pkg_World;      //!< Parent Package of all Packages
+    Package*        Pkg_Imports;    //!< Package containing base types
+    Package*        Pkg_Types;      //!< Package containing 
+    Context*        active_context; //!< The current active Context
+    Debugger*       dbg;            //!< The Debugger
+    Collector*      gc;             //!< The Garbage Collector
+    Buffer<Module*> modules;        //!< All The Modules imported
+    Buffer<Script*> scripts;        //!< All The Scripts imported
 };
 
 }// pika

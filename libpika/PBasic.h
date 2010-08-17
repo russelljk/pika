@@ -108,6 +108,30 @@ public:
     }
 
     bool SetSlot(const char* key, Value& value, u4 attr = 0);
+    
+    template<typename TK>
+    INLINE bool BracketRead(TK key, Value& result)
+    {
+        Value vkey(key);
+        return BracketRead(vkey, result);
+    }
+    
+    template<typename T>
+    INLINE bool BracketWrite(const char* key, T t, u4 attr = 0)
+    {
+        Value v(t);
+        return BracketWrite(key, v, attr);
+    }
+    
+    template<typename TK, typename TV>
+    INLINE bool BracketWrite(TK key, TV t, u4 attr = 0)
+    {
+        Value vkey(key);
+        Value v(t);
+        return BracketWrite(vkey, v, attr);
+    }
+    
+    bool BracketWrite(const char* key, Value& value, u4 attr = 0);
 protected:
     Engine* engine;
 };
