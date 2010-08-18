@@ -290,6 +290,7 @@ public:
     
     Type*   Basic_Type;
     Type*   Object_Type;
+    Type*       Dictionary_Type;
     Type*       Function_Type;
     Type*           InstanceMethod_Type;
     Type*           ClassMethod_Type;

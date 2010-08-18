@@ -99,6 +99,7 @@ using pika::UserData;
 #include "PUserData.h"
 #include "PClassInfo.h"
 #include "PObject.h"
+#include "PDictionary.h"
 #include "PContext.h"
 #include "PFunction.h"
 #include "PArray.h"

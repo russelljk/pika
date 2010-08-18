@@ -1021,8 +1021,9 @@ void Tokenizer::ReadControl()
     break;
         
     default:
-        if (!IsAscii(look) && look != EOF && look != EOI)
+        if (!IsAscii(look) && look != EOF && look != EOI) {
             state->SyntaxException(Exception::ERROR_syntax, line, col, "Non-ascii character encountered %d.\n", look);
+        }
         tokenType = look;
         GetLook();    
     }

@@ -856,6 +856,7 @@ void Engine::InitializeWorld()
         Pkg_World->SetSlot(Function_String, Function_Type);
         
         InitObjectAPI  (this);
+        Dictionary::StaticInitType(this);
         InitPackageAPI (this);
         InitFunctionAPI(this);
         InitStringAPI  (this);

@@ -511,21 +511,23 @@ void Context::Run()
                 Value  type_val  = PopTop();
                 Value* beg       = GetStackPtr() - elemDepth;
                 Value* end       = GetStackPtr();
-                
+                                
                 if (type_val.IsDerivedFrom(Type::StaticGetClass()))
                 {
                     type_obj = type_val.val.type;
                 }
                 else if (type_val.IsNull())
                 {
-                    type_obj = engine->Object_Type;
+                    type_obj = engine->Dictionary_Type;
                 }
                 else
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
                                        "invalid type value for object literal.");
                 }
-                
+                               
+                bool is_dict = type_obj->IsSubtype(engine->Dictionary_Type);
+
                 type_obj->CreateInstance(vobj);
                 Object* obj = vobj.val.object;
                 
@@ -538,8 +540,11 @@ void Context::Run()
                 {
                     Value* val  = beg;
                     Value* prop = beg + 1;
-                    
-                    if (prop->IsNull())
+                    if (is_dict)
+                    {
+                        obj->BracketWrite(*prop, *val);
+                    }
+                    else if (prop->IsNull())
                     {
                         if (val->IsDerivedFrom(Function::StaticGetClass()))
                         {
