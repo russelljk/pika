@@ -35,6 +35,9 @@ public:
     void     SetIgnore(Package*);
     Package* GetIgnore() { return ignorePkg; }
     
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);  
+        
     struct PIKA_API LineDebugData
     {
         LineDebugData() : line(0), func(0), ctx(0), pc(0) {}

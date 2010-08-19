@@ -3,7 +3,7 @@
  *  See Copyright Notice in PCurses.h
  */
 #include "PCurses.h"
-
+using namespace pika;
 // TODO: Find out what the most common subset of curses is, 
 //       solaris' curses package does not support certain methods + ACS constants.
 
@@ -51,7 +51,7 @@ inline WINDOW* GetWindowFrom(Value& v)
 {
     if (!(v.IsUserData() && v.val.userdata->GetInfo() == &Window_Info))
     {
-        RaiseException("invalid window object");
+        pika::RaiseException("invalid window object");
     }
     WINDOW* win = (WINDOW*)v.val.userdata->GetData();
     return win;

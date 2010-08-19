@@ -109,6 +109,9 @@ public:
       *              function.
       */
     static Value RawGet(Object* obj, Value& key);
+    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);
 protected:
     Type*   type;
     Table   members; // Instance Variables

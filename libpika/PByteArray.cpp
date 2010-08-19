@@ -621,19 +621,17 @@ int ByteArray_nextBytes(Context* ctx, Value& self)
     return 0;
 }
 
-}// pika
-
-void ByteArray_Constructor(Engine* eng, Type* type, Value& res)
+void ByteArray::Constructor(Engine* eng, Type* type, Value& res)
 {
     Object* ba = ByteArray::Create(eng, type, 0, 0);
     res.Set(ba);
 }
 
-void InitBytesAPI(Engine* eng)
+void ByteArray::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     String* ByteArray_String = eng->AllocString("ByteArray");
-    eng->ByteArray_Type = Type::Create(eng, ByteArray_String, eng->Object_Type, ByteArray_Constructor, Pkg_World);
+    eng->ByteArray_Type = Type::Create(eng, ByteArray_String, eng->Object_Type, ByteArray::Constructor, Pkg_World);
     
     SlotBinder<ByteArray>(eng, eng->ByteArray_Type, Pkg_World)
     .Method(&ByteArray::Rewind,          "rewind")
@@ -658,3 +656,5 @@ void InitBytesAPI(Engine* eng)
                 
     Pkg_World->SetSlot(ByteArray_String, eng->ByteArray_Type);
 }
+
+}// pika

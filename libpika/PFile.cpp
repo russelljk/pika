@@ -77,6 +77,7 @@ bool Pika_fgetln(FILE* fp, TStringBuffer& buff)
 
     return true;
 }
+
 }
 
 String* File::ReadLine()
@@ -375,14 +376,15 @@ void File::SetUsePaths(bool use)
 {
     use_paths = use;
 }
-}// pika
 
-static bool File_rename(String* oldname, String* newname)
+namespace {
+
+bool File_rename(String* oldname, String* newname)
 {
     return rename(oldname->GetBuffer(), newname->GetBuffer()) == 0;
 }
 
-static String* TempName(Context* ctx)
+String* TempName(Context* ctx)
 {
     char buffer[L_tmpnam]; // or PIKA_MAX_PATH
 
@@ -394,16 +396,18 @@ static String* TempName(Context* ctx)
     return 0;
 }
 
-static void File_new(Engine* eng, Type* type, Value& obj)
+}// namespace
+
+void File::Constructor(Engine* eng, Type* type, Value& obj)
 {
     File* f = File::Create(eng, type);
     obj.Set(f);
 }
 
-void InitFileAPI(Engine* eng)
+void File::StaticInitType(Engine* eng)
 {
     String* File_String = eng->AllocString("File");
-    Type*   File_Type   = Type::Create(eng, File_String, eng->Object_Type, File_new, eng->GetWorld());
+    Type*   File_Type   = Type::Create(eng, File_String, eng->Object_Type, File::Constructor, eng->GetWorld());
     
     // Create the std file streams
     
@@ -450,3 +454,5 @@ void InitFileAPI(Engine* eng)
     
     eng->GetWorld()->SetSlot(File_String, File_Type);
 }
+
+}// pika

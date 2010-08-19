@@ -15,6 +15,9 @@
 #include "PNativeBind.h"
 #include "PContext_Ops.inl"
 
+namespace pika {
+namespace {
+
 const char* GetContextStateName(Context::EState state)
 {
     switch (state)
@@ -25,12 +28,6 @@ const char* GetContextStateName(Context::EState state)
     case Context::UNUSED:    return "unused";
     default:                 return "uninitialized"; // context's state member is uninitialized garbage.
     }
-}
-
-void Context_NewFn(Engine* eng, Type* obj_type, Value& res)
-{
-    Context* new_ctx = Context::Create(eng, obj_type);
-    res.Set(new_ctx);
 }
 
 int Context_call(Context* ctx, Value& self)
@@ -69,10 +66,18 @@ int Context_Setup(Context* ctx, Value& self)
     return 0;
 }
 
-void InitContextAPI(Engine* eng)
+}//namespace
+
+void Context::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    Context* new_ctx = Context::Create(eng, obj_type);
+    res.Set(new_ctx);
+}
+
+void Context::StaticInitType(Engine* eng)
 {
     String* Context_String = eng->AllocString("Context");
-    eng->Context_Type = Type::Create(eng, Context_String, eng->Object_Type, Context_NewFn, eng->GetWorld());
+    eng->Context_Type = Type::Create(eng, Context_String, eng->Object_Type, Context::Constructor, eng->GetWorld());
     
     static RegisterFunction Context_Methods[] =
     {
@@ -96,9 +101,6 @@ void InitContextAPI(Engine* eng)
     eng->Context_Type->EnterMethods(Context_Methods, countof(Context_Methods));
     eng->GetWorld()->SetSlot(Context_String, eng->Context_Type);
 }
-
-namespace pika
-{
 
 // Enumerates each yielded value for the given Context.
 class ContextEnum : public Enumerator
@@ -2092,11 +2094,11 @@ void Context::DoClosure(Def* fun, Value& retframe, Value* mself)
     else if (mself && (mself->IsDerivedFrom(Type::StaticGetClass()) ||
                        (mself->IsNull() && self.IsDerivedFrom(Type::StaticGetClass()))))
     {
-        f = ClassMethod::Create(engine, closure, fun, package, mself->IsNull() ? self.val.type : mself->val.type);
+        f = ClassMethod::Create(engine, 0, closure, fun, package, mself->IsNull() ? self.val.type : mself->val.type);
     }
     else if (package->IsDerivedFrom(Type::StaticGetClass()))
     {
-        f = InstanceMethod::Create(engine, closure, fun, package, (Type*)package);
+        f = InstanceMethod::Create(engine, 0, closure, fun, package, (Type*)package);
     }
     else
     {

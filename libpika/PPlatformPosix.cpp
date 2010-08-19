@@ -153,7 +153,7 @@ bool Pika_GetFullPath(const char* pathname, char* dest, size_t destlen)
     bool res = false;
     if (realpath(pathname, result))
     {
-        strncpy(dest, result, Min<size_t>(destlen, PIKA_MAX_PATH));
+        strncpy(dest, result, pika::Min<size_t>(destlen, PIKA_MAX_PATH));
         res = true;
     }
     Pika_free(result);

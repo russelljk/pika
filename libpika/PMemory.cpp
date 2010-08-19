@@ -65,7 +65,7 @@ char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout)
         return 0;
     }
     size_t len = strlen(s);
-    Buffer<char> ret;
+    pika::Buffer<char> ret;
     ret.SetCapacity( (len + EXTRA) );
     
     const char* slim = s + lenin;

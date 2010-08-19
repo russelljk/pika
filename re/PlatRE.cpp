@@ -29,7 +29,7 @@ Pika_regex* Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t e
     pcre* re = pcre_compile2(pattern, options, &err, &errdescr, &erroff, 0);
     
     if (!re && errmsg && errlen > 0)
-        strncpy(errmsg, errdescr, Min(errlen, strlen(errdescr)));    
+        strncpy(errmsg, errdescr, pika::Min(errlen, strlen(errdescr)));    
     if (errorcode)
         *errorcode = err;
     return (Pika_regex*)re;
@@ -51,7 +51,7 @@ int Pika_regexec(const Pika_regex* re, const char* subj, size_t const subjlen, P
                           PCRE_NO_UTF8_CHECK,
                           ovector,
                           OVECTOR_SIZE);
-    for (int i = 0; i < Min<int>(nmatch, match); ++i)
+    for (int i = 0; i < pika::Min<int>(nmatch, match); ++i)
     {
         int so = ovector[i * 2];
         int eo = ovector[i * 2 + 1];

@@ -5,14 +5,14 @@
 #include "Pika.h"
 #include "PNativeBind.h"
 #include "PPlatform.h"
+#include "PRandom.h"
+
 #include <cmath>
 #include <cfloat>
 #include <ctime>
 
 /* Uncomment to include "." and ".." when reading directory entries. */
 /* #define PIKA_READDIR_INCLUDE_SPECIAL_ENTRIES */
-
-extern void InitRandomAPI(Package*, Engine* eng);
 
 #define PIKA_PI         ((preal_t) 3.14159265358979323846264338327950288  )
 #define PIKA_E          ((preal_t) 2.71828182845904523536028747135266250  )
@@ -23,7 +23,10 @@ extern void InitRandomAPI(Package*, Engine* eng);
 #define PIKA_SQRT1_2    ((preal_t) 0.707106781186547524400844362104849039 )
 #define PIKA_SQRT2      ((preal_t) 1.41421356237309504880168872420969808  )
 
-static int os_sleep(Context* ctx, Value&)
+namespace pika {
+
+namespace {
+int os_sleep(Context* ctx, Value&)
 {
     if (1 != ctx->GetArgCount())
         ctx->WrongArgCount();
@@ -46,22 +49,22 @@ static int os_sleep(Context* ctx, Value&)
     return 0;
 }
 
-static preal_t os_clock()
+preal_t os_clock()
 {
     return static_cast<preal_t>(clock()) / static_cast<preal_t>(CLOCKS_PER_SEC);
 }
 
-static pint_t os_time()
+pint_t os_time()
 {
     return (pint_t)Pika_Milliseconds();
 }
 
-static pint_t math_round(preal_t r)
+pint_t math_round(preal_t r)
 {
     return ((pint_t)CopySign(Floor(r + (preal_t)0.5), r));
 }
 
-static preal_t math_power(preal_t f, preal_t p)
+preal_t math_power(preal_t f, preal_t p)
 {
     int    sign = (f < 0 ? -1 : 1);
     preal_t absf = (f < 0 ? -f : f);
@@ -76,7 +79,7 @@ static preal_t math_power(preal_t f, preal_t p)
     }
 }
 
-static int math_Abs(Context* ctx, Value&)
+int math_Abs(Context* ctx, Value&)
 {
     ctx->CheckParamCount(1);
     Value& arg0 = ctx->GetArg(0);
@@ -100,24 +103,24 @@ static int math_Abs(Context* ctx, Value&)
     return 0;
 }
 
-static int os_system(Nullable<const char*> str)
+int os_system(Nullable<const char*> str)
 {
     return system(str);
 }
 
 // TODO: math_max should handle >= 2 args and any number type
-static pint_t math_max(pint_t a, pint_t b)
+pint_t math_max(pint_t a, pint_t b)
 {
     return (a >= b) ? a : b;
 }
 
 // TODO: math_min should handle >= 2 args and any number type
-static pint_t math_min(pint_t a, pint_t b)
+pint_t math_min(pint_t a, pint_t b)
 {
     return (a <= b) ? a : b;
 }
 
-static int os_getFullPath(Context* ctx, Value&)
+int os_getFullPath(Context* ctx, Value&)
 {
     Engine* eng  = ctx->GetEngine();
     String* arg0 = ctx->GetStringArg(0);
@@ -136,7 +139,7 @@ static int os_getFullPath(Context* ctx, Value&)
     return 1;
 }
 
-static int os_getCurrentDir(Context* ctx, Value&)
+int os_getCurrentDir(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     char* res = Pika_GetCurrentDirectory();
@@ -153,7 +156,7 @@ static int os_getCurrentDir(Context* ctx, Value&)
     return 1;
 }
 
-static int os_removeFile(Context* ctx, Value&)
+int os_removeFile(Context* ctx, Value&)
 {
     u4      argc = ctx->GetArgCount();
     String* src  = 0;
@@ -173,7 +176,7 @@ static int os_removeFile(Context* ctx, Value&)
     return 1;
 }
 
-static int os_moveFile(Context* ctx, Value&)
+int os_moveFile(Context* ctx, Value&)
 {
     u4      argc    = ctx->GetArgCount();
     String* src     = 0;
@@ -195,7 +198,7 @@ static int os_moveFile(Context* ctx, Value&)
     return 1;
 }
 
-static int os_copyFile(Context* ctx, Value&)
+int os_copyFile(Context* ctx, Value&)
 {
     u4      argc    = ctx->GetArgCount();
     String* src     = 0;
@@ -306,7 +309,7 @@ private:
     const char*     entry;
 };
 
-static int os_readDir(Context* ctx, Value&)
+int os_readDir(Context* ctx, Value&)
 {
     Engine*  eng  = ctx->GetEngine();
     String*  path = ctx->GetStringArg(0);
@@ -316,7 +319,7 @@ static int os_readDir(Context* ctx, Value&)
     return 1;
 }
 
-static int os_fileExtOf(Context* ctx, Value&)
+int os_fileExtOf(Context* ctx, Value&)
 {
     String* path = ctx->GetStringArg(0);
     const char* extension = Pika_rindex(path->GetBuffer(), '.');
@@ -332,7 +335,7 @@ static int os_fileExtOf(Context* ctx, Value&)
     return 1;
 }
 
-static int os_addSearchPath(Context* ctx, Value&)
+int os_addSearchPath(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     for (size_t a = 0; a < ctx->GetArgCount(); ++a)
@@ -344,7 +347,7 @@ static int os_addSearchPath(Context* ctx, Value&)
     return 0;
 }
 
-static String* FindFileName(Engine* eng, String* path)
+String* FindFileName(Engine* eng, String* path)
 {
     const char* fullpath  = path->GetBuffer();
     const char* extension = Pika_rindex(fullpath, '.');
@@ -371,7 +374,7 @@ static String* FindFileName(Engine* eng, String* path)
     return 0;
 }
 
-static int os_fileNameOf(Context* ctx, Value&)
+int os_fileNameOf(Context* ctx, Value&)
 {
     String* path = ctx->GetStringArg(0);
     String* name = FindFileName(ctx->GetEngine(), path);
@@ -392,8 +395,8 @@ static int os_fileNameOf(Context* ctx, Value&)
 #   define ROTN 31
 #endif
 
-#define _lrotl(x, n)        ((((puint_t)(x)) << ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) >> ((pint_t) ((-(n)) & ROTN))))
-#define _lrotr(x, n)        ((((puint_t)(x)) >> ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) << ((pint_t) ((-(n)) & ROTN))))
+#define _lrotl(x, n)    ((((puint_t)(x)) << ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) >> ((pint_t) ((-(n)) & ROTN))))
+#define _lrotr(x, n)    ((((puint_t)(x)) >> ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) << ((pint_t) ((-(n)) & ROTN))))
 
 pint_t Rotl(pint_t x, pint_t n)
 {
@@ -448,7 +451,7 @@ int math_lib_load(Context* ctx, Value&)
     .Constant    ( PIKA_SQRT2,   "SQRT2")
     ;
     
-    InitRandomAPI(math_Package, eng);
+    Random::StaticInitType(math_Package, eng);
     eng->PutImport(math_String, math_Package);
     ctx->Push(math_Package);
     return 1;
@@ -493,23 +496,26 @@ int os_lib_load(Context* ctx, Value&)
     return 1;
 }
 
+}// namespace
+
 void InitSystemLIB(Engine* eng)
 {
     Package* World_Package = eng->GetWorld();
-    
-    { // Setup 'math' package as an import.
-    String* math_String = eng->AllocString("math");
-    static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };
-    Value mathfn(Function::Create(eng, &math_FuncDef, World_Package));
-    eng->PutImport(math_String, mathfn);
-    }
-    
-    { // Setup 'os' package as an import.
-    String*  os_String = eng->AllocString("os");
-    static RegisterFunction os_FuncDef = { "os", os_lib_load, 0, 0, 0 };    
-    Value osfn(Function::Create(eng, &os_FuncDef, World_Package));
-    eng->PutImport(os_String, osfn);
+    { 
+        // Setup 'math' package as an import.
+        String* math_String = eng->AllocString("math");
+        static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };
+        Value mathfn(Function::Create(eng, &math_FuncDef, World_Package));
+        eng->PutImport(math_String, mathfn);
+    }    
+    { 
+        // Setup 'os' package as an import.
+        String*  os_String = eng->AllocString("os");
+        static RegisterFunction os_FuncDef = { "os", os_lib_load, 0, 0, 0 };    
+        Value osfn(Function::Create(eng, &os_FuncDef, World_Package));
+        eng->PutImport(os_String, osfn);
     }
 }
 
+}// pika
 

@@ -11,9 +11,6 @@
 #include "PPackage.h"
 #include "PNativeMethod.h"
 
-extern PIKA_API int HookedFunction_Hook(Context*, Value&);
-extern PIKA_API int HookedFunction_StaticHook(Context*, Value&);
-
 namespace pika {
 
 struct NativeMethodBase;
@@ -67,7 +64,7 @@ public:
         NativeMethodBase* def = MakeMethod(meth);
 
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction_Hook, def->GetArgCount(), false, true, 0);
+            HookedFunction::Hook, def->GetArgCount(), false, true, 0);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
         return bm;
@@ -85,7 +82,7 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeStaticMethod(meth);        
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction_StaticHook, def->GetArgCount(), false, true, 0);
+            HookedFunction::StaticHook, def->GetArgCount(), false, true, 0);
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
     }
@@ -103,7 +100,7 @@ public:
         NativeMethodBase* def = MakeStaticMethodVA(meth);
         
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction_StaticHook, def->GetArgCount(), true, false, 0);
+            HookedFunction::StaticHook, def->GetArgCount(), true, false, 0);
 
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
@@ -123,7 +120,7 @@ public:
         NativeMethodBase* def = MakeFunctionVA(meth);
         
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction_Hook, def->GetArgCount(), true, false, 0);
+            HookedFunction::Hook, def->GetArgCount(), true, false, 0);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
         return bm;
@@ -133,7 +130,7 @@ public:
       * Type checking must be done before the function is called and under most circumstances 
       * you should not directly call this function. 
       *
-      * @see HookedFunction_StaticHook, HookedFunction_Hook
+      * @see HookedFunction::StaticHook, HookedFunction::Hook
       */
     virtual void Invoke(void* obj, Context* ctx);
     
@@ -141,6 +138,9 @@ public:
       * @note Should be 1 or 0 since it binds to a native C/C++ method.
       */
     INLINE int GetRetCount() const { return ndef->retc; }
+    
+    static int StaticHook(Context* ctx, Value& self);
+    static int Hook(Context* ctx, Value& self);    
     
     virtual String* GetDotPath();
     virtual Object* Clone();
@@ -314,7 +314,7 @@ struct SlotBinder
         Def* fn = Def::CreateWith(engine, name,
             code, argc, varargs, strict, 0);
 
-        Function* closure = InstanceMethod::Create(engine, 0, fn, package, (Type*)object);
+        Function* closure = InstanceMethod::Create(engine, 0, 0, fn, package, (Type*)object);
         object->AddFunction(closure);
         return *this;
     }
@@ -332,7 +332,7 @@ struct SlotBinder
         Def* fn = Def::CreateWith(engine, name,
             code, argc, varargs, strict, 0);
 
-        Function* closure = ClassMethod::Create(engine, 0, fn, package, (Type*)object);
+        Function* closure = ClassMethod::Create(engine, 0, 0, fn, package, (Type*)object);
         object->AddFunction(closure);
         return *this;
     }

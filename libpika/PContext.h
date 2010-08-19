@@ -536,6 +536,9 @@ public:
     */    
     void ParseArgs(const char* args, u2 count, ...);
     void ParseArgsInPlace(const char* args, u2 count);
+    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);    
 };
 
 INLINE void Context::CheckStackSpace(const u4 amt)

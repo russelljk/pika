@@ -24,7 +24,7 @@
  *
  */
 #include "Pika.h"
-
+using namespace pika;
 // TODO: Specifiy arguments.
 void Pika_DisplayUsage(const char* name)
 {

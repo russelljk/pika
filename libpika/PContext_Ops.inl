@@ -8,7 +8,7 @@
 
 #ifndef PCONTEXT_OPS_INL
 #define PCONTEXT_OPS_INL
-
+namespace pika {
 #define USE_C_ARITH
 template<typename T> INLINE void add_num(T& a, T& b) { a += b; }
 template<typename T> INLINE void sub_num(T& a, T& b) { a -= b; }
@@ -171,6 +171,8 @@ template<> INLINE bool lte_num<String>(const String& a, const String& b) { retur
 template<> INLINE bool gte_num<String>(const String& a, const String& b) { return a.Compare(&b) >= 0; }
 
 #endif
+
+}// pika
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #endif

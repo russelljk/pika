@@ -5,86 +5,15 @@
 #include "Pika.h"
 #include "PPlatform.h"
 #include "PLocalsObject.h"
-
-
-extern void InitArrayAPI(Engine*);
-extern void InitFunctionAPI(Engine*);
-extern void InitObjectAPI(Engine*);
-extern void InitContextAPI(Engine*);
+#include "PByteArray.h"
+#include "PFile.h"
+namespace pika {
 extern void InitSystemLIB(Engine*);
-extern void InitDebuggerAPI(Engine*);
 extern void Initialize_ImportAPI(Engine*);
-extern void InitFileAPI(Engine*);
-extern void InitBytesAPI(Engine* eng);
-extern void InitPackageAPI(Engine*);
 
-static const char* StaticOpStrings[] =
-{
-    "opAdd",
-    "opSub",
-    "opMul",
-    "opDiv",
-    "opIDiv",
-    "opMod",
-    "opPow",
-    "opEq",
-    "opNe",
-    "opLt",
-    "opGt",
-    "opLte",
-    "opGte",
-    "opBitAnd",
-    "opBitOr",
-    "opBitXor",
-    "",         // xor
-    "opLsh",
-    "opRsh",
-    "opURsh",
-    "opNot",
-    "opBitNot",
-    "opIncr",
-    "opDecr",
-    "opPos",
-    "opNeg",
-    "opCatSp",
-    "opCat",
-    "opBind",
-    "opUnpack",
-    "",         // N/A (tail call)
-    "opCall",
-    "opGet",
-    "opSet",
-    "opGetAt",
-    "opSetAt",
-    "opDel",
-    OPINIT_CSTR,
-    "opAdd_r",
-    "opSub_r",
-    "opMul_r",
-    "opDiv_r",
-    "opIDiv_r",
-    "opMod_r",
-    "opPow_r",
-    "opEq_r",
-    "opNe_r",
-    "opLt_r",
-    "opGt_r",
-    "opLte_r",
-    "opGte_r",
-    "opBitAnd_r",
-    "opBitOr_r",
-    "opBitXor_r",
-    "opLsh_r",
-    "opRsh_r",
-    "opURsh_r",
-    "opCatSp_r",
-    "opCat_r",
-    "opBind_r"
-};
-    
 #define NUMBER2STRING_BUFF_SIZE 64
-    
-String* NumberToString(Engine* eng, const Value& v)
+
+String* Engine::NumberToString(Engine* eng, const Value& v)
 {
     char buff[NUMBER2STRING_BUFF_SIZE + 1];
     buff[0] = buff[NUMBER2STRING_BUFF_SIZE] = '\0';
@@ -107,6 +36,8 @@ String* NumberToString(Engine* eng, const Value& v)
     }
     return eng->AllocString(&buff[0]);
 }
+
+namespace {    
 
 bool IntegerToString(pint_t i, puint_t radix, Buffer<char>& result)
 {
@@ -154,37 +85,37 @@ bool IntegerToString(pint_t i, puint_t radix, Buffer<char>& result)
 
 /////////////////////////////////////////////// Null ///////////////////////////////////////////////
 
-static int Null_toString(Context* ctx, Value& self)
+int Null_toString(Context* ctx, Value& self)
 {
     ctx->Push((ctx->GetEngine()->null_String));
     return 1;
 }
 
-static int Null_toInteger(Context* ctx, Value& self)
+int Null_toInteger(Context* ctx, Value& self)
 {
     ctx->Push((pint_t)0);
     return 1;
 }
 
-static int Null_toReal(Context* ctx, Value& self)
+int Null_toReal(Context* ctx, Value& self)
 {
     ctx->Push((preal_t)0.0);
     return 1;
 }
 
-static int Null_toNumber(Context* ctx, Value& self)
+int Null_toNumber(Context* ctx, Value& self)
 {
     ctx->Push((pint_t)0);
     return 1;
 }
 
-static int Null_toBoolean(Context* ctx, Value& self)
+int Null_toBoolean(Context* ctx, Value& self)
 {
     ctx->PushFalse();
     return 1;
 }
 
-static int Null_init(Context* ctx, Value& self)
+int Null_init(Context* ctx, Value& self)
 {
     ctx->PushNull();
     return 1;
@@ -192,7 +123,7 @@ static int Null_init(Context* ctx, Value& self)
 
 ///////////////////////////////////////////// Integer //////////////////////////////////////////////
 
-static int Integer_init(Context* ctx, Value& self)
+int Integer_init(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
     if (argc == 0)
@@ -212,7 +143,7 @@ static int Integer_init(Context* ctx, Value& self)
 }
 
 // TODO: add radix support.
-static int Integer_toString(Context* ctx, Value& self)
+int Integer_toString(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
     pint_t radix = 10;
@@ -241,31 +172,31 @@ static int Integer_toString(Context* ctx, Value& self)
     return 0;
 }
 
-static int Integer_toInteger(Context* ctx, Value& self)
+int Integer_toInteger(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
 
-static int Integer_toReal(Context* ctx, Value& self)
+int Integer_toReal(Context* ctx, Value& self)
 {
     ctx->Push((preal_t)(self.val.integer));
     return 1;
 }
 
-static int Integer_toNumber(Context* ctx, Value& self)
+int Integer_toNumber(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
 
-static int Integer_toBoolean(Context* ctx, Value& self)
+int Integer_toBoolean(Context* ctx, Value& self)
 {
     ctx->PushBool(self.val.integer != 0);
     return 1;
 }
 
-static int Primitive_getType(Context* ctx, Value& self)
+int Primitive_getType(Context* ctx, Value& self)
 {
     Engine* eng = ctx->GetEngine();
     switch (self.tag)
@@ -290,7 +221,7 @@ static int Primitive_getType(Context* ctx, Value& self)
 
 ////////////////////////////////////////////// Real ////////////////////////////////////////////////
 
-static int Real_init(Context* ctx, Value& self)
+int Real_init(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
     
@@ -310,43 +241,43 @@ static int Real_init(Context* ctx, Value& self)
     return 1;
 }
 
-static int Real_toString(Context* ctx, Value& self)
+int Real_toString(Context* ctx, Value& self)
 {
-    ctx->Push(NumberToString(ctx->GetEngine(), self));
+    ctx->Push(Engine::NumberToString(ctx->GetEngine(), self));
     return 1;
 }
 
-static int Real_toInteger(Context* ctx, Value& self)
+int Real_toInteger(Context* ctx, Value& self)
 {
     ctx->Push((pint_t)(self.val.real));
     return 1;
 }
 
-static int Real_toReal(Context* ctx, Value& self)
+int Real_toReal(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
 
-static int Real_toNumber(Context* ctx, Value& self)
+int Real_toNumber(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
 
-static int Real_toBoolean(Context* ctx, Value& self)
+int Real_toBoolean(Context* ctx, Value& self)
 {
     ctx->PushBool(Pika_RealToBoolean(self.val.real));
     return 1;
 }
 
-static int Real_isnan(Context* ctx, Value& self)
+int Real_isnan(Context* ctx, Value& self)
 {
     ctx->PushBool(Pika_isnan(self.val.real) != 0);
     return 1;
 }
 
-static int Real_integer(Context* ctx, Value& self)
+int Real_integer(Context* ctx, Value& self)
 {
     preal_t r = self.val.real;
     preal_t i = 0.0;
@@ -355,7 +286,7 @@ static int Real_integer(Context* ctx, Value& self)
     return 1;
 }
 
-static int Real_fraction(Context* ctx, Value& self)
+int Real_fraction(Context* ctx, Value& self)
 {
     preal_t r = self.val.real;
     preal_t i = 0.0;
@@ -376,7 +307,7 @@ static int Real_IsIntegral(Context* ctx, Value& self)
 
 //////////////////////////////////////////// Boolean ///////////////////////////////////////////////
 
-static int Boolean_toString(Context* ctx, Value& self)
+int Boolean_toString(Context* ctx, Value& self)
 {
     if (self.val.index)
     {
@@ -389,31 +320,31 @@ static int Boolean_toString(Context* ctx, Value& self)
     return 1;
 }
 
-static int Boolean_toInteger(Context* ctx, Value& self)
+int Boolean_toInteger(Context* ctx, Value& self)
 {
     ctx->Push((pint_t)((self.val.index) ? 1 : 0));
     return 1;
 }
 
-static int Boolean_toReal(Context* ctx, Value& self)
+int Boolean_toReal(Context* ctx, Value& self)
 {
     ctx->Push((preal_t)((self.val.index) ? 1.0 : 0.0));
     return 1;
 }
 
-static int Boolean_toNumber(Context* ctx, Value& self)
+int Boolean_toNumber(Context* ctx, Value& self)
 {
     ctx->Push((pint_t)((self.val.index) ? 1 : 0));
     return 1;
 }
 
-static int Boolean_toBoolean(Context* ctx, Value& self)
+int Boolean_toBoolean(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
 
-static int Boolean_init(Context* ctx, Value& self)
+int Boolean_init(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
     
@@ -437,7 +368,7 @@ static int Boolean_init(Context* ctx, Value& self)
 
 ///////////////////////////////////////////// World ////////////////////////////////////////////////
 
-static int Dummy_Print(Context* ctx, Value& self)
+int Dummy_Print(Context* ctx, Value& self)
 {
     u4 argc = ctx->GetArgCount();
     GCPAUSE(ctx->GetEngine());
@@ -453,7 +384,7 @@ static int Dummy_Print(Context* ctx, Value& self)
     return 0;
 }
 
-static int Dummy_PrintLn(Context* ctx, Value& self)
+int Dummy_PrintLn(Context* ctx, Value& self)
 {
     u4 argc = ctx->GetArgCount();
     
@@ -469,7 +400,7 @@ static int Dummy_PrintLn(Context* ctx, Value& self)
 
 #define PIKA_MAX_POS_ARGS 16
 
-static String* Pika_sprintp(Context* ctx,    // context
+String* Pika_sprintp(Context* ctx,    // context
                             String*  fmt,    // format string
                             u2       argc,   // argument count + 1
                             String*  args[]) // arguments, args[0] is ignored
@@ -540,7 +471,7 @@ static String* Pika_sprintp(Context* ctx,    // context
     return fmt;
 }
 
-static int Dummy_printp(Context* ctx, Value& self)
+int Dummy_printp(Context* ctx, Value& self)
 {
     String* strargs[PIKA_MAX_POS_ARGS];
     String* fmt = ctx->GetStringArg(0);
@@ -563,7 +494,7 @@ static int Dummy_printp(Context* ctx, Value& self)
     return 1;
 }
 
-static int Dummy_sprintp(Context* ctx, Value& self)
+int Dummy_sprintp(Context* ctx, Value& self)
 {
     String* strargs[PIKA_MAX_POS_ARGS];
     String* fmt = ctx->GetStringArg(0);
@@ -586,7 +517,7 @@ static int Dummy_sprintp(Context* ctx, Value& self)
     return 1;
 }
 
-static int Global_range(Context* ctx, Value& self)
+int Global_range(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
     pint_t from = 0;
@@ -618,7 +549,7 @@ static int Global_range(Context* ctx, Value& self)
     return 1;
 }
 
-static int Global_gcRun(Context* ctx, Value&)
+int Global_gcRun(Context* ctx, Value&)
 {
     bool full_run = ctx->ArgToBool(0);
     if (full_run) {
@@ -629,7 +560,7 @@ static int Global_gcRun(Context* ctx, Value&)
     return 0;
 }
 
-static int Global_each(Context* ctx, Value&)
+int Global_each(Context* ctx, Value&)
 {
     pint_t lo = ctx->GetIntArg(0);
     pint_t hi = ctx->GetIntArg(1);
@@ -652,7 +583,7 @@ static int Global_each(Context* ctx, Value&)
     return 0;
 }
 
-static int Error_toString(Context* ctx, Value& self)
+int Error_toString(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
     Value vmsg;
@@ -670,7 +601,7 @@ static int Error_toString(Context* ctx, Value& self)
     return 1;
 }
 
-static int Error_init(Context* ctx, Value& self)
+int Error_init(Context* ctx, Value& self)
 {
     GCPAUSE(ctx->GetEngine());
     
@@ -682,38 +613,14 @@ static int Error_init(Context* ctx, Value& self)
     return 1;
 }
 
-extern int null_Function(Context*, Value&);
 
-static void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
+void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
 {
     Object* obj = Object::StaticNew(eng, obj_type);
     res.Set(obj);
 }
 
-static void Function_NewFn(Engine* eng, Type* obj_type, Value& res)
-{
-    Package* pkg = eng->GetWorld();
-    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
-    Context* ctx = eng->GetActiveContext();
-    if (ctx)
-    {
-        Package* currpkg = ctx->GetPackage();
-        if (currpkg)
-        {
-            pkg = currpkg;
-        }
-    }
-    Object* obj = Function::Create(eng, def, pkg, 0);
-    obj->SetType(obj_type);
-    res.Set(obj);
-}
-
-extern void Object_NewFn(Engine*, Type*, Value&);
-extern void Package_NewFn(Engine*, Type*, Value&);
-extern void TypeObj_NewFn(Engine*, Type*, Value&);
-extern void Array_NewFn(Engine*, Type*, Value&);
-
-namespace pika {
+}// namespace
 
 class GCPause : public Object
 {
@@ -765,7 +672,70 @@ void Engine::InitializeWorld()
     /* !!! DO NOT RE-ARRANGE WITHOUT CHECKING DEPENDENCIES !!! */
     
     { GCPAUSE(this);
-    
+        
+        static const char* StaticOpStrings[] = {
+        "opAdd",
+        "opSub",
+        "opMul",
+        "opDiv",
+        "opIDiv",
+        "opMod",
+        "opPow",
+        "opEq",
+        "opNe",
+        "opLt",
+        "opGt",
+        "opLte",
+        "opGte",
+        "opBitAnd",
+        "opBitOr",
+        "opBitXor",
+        "",         // xor
+        "opLsh",
+        "opRsh",
+        "opURsh",
+        "opNot",
+        "opBitNot",
+        "opIncr",
+        "opDecr",
+        "opPos",
+        "opNeg",
+        "opCatSp",
+        "opCat",
+        "opBind",
+        "opUnpack",
+        "",         // N/A (tail call)
+        "opCall",
+        "opGet",
+        "opSet",
+        "opGetAt",
+        "opSetAt",
+        "opDel",
+        OPINIT_CSTR,
+        "opAdd_r",
+        "opSub_r",
+        "opMul_r",
+        "opDiv_r",
+        "opIDiv_r",
+        "opMod_r",
+        "opPow_r",
+        "opEq_r",
+        "opNe_r",
+        "opLt_r",
+        "opGt_r",
+        "opLte_r",
+        "opGte_r",
+        "opBitAnd_r",
+        "opBitOr_r",
+        "opBitXor_r",
+        "opLsh_r",
+        "opRsh_r",
+        "opURsh_r",
+        "opCatSp_r",
+        "opCat_r",
+        "opBind_r"
+        };
+        
         for (size_t i = 0; i < NUM_OVERRIDES; ++i)
         {
             this->override_strings[i] = AllocString(StaticOpStrings[i]);
@@ -809,11 +779,11 @@ void Engine::InitializeWorld()
         
         String*  Imports_Str = AllocString(IMPORTS_STR);
         String*  Types_Str   = AllocString("baseTypes");
-        Type*    Value_Type  = Type::Create(this, AllocString("T"),   0,            0,             Pkg_World, 0);
-        Basic_Type   = Type::Create(this, AllocString("BasicObj"),  Value_Type,   0,             Pkg_World, 0);
-        Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object_NewFn,  Pkg_World, 0);
-        Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package_NewFn, Pkg_World, 0);
-        Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, TypeObj_NewFn, Pkg_World, 0);
+        T_Type       = Type::Create(this, AllocString("T"),         0,            0,                    Pkg_World, 0);
+        Basic_Type   = Type::Create(this, AllocString("BasicObj"),  T_Type,       0,                    Pkg_World, 0);
+        Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object::Constructor,  Pkg_World, 0);
+        Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package::Constructor, Pkg_World, 0);
+        Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, Type::Constructor,    Pkg_World, 0);
         
         Type* TypeType_Type    = Type::Create(this, AllocString("Type-Type"),     Type_Type, 0, Pkg_World, 0);
         Type* PackageType_Type = Type::Create(this, AllocString("Package-Type"),  Type_Type, 0, Pkg_World, TypeType_Type);
@@ -821,14 +791,14 @@ void Engine::InitializeWorld()
         Type* BasicType_Type   = Type::Create(this, AllocString("BasicObj-Type"), Type_Type, 0, Pkg_World, TypeType_Type);
         Type* ObjectType_Type  = Type::Create(this, AllocString("Object-Type"),   Type_Type, 0, Pkg_World, TypeType_Type);
         
-        Value_Type   ->SetType( ValueType_Type  );
+        T_Type   ->SetType( ValueType_Type  );
         Basic_Type   ->SetType( BasicType_Type  );
         Object_Type  ->SetType( ObjectType_Type  );
         Package_Type ->SetType( PackageType_Type );
         Type_Type    ->SetType( TypeType_Type    );
         TypeType_Type->SetType( TypeType_Type    );
         
-        Array_Type = Type::Create(this, AllocString("Array"), Object_Type, Array_NewFn, Pkg_World);
+        Array_Type = Type::Create(this, AllocString("Array"), Object_Type, Array::Constructor, Pkg_World);
         
         Basic_Type   ->GetSubtypes()->SetType(Array_Type);
         Object_Type  ->GetSubtypes()->SetType(Array_Type);
@@ -839,11 +809,11 @@ void Engine::InitializeWorld()
         Object_Type->GetType()->GetSubtypes()->SetType(Array_Type);
         
         String* Function_String = AllocString("Function");
-        Function_Type       = Type::Create(this, Function_String,               Object_Type,   Function_NewFn, Pkg_World);
-        BoundFunction_Type  = Type::Create(this, AllocString("BoundFunction"),  Function_Type, 0, Pkg_World); // TODO: Add native constructor.
-        InstanceMethod_Type = Type::Create(this, AllocString("InstanceMethod"), Function_Type, 0, Pkg_World); // TODO: Add native constructor.
-        ClassMethod_Type    = Type::Create(this, AllocString("ClassMethod"),    Function_Type, 0, Pkg_World); // TODO: Add native constructor.
-        LocalsObject_Type   = Type::Create(this, AllocString("LocalsObject"),   Object_Type,   0, Pkg_World); // TODO: Add native constructor.
+        Function_Type       = Type::Create(this, Function_String,               Object_Type,   Function::Constructor,       Pkg_World);
+        BoundFunction_Type  = Type::Create(this, AllocString("BoundFunction"),  Function_Type, BoundFunction::Constructor,  Pkg_World);
+        InstanceMethod_Type = Type::Create(this, AllocString("InstanceMethod"), Function_Type, InstanceMethod::Constructor, Pkg_World);
+        ClassMethod_Type    = Type::Create(this, AllocString("ClassMethod"),    Function_Type, ClassMethod::Constructor,    Pkg_World);
+        LocalsObject_Type   = Type::Create(this, AllocString("LocalsObject"),   Object_Type,   LocalsObject::Constructor,   Pkg_World);
         
         NativeFunction_Type = Type::Create(this, AllocString("NativeFunction"), Function_Type, 0, Pkg_World);
         NativeFunction_Type->SetFinal(true);
@@ -855,21 +825,23 @@ void Engine::InitializeWorld()
         
         Pkg_World->SetSlot(Function_String, Function_Type);
         
-        InitObjectAPI  (this);
+        Object::StaticInitType(this);
         Dictionary::StaticInitType(this);
-        InitPackageAPI (this);
-        InitFunctionAPI(this);
-        InitStringAPI  (this);
+        Package::StaticInitType(this);   
+        Module::StaticInitType(this);
+        Script::StaticInitType(this);
+        Function::StaticInitType(this);
+        String::StaticInitType(this);
         
         Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
         Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);
         
-        InitDebuggerAPI(this);
-        InitArrayAPI   (this);
+        Debugger::StaticInitType(this);
+        Array::StaticInitType(this);
         InitSystemLIB  (this);
-        InitContextAPI (this);
-        InitFileAPI    (this);
-        InitBytesAPI   (this);
+        Context::StaticInitType(this);
+        File::StaticInitType(this);
+        ByteArray::StaticInitType(this);
         
         // GCPause /////////////////////////////////////////////////////////////////////////////////
         
@@ -889,7 +861,7 @@ void Engine::InitializeWorld()
             { "type", Primitive_getType, "getType", 0, 0 },
         };
         
-        Value_Type->EnterProperties(Value_Properties, countof(Value_Properties));
+        T_Type->EnterProperties(Value_Properties, countof(Value_Properties));
         this->Pkg_World->SetSlot(this->AllocString("BasicObj"), this->Basic_Type);
         
         // Error ///////////////////////////////////////////////////////////////////////////////////
@@ -975,7 +947,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR,  Null_init, 0, 1, 0 },
         };
         
-        Null_Type = Type::Create(this, AllocString("Null"), Value_Type, 0, Pkg_World);
+        Null_Type = Type::Create(this, AllocString("Null"), T_Type, 0, Pkg_World);
         Null_Type->EnterMethods(Null_Functions, countof(Null_Functions));
         Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));
         Null_Type->SetFinal(true);
@@ -999,7 +971,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR,   Boolean_init,      0, 1, 0 },
         };
         
-        Boolean_Type  = Type::Create(this, AllocString("Boolean"), Value_Type, 0, Pkg_World);
+        Boolean_Type  = Type::Create(this, AllocString("Boolean"), T_Type, 0, Pkg_World);
         Boolean_Type->EnterMethods(Boolean_Functions, countof(Boolean_Functions));
         Boolean_Type->EnterClassMethods(Boolean_ClassMethods, countof(Boolean_ClassMethods));
         Pkg_World->SetSlot("Boolean", Boolean_Type);
@@ -1022,7 +994,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR, Integer_init, 0, 1, 0 },
         };
         
-        Integer_Type  = Type::Create(this, AllocString("Integer"), Value_Type, 0, Pkg_World);
+        Integer_Type  = Type::Create(this, AllocString("Integer"), T_Type, 0, Pkg_World);
         Integer_Type->EnterMethods(Integer_Functions, countof(Integer_Functions));
         Integer_Type->EnterClassMethods(Integer_ClassMethods, countof(Integer_ClassMethods));
         Integer_Type->SetSlot("MAX", (pint_t)PINT_MAX);
@@ -1055,7 +1027,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR,   Real_init,      0, 1, 0 },
         };
         
-        Real_Type  = Type::Create(this, AllocString("Real"), Value_Type, 0, Pkg_World);
+        Real_Type  = Type::Create(this, AllocString("Real"), T_Type, 0, Pkg_World);
         Real_Type->EnterMethods(Real_Functions, countof(Real_Functions));
         Real_Type->EnterClassMethods(Real_ClassMethods, countof(Real_ClassMethods));
         Real_Type->EnterProperties(Real_Properties, countof(Real_Properties));

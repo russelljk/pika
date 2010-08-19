@@ -1018,58 +1018,53 @@ public:
         ctx->Push(self);
         return 1;
     }
+    
+    static void Constructor(Engine* eng, Type* type, Value& res)
+    {
+        res.Set(eng->emptyString);
+    }
 };
 
-}// pika
-
-static RegisterFunction String_Methods[] =
+void String::StaticInitType(Engine* eng)
 {
-    // name, function, argc, strict, varargs
-    { "replaceChar",	StringApi::replaceChar,         2, 0, 1 },
-    { "toInteger",  	StringApi::toInteger,           0, 0, 0 },
-    { "toReal",     	StringApi::toReal,              0, 0, 0 },
-    { "toNumber",       StringApi::toNumber,            0, 0, 0 },
-    { "toLower",        StringApi::toLower,             0, 0, 0 },
-    { "toUpper",        StringApi::toUpper,             0, 0, 0 },
-    { "charAt",         StringApi::charAt,              1, 0, 1 },
-    { "split",          StringApi::split,               1, 0, 0 },
-    { "splitAt",        StringApi::splitAt,             1, 0, 0 },
-    { "byteAt",     	StringApi::byteAt,              1, 0, 0 },
-    { "firstOf",        StringApi::firstOf,             2, 1, 0 },
-    { "firstNotOf",     StringApi::firstNotOf,          2, 1, 0 },
-    { "lastOf",         StringApi::lastOf,              2, 1, 0 },
-    { "lastNotOf",      StringApi::lastNotOf,           2, 1, 0 },
-    { "substring",      StringApi::slice,               2, 0, 1 },
-    { OPSLICE_STR,      StringApi::slice,               2, 0, 1 },
-    { "times",          StringApi::times,               1, 0, 1 },
-    { "opMul",          StringApi::times,               1, 0, 1 },
-    { "toString",       StringApi::toString,            0, 0, 1 },
-    { "reverse",        StringApi::reverse,             0, 0, 1 },
-    { "letter?",        StringApi::is_letter,           0, 0, 1 },  
-    { "letterOrDigit?", StringApi::is_letterOrDigit,    0, 0, 1 },
-    { "digit?",         StringApi::is_digit,            0, 0, 1 },
-    { "ascii?",         StringApi::is_ascii,            0, 0, 1 },
-    { "whitespace?",    StringApi::is_whitespace,       0, 0, 1 },    
-};
-
-static RegisterFunction String_ClassMethods[] =
-{
-    { "cat",        StringApi::concat,      0, 1, 0 },
-    { "catSp",      StringApi::concatSpace, 0, 1, 0 },
-    { "fromByte",   StringApi::fromByte,    1, 0, 1 },
-    { NEW_CSTR,     StringApi::init,        1, 0, 1 },
-};
-
-static void String_newFn(Engine* eng, Type* type, Value& res)
-{
-    res.Set(eng->emptyString);
-}
-
-
-
-void InitStringAPI(Engine* eng)
-{
-    eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, String_newFn, eng->GetWorld());
+    static RegisterFunction String_Methods[] =
+    {
+        // name, function, argc, strict, varargs
+        { "replaceChar",	StringApi::replaceChar,         2, 0, 1 },
+        { "toInteger",  	StringApi::toInteger,           0, 0, 0 },
+        { "toReal",     	StringApi::toReal,              0, 0, 0 },
+        { "toNumber",       StringApi::toNumber,            0, 0, 0 },
+        { "toLower",        StringApi::toLower,             0, 0, 0 },
+        { "toUpper",        StringApi::toUpper,             0, 0, 0 },
+        { "charAt",         StringApi::charAt,              1, 0, 1 },
+        { "split",          StringApi::split,               1, 0, 0 },
+        { "splitAt",        StringApi::splitAt,             1, 0, 0 },
+        { "byteAt",     	StringApi::byteAt,              1, 0, 0 },
+        { "firstOf",        StringApi::firstOf,             2, 1, 0 },
+        { "firstNotOf",     StringApi::firstNotOf,          2, 1, 0 },
+        { "lastOf",         StringApi::lastOf,              2, 1, 0 },
+        { "lastNotOf",      StringApi::lastNotOf,           2, 1, 0 },
+        { "substring",      StringApi::slice,               2, 0, 1 },
+        { OPSLICE_STR,      StringApi::slice,               2, 0, 1 },
+        { "times",          StringApi::times,               1, 0, 1 },
+        { "opMul",          StringApi::times,               1, 0, 1 },
+        { "toString",       StringApi::toString,            0, 0, 1 },
+        { "reverse",        StringApi::reverse,             0, 0, 1 },
+        { "letter?",        StringApi::is_letter,           0, 0, 1 },  
+        { "letterOrDigit?", StringApi::is_letterOrDigit,    0, 0, 1 },
+        { "digit?",         StringApi::is_digit,            0, 0, 1 },
+        { "ascii?",         StringApi::is_ascii,            0, 0, 1 },
+        { "whitespace?",    StringApi::is_whitespace,       0, 0, 1 },    
+    };
+    
+    static RegisterFunction String_ClassMethods[] =
+    {
+        { "cat",        StringApi::concat,      0, 1, 0 },
+        { "catSp",      StringApi::concatSpace, 0, 1, 0 },
+        { "fromByte",   StringApi::fromByte,    1, 0, 1 },
+        { NEW_CSTR,     StringApi::init,        1, 0, 1 },
+    };
+    eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, StringApi::Constructor, eng->GetWorld());
     
     eng->String_Type->SetFinal(true);
     eng->String_Type->SetAbstract(true);    
@@ -1079,3 +1074,5 @@ void InitStringAPI(Engine* eng)
     eng->String_Type->SetSlot("MAX", string_MAX);
     eng->GetWorld()->SetSlot("String", eng->String_Type);
 }
+
+}// pika

@@ -112,20 +112,18 @@ Package* Module::GetImportResult()
     return result ? result : this;
 }
 
-}// pika
-
-static void Module_newFn(Engine* eng, Type* type, Value& res)
+void Module::Constructor(Engine* eng, Type* type, Value& res)
 {
     Module* m = Module::Create(eng, eng->emptyString, eng->emptyString, eng->emptyString, eng->emptyString);
     res.Set(m);
 }
 
-void InitModuleAPI(Engine* eng)
+void Module::StaticInitType(Engine* eng)
 {
     eng->Module_Type = Type::Create(eng,
                                     eng->AllocString("Module"),
                                     eng->Package_Type,
-                                    Module_newFn, eng->GetWorld());
+                                    Module::Constructor, eng->GetWorld());
 }
 
-
+}// pika

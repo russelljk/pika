@@ -75,9 +75,7 @@ String* HookedFunction::GetDotPath()
     return res;
 }
 
-}// pika
-
-int HookedFunction_Hook(Context* ctx, Value& self)
+int HookedFunction::Hook(Context* ctx, Value& self)
 {
     HookedFunction* bm = static_cast<HookedFunction*>(ctx->GetFunction());
     
@@ -94,9 +92,11 @@ int HookedFunction_Hook(Context* ctx, Value& self)
     return bm->GetRetCount();
 }
 
-int HookedFunction_StaticHook(Context* ctx, Value& self)
+int HookedFunction::StaticHook(Context* ctx, Value& self)
 {
     HookedFunction* bm = static_cast<HookedFunction*>(ctx->GetFunction());
     bm->Invoke(0, ctx);
     return bm->GetRetCount();
 }
+
+}// pika

@@ -6,6 +6,9 @@
 
 extern const char* Pika_rindex(const char * str, int idx); // needed by: Pika_ConvertDotName
 
+namespace pika {
+namespace {
+
 String* Pika_ConvertDotName(Engine* eng, String* path)
 {
     const char* fullpath  = path->GetBuffer();
@@ -63,7 +66,7 @@ String* Pika_ConvertDotName(Engine* eng, String* path)
 }
 
 /** Constructs a system dependent Module name. */
-static String* Pika_ConstructModuleName(Engine* eng, String* name)
+String* Pika_ConstructModuleName(Engine* eng, String* name)
 {
     String* shared_prefix = eng->AllocString(PIKA_LIB_PREFIX);
     String* shared_ext    = eng->AllocString(PIKA_LIB_EXT);
@@ -73,7 +76,7 @@ static String* Pika_ConstructModuleName(Engine* eng, String* name)
 }
 
 /** Constructs the symbol name of a Module's entry point. */
-static String* Pika_ConstructModuleFnName(Engine* eng, String* name, const char* libPrefix)
+String* Pika_ConstructModuleFnName(Engine* eng, String* name, const char* libPrefix)
 {
     String* prefix = eng->AllocString(libPrefix);
     String* res    = String::Concat(prefix, name);
@@ -82,7 +85,7 @@ static String* Pika_ConstructModuleFnName(Engine* eng, String* name, const char*
 
 /** Loads a native module from disk. 
   * No check is made to ensure that the module was already loaded. */
-static Module* Pika_importModule(Context* ctx, String* name)
+Module* Pika_importModule(Context* ctx, String* name)
 {
     Engine* eng = ctx->GetEngine();
     GCPAUSE_NORUN(eng);
@@ -109,7 +112,7 @@ static Module* Pika_importModule(Context* ctx, String* name)
 
 /** Loads a script from disk.
   * No check is made to ensure that the script was already loaded. */
-static Package* Pika_importScript(Context* ctx, String* name)
+Package* Pika_importScript(Context* ctx, String* name)
 {
     Engine* engine = ctx->GetEngine();
     Script* script = 0;
@@ -128,7 +131,7 @@ static Package* Pika_importScript(Context* ctx, String* name)
     return 0;
 }
 
-namespace pika {
+}// namespace
 
 // ModuleImportHook ////////////////////////////////////////////////////////////////////////////////
 
@@ -192,8 +195,6 @@ struct ScriptImportHook : IHook
     
     virtual void Release(HookEvent) { Pika_delete(this); }
 };
-
-}// pika
 
 void Initialize_ImportAPI(Engine* eng)
 {
@@ -290,3 +291,5 @@ int Global_import(Context* ctx, Value& self)
     }
     return argc;
 }
+
+}// pika

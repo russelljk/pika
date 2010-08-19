@@ -8,10 +8,26 @@
 #include "PParser.h"
 #include "PStringTable.h"
 
+namespace pika {
+namespace  {
+
+bool FileHasExt(const char* filename, const char* filext)
+{
+    if (!filename)
+        return false;
+        
+    const char* ext = Pika_rindex(filename, '.');
+    
+    if (!ext)
+        return false;
+        
+    return Pika_strcasecmp(ext, filext) == 0;
+}
+
+}
+
 typedef Buffer<Module*>::Iterator ModuleIterator;
 typedef Buffer<Script*>::Iterator ScriptIterator;
-
-extern String* NumberToString(Engine* eng, const Value& v);
 
 String* FindPackageName(Engine* eng, String* path)
 {
@@ -36,21 +52,6 @@ String* FindPackageName(Engine* eng, String* path)
     }
     return 0;
 }
-
-bool FileHasExt(const char* filename, const char* filext)
-{
-    if (!filename)
-        return false;
-        
-    const char* ext = Pika_rindex(filename, '.');
-    
-    if (!ext)
-        return false;
-        
-    return Pika_strcasecmp(ext, filext) == 0;
-}
-
-namespace pika {
 
 bool EndsWithSeperator(const char* str, size_t len)
 {
@@ -229,11 +230,11 @@ Engine::Engine()
         toInteger_String(0), toReal_String(0), toBoolean_String(0), values_String(0), elements_String(0), keys_String(0),
         indices_String(0), Enumerator_String(0), Property_String(0), userdata_String(0), Array_String(0), true_String(0),
         false_String(0), message_String(0), dot_String(0), missing_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
-        Basic_Type(0), Object_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
+        T_Type(0), Basic_Type(0), Object_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
         NativeMethod_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
         LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
         ArithmeticError_Type(0), OverflowError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
-        Locals_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0), Enumerator_Type(0), Property_Type(0),
+        String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0), Enumerator_Type(0), Property_Type(0), null_Function(0),
         paths(0),
         string_table(0),
         Pkg_World(0), Pkg_Imports(0), Pkg_Types(0),
@@ -905,6 +906,7 @@ void Engine::CreateRoots()
     AddToRoots(Pkg_Types);
     AddToRoots(ByteArray_Type);
     AddToRoots(LocalsObject_Type);
+    AddToRoots(T_Type);
     AddToRoots(Basic_Type);
     AddToRoots(Object_Type);
     AddToRoots(Dictionary_Type);
@@ -914,7 +916,7 @@ void Engine::CreateRoots()
     AddToRoots(Package_Type);
     AddToRoots(Module_Type);
     AddToRoots(Script_Type);
-    AddToRoots(Locals_Type);
+
     AddToRoots(BoundFunction_Type);
     AddToRoots(InstanceMethod_Type);
     AddToRoots(ClassMethod_Type);
@@ -965,6 +967,7 @@ void Engine::CreateRoots()
     AddToRoots(true_String);
     AddToRoots(false_String);
     AddToRoots(message_String);
+    AddToRoots(null_Function);
     
     for (size_t i = 0 ; i < NUM_OVERRIDES ; ++i)
     {

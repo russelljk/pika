@@ -54,21 +54,7 @@ class Engine;
 class StringTable;
 class Table;
 }// pika
-using pika::Array;
-using pika::Basic;
-using pika::ClassInfo;
 
-using pika::Context;
-using pika::Debugger;
-using pika::Enumerator;
-using pika::Def;
-using pika::LiteralPool;
-using pika::Object;
-using pika::Package;
-using pika::Property;
-using pika::String;
-using pika::Type;
-using pika::UserData;
 
 ////////////////////////////// Dependencies ////////////////////////////////////
 

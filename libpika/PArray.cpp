@@ -711,15 +711,13 @@ void Array::SetBack(const Value& v)
     elements.Back() = v;
 }
 
-}// pika
-
-void Array_NewFn(Engine* eng, Type* obj_type, Value& res)
+void Array::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     Object* obj = Array::Create(eng, obj_type, 0, 0);
     res.Set(obj);
 }
 
-void InitArrayAPI(Engine* eng)
+void Array::StaticInitType(Engine* eng)
 {   
     pint_t Array_MAX = Array::GetMax();
     
@@ -761,3 +759,5 @@ void InitArrayAPI(Engine* eng)
     ;
     eng->GetWorld()->SetSlot(eng->Array_String, eng->Array_Type);
 }
+
+}// pika

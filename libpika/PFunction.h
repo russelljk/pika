@@ -132,6 +132,9 @@ public:
       */
     virtual String* GetDotPath();
     
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);
+    
     Defaults*    defaults;    //!< Default values for specified arguments. May be NULL.
     LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
     Def*         def;         //!< Function definition, may be shared with other functions.
@@ -145,7 +148,7 @@ class PIKA_API InstanceMethod : public Function
     PIKA_DECL(InstanceMethod, Function)
 protected:
     InstanceMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
-    InstanceMethod(Engine*, Function*, Type*);
+    InstanceMethod(Engine*, Type*, Function*, Type*);
 public:    
     virtual ~InstanceMethod();
     
@@ -154,8 +157,9 @@ public:
     virtual void    MarkRefs(Collector*);
     virtual String* GetDotPath();
     
-    static InstanceMethod* Create(Engine*, Function*, Type*);
-    static InstanceMethod* Create(Engine*, Function*, Def*, Package*, Type*);
+    static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);
+    static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type);
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);    
 protected:
     Type* classtype; //!< The type we belong to and whose instances may call us.
 };
@@ -166,7 +170,7 @@ class PIKA_API ClassMethod : public Function
     PIKA_DECL(ClassMethod, Function)
 protected:
     ClassMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
-    ClassMethod(Engine*, Function*, Type*);
+    ClassMethod(Engine*, Type*, Function*, Type*);
 public:
     virtual ~ClassMethod();
     
@@ -177,8 +181,9 @@ public:
     
     virtual String* GetDotPath();
     
-    static ClassMethod* Create(Engine*, Function*, Type*);    
-    static ClassMethod* Create(Engine*, Function*, Def*, Package*, Type*);
+    static ClassMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);    
+    static ClassMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type);
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
 protected:
     Type* classtype; //!< The type we belong to and the self object we are bound to.
 };
@@ -192,13 +197,14 @@ protected:
 public:    
     virtual ~BoundFunction();
     
-    static BoundFunction* Create(Engine*, Function*, Value&);
-    
     virtual Function* GetBoundFunction() const { return closure;}
     virtual Value     GetBoundSelf()     const { return self; }
     
     virtual void BeginCall(Context*);
     virtual void MarkRefs(Collector*);
+    
+    static BoundFunction* Create(Engine*, Type*, Function*, Value&);
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
 protected:
     Function*   closure; //!< The bound function.
     Value       self;    //!< The bound <code>self</code> object.

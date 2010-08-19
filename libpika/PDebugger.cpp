@@ -186,23 +186,21 @@ void Debugger::LineDebugData::Reset()
     func = 0;
     ctx  = 0;
 }
-    
-}// pika
 
-static void Debugger_newFn(Engine* eng, Type* type, Value& res)
+void Debugger::Constructor(Engine* eng, Type* type, Value& res)
 {
     Debugger* dbg=0;
     GCNEW(eng, Debugger, dbg, (eng, type));
     res.Set(dbg);
 }
 
-void InitDebuggerAPI(Engine* eng)
+void Debugger::StaticInitType(Engine* eng)
 {
     Package*  world = eng->GetWorld();
     String*   Debugger_str = eng->AllocString("Debugger");
     String*   dbg_str = eng->AllocString("dbg");
     Debugger* dbg = 0;
-    Type*     dbg_type = Type::Create(eng, Debugger_str, eng->Object_Type, Debugger_newFn, world);
+    Type*     dbg_type = Type::Create(eng, Debugger_str, eng->Object_Type, Debugger::Constructor, world);
     
     dbg_type->SetAbstract(true);
     dbg_type->SetFinal(true);
@@ -222,3 +220,5 @@ void InitDebuggerAPI(Engine* eng)
     
     world->SetSlot(dbg_str, dbg);
 }
+
+}// pika

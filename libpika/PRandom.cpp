@@ -42,6 +42,8 @@
 
     http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
 */
+
+#include "Pika.h"
 #include "PRandom.h"
 
 namespace pika {
@@ -265,18 +267,16 @@ String* Random::ToString()
     return ThisSuper::ToString();
 }
 
-}// pika
-
-static void Random_NewFn(Engine* eng, Type* obj_type, Value& res)
+void Random::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     Random* ra = Random::Create(eng, obj_type);
     res.Set(ra);
 }
 
-void InitRandomAPI(Package* module, Engine* eng)
+void Random::StaticInitType(Package* module, Engine* eng)
 {
     String* Random_String = eng->AllocString("Random");
-    Type*   Random_Type  = Type::Create(eng, Random_String, eng->Object_Type, Random_NewFn, module);
+    Type*   Random_Type  = Type::Create(eng, Random_String, eng->Object_Type, Random::Constructor, module);
     
     module->SetSlot(Random_String, Random_Type, Slot::ATTR_protected);
     
@@ -298,3 +298,5 @@ void InitRandomAPI(Package* module, Engine* eng)
     Object* obj = Random::Create(eng, Random_Type);
     module->SetSlot(eng->AllocString("random"), obj, Slot::ATTR_protected);
 }
+
+}// pika

@@ -207,7 +207,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
             Def* def = Def::CreateWith(engine, getname, propdef->getter,
                                        0, false, true, 0);
                                        
-            getter = InstanceMethod::Create(engine, 0, def, pkg, this);
+            getter = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
             
             // Add the getter function if a name was provided.
             if (propdef->getterName)
@@ -227,7 +227,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
             Def* def = Def::CreateWith(engine, setname, propdef->setter,
                                        1, false, true, 0);
                                        
-            setter = InstanceMethod::Create(engine, 0, def, pkg, this);
+            setter = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
             
             // Add the setter function if a name was provided.
             if (propdef->setterName)
@@ -275,7 +275,7 @@ void Type::EnterMethods(RegisterFunction* fns, size_t count, Package* pkg)
                                    fns[i].argc, fns[i].varargs,
                                    fns[i].strict, 0);
                                    
-        Function* closure = InstanceMethod::Create(engine, 0, def, pkg, this);
+        Function* closure = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
         AddFunction(closure);
     }
 }
@@ -291,7 +291,7 @@ void Type::EnterClassMethods(RegisterFunction* fns, size_t count, Package* pkg)
                                    fns[i].argc, fns[i].varargs,
                                    fns[i].strict, 0);
                                    
-        Function* closure = ClassMethod::Create(engine, 0, def, pkg, this);
+        Function* closure = ClassMethod::Create(engine, 0, 0, def, pkg, this);
         AddFunction(closure);
     }
 }
@@ -373,7 +373,7 @@ void Type::AddMethod(Function* f)
     else
     {
         // Script functions are OK since properties are dynamically bound.
-        Function* im = InstanceMethod::Create(engine, f, this);
+        Function* im = InstanceMethod::Create(engine, 0, f, this);
         AddFunction(im);
     }
 }
@@ -389,7 +389,7 @@ void Type::AddClassMethod(Function* f)
     else
     {
         // Script functions are OK since properties are dynamically bound.
-        Function* im = ClassMethod::Create(engine, f, this);
+        Function* im = ClassMethod::Create(engine, 0, f, this);
         AddFunction(im);
     }
 }
@@ -441,9 +441,7 @@ Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Pac
     return type;
 }
 
-}// pika
-
-static int Type_alloc(Context* ctx, Value& self)
+int Type_alloc(Context* ctx, Value& self)
 {
     Engine* engine = ctx->GetEngine();
     u2      argc   = ctx->GetArgCount();
@@ -469,7 +467,7 @@ static int Type_alloc(Context* ctx, Value& self)
     return 1;
 }
 
-static int Type_create(Context* ctx, Value& self)
+int Type_create(Context* ctx, Value& self)
 {
     Engine*  eng  = ctx->GetEngine();
     String*  name = ctx->GetStringArg(0);
@@ -482,12 +480,6 @@ static int Type_create(Context* ctx, Value& self)
     return 1;
 }
 
-void TypeObj_NewFn(Engine* eng, Type* obj_type, Value& res)
-{
-    Object* obj = Type::Create(eng, eng->AllocString(""), 0, TypeObj_NewFn, obj_type->GetLocation(), obj_type);
-    res.Set(obj);
-}
-
 /* Type.createWith 
  * Creates a new Type object with the given class body, name, base Type and located in the given package.
  * @param body  class body script
@@ -495,7 +487,7 @@ void TypeObj_NewFn(Engine* eng, Type* obj_type, Value& res)
  * @param base  base class [default Object]
  * @param pkg   parent package  [default world]
  */
-static int Type_createWith(Context* ctx, Value& self)
+int Type_createWith(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();    
     String* body = 0;
@@ -522,7 +514,13 @@ static int Type_createWith(Context* ctx, Value& self)
     return 0;
 }
 
-void InitTypeAPI(Engine* eng)
+void Type::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    Object* obj = Type::Create(eng, eng->AllocString(""), 0, Type::Constructor, obj_type->GetLocation(), obj_type);
+    res.Set(obj);
+}
+
+void Type::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     SlotBinder<Type>(eng, eng->Type_Type)
@@ -550,3 +548,5 @@ void InitTypeAPI(Engine* eng)
     eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));
     Pkg_World->SetSlot("Type", eng->Type_Type);
 }
+
+}// pika

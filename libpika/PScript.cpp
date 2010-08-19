@@ -189,16 +189,16 @@ void Script::SetImportResult(Package* impres)
         import_value = impres;
     }
 }
-    
-}// pika
 
-static void Script_newFn(Engine* eng, Type* type, Value& res)
+void Script::Constructor(Engine* eng, Type* type, Value& res)
 {
     Script* s = Script::Create(eng, eng->emptyString, eng->GetWorld());
     res.Set(s);
 }
 
-static int Script_run(Context* ctx, Value& self)
+namespace {
+
+int Script_run(Context* ctx, Value& self)
 {
     Script* s = (Script*)self.val.object;
     Array* args = 0;
@@ -216,12 +216,14 @@ static int Script_run(Context* ctx, Value& self)
     return 1;
 }
 
-void InitScriptAPI(Engine* eng)
+}// namespace
+
+void Script::StaticInitType(Engine* eng)
 {
     eng->Script_Type = Type::Create(eng,
                                     eng->AllocString("Script"),
                                     eng->Package_Type,
-                                    Script_newFn, eng->GetWorld());
+                                    Script::Constructor, eng->GetWorld());
     SlotBinder<Script>(eng, eng->Script_Type, eng->GetWorld())
     .Method(&Script::SetImportResult, "export")
     ;
@@ -241,3 +243,5 @@ void InitScriptAPI(Engine* eng)
     
     eng->GetWorld()->SetSlot("Script", eng->Script_Type);
 }
+
+}// pika

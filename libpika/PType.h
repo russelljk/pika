@@ -143,6 +143,9 @@ public:
     void AddClassMethod(Function*);
     
     Type_NewFn  GetNewFn() const { return newfn; }
+
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);
 protected:
     /** Adds a subtype. Called by derived types when they are created. */
     void AddSubtype(Type*);

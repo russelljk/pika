@@ -47,6 +47,7 @@ public:
     virtual LocalsObject* GetParent();
 
     static LocalsObject* Create(Engine*, Type*, Function*, LexicalEnv*, ptrdiff_t);    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);    
 private:
     Table         indices;  //!< Local variable lookup table.
     LexicalEnv*   lexEnv;   //!< Function's lexical environment.

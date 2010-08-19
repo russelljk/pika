@@ -104,6 +104,7 @@ public:
     /** Determines if the String has embedded '\0' characters. */
     INLINE bool HasNulls() const { return strlen(buffer) != length; }
     
+    static void StaticInitType(Engine* eng);    
 protected:
     String*      next;      //!< Next String in the StringTable. <b>Do Not Modify</b>.
     size_t const length;    //!< Length of the String including all null characters except the terminating null.
@@ -112,7 +113,5 @@ protected:
 };
 
 }// pika
-
-void InitStringAPI(Engine*);
 
 #endif

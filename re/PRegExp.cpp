@@ -346,6 +346,13 @@ public:
         }
         return engine->emptyString;
     }
+
+    static void Constructor(Engine* eng, Type* obj_type, Value& res)
+    {
+        RegExp* re = RegExp::StaticNew(eng, obj_type, 0);
+        res.Set(re);
+    }
+
     Pika_regex* pattern;
 };
 
@@ -353,21 +360,17 @@ PIKA_IMPL(RegExp)
 
 }// pika
 
-void RegExp_NewFn(Engine* eng, Type* obj_type, Value& res)
-{
-    RegExp* re = RegExp::StaticNew(eng, obj_type, 0);
-    res.Set(re);
-}
+using pika::RegExp;
 
 PIKA_MODULE(RegExp, eng, re)
 {
-    GCPAUSE(eng);
+    pika::GCPAUSE(eng);
     //////////////////
-    Package* Pkg_World = eng->GetWorld();
-    String* RegExp_String = eng->AllocString("RegExp");
-    Type* RegExp_Type = Type::Create(eng, RegExp_String, eng->Object_Type, RegExp_NewFn, Pkg_World);
+    pika::Package* Pkg_World = eng->GetWorld();
+    pika::String* RegExp_String = eng->AllocString("RegExp");
+    pika::Type* RegExp_Type = pika::Type::Create(eng, RegExp_String, eng->Object_Type, RegExp::Constructor, Pkg_World);
     
-    SlotBinder<RegExp>(eng, RegExp_Type)
+    pika::SlotBinder<pika::RegExp>(eng, RegExp_Type)
     .Method(&RegExp::Match,    "match")
     .Method(&RegExp::Exec,     "exec")
     .Method(&RegExp::ExecOnce, "execOnce")

@@ -17,7 +17,7 @@ const char* pikalib_version_Foo()
 #define PIKALIB_PREFIX_VER              "pikalib_version_"
 #define PIKA_MODULE(NAME, ENG, MOD)                                                          \
     PIKA_MODULE_EXPORT const char* pikalib_version_##NAME(void) { return PIKA_BANNER_STR; } \
-    PIKA_MODULE_EXPORT Package*    pikalib_enter_##NAME(Engine* ENG, Module* MOD)
+    PIKA_MODULE_EXPORT pika::Package* pikalib_enter_##NAME(pika::Engine* ENG, pika::Module* MOD)
 
 namespace pika {
 class String;
@@ -51,7 +51,9 @@ public:
     virtual void     MarkRefs(Collector* c);
     virtual Object*  Clone();
     
-    static Module*   Create(Engine* eng, String* name, String* path, String* entryname, String* versionName);
+    static Module* Create(Engine* eng, String* name, String* path, String* entryname, String* versionName);
+    static void    Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void    StaticInitType(Engine* eng);
     
     virtual String*  GetDotName() { return GetName(); }
     

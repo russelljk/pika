@@ -128,6 +128,9 @@ public:
     static Array*   Cat(Array* lhs, Array* rhs);
     static Array*   Create(Engine*, Type*, size_t length, Value *elems);
     static size_t   GetMax();
+    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);    
 protected:
     Buffer<Value> elements;
 };

@@ -221,7 +221,7 @@ String* Function::ToString()
 
 Function* Function::BindWith(Value& withobj)
 {
-    BoundFunction* bc = BoundFunction::Create(engine, this, withobj);
+    BoundFunction* bc = BoundFunction::Create(engine, 0, this, withobj);
     return bc;
 }
 
@@ -269,9 +269,9 @@ classtype(tclass)
     ASSERT(classtype);
 }
 
-InstanceMethod::InstanceMethod(Engine* eng, Function* f, Type* tclass)
+InstanceMethod::InstanceMethod(Engine* eng, Type* tthis, Function* f, Type* tclass)
 : Function(eng,
-           eng->InstanceMethod_Type,
+           tthis,
            f->GetDef(),
            f->location,
            f->parent),
@@ -284,20 +284,20 @@ classtype(tclass)
     }
 }
 
-InstanceMethod* InstanceMethod::Create(Engine* eng, Function* f, Type* t)
+InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* f, Type* t)
 {
     InstanceMethod* im = 0;
-    GCNEW(eng, InstanceMethod, im, (eng, f, t));
+    GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, f, t));
     return im;
 }
 
 InstanceMethod::~InstanceMethod() {}
 
-InstanceMethod* InstanceMethod::Create(Engine* eng, Function* c, Def* func_def,
+InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* c, Def* func_def,
                                        Package* loc, Type* tclass)
 {
     InstanceMethod* im = 0;
-    GCNEW(eng, InstanceMethod, im, (eng, eng->InstanceMethod_Type, c, func_def, loc, tclass));
+    GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, c, func_def, loc, tclass));
     return im;
 }
 
@@ -371,9 +371,9 @@ classtype(tclass)
     ASSERT(classtype);
 }
 
-ClassMethod::ClassMethod(Engine* eng, Function* f, Type* tclass)
+ClassMethod::ClassMethod(Engine* eng, Type* tthis, Function* f, Type* tclass)
 : Function(eng,
-           eng->ClassMethod_Type,
+           tthis,
            f->GetDef(),
            f->location,
            f->parent),
@@ -388,17 +388,17 @@ ClassMethod::ClassMethod(Engine* eng, Function* f, Type* tclass)
 
 ClassMethod::~ClassMethod() {}
 
-ClassMethod* ClassMethod::Create(Engine* eng, Function* f, Type* t)
+ClassMethod* ClassMethod::Create(Engine* eng, Type* type, Function* f, Type* t)
 {
     ClassMethod* cm = 0;
-    GCNEW(eng, ClassMethod, cm, (eng, f, t));
+    GCNEW(eng, ClassMethod, cm, (eng, type ? type : eng->ClassMethod_Type, f, t));
     return cm;
 }
 
-ClassMethod* ClassMethod::Create(Engine* eng, Function* c, Def* func_def, Package* loc, Type* tclass)
+ClassMethod* ClassMethod::Create(Engine* eng, Type* type, Function* c, Def* func_def, Package* loc, Type* tclass)
 {
     ClassMethod* cm = 0;
-    GCNEW(eng, ClassMethod, cm, (eng, eng->ClassMethod_Type, c, func_def, loc, tclass));
+    GCNEW(eng, ClassMethod, cm, (eng, type ? type : eng->ClassMethod_Type, c, func_def, loc, tclass));
     return cm;
 }
 
@@ -452,10 +452,10 @@ BoundFunction::BoundFunction(Engine* eng, Type* t, Function* c, Value& bound)
 
 BoundFunction::~BoundFunction() {}
 
-BoundFunction* BoundFunction::Create(Engine* eng, Function* c, Value& bound)
+BoundFunction* BoundFunction::Create(Engine* eng, Type* type, Function* c, Value& bound)
 {
     BoundFunction* b = 0;
-    PIKA_NEW(BoundFunction, b, (eng, eng->BoundFunction_Type, c, bound));
+    PIKA_NEW(BoundFunction, b, (eng, type ? type : eng->BoundFunction_Type, c, bound));
     eng->AddToGC(b);
     return b;
 }
@@ -503,7 +503,7 @@ void Function::InitWithBody(String* body)
     WriteBarrier(location);
 }
 
-}// pika
+namespace {
 
 int Function_getText(Context* ctx, Value& self)
 {
@@ -541,7 +541,7 @@ int Function_getBytecode(Context* ctx, Value& self)
     return 1;
 }
 
-static int Function_getLocal(Context* ctx, Value& self)
+int Function_getLocal(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
     pint_t idx = ctx->GetIntArg(0);
@@ -555,12 +555,11 @@ static int Function_getLocal(Context* ctx, Value& self)
             return 1;
         }
     }
-    
     RaiseException("Attempt to access local variable: %d", (u2)idx);
     return 0;
 }
 
-static int Function_setLocal(Context* ctx, Value& self)
+int Function_setLocal(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
     pint_t idx = ctx->GetIntArg(0);
@@ -580,20 +579,19 @@ static int Function_setLocal(Context* ctx, Value& self)
 }
 
 
-static int Function_getLocalCount(Context* ctx, Value& self)
+int Function_getLocalCount(Context* ctx, Value& self)
 {
     GETSELF(Function, fn, "Function");
     pint_t count = 0;
     if (fn->lexEnv)
     {
         count = static_cast<pint_t>(fn->lexEnv->Length());
-    }
-    
+    }    
     ctx->Push(count);
     return 1;
 }
 
-static int Function_gen(Context* ctx, Value& self)
+int Function_gen(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
@@ -607,7 +605,6 @@ static int Function_gen(Context* ctx, Value& self)
     {
         c->Push(args[a]);
     }
-    //c->PushNull();
     c->Push(f);
     c->Setup(ctx);
     
@@ -615,7 +612,7 @@ static int Function_gen(Context* ctx, Value& self)
 }
 
 // TODO: it currently takes our argc which causes a problem
-static int Function_genAs(Context* ctx, Value& self)
+int Function_genAs(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
@@ -642,7 +639,7 @@ static int Function_genAs(Context* ctx, Value& self)
     return 1;
 }
 
-static int Function_printBytecode(Context* ctx, Value&)
+int Function_printBytecode(Context* ctx, Value&)
 {
     String* str = ctx->GetStringArg(0);
     size_t len = str->GetLength();
@@ -658,7 +655,7 @@ static int Function_printBytecode(Context* ctx, Value&)
     return 0;
 }
 
-static int Function_printLiterals(Context* ctx, Value& self)
+int Function_printLiterals(Context* ctx, Value& self)
 {
     GETSELF(Function, f, "Function");
     Def* def = f->GetDef();
@@ -678,7 +675,7 @@ static int Function_printLiterals(Context* ctx, Value& self)
 
 // LocalObject API /////////////////////////////////////////////////////////////////////////////////
 
-static int LocalsObject_getParent(Context* ctx, Value& self)
+int LocalsObject_getParent(Context* ctx, Value& self)
 {
     LocalsObject* obj = (LocalsObject*)self.val.object;    
     Object* parent = obj->GetParent();
@@ -697,7 +694,7 @@ static int LocalsObject_getParent(Context* ctx, Value& self)
 
 int null_Function(Context*, Value&) { return 0; }
 
-static int Function_call(Context* ctx, Value& self)
+int Function_call(Context* ctx, Value& self)
 {
     Array* args = 0;
     Value selfObj = NULL_VALUE;
@@ -721,7 +718,55 @@ static int Function_call(Context* ctx, Value& self)
     return 1;
 }
 
-void InitFunctionAPI(Engine* eng)
+Function* Create_null_Function(Engine* eng)
+{
+    GCPAUSE_NORUN(eng);
+    Package* pkg = eng->GetWorld();
+    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
+    return Function::Create(eng, def, pkg, 0);
+}
+
+}//namespace
+
+void InstanceMethod::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    InstanceMethod* im = InstanceMethod::Create(eng, obj_type, eng->null_Function, eng->T_Type);
+    res.Set(im);
+}
+
+void BoundFunction::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    Value self(NULL_VALUE);
+    BoundFunction* cm = BoundFunction::Create(eng, obj_type, eng->null_Function, self);
+    res.Set(cm);
+}
+
+void ClassMethod::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    ClassMethod* bf = ClassMethod::Create(eng, obj_type, eng->null_Function, eng->T_Type);
+    res.Set(bf);
+}
+
+void Function::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    GCPAUSE_NORUN(eng);
+    Package* pkg = eng->GetWorld();
+    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
+    Context* ctx = eng->GetActiveContext();
+    if (ctx)
+    {
+        Package* currpkg = ctx->GetPackage();
+        if (currpkg)
+        {
+            pkg = currpkg;
+        }
+    }
+    Object* obj = Function::Create(eng, def, pkg, 0);
+    obj->SetType(obj_type);
+    res.Set(obj);
+}
+
+void Function::StaticInitType(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
     .Method(&Function::Apply,               "apply")
@@ -741,6 +786,7 @@ void InitFunctionAPI(Engine* eng)
     .Constant((pint_t)PIKA_MAX_RETC, "MAX_RET_COUNT")
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
+    eng->null_Function = Create_null_Function(eng);
     
     SlotBinder<InstanceMethod>(eng, eng->InstanceMethod_Type)
     .PropertyR("instanceType", &InstanceMethod::GetClassType, "GetInstanceType")
@@ -763,3 +809,5 @@ void InitFunctionAPI(Engine* eng)
     eng->LocalsObject_Type->SetFinal(true);
     eng->LocalsObject_Type->SetAbstract(true);
 }
+
+}// pika

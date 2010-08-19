@@ -74,7 +74,9 @@ public:
     INLINE bool   IsBigEndian()    const { return byteOrder == BO_big;    }
     
     static ByteArray* Create(Engine*, Type*, u1*, size_t);
-    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);
+        
     virtual u1  ReadByte();
     virtual u2  ReadWord();
     virtual u4  ReadDword();

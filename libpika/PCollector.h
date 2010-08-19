@@ -314,9 +314,6 @@ INLINE void MarkValues(Collector* c, Value *begin, Value* end)
 
 }// pika
 
-using pika::Collector;
-using pika::GCObject;
-using pika::Engine;
-using pika::Context;
+
 
 #endif

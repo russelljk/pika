@@ -171,13 +171,13 @@ Object* Package::Clone()
     return pkg;
 }
 
-}// pika
-
-void Package_NewFn(Engine* eng, Type* obj_type, Value& res)
+void Package::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     Package* pkg = Package::Create(eng, eng->emptyString, 0);
     res.Set(pkg);
 }
+
+namespace {
 
 int Pkg_getParent(Context* ctx, Value& self)
 {
@@ -200,7 +200,7 @@ int Pkg_getPath(Context* ctx, Value& self)
     return 1;
 }
 
-static int Package_getGlobal(Context* ctx, Value& self)
+int Package_getGlobal(Context* ctx, Value& self)
 {
     Package* pkg = self.val.package;
     Value& arg0  = ctx->GetArg(0);
@@ -219,7 +219,7 @@ static int Package_getGlobal(Context* ctx, Value& self)
     return 1;
 }
 
-static int Package_setGlobal(Context* ctx, Value& self)
+int Package_setGlobal(Context* ctx, Value& self)
 {
     Package* pkg  = self.val.package;
     Value&   arg0 = ctx->GetArg(0);
@@ -238,7 +238,7 @@ static int Package_setGlobal(Context* ctx, Value& self)
     return 1;
 }
 
-static int Package_hasGlobal(Context* ctx, Value& self)
+int Package_hasGlobal(Context* ctx, Value& self)
 {
     Package* pkg = (Package*)self.val.object;
     Value&  arg0 = ctx->GetArg(0);
@@ -255,14 +255,14 @@ static int Package_hasGlobal(Context* ctx, Value& self)
     return 1;
 }
 
-static int Package_getName(Context* ctx, Value& self)
+int Package_getName(Context* ctx, Value& self)
 {
     Package* pkg = self.val.package;
     ctx->Push(pkg->GetName());
     return 1;
 }
 
-static int Package_openPath(Context* ctx, Value&)
+int Package_openPath(Context* ctx, Value&)
 {
     String*  path  = 0;
     Package* where = 0;
@@ -288,20 +288,16 @@ static int Package_openPath(Context* ctx, Value&)
     return 1;
 }
 
-extern void InitScriptAPI(Engine* eng);
-extern void InitModuleAPI(Engine* eng);
+}// namespace
                                     
-void InitPackageAPI(Engine* eng)
+void Package::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     String* pkgstr = eng->AllocString("Package");
     
     Pkg_World->SetType(eng->Package_Type);
     eng->Type_Type->SetType(eng->Package_Type->GetType());
-    
-    InitModuleAPI(eng);
-    InitScriptAPI(eng);
-    
+        
     static RegisterFunction Package_methods[] =
     {
         { "getGlobal", Package_getGlobal, 1, 0, 1 },
@@ -329,4 +325,4 @@ void InitPackageAPI(Engine* eng)
     Pkg_World->SetSlot(pkgstr, eng->Package_Type);
 }
 
-
+}// pika

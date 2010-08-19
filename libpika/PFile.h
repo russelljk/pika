@@ -44,10 +44,12 @@ public:
     bool GetUsePaths() const;    
     void SetUsePaths(bool use);
     
-    static File* Create(Engine*, Type*);
-
     void SetFilename(String*);
     void SetHandle(FILE*);
+    
+    static File* Create(Engine*, Type*);
+    static void  Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void  StaticInitType(Engine* eng);
 private:
     String* filename;
     FILE*   handle;

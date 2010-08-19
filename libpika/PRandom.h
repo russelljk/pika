@@ -45,8 +45,6 @@
 #ifndef PIKA_RANDOM_HEADER
 #define PIKA_RANDOM_HEADER
 
-#include "Pika.h"
-
 #ifdef PIKA_64BIT_INT
 #   define RANDOM_64_BIT
 #endif
@@ -100,6 +98,9 @@ public:
     void            SetSeed(pint_t s);
         
     Array*          Generate(pint_t amt);
+    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Package* module, Engine* eng);    
 protected:
     void            SeedRandom();
 

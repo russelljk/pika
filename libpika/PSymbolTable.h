@@ -79,7 +79,6 @@ namespace pika {
     };
 }// pika
 
-using pika::SymbolTable;
-using pika::Symbol;
+
 
 #endif

@@ -174,7 +174,4 @@ PIKA_NODESTRUCTOR(Value)
 
 }// pika
 
-
-using pika::Value;
-
 #endif

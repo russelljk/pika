@@ -287,46 +287,50 @@ public:
     String* OpDispose_String;
     String* OpUse_String;
     String* loading_String;
-    
-    Type*   Basic_Type;
-    Type*   Object_Type;
-    Type*       Dictionary_Type;
-    Type*       Function_Type;
-    Type*           InstanceMethod_Type;
-    Type*           ClassMethod_Type;
-    Type*           BoundFunction_Type;
-    Type*           NativeFunction_Type;
-    Type*           NativeMethod_Type;
-    Type*       Array_Type;
-    Type*       Context_Type;
-    Type*       Package_Type;
-    Type*           Module_Type;
-    Type*           Script_Type;
-    Type*       ByteArray_Type;
-    Type*       LocalsObject_Type;
-    Type*       Type_Type;
-    Type*       Error_Type;
-    Type*           RuntimeError_Type;
-    Type*               AssertError_Type;
-    Type*           TypeError_Type;
-    Type*           ReferenceError_Type;
-    Type*           ArithmeticError_Type;
+
+    Type*   T_Type;
+    Type*       Basic_Type;
+    Type*       Object_Type;
+    Type*           Dictionary_Type;
+    Type*           Function_Type;
+    Type*               InstanceMethod_Type;
+    Type*               ClassMethod_Type;
+    Type*               BoundFunction_Type;
+    Type*               NativeFunction_Type;
+    Type*               NativeMethod_Type;
+    Type*           Array_Type;
+    Type*           Context_Type;
+    Type*       	Package_Type;
+    Type*               Module_Type;
+    Type*               Script_Type;
+    Type*           ByteArray_Type;
+    Type*           LocalsObject_Type;
+    Type*       	Type_Type;
+    Type*       	Error_Type;
+    Type*               RuntimeError_Type;
+    Type*                   AssertError_Type;
+    Type*               TypeError_Type;
+    Type*               ReferenceError_Type;
+    Type*               ArithmeticError_Type;
     Type*               OverflowError_Type;
-    Type*           SyntaxError_Type;
-    Type*           IndexError_Type;
-    Type*           SystemError_Type;  
+    Type*               SyntaxError_Type;
+    Type*               IndexError_Type;
+    Type*               SystemError_Type;  
     
-    Type*   Locals_Type;
-    Type*   String_Type;
+    Type*       String_Type;
     Type*   Null_Type;
     Type*   Boolean_Type;
     Type*   Integer_Type;
     Type*   Real_Type;
-    Type*   Enumerator_Type;
-    Type*   Property_Type;
+    Type*       Enumerator_Type;
+    Type*       Property_Type;
+    
+    Function* null_Function;
     
     Type*   GetBaseType(String*);
     void    AddBaseType(String*, Type*);
+    
+    static String* NumberToString(Engine* eng, const Value& v);
 private:
     HookEntry*      hooks[HE_max];  //!< Debug hooks into the interpreter
     PathManager*    paths;          //!< Paths used for importing
@@ -347,7 +351,6 @@ private:
 #define GCPAUSE(eng)       Engine::CollectorPause       pauser(eng)
 #define GCPAUSE_NORUN(eng) Engine::CollectorPauseNoRun  pauser(eng)
 
-using namespace pika;
 
 #endif
 

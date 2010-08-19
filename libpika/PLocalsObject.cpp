@@ -139,4 +139,9 @@ LocalsObject* LocalsObject::Create(Engine* eng, Type* type, Function* function, 
     return obj;
 }
 
+void LocalsObject::Constructor(Engine* eng, Type* obj_type, Value& res)
+{
+    RaiseException(Exception::ERROR_type, "%s cannot be constructed explicitly.\n", obj_type->GetName()->GetBuffer());
+}
+
 }// pika

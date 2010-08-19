@@ -16,9 +16,13 @@
 #include "PNativeBind.h"
 #include "PObjectEnumerator.h"
 
+
+
 /////////////////////////////////////////////// pika ///////////////////////////////////////////////
 
 namespace pika {
+
+extern int Global_import(Context*, Value&);
 
 ///////////////////////////////////////// ObjectEnumerator /////////////////////////////////////////
 
@@ -216,7 +220,7 @@ void Object::EnterFunctions(RegisterFunction* fns, size_t count, Package* pkg)
     }
 }
 
-}// pika
+namespace {
 
 int Object_remove(Context* ctx, Value& self)
 {
@@ -231,7 +235,7 @@ int Object_remove(Context* ctx, Value& self)
     return 0;
 }
 
-static int Object_getEnumerator(Context* ctx, Value& self)
+int Object_getEnumerator(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
     String* enumtype = 0;
@@ -260,7 +264,7 @@ static int Object_getEnumerator(Context* ctx, Value& self)
     return 0;
 }
 
-static int Object_clone(Context* ctx, Value& self)
+int Object_clone(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
     Object* newobj = obj->Clone();
@@ -273,7 +277,7 @@ static int Object_clone(Context* ctx, Value& self)
     return 0;
 }
 
-static int Object_init(Context* ctx, Value& self)
+int Object_init(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
     obj->Init(ctx);
@@ -281,7 +285,7 @@ static int Object_init(Context* ctx, Value& self)
     return 1;
 }
 
-static int Object_toString(Context* ctx, Value& self)
+int Object_toString(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
     String* rep = obj->ToString();
@@ -289,7 +293,7 @@ static int Object_toString(Context* ctx, Value& self)
     return 1;
 }
 
-static int Object_rawDotRead(Context* ctx, Value& self)
+int Object_rawDotRead(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -302,7 +306,7 @@ static int Object_rawDotRead(Context* ctx, Value& self)
     return 0;
 }
 
-static int Object_rawDotWrite(Context* ctx, Value& self)
+int Object_rawDotWrite(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -314,21 +318,21 @@ static int Object_rawDotWrite(Context* ctx, Value& self)
     return 0;
 }
 
-static int Enumerator_rewind(Context* ctx, Value& self)
+int Enumerator_rewind(Context* ctx, Value& self)
 {
     Enumerator* e = self.GetEnumerator();
     ctx->PushBool(e->Rewind());
     return 1;
 }
 
-static int Enumerator_valid(Context* ctx, Value& self)
+int Enumerator_valid(Context* ctx, Value& self)
 {
     Enumerator* e = self.GetEnumerator();
     ctx->PushBool(e->IsValid());
     return 1;
 }
 
-static int Enumerator_getCurrent(Context* ctx, Value& self)
+int Enumerator_getCurrent(Context* ctx, Value& self)
 {
     Enumerator* e = self.GetEnumerator();
     Value curr;
@@ -342,14 +346,14 @@ static int Enumerator_getCurrent(Context* ctx, Value& self)
     return 0;
 }
 
-static int Enumerator_advance(Context* ctx, Value& self)
+int Enumerator_advance(Context* ctx, Value& self)
 {
     Enumerator* e = self.GetEnumerator();
     e->Advance();
     return 0;
 }
 
-static int Property_toString(Context* ctx, Value& self)
+int Property_toString(Context* ctx, Value& self)
 {
     Engine*   eng    = ctx->GetEngine();
     Property* prop   = self.val.property;
@@ -360,17 +364,15 @@ static int Property_toString(Context* ctx, Value& self)
     return 1;
 }
 
-extern int Global_import(Context*, Value&);
+}// namespace
 
-void Object_NewFn(Engine* eng, Type* obj_type, Value& res)
+void Object::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     Object* obj = Object::StaticNew(eng, obj_type);
     res.Set(obj);
 }
 
-extern void InitTypeAPI(Engine*);
-
-void InitObjectAPI(Engine* eng)
+void Object::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     
@@ -407,7 +409,7 @@ void InitObjectAPI(Engine* eng)
     
     // Type ///////////////////////////////////////////////////////////////////
     
-    InitTypeAPI(eng);
+    Type::StaticInitType(eng);
     
     // Enumerator /////////////////////////////////////////////////////////////
     
@@ -442,3 +444,4 @@ void InitObjectAPI(Engine* eng)
     eng->Property_Type->SetAbstract(true);
     Pkg_World->SetSlot("Property", eng->Property_Type);
 }
+}// pika
