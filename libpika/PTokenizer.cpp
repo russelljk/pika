@@ -8,7 +8,7 @@
 #include "PMemory.h"
 #include "PTokenizer.h"
 #include "PAst.h"
-
+#include "PPlatform.h"
 #define PIKA_keyword(x) { x, Token2String::GetNames()[x - TOK_global], 0 }
 
 namespace pika {
@@ -1269,6 +1269,9 @@ bool StdinScriptStream::IsEof() { return std::cin.eof();  }
             // Line is non-empty
             if (bufferLength > 0)
             {
+#if defined(HAVE_READLINE)            
+                Pika_addhistory(buffer);
+#endif                
                 // return the first character in the line.
                 return;
             }
@@ -1331,6 +1334,16 @@ bool StdinScriptStream::IsEof() { return std::cin.eof();  }
     {
         const char* prompt = pmt ? pmt : ">>>";
         Pika_memzero(buffer, sizeof(buffer));
+#if defined(HAVE_READLINE)
+        const char* res = Pika_readline(prompt);
+        is_eof = (res == NULL);
+        if (!is_eof)
+        {
+            Pika_strcpy(buffer, res);
+            bufferLength = strlen(buffer);
+            pos = 0;
+        }
+#else        
         std::cout << prompt;
         std::cout.flush();
         void* res = std::cin.getline(buffer, REPL_BUFF_SZ);
@@ -1340,6 +1353,7 @@ bool StdinScriptStream::IsEof() { return std::cin.eof();  }
             bufferLength = strlen(buffer);
             pos = 0;
         }
+#endif        
         return !is_eof;
     }
 }// pika

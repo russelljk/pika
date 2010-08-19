@@ -4,6 +4,8 @@
  */
 #ifndef PIKA_PLATFORM_HEADER
 #define PIKA_PLATFORM_HEADER
+extern const char* Pika_readline(const char* prompt);
+extern void Pika_addhistory(const char* ln);
 
 // ---- String Functions ----
 

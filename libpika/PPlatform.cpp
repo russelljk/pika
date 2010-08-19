@@ -2,6 +2,30 @@
  *  PPlatform.cpp
  *  See Copyright Notice in Pika.h
  */
+#include "PConfig.h"
+#if defined(HAVE_READLINE) 
+
+#include <stdio.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+
+const char* Pika_readline(const char* prompt)
+{
+    return readline(prompt);
+}
+
+void Pika_addhistory(const char* ln)
+{
+    add_history(ln);
+}
+
+#else
+
+const char* Pika_readline(const char* prompt) { return 0; }
+void Pika_addhistory(const char* ln) {}
+
+#endif
+
 #include "Pika.h"
 #include "PPlatform.h"
 

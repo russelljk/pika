@@ -57,7 +57,7 @@ class Table;
 using pika::Array;
 using pika::Basic;
 using pika::ClassInfo;
-using pika::Function;
+
 using pika::Context;
 using pika::Debugger;
 using pika::Enumerator;

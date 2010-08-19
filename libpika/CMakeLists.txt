@@ -34,10 +34,20 @@ check_include_files (sys/types.h HAVE_SYS_TYPES_H)
 check_include_files (unistd.h    HAVE_UNISTD_H)
 
 #------------------- Libraries -------------------------
+include (CheckLibraryExists)
 
 set (ADD_LIBS "")
 
-include (CheckLibraryExists)
+if (NOT PIKA_NO_READLINE)
+   find_path(READLINE_INCLUDE_DIR readline/readline.h)
+   find_library(READLINE_LIBRARY NAMES readline) 
+   
+   if (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
+      set(HAVE_READLINE TRUE)
+      set (ADD_LIBS ${ADD_LIBS} ${READLINE_LIBRARY})
+      include_directories(${READLINE_INCLUDE_DIR})
+   endif (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
+endif (NOT PIKA_NO_READLINE)
 
 # link to dlopen if available
 check_library_exists (dl dlopen "" HAVE_LIBDL)
