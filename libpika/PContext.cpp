@@ -681,6 +681,12 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
 #       else
                 pint_t const ia = a.val.integer;
                 pint_t const ib = b.val.integer;
+#       ifndef NO_DIVIDEBYZERO_ERROR
+                if (ib == 0)
+                {
+                    RaiseException(Exception::ERROR_arithmetic, "OpDiv: division by zero");
+                }
+#       endif                
                 if (ia % ib == 0)
                 {
                     a.val.integer = ia / ib;
@@ -1433,29 +1439,26 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
     if (obj.tag >= TAG_basic)
     {
         // Call the opSet override method if present.
+    
+        Value setfn(NULL_VALUE);
         
-        if (obj.tag == TAG_object)
+        if (GetOverrideFrom(engine, obj.val.basic, ovr, setfn))
         {
-            Value setfn;
-            setfn.SetNull();
+            Swap(prop, obj);
+            Swap(obj, val);
             
-            if (GetOverrideFrom(engine, obj.val.object, ovr, setfn))
+            Push(setfn);
+            
+            if (SetupCall(2))
             {
-                Swap(prop, obj);
-                Swap(obj, val);
-                
-                Push(setfn);
-                
-                if (SetupCall(2))
-                {
-                    Run();
-                }
-                
-                Pop();
-                return;
+                Run();
             }
-        }
-        bool success;
+            
+            Pop();
+            return;
+        }  
+        
+        bool success = true;
         if (oc == OP_subset)
         {
             if (!(success = obj.val.basic->BracketWrite(prop, val)))
@@ -1653,12 +1656,12 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         
         if (!success)
         {
-            if (obj.tag == TAG_object)
+            if (obj.tag >= TAG_basic)
             {
                 Value getfn;
                 getfn.SetNull();
                 
-                if (GetOverrideFrom(engine, obj.val.object, ovr, getfn))
+                if (GetOverrideFrom(engine, obj.val.basic, ovr, getfn))
                 {
                     Swap(prop, obj);
                     Push(getfn);

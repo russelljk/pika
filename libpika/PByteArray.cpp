@@ -634,25 +634,25 @@ void ByteArray::StaticInitType(Engine* eng)
     eng->ByteArray_Type = Type::Create(eng, ByteArray_String, eng->Object_Type, ByteArray::Constructor, Pkg_World);
     
     SlotBinder<ByteArray>(eng, eng->ByteArray_Type, Pkg_World)
-    .Method(&ByteArray::Rewind,          "rewind")
-    .Method(&ByteArray::Write,           "write")
-    .Method(&ByteArray::ReadBoolean,     "readBoolean")
-    .Method(&ByteArray::ReadInteger,     "readInteger")
-    .Method(&ByteArray::ReadReal,        "readReal")
-    .RegisterMethod(ByteArray_nextBytes,       "nextBytes")
-    .MethodVA(&ByteArray::ReadString,    "readString")
-    .Method(&ByteArray::Slice,           OPSLICE_STR)
-    .Constant((pint_t)ByteArray::BO_big,          "BIG")
-    .Constant((pint_t)ByteArray::BO_little,       "LITTLE")
+    .Method(&ByteArray::Rewind,             "rewind")
+    .Method(&ByteArray::Write,              "write")
+    .Method(&ByteArray::ReadBoolean,        "readBoolean")
+    .Method(&ByteArray::ReadInteger,        "readInteger")
+    .Method(&ByteArray::ReadReal,           "readReal")
+    .RegisterMethod(ByteArray_nextBytes,    "nextBytes")
+    .MethodVA(&ByteArray::ReadString,       "readString")
+    .Method(&ByteArray::Slice,              OPSLICE_STR)
+    .Constant((pint_t)ByteArray::BO_big,    "BIG")
+    .Constant((pint_t)ByteArray::BO_little, "LITTLE")
     .PropertyRW("endian",
-                &ByteArray::GetEndian, "getEndian",
-                &ByteArray::SetEndian, "setEndian")
+                &ByteArray::GetEndian,      "getEndian",
+                &ByteArray::SetEndian,      "setEndian")
     .PropertyRW("position",
                 &ByteArray::GetPosition,    "GetPosition",
                 &ByteArray::SetPosition,    "SetPosition")
     .PropertyRW("length",
-                &ByteArray::GetLength, "getLength",
-                &ByteArray::SetLength, "setLength");
+                &ByteArray::GetLength,      "getLength",
+                &ByteArray::SetLength,      "setLength");
                 
     Pkg_World->SetSlot(ByteArray_String, eng->ByteArray_Type);
 }

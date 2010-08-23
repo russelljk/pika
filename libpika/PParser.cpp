@@ -1404,7 +1404,7 @@ void Parser::DoForEachHeader(ForEachHeader* header)
         Match(TOK_of);
         BufferCurrent();
     }
-    if (tstream.GetType() == TOK_stringliteral && tstream.GetNextType() == TOK_of)
+    else if (tstream.GetType() == TOK_stringliteral && tstream.GetNextType() == TOK_of)
     {
         header->of = DoStringLiteralExpression();
         Match(TOK_of);
@@ -2329,7 +2329,7 @@ Expr* Parser::DoPostfixExpression()
 
             BufferNext();
             Match('(');
-            const int call_terms[] = { ')', 0 };
+            const int call_terms[] = { ')', EOI, 0 };
             ExprList* callargs = DoOptionalExpressionList(call_terms);
             int line = tstream.GetLineNumber();
             
@@ -2503,7 +2503,7 @@ Expr* Parser::DoPrimaryExpression()
         
         if (Optional('('))
         {
-            const int call_terms[] = { ')', 0 };
+            const int call_terms[] = { ')', EOI, 0 };
             BufferCurrent();
             callargs = DoOptionalExpressionList(call_terms);
             line = tstream.GetLineNumber();
@@ -2732,7 +2732,7 @@ Expr* Parser::DoArrayExpression()
     BufferNext();
     Match('[');
     
-    const int arr_terms[] = { ']', 0 };
+    const int arr_terms[] = { ']', EOI, 0 };
     ExprList* elems = DoOptionalExpressionList(arr_terms, true);
     
     int line = tstream.GetLineNumber();

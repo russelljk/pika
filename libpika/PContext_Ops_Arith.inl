@@ -191,12 +191,12 @@ PIKA_OPCODE(OP_not)
     Value& a = Top();
     OpOverride ovr = OVR_not;
 
-    if (a.tag == TAG_object) 
+    if (a.tag >= TAG_basic) 
     {
-        Object* obj = a.val.object;
+        Basic* bobj = a.val.basic;
         bool handled = false;
 
-        if (SetupOverrideUnary(obj, ovr, &handled)) 
+        if (SetupOverrideUnary(bobj, ovr, &handled)) 
         {
             ++numcalls;
         }
@@ -223,10 +223,10 @@ PIKA_OPCODE(OP_bitnot)
     {
         a.val.integer = ~a.val.integer;
     }
-    else if (a.tag == TAG_object) 
+    else if (a.tag >= TAG_object) 
     {
-        Object* obj = a.val.object;
-        if (SetupOverrideUnary(obj, ovr)) 
+        Basic* bobj = a.val.basic;
+        if (SetupOverrideUnary(bobj, ovr)) 
         {
             ++numcalls;
         }

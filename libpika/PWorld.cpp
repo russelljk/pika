@@ -766,7 +766,6 @@ void Engine::InitializeWorld()
         this->length_String     = AllocString("length");
         this->loading_String    = AllocString("loading");
         this->message_String    = AllocString("message");
-        this->missing_String    = AllocString("missing!");
         this->null_String       = AllocString("null");
         this->toBoolean_String  = AllocString("toBoolean");
         this->toInteger_String  = AllocString("toInteger");

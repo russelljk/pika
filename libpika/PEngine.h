@@ -283,7 +283,6 @@ public:
     String* false_String;
     String* message_String;
     String* dot_String;
-    String* missing_String;
     String* OpDispose_String;
     String* OpUse_String;
     String* loading_String;
