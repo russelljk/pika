@@ -18,11 +18,11 @@ namespace pika {
 // Enumerates only object of a certain type
 struct FilterEnum : ObjectEnumerator
 {
-    FilterEnum(Engine* eng, bool values, Basic* obj, Table& tab, Type* ftype)
+    FilterEnum(Engine* eng, bool values, Object* obj, Table& tab, Type* ftype)
             : ObjectEnumerator(eng, values, obj, tab), filterType(ftype)
     {}
 
-    virtual bool FilterValue(Value& val, Basic*)
+    virtual bool FilterValue(Value& val, Object*)
     {
         return !filterType || filterType->IsInstance(val);
     }

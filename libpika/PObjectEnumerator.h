@@ -13,13 +13,33 @@ namespace pika {
 class ObjectEnumerator : public Enumerator
 {
 public:
-    ObjectEnumerator(Engine* eng, bool values, Basic* obj, Table& tab)
-            : Enumerator(eng), started(false), bValues(values), owner(obj), table(tab) {res.SetNull();}
-            
+    ObjectEnumerator(Engine* eng, bool values, Object* obj, Table& tab)
+            : Enumerator(eng), started(false), bValues(values), owner(obj), table(tab) {
+            res.SetNull();
+            filter.SetNull();
+            if (obj->GetSlot(engine->AllocStringNC("onFilter"), filter)) {
+            }
+    }
+    
     virtual ~ObjectEnumerator() {}
     
-    virtual bool FilterValue(Value& key, Basic* obj) { return true; }
-        
+    virtual bool FilterValue(Value& key, Object* obj) {
+        if (filter.IsNull())
+            return true; 
+        else {
+            Context* ctx = engine->GetActiveContextSafe();
+            ctx->Push(key);
+            ctx->Push(obj);
+            ctx->Push(filter);
+            if (ctx->SetupCall(1)) {
+                ctx->Run();
+            }
+            
+            Value& res = ctx->PopTop();
+            return engine->ToBoolean(ctx, res);
+        }
+    }
+    
     virtual bool Rewind()
     {
         started = true;
@@ -134,9 +154,10 @@ private:
     bool started;
     bool bValues;
     Value res;
-    Basic* owner;
+    Object* owner;
     Buffer<Value> slots;
     Buffer<Value>::Iterator currSlot;
+    Value filter;
     Table& table;
 };
 

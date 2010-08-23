@@ -17,7 +17,7 @@
 #include "PEnumerator.h"
 
 namespace pika {
-extern Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Basic* self, Table& table);
+extern Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Object* self, Table& table);
 
 // LocalObject /////////////////////////////////////////////////////////////////////////////////////
 

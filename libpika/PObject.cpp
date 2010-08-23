@@ -26,7 +26,7 @@ extern int Global_import(Context*, Value&);
 
 ///////////////////////////////////////// ObjectEnumerator /////////////////////////////////////////
 
-Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Basic* self, Table& table)
+Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Object* self, Table& table)
 {
     Enumerator* newEnumerator = 0;
     GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, values, self, table));

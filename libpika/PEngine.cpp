@@ -438,6 +438,7 @@ void Engine::ReadExecutePrintLoop()
     Def* entry_def = 0;
     LiteralPool* literals  = 0;
     Array* args = 0;
+    
     {   GCPAUSE_NORUN(this);
         repl_script_name = this->AllocStringNC("read_execute_print_loop");
         args = Array::Create(this, Array_Type, 0, 0);
@@ -448,9 +449,7 @@ void Engine::ReadExecutePrintLoop()
         scripts.Push(script); // Add it to the list.
         this->AddToRoots(script);
     }// GCPAUSE_NORUN
-    /*
-        TODO: Tokenizer deletes stream object.
-    */
+    
     stream.NewLoop();
     while (!stream.IsEof())
     {
