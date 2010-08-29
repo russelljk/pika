@@ -513,6 +513,9 @@ void Tokenizer::GetNext()
     // string literal
     else if (look == '\'' || look == '\"' || (look == '}' && is_str_ctor != 0)) 
     {
+        if (look == is_str_ctor) {
+            state->SyntaxException(Exception::ERROR_syntax, line, col, "cannot have a %s quote string inside a %s quote string constructor.", look == '\"' ? "double" : "single", look == '\"' ? "double" : "single");
+        }
         ReadString(); 
     }
     else if (look == '`')
@@ -669,6 +672,8 @@ void Tokenizer::ReadString()
         }
         else if (look == '{' && !is_identifier_string && termchar != '`')
         {
+            if (is_str_ctor && is_str_ctor != termchar)
+                state->SyntaxException(Exception::ERROR_syntax, prevline, prevcol, "cannot have nested string constructors");
             if (str_tok_type == TOK_string_l)
                 str_tok_type = TOK_string_b;
             else
