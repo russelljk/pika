@@ -591,7 +591,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
         id0.id1.[...].idN.name
         self.id1.[...].idN.name
      */
-    if (tstream.GetNextType() == '.' && canbedot)
+    if ((tstream.GetNextType() == '.' || tstream.GetNextType() == '[') && canbedot)
     {
         Expr* expr;
         BufferCurrent();
@@ -604,17 +604,32 @@ NameNode* Parser::DoNameNode(bool canbedot)
             expr = DoSelfExpression();
         }
         
-        while (Optional('.'))
+        while (tstream.GetType() == '.' || tstream.GetType() == '[')
         {
             Expr* lhs = expr;
             Expr* rhs = 0;
-            BufferCurrent();
-            Id* id = DoIdentifier();
-            PIKA_NEWNODE(MemberExpr, rhs, (id));
-            rhs->line = id->line;
             
-            PIKA_NEWNODE(DotExpr, expr, (lhs, rhs));
-            expr->line = rhs->line;
+            BufferCurrent();
+            if (Optional('.'))
+            {
+                BufferCurrent();
+                Id* id = DoIdentifier();
+                PIKA_NEWNODE(MemberExpr, rhs, (id));
+                rhs->line = id->line;            
+                
+                PIKA_NEWNODE(DotExpr, expr, (lhs, rhs));
+                expr->line = rhs->line;                
+            }
+            else {                
+            
+                Match('[');
+                BufferCurrent();
+                rhs = DoExpression();
+                Match(']');
+                
+                PIKA_NEWNODE(IndexExpr, expr, (lhs, rhs));
+                expr->line = rhs->line;
+            }
         }
         
         if (expr->kind == Expr::EXPR_dot)
@@ -2476,6 +2491,7 @@ Expr* Parser::DoPrimaryExpression()
     case TOK_stringliteral:  expr = DoStringLiteralExpression();  break;
     case TOK_integerliteral: expr = DoIntegerLiteralExpression(); break;
     case TOK_realliteral:    expr = DoRealLiteralExpression();    break;
+    case TOK_string_r:       expr = DoStringLiteralExpression();  break;
     case TOK_locals:
     {
         tstream.Advance();
@@ -2598,12 +2614,44 @@ Expr* Parser::DoStringLiteralExpression()
     int line  = tstream.GetLineNumber();
     char* value = tstream.GetString();
     size_t len = tstream.GetStringLength();
-    
-    Match(TOK_stringliteral);
-
-    PIKA_NEWNODE(StringExpr, expr, (value, len));
-    expr->line = line;
-    
+    if (Optional(TOK_string_r))
+    {
+        bool need_more = true;
+        
+        PIKA_NEWNODE(StringExpr, expr, (value, len));
+        expr->line = line;  
+                     
+        while (need_more)
+        {            
+            Expr* rhs = DoNameNode(true);
+            PIKA_NEWNODE(BinaryExpr, expr, (BinaryExpr::EXPR_cat, expr, rhs));
+            rhs->line = line;
+            expr->line = line;
+            
+            value = tstream.GetString();
+            len = tstream.GetStringLength();            
+            
+            if (Optional(TOK_string_b))
+            {
+                PIKA_NEWNODE(StringExpr, rhs, (value, len));
+            }
+            else
+            {
+                Match(TOK_string_l);
+                PIKA_NEWNODE(StringExpr, rhs, (value, len));     
+                need_more = false;                           
+            }
+            PIKA_NEWNODE(BinaryExpr, expr, (BinaryExpr::EXPR_cat, expr, rhs));
+            expr->line = line;
+            rhs->line = line;            
+        }
+    }
+    else
+    {
+        Match(TOK_stringliteral);
+        PIKA_NEWNODE(StringExpr, expr, (value, len));
+        expr->line = line;
+    }
     return expr;
 }
 

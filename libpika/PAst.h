@@ -712,7 +712,8 @@ struct Expr : TreeNode
         EXPR_new,
         EXPR_arraycomp,
         EXPR_invalid,
-        EXPR_paren,     
+        EXPR_paren,    
+        EXPR_namenode, 
     };
     
     Expr(Kind kind) : kind(kind) {}
@@ -1576,11 +1577,11 @@ struct CaseStmt : Stmt
 
 ////////////////////////////////////////////// NameNode ////////////////////////////////////////////
 
-struct NameNode : TreeNode
+struct NameNode : Expr
 {
-    NameNode(IdExpr* idexpr) : idexpr(idexpr), dotexpr(0) {}
+    NameNode(IdExpr* idexpr) : Expr(Expr::EXPR_namenode), idexpr(idexpr), dotexpr(0) {}
     
-    NameNode(DotExpr* dotexpr) : idexpr(0), dotexpr(dotexpr) {}
+    NameNode(DotExpr* dotexpr) : Expr(Expr::EXPR_namenode), idexpr(0), dotexpr(dotexpr) {}
     
     virtual ~NameNode() {}
     

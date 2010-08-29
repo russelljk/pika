@@ -138,7 +138,9 @@ char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout)
                 case 'v'  : ret.Push('\v'); break;
                 case '\'' : ret.Push('\''); break;
                 case '\"' : ret.Push('\"'); break;
-                case '\\' : ret.Push('\\'); break;                
+                case '\\' : ret.Push('\\'); break;     
+                case '{'  : ret.Push('{');  break;
+                case '}'  : ret.Push('}');  break;
                 default: 
                 {
                 ret.Push('\\');

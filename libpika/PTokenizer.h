@@ -203,7 +203,7 @@ protected:
     void            ReadControl();
     void            ReadMultiLineComment(int);
     void            ReadSingleLineComment();
-    
+    int             is_str_ctor;
     size_t          tokenBegin;
     size_t          tokenEnd;
     YYSTYPE         tokenVal;

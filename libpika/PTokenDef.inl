@@ -96,6 +96,9 @@ TOKEN_DEF(TOK_identifier,     "<identifier>")
 TOKEN_DEF(TOK_stringliteral,  "<string literal>")
 TOKEN_DEF(TOK_integerliteral, "<integer literal>")
 TOKEN_DEF(TOK_realliteral,    "<real literal>")
+TOKEN_DEF(TOK_string_r,       "<string{>")
+TOKEN_DEF(TOK_string_l,       "<}string>")
+TOKEN_DEF(TOK_string_b,       "<{string}>")
 
 
 

@@ -396,7 +396,8 @@ IScriptStream::~IScriptStream()
 //////////////////////////////////////////////Tokenizer/////////////////////////////////////////////
 
 Tokenizer::Tokenizer(CompileState* s, std::ifstream* fs)
-        : tokenBegin(0),
+        : is_str_ctor(0),
+        tokenBegin(0),
         tokenEnd(0),
         state(s),
         tabIndentSize(4),
@@ -418,7 +419,8 @@ Tokenizer::Tokenizer(CompileState* s, std::ifstream* fs)
 }
 
 Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
-        : tokenBegin(0),
+        : is_str_ctor(0),
+        tokenBegin(0),
         tokenEnd(0),        
         state(s),
         tabIndentSize(4),
@@ -440,7 +442,8 @@ Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
 }
 
 Tokenizer::Tokenizer(CompileState* cs, IScriptStream* stream)
-    : tokenBegin(0),
+    : is_str_ctor(0),
+    tokenBegin(0),
     tokenEnd(0),        
     state(cs),
     tabIndentSize(4),
@@ -508,7 +511,7 @@ void Tokenizer::GetNext()
         ReadNumber();
     }
     // string literal
-    else if (look == '\'' || look == '\"') 
+    else if (look == '\'' || look == '\"' || (look == '}' && is_str_ctor != 0)) 
     {
         ReadString(); 
     }
@@ -637,11 +640,24 @@ void Tokenizer::ReadIdentifier()
 
 void Tokenizer::ReadString()
 {
+    int str_tok_type = TOK_stringliteral;
     int termchar = look;
-    
-    if (termchar != '\'' && termchar != '\"' && termchar != '`')
-        return;
+    bool is_identifier_string = false;
+    if (termchar == '`')
+        is_identifier_string = true;
         
+    if (termchar != '\'' && termchar != '\"' && termchar != '`')
+    {
+        if (termchar == '}' && is_str_ctor != 0)
+        {
+            str_tok_type = TOK_string_l;
+            termchar = is_str_ctor;            
+        }
+        else
+        {
+            return;
+        }
+    }    
     GetLook();
     
     while (look != termchar && !IsEndOfStream())
@@ -651,11 +667,22 @@ void Tokenizer::ReadString()
             GetLook(); // move past the back slash
             GetLook(); // move past next char
         }
+        else if (look == '{' && !is_identifier_string && termchar != '`')
+        {
+            if (str_tok_type == TOK_string_l)
+                str_tok_type = TOK_string_b;
+            else
+                str_tok_type = TOK_string_r;
+            is_str_ctor = termchar;
+            break;
+        }
         else
         {
             GetLook();
         }
     }
+    if (str_tok_type == TOK_string_l)
+        is_str_ctor = 0;
     
     if (IsEndOfStream() && look != termchar)
         state->SyntaxException(Exception::ERROR_syntax, prevline, prevcol, "unclosed string literal");
@@ -674,7 +701,7 @@ void Tokenizer::ReadString()
     
     strtemp[len] = '\0';
     tokenVal.str = Pika_TransformString(strtemp, len, &tokenVal.len);
-    tokenType    = TOK_stringliteral;
+    tokenType    = str_tok_type;
     
     Pika_free(strtemp);
 }
