@@ -439,6 +439,25 @@ String* String::Reverse()
     return engine->AllocString(begDst, length);
 }
 
+String* String::Chomp(String* c)
+{
+    if (!c || 
+        this->GetLength() == 0 || 
+        c->GetLength() == 0)
+    return this;
+    const char* buff = this->GetBuffer();
+    const char* cbuff = c->GetBuffer();
+    for (size_t i = 0; i < this->GetLength(); ++i)
+    {
+        const char* s = strchr(cbuff, buff[i]);
+        if ( !s )
+        {
+            return this->Slice(i, this->GetLength());
+        }
+    }
+    return engine->emptyString;
+}
+
 /////////////////////////////////////////////StringApi//////////////////////////////////////////////
 
 class StringApi
@@ -824,7 +843,8 @@ public:
             }
             else
             {
-                ctx->Push((pint_t)0);
+                RaiseException(Exception::ERROR_index, "String.byteAt: attempt to get byte at position \""SIZE_T_FMT"\" from string of length \""SIZE_T_FMT"\".\n",index,str->length);
+                return 0;
             }
             return 1;
         }
@@ -966,8 +986,25 @@ public:
         return 1;
     }
     
+    static int chomp(Context* ctx, Value& self)
+    {
+        GCPAUSE(ctx->GetEngine());
+        String* vstr = self.val.str;
+        String* other = (ctx->GetArgCount() == 1 && !ctx->IsArgNull(0)) ?
+                    ctx->GetStringArg(0) : 
+                    ctx->GetEngine()->AllocString(" \r\n\t\v\f"); // space,cr,nl,tab,vtab,formfeed
+        
+        String* res = vstr->Chomp(other);
+        if (res)
+            ctx->Push(res);
+        else
+            ctx->Push(ctx->GetEngine()->emptyString);
+        return 1;
+    }    
+    
     static int times(Context* ctx, Value& self)
     {
+        GCPAUSE(ctx->GetEngine());    
         String* vstr = self.val.str;
         size_t  len  = vstr->length;
         pint_t   rep  = ctx->GetIntArg(0);
@@ -1046,6 +1083,7 @@ void String::StaticInitType(Engine* eng)
         { "lastNotOf",      StringApi::lastNotOf,           2, 1, 0 },
         { "substring",      StringApi::slice,               2, 0, 1 },
         { OPSLICE_STR,      StringApi::slice,               2, 0, 1 },
+        { "chomp",          StringApi::chomp,               1, 1, 0 },
         { "times",          StringApi::times,               1, 0, 1 },
         { "opMul",          StringApi::times,               1, 0, 1 },
         { "toString",       StringApi::toString,            0, 0, 1 },

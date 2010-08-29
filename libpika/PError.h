@@ -26,8 +26,10 @@ public:
     {
         ERROR_syntax,
         ERROR_runtime,
-        ERROR_overflow,
         ERROR_arithmetic,
+        ERROR_overflow,
+        ERROR_underflow,
+        ERROR_dividebyzero,
         ERROR_index,
         ERROR_type,
         ERROR_system,

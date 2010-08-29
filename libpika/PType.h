@@ -34,7 +34,7 @@ public:
     virtual void    MarkRefs(Collector*);
     virtual Object* Clone();
     virtual String* ToString();
-    
+    virtual void Init(Context*);
     virtual bool IsSubtype(Type*);
     virtual bool IsInstance(Basic*);
     virtual bool IsInstance(Value&);
@@ -143,7 +143,9 @@ public:
     void AddClassMethod(Function*);
     
     Type_NewFn  GetNewFn() const { return newfn; }
-
+    
+    void SetAllocator(Nullable<Type*> t);
+    
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
 protected:

@@ -857,7 +857,7 @@ void Engine::InitializeWorld()
         
         static RegisterProperty Value_Properties[] =
         {
-            { "type", Primitive_getType, "getType", 0, 0 },
+            { "type", Primitive_getType, "getType", 0, 0, false },
         };
         
         T_Type->EnterProperties(Value_Properties, countof(Value_Properties));
@@ -897,6 +897,14 @@ void Engine::InitializeWorld()
         OverflowError_Type = Type::Create(this, error_name, ArithmeticError_Type, Error_NewFn, Pkg_World);
         Pkg_World->SetSlot(error_name, OverflowError_Type);
         
+        error_name = AllocString("UnderflowError");
+        UnderflowError_Type = Type::Create(this, error_name, ArithmeticError_Type, Error_NewFn, Pkg_World);
+        Pkg_World->SetSlot(error_name, UnderflowError_Type);
+        
+        error_name = AllocString("DivideByZeroError");
+        DivideByZeroError_Type = Type::Create(this, error_name, ArithmeticError_Type, Error_NewFn, Pkg_World);
+        Pkg_World->SetSlot(error_name, DivideByZeroError_Type);
+                        
         error_name = AllocString("SyntaxError");
         SyntaxError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
         Pkg_World->SetSlot(error_name, SyntaxError_Type);
@@ -1017,13 +1025,13 @@ void Engine::InitializeWorld()
         
         static RegisterProperty Real_Properties[] =
         {
-            { "integer", Real_integer, "getInteger", 0, 0 },
-            { "fraction", Real_fraction, "getFraction", 0, 0 },
+            { "integer",  Real_integer,  "getInteger",  0, 0, false },
+            { "fraction", Real_fraction, "getFraction", 0, 0, false },
         };
         
         static RegisterFunction Real_ClassMethods[] =
         {
-            { NEW_CSTR,   Real_init,      0, 1, 0 },
+            { NEW_CSTR, Real_init, 0, 1, 0 },
         };
         
         Real_Type  = Type::Create(this, AllocString("Real"), T_Type, 0, Pkg_World);

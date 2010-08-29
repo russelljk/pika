@@ -422,7 +422,7 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterProperty enumProperties[] =
     {
-        { "value", Enumerator_getCurrent, "getValue", 0, 0 },
+        { "value", Enumerator_getCurrent, "getValue", 0, 0, false },
     };
     
     eng->Enumerator_Type = Type::Create(eng, eng->AllocString("Enumerator"), eng->Basic_Type, 0, Pkg_World);

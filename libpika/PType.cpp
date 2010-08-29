@@ -206,8 +206,9 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               
             Def* def = Def::CreateWith(engine, getname, propdef->getter,
                                        0, false, true, 0);
-                                       
-            getter = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
+                                        
+            getter = propdef->unattached ? Function::Create(engine, def, pkg) : 
+                                           InstanceMethod::Create(engine, 0, 0, def, pkg, this);
             
             // Add the getter function if a name was provided.
             if (propdef->getterName)
@@ -227,7 +228,8 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
             Def* def = Def::CreateWith(engine, setname, propdef->setter,
                                        1, false, true, 0);
                                        
-            setter = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
+            setter =  propdef->unattached ? Function::Create(engine, def, pkg) :
+                                            InstanceMethod::Create(engine, 0, 0, def, pkg, this);
             
             // Add the setter function if a name was provided.
             if (propdef->setterName)
@@ -382,7 +384,7 @@ void Type::AddClassMethod(Function* f)
 {
     if (f->IsNative())
     {
-        // Native C++ functions/methods do have dynamic binding to instance variables/methods so
+        // Native C++ functions/methods do not have dynamic binding to instance variables & methods so
         // we cannot create an InstanceMethod from this function.
         AddFunction(f);
     }
@@ -514,9 +516,27 @@ int Type_createWith(Context* ctx, Value& self)
     return 0;
 }
 
+void Type::Init(Context* ctx)
+{
+    ThisSuper::Init(ctx);
+    u2 argc = ctx->GetArgCount();
+    if (argc >= 3)
+    {
+        if (baseType)
+            RaiseException("attempt to initialize already initialized Type named: %s\n",name ? name->GetBuffer() : "<anonymous>");
+        baseType = ctx->GetArgT<Type>(2);
+        WriteBarrier(baseType);
+        if (!newfn)
+        {
+            newfn = baseType->newfn;
+        }
+        baseType->AddSubtype(this);
+    }
+}
+
 void Type::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
-    Object* obj = Type::Create(eng, eng->AllocString(""), 0, Type::Constructor, obj_type->GetLocation(), obj_type);
+    Object* obj = Type::Create(eng, eng->AllocString(""), 0, 0, obj_type->GetLocation(), obj_type);
     res.Set(obj);
 }
 
@@ -524,13 +544,14 @@ void Type::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     SlotBinder<Type>(eng, eng->Type_Type)
-    .PropertyR("base",     &Type::GetBase,     "getBase")
-    .PropertyR("name",     &Type::GetName,     "getName")
+    .PropertyR("base",     &Type::GetBase,  "getBase")
+    .PropertyR("name", &Type::GetName,  "getName")
     .PropertyR("location", &Type::GetLocation, "getLocation")
     .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes")
     .Method(&Type::IsSubtype, "isSubType")
     .Method(&Type::AddMethod, "addMethod")
     .Method(&Type::AddClassMethod, "addClassMethod")
+    .Method(&Type::SetAllocator, "setAllocator")
     ;
     
     static RegisterFunction TypeFunctions[] =
@@ -547,6 +568,18 @@ void Type::StaticInitType(Engine* eng)
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));
     eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));
     Pkg_World->SetSlot("Type", eng->Type_Type);
+}
+
+void Type::SetAllocator(Nullable<Type*> t)
+{
+    if (t)
+    {
+        newfn = t->newfn;
+    }
+    else
+    {
+        newfn = 0;
+    }
 }
 
 }// pika

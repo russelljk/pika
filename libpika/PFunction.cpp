@@ -677,18 +677,28 @@ int Function_printLiterals(Context* ctx, Value& self)
 
 int LocalsObject_getParent(Context* ctx, Value& self)
 {
-    LocalsObject* obj = (LocalsObject*)self.val.object;    
-    Object* parent = obj->GetParent();
-    
-    if (parent)
+    if (self.IsDerivedFrom(LocalsObject::StaticGetClass()))
     {
-        ctx->Push(parent);
+        LocalsObject* obj = (LocalsObject*)self.val.object;    
+        Object* parent = obj->GetParent();        
+        if (parent)
+        {
+            ctx->Push(parent);
+        }
+        else
+        {
+            ctx->PushNull();
+        }
+        return 1;
     }
-    else
+    else if (self.IsDerivedFrom(Type::StaticGetClass()))
     {
-        ctx->PushNull();
-    }
-    return 1;
+        Type* t = (Type*)self.val.object;
+        ctx->Push(t->GetSuper());   
+        return 1;
+    }    
+    RaiseException("attempt to call LocalsObject.getParent with incorrect type.");
+    return 0;    
 }
 
 
@@ -724,6 +734,63 @@ Function* Create_null_Function(Engine* eng)
     Package* pkg = eng->GetWorld();
     Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
     return Function::Create(eng, def, pkg, 0);
+}
+
+int Function_name(Context* ctx, Value& self)
+{
+    // The Function type needs to dispatch getName based on type.
+    // Since Function.name will call Function::GetName instead of Type::GetName
+    // we do this.
+    if (self.IsDerivedFrom(Function::StaticGetClass()))
+    {
+        Function* fn = (Function*)self.val.object;
+        ctx->Push(fn->GetName());
+        return 1;        
+    }
+    else if (self.IsDerivedFrom(Type::StaticGetClass()))
+    {
+        Type* t = (Type*)self.val.object;
+        ctx->Push(t->GetName());   
+        return 1;
+    }    
+    RaiseException("attempt to call Function.getName with incorrect type.");
+    return 0;    
+}
+
+int Function_parent(Context* ctx, Value& self)
+{
+    if (self.IsDerivedFrom(Function::StaticGetClass()))
+    {
+        Function* fn = (Function*)self.val.object;
+        ctx->Push(fn->GetParent());
+        return 1;        
+    }
+    else if (self.IsDerivedFrom(Type::StaticGetClass()))
+    {
+        Type* t = (Type*)self.val.object;
+        ctx->Push(t->GetSuper());   
+        return 1;
+    }    
+    RaiseException("attempt to call Function.getParent with incorrect type.");
+    return 0;    
+}
+
+int Function_location(Context* ctx, Value& self)
+{
+    if (self.IsDerivedFrom(Function::StaticGetClass()))
+    {
+        Function* fn = (Function*)self.val.object;
+        ctx->Push(fn->GetLocation());
+        return 1;        
+    }
+    else if (self.IsDerivedFrom(Type::StaticGetClass()))
+    {
+        Type* t = (Type*)self.val.object;
+        ctx->Push(t->GetLocation());   
+        return 1;
+    }    
+    RaiseException("attempt to call Function.getLocation with incorrect type.");
+    return 0;    
 }
 
 }//namespace
@@ -780,12 +847,20 @@ void Function::StaticInitType(Engine* eng)
     .RegisterMethod(Function_genAs,         "genAs")
     .RegisterMethod(Function_printLiterals, "printLiterals")
     .RegisterClassMethod(Function_printBytecode,    "printBytecode")
-    .PropertyR("name",      &Function::GetName,     "getName")
     .PropertyR("location",  &Function::GetLocation, "getLocation")
-    .PropertyR("parent",    &Function::GetParent,   "getParent")
-    .Constant((pint_t)PIKA_MAX_RETC, "MAX_RET_COUNT")
+    .Constant((pint_t)PIKA_MAX_RETC,             "MAX_RET_COUNT")
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
+    
+    struct RegisterProperty Function_Properties[] =
+    {
+        { "name",     Function_name,     "getName",     0, 0, true },
+        { "parent",   Function_parent,   "getParent",   0, 0, true },
+        { "location", Function_location, "getLocation", 0, 0, true },
+    };
+    
+    eng->Function_Type->EnterProperties(Function_Properties, countof(Function_Properties));
+    
     eng->null_Function = Create_null_Function(eng);
     
     SlotBinder<InstanceMethod>(eng, eng->InstanceMethod_Type)
@@ -803,8 +878,9 @@ void Function::StaticInitType(Engine* eng)
     
     struct RegisterProperty localsObject_Properties[] =
     {
-        { "parent", LocalsObject_getParent, "getParent", 0, 0 }
+        { "parent", LocalsObject_getParent, "getParent", 0, 0, true }
     };
+    
     eng->LocalsObject_Type->EnterProperties(localsObject_Properties, countof(localsObject_Properties));
     eng->LocalsObject_Type->SetFinal(true);
     eng->LocalsObject_Type->SetAbstract(true);

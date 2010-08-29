@@ -32,7 +32,7 @@ INLINE void add_num<pint_t>(pint_t& a, pint_t& b)
     {
         if ((res ^ a) < 0)
         {
-            RaiseException(Exception::ERROR_arithmetic, "Operator +: integer overflow.");
+            RaiseException(Exception::ERROR_overflow, "Operator +: integer overflow.");
         }
     }
     a = res;
@@ -47,7 +47,7 @@ INLINE void sub_num<pint_t>(pint_t& a, pint_t& b)
     {
         if ((res ^ a) < 0)
         {
-            RaiseException(Exception::ERROR_arithmetic, "Operator -: integer underflow.");
+            RaiseException(Exception::ERROR_underflow, "Operator -: integer underflow.");
         }
     }
 
@@ -83,7 +83,7 @@ INLINE void div_num<pint_t>(pint_t& a, pint_t& b)
 #ifndef NO_DIVIDEBYZERO_ERROR
     if (b == 0)
     {
-        RaiseException(Exception::ERROR_arithmetic, "OpDiv: division by zero");
+        RaiseException(Exception::ERROR_dividebyzero, "OpDiv: division by zero");
     }
 #endif
 #if defined(USE_C_ARITH)
@@ -108,7 +108,7 @@ INLINE void mod_num<pint_t>(pint_t& a, pint_t& b)
 #ifndef NO_DIVIDEBYZERO_ERROR
     if (b == 0)
     {
-        RaiseException(Exception::ERROR_arithmetic, "OpMod: division by zero");
+        RaiseException(Exception::ERROR_dividebyzero, "OpMod: division by zero");
     }
 #endif // NO_DIVIDEBYZERO_ERROR
 
@@ -126,7 +126,7 @@ template<> INLINE void mod_num<preal_t>(preal_t& a, preal_t& b)
 #ifndef NO_DIVIDEBYZERO_ERROR
     if (b == 0)
     {
-        RaiseException(Exception::ERROR_arithmetic, "OpMod: division by zero");
+        RaiseException(Exception::ERROR_dividebyzero, "OpMod: division by zero");
     }
 #endif // NO_DIVIDEBYZERO_ERROR
 #if defined(USE_C_ARITH)

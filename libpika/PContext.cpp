@@ -2889,15 +2889,17 @@ Context::EErrRes Context::OpException(Exception& e)
             // TODO: Error type hierarchy.
             switch (e.kind)
             {
-            case Exception::ERROR_syntax:     engine->SyntaxError_Type->CreateInstance(thrown);     break;
-            case Exception::ERROR_runtime:    engine->RuntimeError_Type->CreateInstance(thrown);    break;
-            case Exception::ERROR_overflow:   engine->OverflowError_Type->CreateInstance(thrown);   break;
-            case Exception::ERROR_arithmetic: engine->ArithmeticError_Type->CreateInstance(thrown); break;
-            case Exception::ERROR_index:      engine->IndexError_Type->CreateInstance(thrown);      break;
-            case Exception::ERROR_type:       engine->TypeError_Type->CreateInstance(thrown);       break;
-            case Exception::ERROR_system:     engine->SystemError_Type->CreateInstance(thrown);     break;
-            case Exception::ERROR_assert:     engine->AssertError_Type->CreateInstance(thrown);     break;
-            default:                          engine->Error_Type->CreateInstance(thrown);
+            case Exception::ERROR_syntax:      engine->SyntaxError_Type->CreateInstance(thrown);       break;
+            case Exception::ERROR_runtime:     engine->RuntimeError_Type->CreateInstance(thrown);      break;
+            case Exception::ERROR_arithmetic:  engine->ArithmeticError_Type->CreateInstance(thrown);   break;
+            case Exception::ERROR_underflow:   engine->UnderflowError_Type->CreateInstance(thrown);    break;
+            case Exception::ERROR_overflow:    engine->OverflowError_Type->CreateInstance(thrown);     break;
+            case Exception::ERROR_dividebyzero:engine->DivideByZeroError_Type->CreateInstance(thrown); break;
+            case Exception::ERROR_index:       engine->IndexError_Type->CreateInstance(thrown);        break;
+            case Exception::ERROR_type:        engine->TypeError_Type->CreateInstance(thrown);         break;
+            case Exception::ERROR_system:      engine->SystemError_Type->CreateInstance(thrown);       break;
+            case Exception::ERROR_assert:      engine->AssertError_Type->CreateInstance(thrown);       break;
+            default:                           engine->Error_Type->CreateInstance(thrown);
             }
             
             const char* const msg = e.GetMessage();

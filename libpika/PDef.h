@@ -43,6 +43,7 @@ struct RegisterProperty
     const char*  getterName;
     Nativecode_t setter;
     const char*  setterName;
+    bool         unattached;
 };
 
 class Bytecode

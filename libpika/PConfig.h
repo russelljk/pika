@@ -105,10 +105,10 @@
 // File Ext & Path config //////////////////////////////////////////////////////////////////////////
 
 #define PIKA_EXT                      ".pika"
-#define PIKA_COMPILED_EXT             ".pikac"
+#define PIKA_COMPILED_EXT             ".cpika"
 
-#define PIKA_EXT_ALT                  ".p"
-#define PIKA_COMPILED_EXT_ALT         ".pc"
+#define PIKA_EXT_ALT                  ".pi"
+#define PIKA_COMPILED_EXT_ALT         ".cpi"
 
 #if defined(PIKA_WIN)
 #   define PIKA_PATH_SEP_CHAR         '\\'
@@ -235,7 +235,7 @@ PIKA_FORCE_INLINE preal_t ArcSin(preal_t x)    { return (preal_t)asinf(x); }
 PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)    { return (preal_t)atanf(x); }
 PIKA_FORCE_INLINE preal_t ArcTan2(preal_t x,
                                   preal_t y)   { return (preal_t)atan2f(x, y);}
-PIKA_FORCE_INLINE preal_t Ceil(preal_t x)   { return (preal_t)ceilf(x); }
+PIKA_FORCE_INLINE preal_t Ceil(preal_t x)      { return (preal_t)ceilf(x); }
 PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
                                    preal_t y)  { return (preal_t)copysignf(x, y);}
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return (preal_t)cosf(x); }

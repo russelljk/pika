@@ -10,15 +10,17 @@ const char* Exception::Static_Error_Formats[MAX_ERROR_KIND] =
 {
     "SyntaxError",
     "RuntimeError",
-    "OverflowError",
     "ArithmeticError",
+    "OverflowError",
+    "UnderflowError",
+    "DivideByZeroError",
     "IndexError",
     "TypeError",
     "SystemError",
     "AssertError",
     "ScriptError",
 };
-
+  
 Exception::~Exception() { Pika_delete(msg); }
 
 void Exception::Report() { if (msg) { std::cerr << msg << std::endl; }}

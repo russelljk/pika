@@ -296,7 +296,7 @@ Array* Array::Push(Value& v)
 {
     if (elements.GetSize() >= GetMax())
     {
-        RaiseException("Cannot add more elements to the array");
+        RaiseException("Max size reached. Cannot add more elements to the array.");
     }
     WriteBarrier(v);
     elements.Push(v);

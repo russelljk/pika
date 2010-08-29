@@ -99,6 +99,7 @@ public:
     /** Returns this string with all the characters reversed. */
     String* Reverse();
     
+    String* Chomp(String* c);
     // ------------------------------------------------------------------------
     
     /** Determines if the String has embedded '\0' characters. */

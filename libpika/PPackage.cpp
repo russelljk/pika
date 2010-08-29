@@ -129,22 +129,18 @@ void Package::Init(Context* ctx)
         String* nstr = ctx->GetStringArg(0);
         SetName(nstr);
     }
-    else if (argc == 2)
+    else if (argc >= 2)
     {
         String* nstr = ctx->GetStringArg(0);
-        Object* super = ctx->GetObjectArg(1);
+        Object* super = ctx->IsArgNull(1) ? engine->GetWorld() : ctx->GetObjectArg(1);
         
         if (!super->IsDerivedFrom(Package::StaticGetClass()))
         {
-            RaiseException(Exception::ERROR_type, "super must be a package");
+            RaiseException(Exception::ERROR_type, "attempt to initialize package: super must be a package");
         }
         superPackage = (Package*)super;
         WriteBarrier(superPackage);
         this->SetName(nstr);
-    }
-    else if (argc != 0)
-    {
-        ctx->WrongArgCount();
     }
 }
 
@@ -313,9 +309,9 @@ void Package::StaticInitType(Engine* eng)
     
     static RegisterProperty Pkg_Properties[] =
     {
-        { "parent", Pkg_getParent, "getParent", 0, 0 },
-        { "name",   Pkg_getName,   "getName",   0, 0 },
-        { "path",   Pkg_getPath,   "getPath",   0, 0 },
+        { "parent", Pkg_getParent, "getParent", 0, 0, false },
+        { "name",   Pkg_getName,   "getName",   0, 0, false },
+        { "path",   Pkg_getPath,   "getPath",   0, 0, false },
     };
     
     eng->Package_Type->EnterMethods(Package_methods, countof(Package_methods));

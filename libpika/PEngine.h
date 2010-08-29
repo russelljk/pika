@@ -312,6 +312,8 @@ public:
     Type*               ReferenceError_Type;
     Type*               ArithmeticError_Type;
     Type*               OverflowError_Type;
+    Type*               UnderflowError_Type;
+    Type*               DivideByZeroError_Type;
     Type*               SyntaxError_Type;
     Type*               IndexError_Type;
     Type*               SystemError_Type;  
