@@ -19,30 +19,37 @@ set (ADD_LIBS "")
 
 # ----------------------------- PCRE ------------------------------
 
-include (FindPCRE)
-
-if (PCRE_FOUND)
-    # echo what we found.
-    message (STATUS  ${PCRE_INCLUDE_DIR})
-    message (STATUS  ${PCRE_LIBRARIES})
-
-    include_directories ( ${PCRE_INCLUDE_DIR} )
-    set (HAVE_PCRE 1)
-    set (ADD_LIBS ${ADD_LIBS} ${PCRE_LIBRARIES})
-endif (PCRE_FOUND)
+if (RE_EXTERNAL_PCRE)
+    include (FindPCRE)
+    
+    if (PCRE_FOUND)
+        # echo what we found.
+        message (STATUS  ${PCRE_INCLUDE_DIR})
+        message (STATUS  ${PCRE_LIBRARIES})
+    
+        include_directories ( ${PCRE_INCLUDE_DIR} )
+        set (HAVE_PCRE 1)
+        set (ADD_LIBS ${ADD_LIBS} ${PCRE_LIBRARIES})
+        message (STATUS "RegExp: Using external PCRE.")
+    endif (PCRE_FOUND)
+endif (RE_EXTERNAL_PCRE)
 
 # ----------------------------- POSIX ------------------------------
 
-include (CheckFunctionExists)
-
-message (STATUS  "checking for Posix re functions.")
-check_function_exists ("regcomp;regerror;regexec;regfree" HAVE_POSIX_RE)
+if (RE_EXTERNAL_POSIX)
+    include (CheckFunctionExists)
+    
+    message (STATUS  "checking for Posix re functions.")
+    check_function_exists ("regcomp;regerror;regexec;regfree" HAVE_POSIX_RE)
+endif(RE_EXTERNAL_POSIX)
 
 # --------------------- Source + Header Files ----------------------
 
 if (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)
-    message (STATUS "no regular expression library found.")
-    return ()
+    add_subdirectory(pcre)
+    include_directories (${PROJECT_BINARY_DIR})
+    set (HAVE_PCRE 1)
+    message (STATUS "RegExp: Using internal PCRE library.")
 endif (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-re_config.h.in 
@@ -60,3 +67,12 @@ link_directories (${Pika_BINARY_DIR}/libpika)
 
 add_library (pikaRegExp SHARED ${re_LIB_SRCS} ${re_LIB_HEADERS})
 target_link_libraries (pikaRegExp ${ADD_LIBS} pika)
+if (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
+    target_link_libraries (pikaRegExp pcre)
+endif (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
+
+install (TARGETS pikaRegExp
+         RUNTIME        DESTINATION bin
+         LIBRARY        DESTINATION lib
+         ARCHIVE        DESTINATION lib         
+         FRAMEWORK      DESTINATION Library/Frameworks)

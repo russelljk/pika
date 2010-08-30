@@ -92,6 +92,8 @@ public:
     
     virtual void Init(Context* ctx)
     {
+        if (ctx->GetArgCount() != 1)
+            RaiseException("RegExp.init takes exactly one String arguments.");
         String* re = ctx->GetStringArg(0);
         Compile(re);
     }

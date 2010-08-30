@@ -12,13 +12,15 @@ At the terminal type:
 note: (don't type the > character)
 
 > mkdir build && cd build
-> cmake ../../pika -DPIKA_NO_MODULES=YES
+> cmake ../../pika
 > make
 > sudo make install
 
 The first line creates a directory to house all the build files. You can run cmake from the root directory if you prefer but the method described above will keep the source directory clean.
 
-The second line invokes CMake at the projects root directory. You define constants for CMake using the -D option (for example '-DPCRE_PATH=/usr/include/'). The option specified, PIKA_NO_MODULES, will exclude the external modules from being built. CMake can also create project files for IDEs such as Xcode, Eclipse and Visual Studio by using the -G option (i.e. '-G Xcode' creates an Xcode project). Typing cmake --help will list all generators supported on your platform.
+The second line invokes CMake at the projects root directory. You define constants for CMake using the -D option (for example '-DPCRE_PATH=/usr/include/'). CMake can also create project files for IDEs such as Xcode, Eclipse and Visual Studio by using the -G option (i.e. '-G Xcode' creates an Xcode project). Typing cmake --help will list all generators supported on your platform.
+
+*The option PIKA_NO_MODULES will exclude the external modules from being built. If you just want the base library use cmake ../../pika -DPIKA_NO_MODULES=YES
 
 The third line builds Pika. If every thing looks OK you can move on to the next step.
 
@@ -26,7 +28,5 @@ The last line will install it to a system appropriate location. The CMAKE_INSTAL
 
 Module Dependencies
 --------------------
-re - Depends on PCRE, the project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version compatible with that release should work. 
-
-curses - Depends on curses,ncurses. On Mac and Linux the default installed version will usually work. Unless you use cygwin no Windows backend is available.
+re - Depends on PCRE which is now included in the code base. The project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version compatible with that release should work. Specify RE_USE_EXTERNAL_PCRE to search for the system's PCRE.
 
