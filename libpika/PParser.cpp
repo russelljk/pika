@@ -2908,8 +2908,8 @@ FieldList* Parser::DoDictionaryExpressionFields()
         else
         {
             name = (tstream.GetType() == TOK_identifier) ?
-                   DoFieldName()                         :
-                   DoStringLiteralExpression();
+                    DoFieldName() :
+                    DoStringLiteralExpression();
                    
             Match(':');
             BufferCurrent();

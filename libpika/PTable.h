@@ -140,7 +140,12 @@ public:
     Slot** rows;  //!< Linear array of slots. Each position in the array may have more than 1 chained slot.
     size_t count; //!< The number of elements in the table.
     size_t size;  //!< The length of the slots member variable.
-
+    
+    size_t NumElements()
+    {
+        return count;
+    }
+    
     static size_t const MAX_TABLE_SLOTS; //!< Maximum number of slots a table can have.
     static size_t const MAX_TABLE_SIZE;  //!< Maximum number of rows a table can have.
 };

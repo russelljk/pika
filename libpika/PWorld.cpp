@@ -1020,7 +1020,7 @@ void Engine::InitializeWorld()
             { "toNumber",   Real_toNumber,  0, 0, 0 },
             { "toBoolean",  Real_toBoolean, 0, 0, 0 },
             { "nan?",       Real_isnan,     0, 0, 0 },
-            // TODO:: Finite? Infinite? SignBit etc...
+            // TODO:: finite? infinite? SignBit etc...
         };
         
         static RegisterProperty Real_Properties[] =

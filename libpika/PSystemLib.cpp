@@ -335,7 +335,7 @@ int os_fileExtOf(Context* ctx, Value&)
     return 1;
 }
 
-int os_addSearchPath(Context* ctx, Value&)
+int os_addPath(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     for (size_t a = 0; a < ctx->GetArgCount(); ++a)
@@ -343,6 +343,18 @@ int os_addSearchPath(Context* ctx, Value&)
         String* path = ctx->GetStringArg(a);
         if ( !path->HasNulls() )
             eng->AddSearchPath(path);
+    }
+    return 0;
+}
+
+int os_addEnvPath(Context* ctx, Value&)
+{
+    Engine* eng = ctx->GetEngine();
+    for (size_t a = 0; a < ctx->GetArgCount(); ++a)
+    {
+        String* path = ctx->GetStringArg(a);
+        if ( !path->HasNulls() && path->GetLength() > 0)
+            eng->AddEnvPath(path->GetBuffer());
     }
     return 0;
 }
@@ -477,7 +489,7 @@ int os_lib_load(Context* ctx, Value&)
     .StaticMethod( Pika_IsFile,              "file?")       // Checks for the existence of a file.
     .StaticMethod( Pika_IsDirectory,         "dir?")        // Checks for the existence of a directory.
     .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
-    .StaticMethod( Pika_RemoveDirectory,     "RemoveDir")   // Removes a directory.
+    .StaticMethod( Pika_RemoveDirectory,     "removeDir")   // Removes a directory.
     .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
     .Register    ( os_sleep,                 "sleep")       // Sleep a given number of ms.
     .Register    ( os_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
@@ -488,9 +500,10 @@ int os_lib_load(Context* ctx, Value&)
     .Register    ( os_getFullPath,           "getFullPath")
     .Register    ( os_fileExtOf,             "fileExtOf")
     .Register    ( os_fileNameOf,            "fileNameOf")
-    .Register    ( os_addSearchPath,         "addSearchPath")
+    .Register    ( os_addPath,               "addPath")
+    .Register    ( os_addEnvPath,            "addEnvPath")
     ;
-        
+    
     eng->PutImport(os_String, os_Package);
     ctx->Push(os_Package);
     return 1;

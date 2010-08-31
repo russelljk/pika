@@ -17,6 +17,9 @@ namespace pika {
         virtual bool BracketRead(const Value& key, Value& res);
         virtual bool BracketWrite(const Value& key, Value& value, u4 attr=0);
         
+        Array* Keys();
+        Array* Values();
+        
         static void Constructor(Engine* eng, Type* type, Value& res);
         static void StaticInitType(Engine*);
     protected:

@@ -39,11 +39,38 @@ void Dictionary::Constructor(Engine* eng, Type* type, Value& res)
     res.Set(dict);
 }
 
+Array* Dictionary::Keys()
+{
+    GCPAUSE_NORUN(engine);
+    Array* res = Array::Create(engine, engine->Array_Type,0,0);
+    res->SetLength(elements.NumElements());
+    size_t index = 0;
+    for (Table::Iterator i = elements.GetIterator(); i; ++i) {
+        (*res)[index++] = i->key;
+    }
+    return res;
+}
+
+Array* Dictionary::Values()
+{
+    GCPAUSE_NORUN(engine);
+    Array* res = Array::Create(engine, engine->Array_Type,0,0);
+    res->SetLength(elements.NumElements());
+    size_t index = 0;
+    for (Table::Iterator i = elements.GetIterator(); i; ++i) {
+        (*res)[index++] = i->val;
+    }
+    return res;
+}
+
 void Dictionary::StaticInitType(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
     eng->Dictionary_Type = Type::Create(eng, eng->AllocString("Dictionary"), eng->Object_Type, Dictionary::Constructor, eng->GetWorld());
-    SlotBinder<Dictionary>(eng, eng->Dictionary_Type, eng->GetWorld());
+    SlotBinder<Dictionary>(eng, eng->Dictionary_Type, eng->GetWorld())
+    .Method(&Dictionary::Keys,      "keys")
+    .Method(&Dictionary::Values,    "values")
+    ;
 }
 
 }// pika
