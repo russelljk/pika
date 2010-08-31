@@ -278,6 +278,8 @@ protected:
     /** Remove the current active Context. */    
     void Deactivate();
 public:
+    LexicalEnv* GetEnv() { return env; }
+    
     bool    SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
     bool    SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the right hand side
     bool    SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the left hand side
@@ -285,6 +287,8 @@ public:
     
     ScopeIter GetFirstScope() { /* returns a copy */ return scopesBeg; } 
     ScopeIter GetScopeTop()   { /* returns a copy */ return scopesTop; } 
+    
+    size_t ScopeCount() { return scopes.GetSize(); }
     
     INLINE bool IsSuspended() const { return state == SUSPENDED; }
     INLINE bool IsRunning()   const { return state == RUNNING;   }

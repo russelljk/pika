@@ -19,7 +19,6 @@ struct StringExpr;
 struct NameNode;
 struct Decl;
 struct ParamDecl;
-struct CaseList;
 struct CompileState;
 struct FieldList;
 struct LocalDecl;
@@ -142,7 +141,6 @@ private:
     Stmt*           DoFunctionStatement();
     Stmt*           DoIfStatement();
     Stmt*           DoWhileStatement();
-    Stmt*           DoUntilStatement();
     Stmt*           DoLoopStatement();
 
     Stmt*           DoForStatement();
@@ -164,12 +162,9 @@ private:
     Stmt*           DoFinallyBlock(Stmt*);
     Stmt*           DoWithStatement();
     Stmt*           DoPackageDeclaration();
-    Stmt*           DoCaseStatement();
     Stmt*           DoClassStatement();
     
     NameNode*       DoNameNode(bool);
-    
-    Stmt*           DoAssertStatement();
     
     void            DoBlockBegin(int, int, int);
     // Expression parsing ------------------------------------------------------
@@ -208,7 +203,6 @@ private:
     ExprList*       DoOptionalExpressionList(const int* terms, bool optcomma = false);
     Stmt*           DoStatementList(const int* terms);
     Stmt*           DoStatementListBlock(const int* terms);
-    CaseList*       DoCaseList(const int* terms);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     

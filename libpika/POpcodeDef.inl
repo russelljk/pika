@@ -6,9 +6,7 @@
     DECL_OP( OP_jump,           "jump",         3, OF_target,   "Jumps to a location in the byte-code." )
     DECL_OP( OP_jumpiffalse,    "jumpiffalse",  3, OF_target,   "Jumps to a location in the byte-code if the value on top of the stack is evaluates to false." )
     DECL_OP( OP_jumpiftrue,     "jumpiftrue",   3, OF_target,   "Jumps to a location in the byte-code if the value on top of the stack is evaluates to true." )
-    
-    DECL_OP( OP_assert,         "assert",       1, OF_none,     "Raises an assertion exception if the value on top of the stack does not evaluate to true." )
-    
+        
     DECL_OP( OP_pushnull,       "pushnull",     1, OF_none,     "Pushes null onto the stack." )
     DECL_OP( OP_pushself,       "pushself",     1, OF_none,     "Pushes the current self object onto the stack." )
     

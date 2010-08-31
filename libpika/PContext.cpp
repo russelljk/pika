@@ -1375,7 +1375,8 @@ void Context::OpSuper()
     }
     if (!found)
     {
-        PushNull();
+        const char* type = closure->GetType()->GetName()->GetBuffer();
+        ReportRuntimeError(Exception::ERROR_type, "could not find super of %s \"%s\".", type, methname ? methname->GetBuffer() : 0);
     }
 }
 
@@ -1395,15 +1396,26 @@ void Context::ReportRuntimeError(Exception::Kind kind, const char* msg, ...)
     buffer[BUFSZ] = '\0';
     
     va_end(args);
+    code_t* err_pc = pc;
+    Function* err_fn = closure;
     
-    if (!closure)
+    if (kind == Exception::ERROR_assert) {
+        if (scopesTop > scopesBeg) {
+            ScopeIter iter = scopesTop;
+            --iter;
+            err_pc = iter->pc;
+            err_fn = iter->closure;
+        }
+    }
+    
+    if (!err_fn)
     {
         RaiseException(kind, buffer);
     }
     else
     {
-        String* name = closure->GetDotPath();
-        if (!pc)
+        String* name = err_fn->GetDotPath();
+        if (!err_pc)
         {
             RaiseException(kind,
                            "In function '%s': \"%s\"",
@@ -1412,7 +1424,7 @@ void Context::ReportRuntimeError(Exception::Kind kind, const char* msg, ...)
         }
         else
         {
-            int line = closure->DetermineLineNumber(pc);
+            int line = err_fn->DetermineLineNumber(err_pc);
             
             RaiseException(kind,
                            "At line %d in function '%s': \"%s\"",

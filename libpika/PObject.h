@@ -81,6 +81,13 @@ public:
       */
     virtual void EnterFunctions(RegisterFunction* rf, size_t count, Package* pkg = 0);
     
+    /** Add properties to this object.
+      *
+      * @param rp       [in] Pointer to an array of type RegisterProperty.
+      * @param count    [in] Number of properties to add.
+      */
+    virtual void EnterProperties(RegisterProperty* rp, size_t count, Package* pkg = 0);
+        
     /** Create a new class Instance.
       * 
       * @param eng   [in] The Engine the object is created in.

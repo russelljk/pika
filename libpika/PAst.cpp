@@ -1404,32 +1404,6 @@ void PkgDecl::CalculateResources(SymbolTable* st, CompileState& cs)
     NamedTarget::CalculateResources(st, cs);
 }
 
-CaseList::CaseList(ExprList* matches, Stmt* body) : matches(matches), body(body) {}
-
-void CaseList::DoResources(SymbolTable* st, CompileState& cs)
-{
-    matches->CalculateResources(st, cs);
-    body->CalculateResources(st, cs);
-    
-    if (next) next->DoResources(st, cs);
-}
-
-CaseStmt::CaseStmt(Expr* selector, CaseList* cases, Stmt* elsebody)
-        : Stmt(Stmt::STMT_case),
-        selector(selector),
-        cases(cases),
-    elsebody(elsebody) {}
-    
-void CaseStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
-{
-    if (!cases && !elsebody) return;
-    
-    selector->CalculateResources(st, cs);
-    
-    if (cases)    cases->DoResources(st, cs);
-    if (elsebody) elsebody->CalculateResources(st, cs);
-}
-
 void NameNode::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     if (idexpr)
@@ -1463,11 +1437,6 @@ const char* NameNode::GetName()
     }
     SHOULD_NEVER_HAPPEN();
     return 0;
-}
-
-void AssertStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
-{
-    if (expr) expr->CalculateResources(st, cs);
 }
 
 ClassDecl::~ClassDecl()

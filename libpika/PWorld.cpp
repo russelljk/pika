@@ -620,6 +620,31 @@ void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+int World_assert(Context* ctx, Value& self)
+{
+    u2 argc = ctx->GetArgCount();
+    
+    for (u2 a =0; a < argc; ++a) 
+    {
+        Value t  = ctx->GetArg(a);
+        bool a_ok = false;
+        
+        if (t.tag == TAG_boolean)
+        {
+            a_ok = (t.val.index != 0);
+        }
+        else
+        {
+            a_ok = ctx->GetEngine()->ToBoolean(ctx, t);
+        }
+        if (!a_ok)
+        {
+            ctx->ReportRuntimeError(Exception::ERROR_assert, "Runtime assertion failed.");
+        }
+    }
+    return 0;
+}
+
 }// namespace
 
 class GCPause : public Object
@@ -933,7 +958,9 @@ void Engine::InitializeWorld()
             { "range",   Global_range,  0, 1, 0 },
             { "each",    Global_each,   3, 0, 1 },
             { "gcRun",   Global_gcRun,  1, 0, 1 },
+            { "assert",  World_assert,  0, 1, 0 },
         };
+        
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
         Pkg_World->SetType(Package_Type);
         

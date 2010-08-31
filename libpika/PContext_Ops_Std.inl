@@ -77,28 +77,6 @@ PIKA_OPCODE(OP_jumpiftrue)
 }
 PIKA_NEXT()
 /*
- * Raises an exception if an expression evaluates to false.
- */
-PIKA_OPCODE(OP_assert)
-{
-    Value& t  = PopTop();
-    bool a_ok = false;
-    
-    if (t.tag == TAG_boolean)
-    {
-        a_ok = (t.val.index != 0);
-    }
-    else
-    {
-        a_ok = engine->ToBoolean(this, t);
-    }
-    if (!a_ok)
-    {
-        ReportRuntimeError(Exception::ERROR_assert, "Runtime assertion failed.");
-    }
-}
-PIKA_NEXT()
-/*
  * Pushes null onto the stack.
  */
 PIKA_OPCODE(OP_pushnull)

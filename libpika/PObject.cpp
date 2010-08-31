@@ -220,6 +220,82 @@ void Object::EnterFunctions(RegisterFunction* fns, size_t count, Package* pkg)
     }
 }
 
+void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
+{
+    GCPAUSE_NORUN(engine);
+    pkg = pkg ? pkg : engine->GetWorld();
+    for (RegisterProperty* propdef = rp; propdef < (rp + count); ++propdef)
+    {
+        String* strname = engine->AllocString(propdef->name);
+        
+        // Create the getter function.
+        Function* getter = 0;
+        if (propdef->getter)
+        {
+            String* getname = propdef->getterName ?
+                              engine->AllocString(propdef->getterName) :
+                              engine->emptyString;
+                              
+            Def* def = Def::CreateWith(engine, getname, propdef->getter,
+                                       0, false, true, 0);
+                                        
+            getter = Function::Create(engine, def, pkg);
+            
+            // Add the getter function if a name was provided.
+            if (propdef->getterName)
+            {
+                AddFunction(getter);
+            }
+        }
+        
+        // Create the setter function.
+        Function* setter = 0;
+        if (propdef->setter)
+        {
+            String* setname = propdef->setterName ?
+                              engine->AllocString(propdef->setterName) :
+                              engine->emptyString;
+                              
+            Def* def = Def::CreateWith(engine, setname, propdef->setter,
+                                       1, false, true, 0);
+                                       
+            setter =  Function::Create(engine, def, pkg);
+            
+            // Add the setter function if a name was provided.
+            if (propdef->setterName)
+            {
+                AddFunction(setter);
+            }
+        }
+        
+        Property* prop = 0;
+        if (getter)
+        {
+            if (setter)
+            {
+                prop = Property::CreateReadWrite(engine, strname, getter, setter);
+            }
+            else
+            {
+                prop = Property::CreateRead(engine, strname, getter);
+            }
+        }
+        else if (setter)
+        {
+            prop = Property::CreateWrite(engine, strname, setter);
+        }
+        
+        if (prop)
+        {
+            AddProperty(prop);
+        }
+        else
+        {
+            ASSERT(false && "property not added");
+        }
+    }
+}
+
 namespace {
 
 int Object_remove(Context* ctx, Value& self)

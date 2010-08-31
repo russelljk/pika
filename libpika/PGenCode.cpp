@@ -2145,70 +2145,6 @@ Instr* PkgDecl::GenerateCode()
     return ipkgname;
 }
 
-Instr* CaseStmt::DoStmtCodeGen()
-{
-    if (!cases && !elsebody)
-        return Instr::Create(OP_nop);
-        
-    Instr*    iselector = selector->GenerateCode();
-    Instr*    iend      = Instr::Create(JMP_TARGET);
-    Instr*    ipop      = Instr::Create(OP_pop);
-    Opcode    opcode    = OP_eq;
-    CaseList* currCase  = cases;
-    
-    while (currCase)
-    {
-        ExprList* currMatch   = currCase->matches;
-        Instr*    imatchstart = Instr::Create(OP_nop);
-        Instr*    imatchbody  = currCase->body->GenerateCode();
-        Instr*    ijmptoend   = Instr::Create(OP_jump);
-        Instr*    imatchend   = Instr::Create(JMP_TARGET);
-        Instr*    iskip       = Instr::Create(OP_jump);
-        
-        while (currMatch)
-        {
-            Instr* idup     = Instr::Create(OP_dup);
-            Instr* imatch   = currMatch->expr->GenerateCode();
-            Instr* iop      = Instr::Create(opcode);
-            Instr* ijmpCond = Instr::Create(OP_jumpiftrue);
-            
-            imatchstart->
-            Attach(idup)->
-            Attach(imatch)->
-            Attach(iop)->
-            Attach(ijmpCond);
-            
-            ijmpCond->SetTarget(imatchbody);
-            currMatch = currMatch->next;
-        }
-        iselector->
-        Attach(imatchstart)->
-        Attach(iskip)->
-        Attach(imatchbody)->
-        Attach(ijmptoend)->
-        Attach(imatchend);
-        
-        iskip->SetTarget(imatchend);
-        ijmptoend->SetTarget(iend);
-        
-        imatchbody->DoLoopPatch(ijmptoend, imatchend, 0);
-        
-        currCase = currCase->next;
-    }
-    
-    if (elsebody)
-    {
-        Instr* ielse = elsebody->GenerateCode();
-        iselector->Attach(ielse);
-    }
-    
-    iselector->
-    Attach(iend)->
-    Attach(ipop);
-    
-    return iselector;
-}
-
 // NameNode ////////////////////////////////////////////////////////////////////////////////////////
 
 Instr* NameNode::GenerateCode()
@@ -2237,23 +2173,6 @@ Instr* NameNode::GenerateCodeSet()
     }
     SHOULD_NEVER_HAPPEN();
     return 0;
-}
-
-#define HANDLE_ASSERT true
-
-Instr* AssertStmt::DoStmtCodeGen()
-{
-    if (HANDLE_ASSERT)
-    {
-        Instr* iexpr   = expr->GenerateCode();
-        Instr* iassert = Instr::Create(OP_assert);
-        iexpr->Attach(iassert);
-        return iexpr;
-    }
-    else
-    {
-        return Instr::Create(OP_nop);
-    }
 }
 
 Instr* DeleteStmt::DoStmtCodeGen()

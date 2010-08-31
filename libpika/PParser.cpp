@@ -412,10 +412,8 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_property:      stmt = DoPropertyStatement();  break;    
     case TOK_class:         stmt = DoClassStatement();     break;
         
-    case TOK_if:
-    case TOK_unless:        stmt = DoIfStatement();        break;
+    case TOK_if:            stmt = DoIfStatement();        break;
     case TOK_while:         stmt = DoWhileStatement();     break;
-    case TOK_until:         stmt = DoUntilStatement();     break;
     case TOK_loop:          stmt = DoLoopStatement();      break;
     case TOK_for:           stmt = DoForStatement();       break;
     case TOK_return:        stmt = DoReturnStatement();    break;
@@ -423,10 +421,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_break:         stmt = DoBreakStatement();     break;
     case TOK_continue:      stmt = DoContinueStatement();  break;
     case TOK_begin:         stmt = DoBlockStatement();     break;
-
-    case TOK_case:          stmt = DoCaseStatement();      break;
-    case TOK_assert:        stmt = DoAssertStatement();    break;
-
+    
     case TOK_delete:
     {
         DeleteStmt* delstmt = 0;        
@@ -533,22 +528,6 @@ Stmt* Parser::DoClassStatement()
     stmt->line = decl->line = line;
     
     return DoFinallyBlock(stmt);
-}
-
-Stmt* Parser::DoAssertStatement()
-{
-    int line = tstream.GetLineNumber();
-    
-    Match(TOK_assert);
-    BufferCurrent();    
-    Expr* expr = DoExpression();
-    
-    DoEndOfStatement();
-    
-    AssertStmt* stmt;
-    PIKA_NEWNODE(AssertStmt, stmt, (expr));
-    stmt->line = line;
-    return stmt;
 }
 
 void Parser::DoBlockBegin(int tok, int prevln, int currln)
@@ -674,87 +653,6 @@ Stmt* Parser::DoPackageDeclaration()
     
     stmt->line = decl->line = line;
     
-    return stmt;
-}
-
-CaseList* Parser::DoCaseList(const int* terms)
-{
-    CaseList* cases = 0;
-    
-    while (Optional(TOK_when))
-    {
-        BufferCurrent();
-        ExprList* matches = DoExpressionList();
-
-        BufferCurrent();
-        if (!Optional(':'))
-        {
-            /*
-            ==========================================================             
-            If the entire list is on the same line we don't need to 
-            Match ':'.
-            ----------------------------------------------------------
-            Example:
-         
-            case x
-            when 1, 2, 3
-                print 'OK' # OK because print is on the next line.
-            end
-            ==========================================================
-            */
-            ExprList* curr = matches;
-            while (curr && curr->next)
-                curr = curr->next;
-                
-            int thenline = curr->line;
-            if (thenline == tstream.GetLineNumber())
-                Expected(':');
-        }
-        
-        BufferCurrent();
-        Stmt* body = DoStatementListBlock(terms);
-        
-        CaseList* c;
-        PIKA_NEWNODE(CaseList, c, (matches, body));
-        
-        if (cases)
-        {
-            cases->Attach(c);
-        }
-        else
-        {
-            cases = c;
-        }
-    }
-    return cases;
-}
-
-Stmt* Parser::DoCaseStatement()
-{
-    Stmt* stmt = 0;
-    int line = tstream.GetLineNumber();
-    const int terms[] = { TOK_else, TOK_end, TOK_when, 0 };
-    
-    Match(TOK_case);
-    BufferCurrent();
-    
-    Expr* selector = DoExpression();
-    BufferCurrent();
-    
-    CaseList* cases = DoCaseList(terms);
-    Stmt* elsebody = 0;
-    
-    BufferCurrent();
-    if (Optional(TOK_else))
-    {
-        BufferCurrent();
-        elsebody = DoStatementListBlock(Static_end_terms);
-    }
-    
-    Match(TOK_end);
-    
-    PIKA_NEWNODE(CaseStmt, stmt, (selector, cases, elsebody));
-    stmt->line = line;
     return stmt;
 }
 
@@ -1192,11 +1090,8 @@ Stmt* Parser::DoIfStatement()
     
     BufferNext();
     
-    if (!Optional(TOK_if))
-    {
-        Match(TOK_unless);
-        unless = true;
-    }
+    Match(TOK_if);
+
     
     cond = DoExpression();
     DoBlockBegin(TOK_then, cond->line, tstream.GetLineNumber());
@@ -1258,27 +1153,6 @@ Stmt* Parser::DoWhileStatement()
     PIKA_NEWNODE(CondLoopStmt, stmt, (cond, body, false, false));
     stmt->line = cond->line;
            
-    return DoFinallyBlock(stmt);
-}
-
-Stmt* Parser::DoUntilStatement()
-{
-    Expr* cond = 0;
-    Stmt* body = 0;
-    Stmt* stmt = 0;
-    
-    BufferNext();
-    Match(TOK_until);
-    
-    cond = DoExpression();
-    BufferCurrent();
-    
-    DoBlockBegin(TOK_do, cond->line, tstream.GetLineNumber());
-    body = DoStatementListBlock(Static_finally_terms);
-    
-    PIKA_NEWNODE(CondLoopStmt, stmt, (cond, body, false, true));
-    stmt->line = cond->line;
-    
     return DoFinallyBlock(stmt);
 }
 
@@ -1506,7 +1380,7 @@ Stmt* Parser::DoReturnStatement()
     
     Match(TOK_return);
     
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))//&& (tstream.GetType() != TOK_unless))
+    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))
     {
         exprList = DoExpressionList();
     }
@@ -1537,7 +1411,7 @@ Stmt* Parser::DoYieldStatement()
     
     Match(TOK_yield);
     
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))//&& (tstream.GetType() != TOK_unless))
+    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))
     {
         exprList = DoExpressionList();
     }
@@ -2284,7 +2158,6 @@ Expr* Parser::DoPostfixExpression()
             expr->line = lhs->line;
             return expr;
         }
-        case TOK_unless:
         case TOK_if:
         {
             int line = tstream.GetLineNumber();
@@ -2294,14 +2167,8 @@ Expr* Parser::DoPostfixExpression()
             bool unless = false;
 
             BufferNext();
-            if (Optional(TOK_unless))
-            {
-                unless = true;
-            }
-            else
-            {
-                Match(TOK_if);
-            }
+            Match(TOK_if);
+            
             Expr* cond  = DoExpression();
             
             BufferNext();

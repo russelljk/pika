@@ -55,7 +55,6 @@ struct              LocalDecl;
 struct              MemberDeclaration;
 struct      CatchIsBlock;
 struct      Stmt;
-struct          AssertStmt;
 struct          FinallyStmt;
 struct          RaiseStmt;
 struct          TryStmt;
@@ -78,7 +77,6 @@ struct          BlockStmt;
 struct          DeclStmt;
 struct          AssignmentStmt;
 struct          WithStatement;
-struct          CaseStmt;
 struct          DeleteStmt;
 struct      Expr;
 struct          LoadExpr;
@@ -103,7 +101,6 @@ struct          ArrayExpr;
 struct      FieldList;
 struct      ExprList;
 struct      NameNode;
-struct      CaseList;
 
 
 // StorageKind /////////////////////////////////////////////////////////////////////////////////////
@@ -491,17 +488,6 @@ struct Stmt : TreeNode
     u1 newline;
     Kind kind;
 };
-
-struct AssertStmt : Stmt
-{
-    AssertStmt(Expr* e) : Stmt(Stmt::STMT_assert), expr(e) {}
-    
-    virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
-    virtual Instr* DoStmtCodeGen();
-    
-    Expr* expr;
-};
-
 
 // FinallyStmt ////////////////////////////////////////////////////////////////////////////////
 
@@ -1547,32 +1533,6 @@ struct PkgDecl : NamedTarget
     SymbolTable*    symtab;
     StringExpr*     id;
     Stmt*           body;
-};
-
-////////////////////////////////////////////// CaseList ////////////////////////////////////////////
-
-struct CaseList : TreeNode, TLinked<CaseList>
-{
-    CaseList(ExprList* matches, Stmt* body);
-    
-    virtual void DoResources(SymbolTable* st, CompileState& cs);
-    
-    ExprList*   matches;
-    Stmt*       body;
-};
-
-////////////////////////////////////////////// CaseStmt ////////////////////////////////////////////
-
-struct CaseStmt : Stmt
-{
-    CaseStmt(Expr* selector, CaseList* cases, Stmt* elsebody);
-    
-    virtual void    DoStmtResources(SymbolTable* st, CompileState& cs);    
-    virtual Instr*  DoStmtCodeGen();
-    
-    Expr*       selector;
-    CaseList*   cases;
-    Stmt*       elsebody;
 };
 
 ////////////////////////////////////////////// NameNode ////////////////////////////////////////////
