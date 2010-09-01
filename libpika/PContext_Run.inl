@@ -228,9 +228,8 @@ void Context::Run()
             PIKA_OPCODE(OP_locals)
             {
                 GCPAUSE_NORUN(engine);
-                
+                CreateEnv();                
                 ptrdiff_t pc_index = ((pc - 1) - closure->GetBytecode());
-                
                 Object* obj = LocalsObject::Create(engine, engine->LocalsObject_Type, closure, env, pc_index);
                 Push(obj);
             }

@@ -823,9 +823,15 @@ void Tokenizer::ReadControl()
         }
         else if (look == '/')
         {
+            
+            tokenType = TOK_div;            
             GetLook();
-            ReadSingleLineComment();
-            return GetNext();
+            
+            if (look == '=')
+            {
+                tokenType = TOK_idivassign;
+                GetLook();
+            }
         }
     }
     break;

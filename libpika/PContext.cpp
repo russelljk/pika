@@ -1210,6 +1210,27 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
     return false;
 }
 
+void Context::CreateEnv()
+{
+    if (closure && closure->def && !env)
+    {
+        env = LexicalEnv::Create(engine, true);
+        env->Set(bsp, closure->def->numLocals);         
+    }
+}
+
+void Context::CreateEnvAt(ScopeIter iter)
+{
+    if (!(iter <= scopesTop && iter >= scopesBeg))
+        return;
+    
+    if (iter->closure && iter->closure->def && !iter->env)
+    {
+        iter->env = LexicalEnv::Create(engine, true);
+        iter->env->Set(stack + iter->stackBase, iter->closure->def->numLocals);
+    }
+}
+
 bool Context::SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res)
 {
     ASSERT(obj);

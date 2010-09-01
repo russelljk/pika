@@ -1281,6 +1281,7 @@ Opcode AssignmentStmt::GetOpcode() const
     case SUB_ASSIGN_STMT:           return OP_sub;
     case MUL_ASSIGN_STMT:           return OP_mul;
     case DIV_ASSIGN_STMT:           return OP_div;
+    case IDIV_ASSIGN_STMT:          return OP_idiv;
     case MOD_ASSIGN_STMT:           return OP_mod;
     case CONCAT_SPACE_ASSIGN_STMT:  return OP_catsp;
     case CONCAT_ASSIGN_STMT:        return OP_cat;

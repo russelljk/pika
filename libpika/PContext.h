@@ -174,6 +174,7 @@ protected:
     u4             callsCount;      //!< The number of inlined calls for a suspended context.
     Value          acc;             //!< The Value of the last expression executed. Used for implicit returns (ie a return with no specified expression).
 protected:
+    void    CreateEnv();
     
     INLINE bool IsWithFrame()    { return ((scopesTop >  scopesBeg) && (*(scopesTop - 1)).kind == SCOPE_with);    }
     INLINE bool IsPackageFrame() { return ((scopesTop >  scopesBeg) && (*(scopesTop - 1)).kind == SCOPE_package); }
@@ -279,6 +280,7 @@ protected:
     void Deactivate();
 public:
     LexicalEnv* GetEnv() { return env; }
+    void    CreateEnvAt(ScopeIter);
     
     bool    SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
     bool    SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the right hand side

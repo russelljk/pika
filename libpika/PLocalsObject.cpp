@@ -66,12 +66,11 @@ LocalsObject* LocalsObject::GetParent()
     {
         Function* parentFunc    = function->parent;
         ptrdiff_t parentPos     = function->def->bytecodePos;
-        pint_t     parentCodeLen = parentFunc->def->bytecode->length;
+        pint_t    parentCodeLen = parentFunc->def->bytecode->length;
         
         if (parentPos >= 0 && parentPos < parentCodeLen)
         {
             parent = Create(engine, GetType(), parentFunc, function->lexEnv, parentPos);
-            parent->lexEnv = parentFunc->lexEnv;
         }
     }
     return parent;

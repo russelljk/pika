@@ -1531,6 +1531,7 @@ static bool IsAssignment(int t)
     case TOK_subassign:
     case TOK_mulassign:
     case TOK_divassign:
+    case TOK_idivassign:    
     case TOK_modassign:
         return true;
     default:
@@ -1553,6 +1554,7 @@ static AssignmentStmt::AssignKind GetAssignmentKind(int t)
     case TOK_subassign:    return AssignmentStmt::SUB_ASSIGN_STMT;
     case TOK_mulassign:    return AssignmentStmt::MUL_ASSIGN_STMT;
     case TOK_divassign:    return AssignmentStmt::DIV_ASSIGN_STMT;
+    case TOK_idivassign:   return AssignmentStmt::IDIV_ASSIGN_STMT;
     case TOK_modassign:    return AssignmentStmt::MOD_ASSIGN_STMT;
     case TOK_catspassign:  return AssignmentStmt::CONCAT_SPACE_ASSIGN_STMT;
     case TOK_catassign:    return AssignmentStmt::CONCAT_ASSIGN_STMT;
@@ -2094,6 +2096,7 @@ bool Parser::IsPrimaryExpression()
     case TOK_function:
     case TOK_identifier:
     case TOK_stringliteral:
+    case TOK_string_r:    
     case TOK_integerliteral:
     case TOK_realliteral:
     case TOK_locals:
@@ -2114,7 +2117,8 @@ Expr* Parser::DoPostfixExpression()
     
     for (;;)
     {
-        if (IsPrimaryExpression() && tstream.GetPrevType() == TOK_identifier)
+        if (IsPrimaryExpression() && (tstream.GetPrevType() == TOK_identifier 
+            || tstream.GetPrevType() == TOK_super|| tstream.GetPrevType() == TOK_self))
         {
             /*
             --------------------------------------------------------------------------------------------
@@ -2376,29 +2380,8 @@ Expr* Parser::DoPrimaryExpression()
      */
     case TOK_super:
     {
-        Match(TOK_super);
-        
-        ExprList* callargs = 0;
-        Expr* lhs = 0;
-        
-        PIKA_NEWNODE(LoadExpr, lhs, (LoadExpr::LK_super));
-        lhs->line = line;
-        
-        if (Optional('('))
-        {
-            const int call_terms[] = { ')', EOI, 0 };
-            BufferCurrent();
-            callargs = DoOptionalExpressionList(call_terms);
-            line = tstream.GetLineNumber();
-            Match(')');
-        }
-        else
-        {
-            if (IsPrimaryExpression() && tstream.GetLineNumber() == tstream.GetPreviousLineNumber())
-                callargs = DoExpressionList();
-        }        
-        PIKA_NEWNODE(CallExpr, expr, (lhs, callargs));
-        ((CallExpr*)expr)->redirectedcall = true;
+        Match(TOK_super);        
+        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_super));
         expr->line = line;
     }
     break;
@@ -2484,30 +2467,35 @@ Expr* Parser::DoStringLiteralExpression()
     if (Optional(TOK_string_r))
     {
         bool need_more = true;
-        
+        // Get the first part of the string-constructor
         PIKA_NEWNODE(StringExpr, expr, (value, len));
-        expr->line = line;  
-                     
+        expr->line = line;
+        
+        // Start cat'ing the string parts together.
         while (need_more)
-        {            
+        {
+            // Grab the expression in-between the braces. And concat it to what we already have.
             Expr* rhs = DoNameNode(true);
             PIKA_NEWNODE(BinaryExpr, expr, (BinaryExpr::EXPR_cat, expr, rhs));
             rhs->line = line;
             expr->line = line;
             
             value = tstream.GetString();
-            len = tstream.GetStringLength();            
+            len = tstream.GetStringLength();
             
             if (Optional(TOK_string_b))
             {
+                // Grab another segment of the string...
                 PIKA_NEWNODE(StringExpr, rhs, (value, len));
             }
             else
             {
+                // Grab the last part of the string...
                 Match(TOK_string_l);
-                PIKA_NEWNODE(StringExpr, rhs, (value, len));     
-                need_more = false;                           
+                PIKA_NEWNODE(StringExpr, rhs, (value, len));
+                need_more = false;
             }
+            // cat the previous parts to the new part.
             PIKA_NEWNODE(BinaryExpr, expr, (BinaryExpr::EXPR_cat, expr, rhs));
             expr->line = line;
             rhs->line = line;            

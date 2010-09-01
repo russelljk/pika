@@ -864,11 +864,11 @@ void Function::StaticInitType(Engine* eng)
     eng->null_Function = Create_null_Function(eng);
     
     SlotBinder<InstanceMethod>(eng, eng->InstanceMethod_Type)
-    .PropertyR("instanceType", &InstanceMethod::GetClassType, "GetInstanceType")
+    .PropertyR("classObject", &InstanceMethod::GetClassType, "getClassObject")
     ;
     
     SlotBinder<ClassMethod>(eng, eng->ClassMethod_Type)
-    .PropertyR("instanceType", &ClassMethod::GetClassType, "GetInstanceType")
+    .PropertyR("classObject", &ClassMethod::GetClassType, "getClassObject")
     ;
     
     SlotBinder<BoundFunction>(eng, eng->BoundFunction_Type)

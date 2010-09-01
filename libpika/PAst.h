@@ -1483,6 +1483,7 @@ struct AssignmentStmt : Stmt
         SUB_ASSIGN_STMT,
         MUL_ASSIGN_STMT,
         DIV_ASSIGN_STMT,
+        IDIV_ASSIGN_STMT,
         MOD_ASSIGN_STMT,
         CONCAT_SPACE_ASSIGN_STMT,
         CONCAT_ASSIGN_STMT,
