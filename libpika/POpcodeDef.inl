@@ -94,8 +94,6 @@
     DECL_OP( OP_subget,         "subget",       1, OF_none,     "" )
     DECL_OP( OP_subset,         "subset",       1, OF_none,     "" )
     
-    DECL_OP( OP_delete,         "delete",       1, OF_none,     "" )
-    
     DECL_OP( OP_locals,         "locals",       1, OF_none,     "" )
 
     DECL_OP( OP_method,         "method",       3, OF_w,        "" )

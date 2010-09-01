@@ -41,8 +41,6 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_if),
     PIKA_keyword(TOK_for),
     PIKA_keyword(TOK_else),
-    PIKA_keyword(TOK_then),
-    PIKA_keyword(TOK_do),
     PIKA_keyword(TOK_in),
     PIKA_keyword(TOK_of),
     PIKA_keyword(TOK_is),
@@ -67,12 +65,10 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_using),
     PIKA_keyword(TOK_when),
     PIKA_keyword(TOK_bind),
-    PIKA_keyword(TOK_delete),
     PIKA_keyword(TOK_to),
     PIKA_keyword(TOK_downto),
     PIKA_keyword(TOK_by),
     PIKA_keyword(TOK_class),
-    PIKA_keyword(TOK_div),
 };
 
 #define NumKeywordDescriptors ((sizeof (static_keywords))/(sizeof (KeywordDescriptor)))
@@ -754,11 +750,6 @@ void Tokenizer::ReadControl()
             GetLook();
             
         }        
-        else if (look == '>')
-        {
-            tokenType = TOK_implies;
-            GetLook();
-        }
         else if (look == '=')
         {
             tokenType = TOK_subassign;
@@ -1032,6 +1023,11 @@ void Tokenizer::ReadControl()
                 GetLook();
             }
         }
+        else if (look == '>')
+        {
+            tokenType = TOK_implies;
+            GetLook();
+        }        
     }
     break;
         

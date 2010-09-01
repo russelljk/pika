@@ -185,45 +185,6 @@ void Context::Run()
                 OpDotSet(numcalls, oc, OVR_setat);
             }
             PIKA_NEXT()
-                        
-            PIKA_OPCODE(OP_delete)
-            {
-                Value& prop = Top();
-                Value& obj  = Top1();
-                
-                Value override(NULL_VALUE);
-                if (obj.tag >= TAG_basic && GetOverrideFrom(engine, obj.val.object, OVR_del, override))
-                {
-                    Swap(prop, obj);
-                    Push(override);
-                    
-                    if (SetupCall(1))
-                    {
-                        Run();
-                    }
-                    
-                    Pop();
-                }
-                else if (obj.tag == TAG_object)
-                {
-                    Object* obj_ptr = obj.val.object;
-                    if (!obj_ptr->DeleteSlot(prop))
-                    {
-                        String* prop_str = engine->ToString(this, prop);
-                        ReportRuntimeError(Exception::ERROR_runtime, "could not delete member '%s'.", prop_str->GetBuffer());
-                    }
-                    Pop(2);
-                }
-                else
-                {
-                    GCPAUSE_NORUN(engine);
-                    String* prop_str = engine->ToString(this, prop);
-                    String* typeName = engine->GetTypenameOf(obj);
-                    ReportRuntimeError(Exception::ERROR_runtime, "could not delete member <%s> from type %s.", prop_str->GetBuffer(), typeName->GetBuffer());
-                    Pop(2);
-                }
-            }
-            PIKA_NEXT()
             
             PIKA_OPCODE(OP_locals)
             {

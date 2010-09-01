@@ -166,7 +166,7 @@ private:
     
     NameNode*       DoNameNode(bool);
     
-    void            DoBlockBegin(int, int, int);
+    void            DoBlockBegin(int, int);
     // Expression parsing ------------------------------------------------------
     
     Expr*           DoExpression();

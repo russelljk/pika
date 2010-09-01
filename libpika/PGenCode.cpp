@@ -2175,24 +2175,6 @@ Instr* NameNode::GenerateCodeSet()
     return 0;
 }
 
-Instr* DeleteStmt::DoStmtCodeGen()
-{
-    Instr* opdel = Instr::Create(OP_delete);
-    Instr* oplhs = expr->left->GenerateCode();
-    Instr* oprhs = expr->right->GenerateCode();
-    
-    oplhs->
-    Attach(oprhs)->
-    Attach(opdel);
-    
-    if (next)
-    {
-        Instr* inext = next->GenerateCode();
-        opdel->Attach(inext);
-    }
-    return oplhs;
-}
-
 Instr* ClassDecl::GenerateCode()
 {
     //Instr* enterEnv  = Instr::Create(OP_pushpkg);

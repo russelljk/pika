@@ -735,7 +735,6 @@ void Engine::InitializeWorld()
         "opSet",
         "opGetAt",
         "opSetAt",
-        "opDel",
         OPINIT_CSTR,
         "opAdd_r",
         "opSub_r",

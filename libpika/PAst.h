@@ -77,7 +77,6 @@ struct          BlockStmt;
 struct          DeclStmt;
 struct          AssignmentStmt;
 struct          WithStatement;
-struct          DeleteStmt;
 struct      Expr;
 struct          LoadExpr;
 struct          CallExpr;
@@ -1555,24 +1554,6 @@ struct NameNode : Expr
     
     IdExpr*     idexpr;
     DotExpr*    dotexpr;
-};
-
-struct DeleteStmt : Stmt, TLinked<DeleteStmt>
-{
-    DeleteStmt(DotExpr* e) : Stmt(Stmt::STMT_delete), expr(e) {}
-    
-    virtual void DoStmtResources(SymbolTable* st, CompileState& cs)
-    {
-        if (expr)
-        {
-            expr->CalculateResources(st, cs);
-        }
-        if (next) next->CalculateResources(st, cs);
-    }
-    
-    virtual Instr* DoStmtCodeGen();
-    
-    DotExpr* expr;
 };
 
 struct ClassDecl : NamedTarget
