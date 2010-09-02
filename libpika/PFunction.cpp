@@ -216,7 +216,7 @@ Value Function::Apply(Value& aself, Array* args)
 
 String* Function::ToString()
 {
-    return String::ConcatSpace(GetType()->GetName(), def->name);
+    return String::ConcatSep(GetType()->GetName(), def->name, ':');
 }
 
 Function* Function::BindWith(Value& withobj)
@@ -673,35 +673,6 @@ int Function_printLiterals(Context* ctx, Value& self)
     return 0;
 }
 
-// LocalObject API /////////////////////////////////////////////////////////////////////////////////
-
-int LocalsObject_getParent(Context* ctx, Value& self)
-{
-    if (self.IsDerivedFrom(LocalsObject::StaticGetClass()))
-    {
-        LocalsObject* obj = (LocalsObject*)self.val.object;    
-        Object* parent = obj->GetParent();        
-        if (parent)
-        {
-            ctx->Push(parent);
-        }
-        else
-        {
-            ctx->PushNull();
-        }
-        return 1;
-    }
-    else if (self.IsDerivedFrom(Type::StaticGetClass()))
-    {
-        Type* t = (Type*)self.val.object;
-        ctx->Push(t->GetSuper());   
-        return 1;
-    }    
-    RaiseException("attempt to call LocalsObject.getParent with incorrect type.");
-    return 0;    
-}
-
-
 int null_Function(Context*, Value&) { return 0; }
 
 int Function_call(Context* ctx, Value& self)
@@ -876,14 +847,7 @@ void Function::StaticInitType(Engine* eng)
     .PropertyR("boundSelf",      &BoundFunction::GetBoundSelf,      "getBoundSelf")
     ;
     
-    struct RegisterProperty localsObject_Properties[] =
-    {
-        { "parent", LocalsObject_getParent, "getParent", 0, 0, true }
-    };
-    
-    eng->LocalsObject_Type->EnterProperties(localsObject_Properties, countof(localsObject_Properties));
-    eng->LocalsObject_Type->SetFinal(true);
-    eng->LocalsObject_Type->SetAbstract(true);
+    LocalsObject::StaticInitType(eng);
 }
 
 }// pika

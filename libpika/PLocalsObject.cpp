@@ -130,6 +130,11 @@ Enumerator* LocalsObject::GetEnumerator(String* str)
     return e;
 }
 
+String* LocalsObject::ToString()
+{
+    return String::ConcatSep(this->GetType()->GetName(), function ? function->GetName() : engine->emptyString, ':');
+}
+
 LocalsObject* LocalsObject::Create(Engine* eng, Type* type, Function* function, LexicalEnv* env, ptrdiff_t pc)
 {
     LocalsObject* obj;
@@ -141,6 +146,98 @@ LocalsObject* LocalsObject::Create(Engine* eng, Type* type, Function* function, 
 void LocalsObject::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     RaiseException(Exception::ERROR_type, "%s cannot be constructed explicitly.\n", obj_type->GetName()->GetBuffer());
+}
+
+namespace {
+
+// LocalObject API /////////////////////////////////////////////////////////////////////////////////
+
+int LocalsObject_getParent(Context* ctx, Value& self)
+{
+    if (self.IsDerivedFrom(LocalsObject::StaticGetClass()))
+    {
+        LocalsObject* obj = (LocalsObject*)self.val.object;    
+        Object* parent = obj->GetParent();        
+        if (parent)
+        {
+            ctx->Push(parent);
+        }
+        else
+        {
+            ctx->PushNull();
+        }
+        return 1;
+    }
+    else if (self.IsDerivedFrom(Type::StaticGetClass()))
+    {
+        Type* t = (Type*)self.val.object;
+        ctx->Push(t->GetSuper());   
+        return 1;
+    }    
+    RaiseException("attempt to call LocalsObject.getParent with incorrect type.");
+    return 0;    
+}
+
+int LocalsObject_getLength(Context* ctx, Value& self)
+{
+    LocalsObject* obj = static_cast<LocalsObject*>(self.val.object);
+    pint_t sz = static_cast<pint_t>(obj->GetLength());
+    ctx->Push(sz);
+    return 1;    
+}
+
+int LocalsObject_getDepth(Context* ctx, Value& self)
+{
+    LocalsObject* obj = static_cast<LocalsObject*>(self.val.object);
+    Function* fn = obj->GetFunction();
+    pint_t depth = 0;
+    if (fn)
+    {
+        Def* def = fn->GetDef();
+        if (def)
+        {
+            def = def->parent;
+            while (def)
+            {
+                def = def->parent;
+                ++depth;
+            }
+        }
+    }
+    ctx->Push(depth);
+    return 1;
+}
+
+int LocalsObject_getClosure(Context* ctx, Value& self)
+{
+    LocalsObject* obj = static_cast<LocalsObject*>(self.val.object);
+    Function* fn = obj->GetFunction();
+    if (fn)
+    {
+        ctx->Push(fn);
+    }
+    else
+    {
+        ctx->PushNull();
+    }
+    return 1;
+}
+
+}// namespace
+
+void LocalsObject::StaticInitType(Engine* eng)
+{
+    struct RegisterProperty localsObject_Properties[] =
+    {
+        { "parent",  LocalsObject_getParent,  "getParent",  0, 0, true  },
+        { "length",  LocalsObject_getLength,  "getLength",  0, 0, false },
+        { "depth",   LocalsObject_getDepth,   "getDepth",   0, 0, false },
+        { "closure", LocalsObject_getClosure, "getClosure", 0, 0, false }        
+    };
+    
+    eng->LocalsObject_Type->EnterProperties(localsObject_Properties, countof(localsObject_Properties));
+    eng->LocalsObject_Type->SetFinal(true);
+    eng->LocalsObject_Type->SetAbstract(true);
 }
 
 }// pika

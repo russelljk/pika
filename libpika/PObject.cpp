@@ -54,7 +54,7 @@ void Object::MarkRefs(Collector* c)
 
 String* Object::ToString()
 {
-    return String::ConcatSpace(this->GetType()->GetName(), engine->AllocString("instance"));
+    return String::ConcatSep(this->GetType()->GetName(), engine->AllocStringNC("instance"), ':');
 }
 
 void Object::Init(Context* ctx) {}

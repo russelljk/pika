@@ -437,6 +437,7 @@ Array* Array::Sort(Value fn)
     Context* ctx = engine->GetActiveContextSafe();
     
     // keep the value GC safe (we don't know how this method is called).
+    
     ctx->Push(fn);
     
     // We sort using indexers so that modifications to the orignal
@@ -452,8 +453,6 @@ Array* Array::Sort(Value fn)
 
 Array* Array::Filter(Value fn)
 {
-    //Engine::CollectorPause pauser(engine);
-    
     Context* ctx = engine->GetActiveContextSafe();
     
     Array* v = Array::Create(engine, 0, 0, 0);

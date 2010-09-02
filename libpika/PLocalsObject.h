@@ -45,9 +45,14 @@ public:
     virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0);
     virtual bool HasSlot(const Value& key);
     virtual LocalsObject* GetParent();
-
+    virtual String* ToString();
     static LocalsObject* Create(Engine*, Type*, Function*, LexicalEnv*, ptrdiff_t);    
-    static void Constructor(Engine* eng, Type* obj_type, Value& res);    
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);   
+    static void StaticInitType(Engine* eng);
+    
+    LexicalEnv* GetEnv() { return lexEnv; }
+    Function* GetFunction() { return function; }
+    size_t GetLength() const { return indices.count; }
 private:
     Table         indices;  //!< Local variable lookup table.
     LexicalEnv*   lexEnv;   //!< Function's lexical environment.

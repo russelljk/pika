@@ -2059,7 +2059,6 @@ bool Parser::IsPrimaryExpression()
     case TOK_null:
     case TOK_true:
     case TOK_false:
-    case TOK_not:
         return tstream.GetPreviousLineNumber() == tstream.GetLineNumber();
     }
     return false;
@@ -2079,14 +2078,14 @@ Expr* Parser::DoPostfixExpression()
             
             Call expression WITHOUT parenthesis.
             
-            The first argument must be a primary expression and lie on the same line as the function
+            The first argument must be super, self or an identifier and lie on the same line as the function
             being called.
             
             Each subsequent argument is comma seperated and can be any valid expression.
             
             FIXED:  5'hello' attempts to call the literal 5 with the argument 'hello'. This is now
             a compile time error because the previous token MUST be an identifier.            
-          
+            
             --------------------------------------------------------------------------------------------           
             */
             Expr*     lhs  = expr;
@@ -2100,9 +2099,9 @@ Expr* Parser::DoPostfixExpression()
         
         switch (tstream.GetType())
         {
-            //
-            // Postfix increment.
-            //
+        //
+        // Postfix increment.
+        //
         case TOK_increment:
         {
             int line = tstream.GetLineNumber();
