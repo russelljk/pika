@@ -469,7 +469,7 @@ public:
     INLINE Value* GetArgs() { return bsp; }
         
     /** Raise an exception if the number of arguments does not match. */
-    void CheckParamCount(u2 amt);
+    void CheckArgCount(u2 amt);
     
     /** Raise a generic argument-count exception. */
     void WrongArgCount();

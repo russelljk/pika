@@ -15,7 +15,7 @@
 #include "PContext.h"
 #include "PNativeBind.h"
 #include "PObjectEnumerator.h"
-
+#include "PProxy.h"
 
 
 /////////////////////////////////////////////// pika ///////////////////////////////////////////////
@@ -519,5 +519,7 @@ void Object::StaticInitType(Engine* eng)
     eng->Property_Type->SetFinal(true);
     eng->Property_Type->SetAbstract(true);
     Pkg_World->SetSlot("Property", eng->Property_Type);
+    
+    Proxy::StaticInitType(eng);
 }
 }// pika

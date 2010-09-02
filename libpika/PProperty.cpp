@@ -40,11 +40,11 @@ void Property::MarkRefs(Collector* c)
     if (setter) setter->Mark(c);
 }
 
-bool Property::CanSet() { return setter != 0; }
-bool Property::CanGet() { return getter != 0; }
+bool Property::CanWrite() { return setter != 0; }
+bool Property::CanRead() { return getter != 0; }
 
-Function* Property::Getter() { return getter; }
-Function* Property::Setter() { return setter; }
+Function* Property::Reader() { return getter; }
+Function* Property::Writer() { return setter; }
 String*   Property::Name()   { return name; }
 
 Property* Property::CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter)
@@ -66,6 +66,18 @@ Property* Property::CreateWrite(Engine* eng, String* name, Function* setter)
     Property* prop = 0;
     GCNEW(eng, Property, prop, (eng, name, 0, setter));    
     return prop;
+}
+
+void Property::SetWriter(Function* s)
+{
+    setter = s;
+    WriteBarrier(setter);
+}
+
+void Property::SetRead(Function* g)
+{
+    getter = g;
+    WriteBarrier(getter);
 }
 
 }// pika

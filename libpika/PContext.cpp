@@ -1521,14 +1521,14 @@ void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
                 Property* pprop = res.val.property;
                 
                 // IF the Property supports writing.
-                if (pprop && pprop->CanSet())
+                if (pprop && pprop->CanWrite())
                 {
                     //  [ ....  ]
                     //  [ value ]
                     //  [ obj   ]
                     //  [ prop  ]< Top
                     
-                    prop.Set(pprop->Setter());
+                    prop.Set(pprop->Writer());
                     
                     //  [ ....            ]
                     //  [ value           ]
@@ -1628,7 +1628,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
                 Property* property = res.val.property;
                 
                 // If the Property supports reading
-                if (property && property->CanGet())
+                if (property && property->CanRead())
                 {
                     //  [ .... ]
                     //  [ obj  ]
@@ -1639,7 +1639,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
                     //  [ .... ]
                     //  [ obj  ]< Top
                     
-                    Push(property->Getter());
+                    Push(property->Reader());
                     
                     //  [ .... ]
                     //  [ obj  ]
@@ -1725,7 +1725,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         Property* property = res.val.property;
         
         // If the Property supports reading
-        if (property && property->CanGet())
+        if (property && property->CanRead())
         {
             //  [ .... ]
             //  [ obj  ]
@@ -1736,7 +1736,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
             //  [ .... ]
             //  [ obj  ]< Top
             
-            Push(property->Getter());
+            Push(property->Reader());
             
             //  [ .... ]
             //  [ obj  ]
@@ -1770,10 +1770,10 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 
 bool Context::DoPropertyGet(int& numcalls, Property* prop)
 {
-    if (!prop->CanGet())
+    if (!prop->CanRead())
         return false;
         
-    Push(prop->Getter());
+    Push(prop->Reader());
     
     //  [ .... ]
     //  [ obj  ]
@@ -1792,7 +1792,7 @@ bool Context::DoPropertyGet(int& numcalls, Property* prop)
 
 bool Context::DoPropertySet(int& numcalls, Property* prop)
 {
-    if (!prop->CanSet())
+    if (!prop->CanWrite())
         return false;
         
     //  [ ....  ]
@@ -1800,7 +1800,7 @@ bool Context::DoPropertySet(int& numcalls, Property* prop)
     //  [ obj   ]
     //          < Top
     
-    Push(prop->Setter());
+    Push(prop->Writer());
     
     //  [ ....            ]
     //  [ value           ]
@@ -2337,7 +2337,7 @@ String* Context::GetPackageName(bool fullyQualified)
     return (fullyQualified) ? package->GetDotName() : package->GetName();
 }
 
-void Context::CheckParamCount(u2 amt)
+void Context::CheckArgCount(u2 amt)
 {
     if (argCount != amt)
     {
@@ -2544,7 +2544,7 @@ void Context::ParseArgs(const char *args, u2 count, ...)
 {
     if (count > argCount)
     {
-        CheckParamCount(count);
+        CheckArgCount(count);
         return;
     }
     
@@ -2721,7 +2721,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
 {
     if (count > argCount)
     {
-        CheckParamCount(count);
+        CheckArgCount(count);
         return;
     }
     

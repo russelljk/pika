@@ -81,7 +81,7 @@ preal_t math_power(preal_t f, preal_t p)
 
 int math_Abs(Context* ctx, Value&)
 {
-    ctx->CheckParamCount(1);
+    ctx->CheckArgCount(1);
     Value& arg0 = ctx->GetArg(0);
     
     if (arg0.IsInteger())

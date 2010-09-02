@@ -31,13 +31,15 @@ public:
     virtual Type* GetType() const;
     virtual bool  GetSlot(const Value& key, Value& result);
 
-    virtual bool  CanSet();
-    virtual bool  CanGet();
+    virtual bool  CanWrite();
+    virtual bool  CanRead();
 
-    virtual Function* Getter();
-    virtual Function* Setter();
+    virtual Function* Reader();
+    virtual Function* Writer();
     virtual String*   Name();
-
+    
+    virtual void SetWriter(Function* s);
+    virtual void SetRead(Function* g);    
 protected:
     Function* getter;
     Function* setter;
