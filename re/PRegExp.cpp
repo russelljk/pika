@@ -128,6 +128,49 @@ public:
         }
     }
     
+    Value GetMatch(size_t start, size_t end, String* subj)
+    {
+        Value res(NULL_VALUE);
+        size_t len = end - start;
+        // If its an empty match.
+        if (len == 0)
+        {
+            res.Set(engine->emptyString);            
+        }
+        else
+        {
+            // Create a nonempty match string.
+            String* matchstr = engine->AllocString(subj->GetBuffer() + start, len);
+            res.Set(matchstr);
+        }
+        return res;
+    }
+    
+    Value GetMatchObject(size_t start, size_t end, String* subj)
+    {
+        GCPAUSE_NORUN(engine);
+        Object* obj = Object::StaticNew(engine, engine->Object_Type);
+        Value res(NULL_VALUE);
+        size_t len = end - start;
+        // If its an empty match.
+        obj->SetSlot(engine->AllocStringNC("start"), Value((pint_t)start));
+        obj->SetSlot(engine->AllocStringNC("stop"),  Value((pint_t)end));
+        
+        if (len == 0)
+        {
+            res.Set(engine->emptyString);
+        }
+        else
+        {
+            // Create a nonempty match string.
+            String* matchstr = engine->AllocString(subj->GetBuffer() + start, len);
+            res.Set(matchstr);
+        }
+        obj->SetSlot(engine->AllocStringNC("match"), res);
+        res.Set(obj);
+        return res;
+    }
+    
     Array* Exec(String* subj)
     {
         if (!this->pattern) return 0;
@@ -146,27 +189,15 @@ public:
         {
             size_t const start = matches[i*2];
             size_t const end   = matches[i*2 + 1];
-            size_t const len   = end - start;
-            
-            // If its an empty match.
-            if (len == 0)
-            {
-                Value estr(engine->emptyString);
-                res->Push(estr);
-                continue;
-            }
-            
-            // Create a nonempty match string.
-            String* matchstr = engine->AllocString(subj->GetBuffer() + start, len);
-            Value vs(matchstr);
-            res->Push(vs);
+            Value match = GetMatch(start, end, subj);
+            res->Push(match);
         }
         return res;
     }
     
-    String* ExecOnce(String* subj)
+    Value ExecOnce(String* subj)
     {
-        if (!this->pattern) return 0;
+        if (!this->pattern) return Value(NULL_VALUE);
 
         Buffer<size_t> matches;
         if (DoExec(subj->GetBuffer(), subj->GetLength(), matches))
@@ -174,12 +205,11 @@ public:
             size_t m = IndexOfLongestMatch(matches);
             
             size_t const matchIndex = matches[m];
-            size_t const matchLen   = matches[m + 1] - matches[m];
-            
-            String* res = engine->AllocString(subj->GetBuffer() + matchIndex, matchLen);
-            return res;
+            size_t const matchStop = matches[m + 1];
+                        
+            return GetMatch(matchIndex, matchStop, subj);
         }
-        return 0;
+        return Value(NULL_VALUE);
     }
     
     bool Test(String* subj)
@@ -322,10 +352,7 @@ public:
         }
         
         if (lastIndex == 0) // We had no non-empty matches...
-        {
-            // so return the entire string.
-            return subj;
-        }
+            return subj;    // so return the entire string.
         
         if (lastIndex < subjlen) // We did not consume the entire string...
         {
