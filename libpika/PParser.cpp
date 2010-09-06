@@ -423,7 +423,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_begin:         stmt = DoBlockStatement();     break;
     
     break;
-    case TOK_using:      stmt = DoWithStatement();    break;
+    case TOK_using:      stmt = DoUsingStatement();    break;
     case TOK_try:        stmt = DoTryStatement();     break;
     case TOK_raise:      stmt = DoRaiseStatement();   break;
     case TOK_identifier: stmt = DoLabeledStatement(); break; // possible label statement
@@ -490,8 +490,11 @@ Stmt* Parser::DoClassStatement()
     return DoFinallyBlock(stmt);
 }
 
-void Parser::DoBlockBegin(int prevln, int currln)
+void Parser::DoBlockBegin(int tok, int prevln, int currln)
 {
+    if (Optional(tok))
+        return;
+    
     if (prevln == currln)
     {
         if (!Optional(';'))
@@ -765,7 +768,7 @@ Stmt* Parser::DoBlockStatement()
     return DoFinallyBlock(block);
 }
 
-Stmt* Parser::DoWithStatement()
+Stmt* Parser::DoUsingStatement()
 {
     int line = tstream.GetLineNumber();
     
@@ -773,13 +776,13 @@ Stmt* Parser::DoWithStatement()
     
     Expr* with = DoExpression();
     BufferCurrent();
-    DoBlockBegin(with->line, tstream.GetLineNumber());
+    DoBlockBegin(TOK_do, with->line, tstream.GetLineNumber());
     
     const int terms[] = { TOK_end, TOK_finally, 0 };
     Stmt* block = DoStatementList(terms);
     
-    WithStatement* stmt;
-    PIKA_NEWNODE(WithStatement, stmt, (with, block));
+    UsingStmt* stmt;
+    PIKA_NEWNODE(UsingStmt, stmt, (with, block));
     stmt->line = line;
     
     if (tstream.GetType() == TOK_end)
@@ -828,7 +831,7 @@ Stmt* Parser::DoTryStatement()
             Expr* is = DoExpression();
             
             BufferCurrent();
-            DoBlockBegin(id->line, tstream.GetLineNumber());
+            DoBlockBegin(TOK_then, id->line, tstream.GetLineNumber());
             
             Stmt* body = DoStatementListBlock(terms);
             
@@ -846,7 +849,7 @@ Stmt* Parser::DoTryStatement()
             if (caughtvar || catchblock)
                 state->SyntaxError(tstream.GetLineNumber(), "duplicate untyped catch block (one allowed per try statement.)");
             caughtvar = id;
-            DoBlockBegin(caughtvar->line, tstream.GetLineNumber());
+            DoBlockBegin(TOK_then, caughtvar->line, tstream.GetLineNumber());
             
             catchblock = DoStatementListBlock(terms);
             BufferCurrent();
@@ -1047,7 +1050,7 @@ Stmt* Parser::DoIfStatement()
 
     
     cond = DoExpression();
-    DoBlockBegin(cond->line, tstream.GetLineNumber());
+    DoBlockBegin(TOK_then, cond->line, tstream.GetLineNumber());
     
     const int first_terms[] = { TOK_end, TOK_elseif, TOK_else, TOK_finally, 0 };
     const int terms[] = { TOK_end, TOK_elseif, TOK_else, 0 };
@@ -1065,7 +1068,7 @@ Stmt* Parser::DoIfStatement()
         
         cond = DoExpression();
         
-        DoBlockBegin(cond->line, tstream.GetLineNumber());
+        DoBlockBegin(TOK_then, cond->line, tstream.GetLineNumber());
         
         body = DoStatementListBlock(terms);
         
@@ -1100,7 +1103,7 @@ Stmt* Parser::DoWhileStatement()
     
     cond = DoExpression();
     BufferCurrent(); 
-    DoBlockBegin(cond->line, tstream.GetLineNumber());
+    DoBlockBegin(TOK_do, cond->line, tstream.GetLineNumber());
 
     body = DoStatementListBlock(Static_finally_terms);
     
@@ -1227,7 +1230,7 @@ Stmt* Parser::DoForToStatement(ForHeader* fh)
     DoForToHeader(&header);
     
     BufferCurrent();
-    DoBlockBegin(header.step->line, tstream.GetLineNumber());
+    DoBlockBegin(TOK_do, header.step->line, tstream.GetLineNumber());
     
     body = DoStatementListBlock(Static_finally_terms);
     
@@ -1271,7 +1274,7 @@ Stmt* Parser::DoForEachStatement(ForHeader* fh)
     DoForEachHeader(&header);
 
     BufferCurrent();
-    DoBlockBegin(header.subject->line, tstream.GetLineNumber());
+    DoBlockBegin(TOK_do, header.subject->line, tstream.GetLineNumber());
         
     Stmt* body = DoStatementListBlock(Static_finally_terms);    
     Stmt* stmt = 0;

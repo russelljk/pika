@@ -1976,7 +1976,7 @@ Instr* FinallyStmt::DoStmtCodeGen()
     
     if (block->kind == Stmt::STMT_with)
     {
-        Instr* ientry = ((WithStatement*)block)->DoHeader();
+        Instr* ientry = ((UsingStmt*)block)->DoHeader();
         ientry->Attach(ibegin);
         ibegin = ientry;
         
@@ -2083,7 +2083,7 @@ Instr* VariableTarget::GenerateCode()
     return assgn;
 }
 
-Instr* WithStatement::DoHeader()
+Instr* UsingStmt::DoHeader()
 {
     Instr* iwith = with->GenerateCode();
     Instr* ipushwith = Instr::Create(OP_pushwith);
@@ -2092,7 +2092,7 @@ Instr* WithStatement::DoHeader()
     return iwith;
 }
 
-Instr* WithStatement::DoStmtCodeGen()
+Instr* UsingStmt::DoStmtCodeGen()
 {
     // A <using> statement is always wrapped inside of an finally block.
     // The finally-block will handle any cleanup required even from a return / break / or continue.

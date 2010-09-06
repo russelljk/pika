@@ -38,12 +38,12 @@ struct RegisterFunction
 
 struct RegisterProperty
 {
-    const char*  name;
-    Nativecode_t getter;
-    const char*  getterName;
-    Nativecode_t setter;
-    const char*  setterName;
-    bool         unattached;
+    const char*  name;          //!< Name of the property.
+    Nativecode_t getter;        //!< Getter function.
+    const char*  getterName;    //!< Getter name.
+    Nativecode_t setter;        //!< Setter funcion.
+    const char*  setterName;    //!< Setter name.
+    bool         unattached;    //!< Don't make the function a InstanceMethod.
 };
 
 class Bytecode

@@ -49,6 +49,7 @@ struct                  PkgDecl;
 struct                  ClassDecl;
 struct              FunctionDecl;
 struct              VariableTarget;
+struct              NameNode;
 struct          ParamDecl;
 struct          VarDecl;
 struct              LocalDecl;
@@ -76,7 +77,7 @@ struct          ConditionalStmt;
 struct          BlockStmt;
 struct          DeclStmt;
 struct          AssignmentStmt;
-struct          WithStatement;
+struct          UsingStmt;
 struct      Expr;
 struct          LoadExpr;
 struct          CallExpr;
@@ -99,7 +100,7 @@ struct          DictionaryExpr;
 struct          ArrayExpr;
 struct      FieldList;
 struct      ExprList;
-struct      NameNode;
+
 
 
 // StorageKind /////////////////////////////////////////////////////////////////////////////////////
@@ -1503,13 +1504,13 @@ struct AssignmentStmt : Stmt
     u2          unpackCount;
 };
 
-/////////////////////////////////////////// WithStatement //////////////////////////////////////////
+/////////////////////////////////////////// UsingStmt //////////////////////////////////////////
 
-struct WithStatement : Stmt
+struct UsingStmt : Stmt
 {
-    WithStatement(Expr* e, Stmt* b);
+    UsingStmt(Expr* e, Stmt* b);
     
-    virtual ~WithStatement();
+    virtual ~UsingStmt();
     
     virtual void DoStmtResources(SymbolTable* st, CompileState& cs);
     virtual Instr* DoHeader();

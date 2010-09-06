@@ -160,13 +160,13 @@ private:
     Stmt*           DoExpressionStatement();
 
     Stmt*           DoFinallyBlock(Stmt*);
-    Stmt*           DoWithStatement();
+    Stmt*           DoUsingStatement();
     Stmt*           DoPackageDeclaration();
     Stmt*           DoClassStatement();
     
     NameNode*       DoNameNode(bool);
     
-    void            DoBlockBegin(int, int);
+    void            DoBlockBegin(int, int, int);
     // Expression parsing ------------------------------------------------------
     
     Expr*           DoExpression();

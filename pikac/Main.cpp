@@ -35,6 +35,7 @@ void Pika_DisplayUsage(const char* name)
     std::cerr << "\t--file, -f    : File to execute.\n";
     std::cerr << "\t--path, -p    : Add a search path. Multiple paths may be specified.\n";
     std::cerr << "\t--supress, -s : Supress startup banner.\n";
+    std::cerr << "\t--version, -v : White space seperated arguments i.e. \"arg1 arg2 arg3\"\n";
     std::cerr << std::endl;
     
     exit(1);
@@ -42,10 +43,8 @@ void Pika_DisplayUsage(const char* name)
 
 static void Pika_PrintBanner()
 {
-    std::cerr << PIKA_UNDERLINE_STR << '\n' <<
-    PIKA_BANNER_STR   << '\n' <<
-    PIKA_COPYRIGHT_STR << '\n' <<
-    PIKA_UNDERLINE_STR << std::endl;
+    std::cout << PIKA_BANNER_STR   << ' ' <<
+    PIKA_COPYRIGHT_STR << std::endl;
 }
 
 struct CommandLine
@@ -88,12 +87,12 @@ struct CommandLine
                     {
                         kind = 'a';                        
                     } 
-                    else if (strcmp(curr+2, "supress") == 0) 
+                    else if (strcmp(curr+2, "version") == 0) 
                     {
-                        kind = 's';                        
+                        kind = 'v';                        
                     } 
                     
-                    if (kind != '-' && kind != 's') // Should be a space between the kind and option
+                    if (kind != '-' && kind != 'v') // Should be a space between the kind and option
                     {
                         int nextPos = pos + 1;
                         if (nextPos < count)
@@ -114,10 +113,10 @@ struct CommandLine
                     {
                         options = curr + 2; //skip past "-X" where X is the kind of argument
                     }
-                    else if (kind == 's')
+                    else if (kind == 'v')
                     {
                         options = 0;
-                    }
+                    }                    
                     else
                     {
                         // Allow a space between the kind and option
@@ -211,8 +210,7 @@ int main(int argc, char* argv[])
         eng->Release();
         return 0;
     }
-    bool printBanner = true;
-    
+        
     if (argc >= 2)
     {
         Array* arguments = 0;
@@ -238,7 +236,7 @@ int main(int argc, char* argv[])
             {
                 if (cl.Opt() == 0)
                 {
-                    if (cl.Kind() != 's')
+                    if (cl.Kind() != 'v')
                     {
                         Pika_DisplayUsage(argv[0]);
                     }
@@ -284,13 +282,13 @@ int main(int argc, char* argv[])
                 /*
                  * Suppress Banner: -s
                  */
-                case 's':
-                {
-                    if ((cl.Opt() != 0))
+                case 'v':
+                {                                        
+                    if (!fileName)
                     {
-                        Pika_DisplayUsage(argv[0]);
-                    }                    
-                    printBanner = false;
+                        Pika_PrintBanner();
+                        exit(0);
+                    }
                     break;
                 }
                 default: 
@@ -322,10 +320,7 @@ int main(int argc, char* argv[])
             }
             else
             {
-                if (printBanner)
-                {
-                    Pika_PrintBanner();
-                }
+                
                 eng->AddEnvPath("PIKA_PATH");
                 Script* script = eng->Compile(fileName);
                 

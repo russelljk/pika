@@ -513,33 +513,34 @@ public:
     pint_t  ArgToInt(u2 arg);    //!< Convert an argument to an integer and return the result.
     preal_t ArgToReal(u2 arg);   //!< Convert an argument to a real and return the result.
     bool    ArgToBool(u2 arg);   //!< Convert an argument to a boolean and return the result.
-    String* ArgToString(u2 arg); //!< Convert an argument to a string and return the result.    
-    /*
+    String* ArgToString(u2 arg); //!< Convert an argument to a string and return the result.
     
-    B : convert to boolean
-    b : boolean
-    
-    E : enumerator
-    e : enumerator
-    
-    I : convert to integer
-    i : integer
-    
-    O : object subclass
-    o : object subclass
-    
-    R : convert to real
-    r : real
-    
-    S : convert to string
-    s : string
-    
-    X : skip
-    x : skip
-    
-    For ParseArgsInPlace a negative char value (i.e. -'o') will allow null values.
-    
-    */    
+    /* Check that arguments match the signature provided.
+     *
+      <pre>
+      B : convert to boolean
+      b : boolean
+  
+      E : enumerator
+      e : enumerator
+  
+      I : convert to integer
+      i : integer
+  
+      O : object subclass
+      o : object subclass
+  
+      R : convert to real
+      r : real
+  
+      S : convert to string
+      s : string
+
+      X : skip
+      x : skip
+      </pre>
+     * Note: For ParseArgsInPlace a negative char value (i.e. -'o') will allow null values.
+     */    
     void ParseArgs(const char* args, u2 count, ...);
     void ParseArgsInPlace(const char* args, u2 count);
     

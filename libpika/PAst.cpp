@@ -1364,16 +1364,16 @@ void FinallyStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
         finalize_block->CalculateResources(symtab, cs);
 }
 
-WithStatement::WithStatement(Expr* e, Stmt* b)
+UsingStmt::UsingStmt(Expr* e, Stmt* b)
         : Stmt(Stmt::STMT_with),
         with(e),
         block(b),
         symtab(0)
 {}
 
-WithStatement::~WithStatement() { Pika_delete(symtab); }
+UsingStmt::~UsingStmt() { Pika_delete(symtab); }
 
-void WithStatement::DoStmtResources(SymbolTable* st, CompileState& cs)
+void UsingStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
     PIKA_NEW(SymbolTable, symtab, (st, true, true));
     
