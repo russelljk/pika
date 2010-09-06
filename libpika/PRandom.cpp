@@ -58,7 +58,22 @@ Random::Random(Engine* eng, Type* randType)
     SeedRandom();
 }
 
+Random::Random(const Random* rhs) :
+    ThisSuper(rhs),
+    mti(rhs->mti),
+    seed(rhs->seed)
+{
+    Pika_memcpy(mt, rhs->mt, sizeof(randint_t) * N);
+}
+
 Random::~Random() {}
+
+Object* Random::Clone()
+{
+    Random* r = 0;
+    GCNEW(engine, Random, r, (this));
+    return r;
+}
 
 void Random::SeedRandom()
 {

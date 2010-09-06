@@ -74,7 +74,14 @@ class RegExp : public Object
 {
 public:
     PIKA_DECL(RegExp, Object)
+    
     RegExp(Engine* engine, Type* type) : Object(engine, type), pattern(0) {}
+    
+    RegExp(const RegExp* rhs) : 
+        ThisSuper(rhs),
+        pattern(rhs->pattern)
+    {
+    }
     
     virtual ~RegExp()
     {
@@ -88,6 +95,13 @@ public:
             Pika_regfree(this->pattern);
             this->pattern = 0;
         }
+    }
+    
+    virtual Object* Clone()
+    {
+        RegExp* r = 0;
+        GCNEW(engine, RegExp, r, (this));
+        return r;
     }
     
     virtual void Init(Context* ctx)

@@ -44,6 +44,23 @@ void LocalsObject::BuildIndices()
     }
 }
 
+LocalsObject::LocalsObject(const LocalsObject* rhs) :
+    ThisSuper(rhs),
+    indices(rhs->indices),
+    lexEnv(rhs->lexEnv),
+    function(rhs->function),
+    parent(rhs->parent),
+    pos(rhs->pos)
+{
+}
+
+Object* LocalsObject::Clone()
+{
+    LocalsObject* l = 0;
+    GCNEW(engine, LocalsObject, l, (this));
+    return l;
+}
+
 void LocalsObject::MarkRefs(Collector* c)
 {
     Object::MarkRefs(c);

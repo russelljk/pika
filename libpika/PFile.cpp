@@ -99,7 +99,7 @@ String* File::ReadLine()
 
 Object* File::Clone()
 {
-    return File::Create(engine, GetType());
+    return 0;
 }
 
 Array* File::ReadLines()

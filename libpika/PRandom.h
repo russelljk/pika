@@ -81,6 +81,7 @@ class Random : public Object
     PIKA_DECL(Random, Object)
 protected:
     explicit        Random(Engine* eng, Type* randType);
+    explicit        Random(const Random*);
 public:    
     virtual        ~Random();
     
@@ -89,7 +90,8 @@ public:
     randuint_t      NextRandom();
     preal_t         NextReal();
     randint_t       NextUInt();
-    
+
+    virtual Object* Clone();
     virtual void    Init(Context* ctx);    
     virtual String* ToString();
     pint_t          Next(Context* ctx);
@@ -99,8 +101,8 @@ public:
         
     Array*          Generate(pint_t amt);
     
-    static void Constructor(Engine* eng, Type* obj_type, Value& res);
-    static void StaticInitType(Package* module, Engine* eng);    
+    static void     Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void     StaticInitType(Package* module, Engine* eng);    
 protected:
     void            SeedRandom();
 

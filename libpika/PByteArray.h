@@ -28,6 +28,7 @@ class ByteArray : public Object
     };
 protected:
     ByteArray(Engine*, Type*, u1*, size_t);
+    ByteArray(const ByteArray*);
     
     friend class ByteArrayEnumerator;
 public:

@@ -27,6 +27,7 @@ protected:
     {
         BuildIndices();
     }
+    LocalsObject(const LocalsObject*);
     
     void BuildIndices();
 public:
@@ -37,6 +38,7 @@ public:
     using Basic::SetSlot;
 #   endif
     
+    virtual Object* Clone();
     virtual void MarkRefs(Collector* c);
     virtual Enumerator* GetEnumerator(String*);
 

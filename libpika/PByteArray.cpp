@@ -68,10 +68,19 @@ ByteArray::ByteArray(Engine* eng, Type* obj_type, u1* v, size_t len)
         InitializeWith(v, len);
 }
 
+ByteArray::ByteArray(const ByteArray* rhs) :
+    ThisSuper(rhs),
+    byteOrder(rhs->byteOrder),
+    pos(rhs->pos),
+    buffer(rhs->buffer)
+{
+}
+
 Object* ByteArray::Clone()
 {
-    ByteArray* other = Create(engine, this->GetType(), buffer.GetAt(0), buffer.GetSize());
-    return other;
+    ByteArray* b = 0;
+    GCNEW(engine, ByteArray, b, (this));
+    return b;
 }
 
 Enumerator* ByteArray::GetEnumerator(String* enumtype)

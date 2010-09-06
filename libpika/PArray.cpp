@@ -178,8 +178,9 @@ Array* Array::Create(Engine* eng, Type* type, size_t length, Value* elems)
 
 Object* Array::Clone() // TODO:: Clone members
 {
-    Object* v = Array::Create(engine, GetType(), elements.GetSize(), elements.GetAt(0));
-    return v;
+    Array* a = 0;
+    GCNEW(engine, Array, a, (this));
+    return a;
 }
 
 size_t Array::GetMax()
@@ -342,6 +343,12 @@ Array::Array(Engine* eng, Type* arrType, size_t length, Value* elems)
     {
         Pika_memcpy(elements.GetAt(0), elems, length * sizeof(Value));
     }
+}
+
+Array::Array(const Array* rhs) :
+    ThisSuper(rhs),
+    elements(rhs->elements)
+{
 }
 
 Enumerator* Array::GetEnumerator(String *enumtype)

@@ -12,8 +12,21 @@ Dictionary::Dictionary(Engine* eng, Type* t) : ThisSuper(eng, t)
 {
 }
 
+Dictionary::Dictionary(const Dictionary* rhs) :
+    ThisSuper(rhs),
+    elements(rhs->elements)
+{
+}
+
 Dictionary::~Dictionary()
 {
+}
+
+Object* Dictionary::Clone()
+{
+    Dictionary* d = 0;
+    GCNEW(engine, Dictionary, d, (this));
+    return d;
 }
 
 void Dictionary::MarkRefs(Collector* c)

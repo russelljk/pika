@@ -117,6 +117,15 @@ Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* p
     ASSERT(location);
 }
 
+Function::Function(const Function* rhs) : ThisSuper(rhs),
+        defaults(rhs->defaults),
+        lexEnv(rhs->lexEnv),
+        def(rhs->def),
+        parent(rhs->parent),
+        location(rhs->location) 
+{
+}
+
 Function* Function::Create(Engine* eng, Def* def, Package* loc, Function* parent)
 {
     Function* cl = 0;
@@ -157,9 +166,9 @@ int Function::DetermineLineNumber(code_t* xpc)
     if (!def)
         return -1; // return a bogus line number.
     
-    int     lineno   = def->line; // The starting line of the function.    
-    code_t* pc       = (xpc - 1);    
-    size_t  lastline = def->lineInfo.GetSize();
+    int lineno = def->line; // The starting line of the function.    
+    code_t* pc = (xpc - 1);    
+    size_t lastline = def->lineInfo.GetSize();
     
     // No line information so return the lineno.
     if (!lastline)
@@ -185,9 +194,9 @@ int Function::DetermineLineNumber(code_t* xpc)
 
 Object* Function::Clone()
 {
-    Function* c = Function::Create(engine, def, location, parent);
-    c->lexEnv  = lexEnv;
-    return c;
+    Function* fn = 0;
+    GCNEW(engine, Function, fn, (this));
+    return fn;
 }
 
 String* Function::GetName()
@@ -284,6 +293,12 @@ classtype(tclass)
     }
 }
 
+InstanceMethod::InstanceMethod(const InstanceMethod* rhs) : 
+    ThisSuper(rhs), 
+    classtype(rhs->classtype)
+{
+}
+
 InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* f, Type* t)
 {
     InstanceMethod* im = 0;
@@ -299,6 +314,13 @@ InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* c, Def
     InstanceMethod* im = 0;
     GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, c, func_def, loc, tclass));
     return im;
+}
+
+Object* InstanceMethod::Clone()
+{
+    InstanceMethod* fn = 0;
+    GCNEW(engine, InstanceMethod, fn, (this));
+    return fn;
 }
 
 void InstanceMethod::BeginCall(Context* ctx)
@@ -371,6 +393,11 @@ classtype(tclass)
     ASSERT(classtype);
 }
 
+ClassMethod::ClassMethod(const ClassMethod* rhs) : ThisSuper(rhs),
+    classtype(rhs->classtype)
+{
+}
+
 ClassMethod::ClassMethod(Engine* eng, Type* tthis, Function* f, Type* tclass)
 : Function(eng,
            tthis,
@@ -387,6 +414,13 @@ ClassMethod::ClassMethod(Engine* eng, Type* tthis, Function* f, Type* tclass)
 }
 
 ClassMethod::~ClassMethod() {}
+
+Object* ClassMethod::Clone()
+{
+    ClassMethod* fn = 0;
+    GCNEW(engine, ClassMethod, fn, (this));
+    return fn;
+}
 
 ClassMethod* ClassMethod::Create(Engine* eng, Type* type, Function* f, Type* t)
 {
@@ -443,11 +477,18 @@ String* ClassMethod::GetDotPath()
 PIKA_IMPL(BoundFunction)
 
 BoundFunction::BoundFunction(Engine* eng, Type* t, Function* c, Value& bound)
-        : Function(eng, t, c->def, c->location, c->parent),
+        : ThisSuper(eng, t, c->def, c->location, c->parent),
         closure(c),
         self(bound)
 {
     lexEnv = c->lexEnv;
+}
+
+BoundFunction::BoundFunction(const BoundFunction* rhs)
+        : ThisSuper(rhs),
+        closure(rhs->closure),
+        self(rhs->self)
+{
 }
 
 BoundFunction::~BoundFunction() {}
@@ -471,6 +512,13 @@ void BoundFunction::MarkRefs(Collector *c)
     Function::MarkRefs(c);
     if (closure) closure->Mark(c);
     MarkValue(c, self);
+}
+
+Object* BoundFunction::Clone()
+{
+    BoundFunction* fn = 0;
+    GCNEW(engine, BoundFunction, fn, (this));
+    return fn;
 }
 
 void Function::Init(Context* ctx)

@@ -30,13 +30,13 @@ public:
     {
         ASSERT( !allocated );
         allocated = false;
-        values    = v;
-        length    = l;
+        values = v;
+        length = l;
     }
     
     void EndCall();
     
-    INLINE bool IsValid()     const { return values != 0; }
+    INLINE bool IsValid() const { return values != 0; }
     INLINE bool IsAllocated() const { return allocated;   }
     
     INLINE size_t Length() const { return length; }
@@ -54,11 +54,11 @@ private:
     bool   mustClose; //!< Do local variables need to survive beyond the function's execution?
 };
 
-/*
- * Defaults: Would be nice if this was an actual Object, where the programmer could change default values at
+/* Defaults: Would be nice if this was an actual Object, where the programmer could change default values at
  *           runtime. The downside is that it by changing default values the declaration will no longer match
- *           the runtime behavior. Also should code outside of the function be allowed to change a function's 
- *           default values or should that privilege be restricted to the body of the function in question?
+ *           the runtime behavior. Also should code outside of the function be allowed to change a function's
+ *           default values or should that privilege be restricted to the body of the function in question? On
+ *           the flip-side that kind of manipulation could be useful
  */
 class PIKA_API Defaults : public GCObject
 {
@@ -84,7 +84,8 @@ class PIKA_API Function : public Object
 {
     PIKA_DECL(Function, Object)
 protected:
-    Function(Engine*, Type*, Def*, Package*, Function*);
+    explicit Function(Engine*, Type*, Def*, Package*, Function*);
+    explicit Function(const Function*);
 public:
     virtual ~Function();
     
@@ -110,10 +111,10 @@ public:
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
     String*             GetName();
     
-    INLINE  bool        MustClose()  const { return def->mustClose; }    
-    INLINE  bool        IsNative()   const { return !def->GetBytecode() && def->nativecode; }
+    INLINE  bool MustClose() const { return def->mustClose; }    
+    INLINE  bool IsNative()  const { return !def->GetBytecode() && def->nativecode; }
     
-    virtual void        BeginCall(Context*);    
+    virtual void BeginCall(Context*);    
     
     /** Call this function with the given self value and Array of arguments. */
     virtual Value Apply(Value& self_value, Array* args);
@@ -147,8 +148,9 @@ class PIKA_API InstanceMethod : public Function
 {
     PIKA_DECL(InstanceMethod, Function)
 protected:
-    InstanceMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
-    InstanceMethod(Engine*, Type*, Function*, Type*);
+    explicit InstanceMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
+    explicit InstanceMethod(Engine*, Type*, Function*, Type*);
+    explicit InstanceMethod(const InstanceMethod*);
 public:    
     virtual ~InstanceMethod();
     
@@ -156,6 +158,7 @@ public:
     virtual void    BeginCall(Context*);
     virtual void    MarkRefs(Collector*);
     virtual String* GetDotPath();
+    virtual Object* Clone();
     
     static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);
     static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type);
@@ -169,8 +172,9 @@ class PIKA_API ClassMethod : public Function
 {
     PIKA_DECL(ClassMethod, Function)
 protected:
-    ClassMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
-    ClassMethod(Engine*, Type*, Function*, Type*);
+    explicit ClassMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
+    explicit ClassMethod(Engine*, Type*, Function*, Type*);
+    explicit ClassMethod(const ClassMethod*);
 public:
     virtual ~ClassMethod();
     
@@ -178,7 +182,7 @@ public:
     
     virtual void    BeginCall(Context*);
     virtual void    MarkRefs(Collector*);
-    
+    virtual Object* Clone();
     virtual String* GetDotPath();
     
     static ClassMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);    
@@ -193,15 +197,16 @@ class PIKA_API BoundFunction : public Function
 {
     PIKA_DECL(BoundFunction, Function)
 protected:
-    BoundFunction(Engine*, Type*, Function*, Value&);
+    explicit BoundFunction(Engine*, Type*, Function*, Value&);
+    explicit BoundFunction(const BoundFunction*);
 public:    
     virtual ~BoundFunction();
     
-    virtual Function* GetBoundFunction() const { return closure;}
-    virtual Value     GetBoundSelf()     const { return self; }
-    
-    virtual void BeginCall(Context*);
-    virtual void MarkRefs(Collector*);
+    virtual Function*   GetBoundFunction() const { return closure;}
+    virtual Value       GetBoundSelf()     const { return self; }
+    virtual Object*     Clone();
+    virtual void        BeginCall(Context*);
+    virtual void        MarkRefs(Collector*);
     
     static BoundFunction* Create(Engine*, Type*, Function*, Value&);
     static void Constructor(Engine* eng, Type* obj_type, Value& res);

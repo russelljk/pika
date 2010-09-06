@@ -41,7 +41,8 @@ class PIKA_API Array : public Object
 protected:
     friend class ArrayEnumerator;
     
-    Array(Engine* eng, Type*, size_t, Value*);
+    explicit Array(Engine* eng, Type*, size_t, Value*);
+    explicit Array(const Array*);
     
     bool GetIndexOf(const Value& key, size_t &index);
 public:

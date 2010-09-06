@@ -34,12 +34,14 @@ struct PIKA_API HookedFunction : Function
 {
     PIKA_DECL(HookedFunction, Function)
 public:
-    HookedFunction(Engine*    eng,
-                   Type*      ptype,                   
-                   Def*       mdef,
-                   NativeDef* def,
-                   ClassInfo* info,
-                   Package*   pkg);
+    explicit HookedFunction(Engine*    eng,
+                            Type*      ptype,                   
+                            Def*       mdef,
+                            NativeDef* def,
+                            ClassInfo* info,
+                            Package*   pkg);
+    
+    explicit HookedFunction(const HookedFunction*);
     
     virtual ~HookedFunction();
     

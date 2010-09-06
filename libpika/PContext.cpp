@@ -2155,7 +2155,7 @@ Context* Context::Create(Engine* eng, Type* obj_type)
 
 Object* Context::Clone()
 {
-    return Context::Create(engine, GetType());
+    return 0;
 }
 
 void Context::Init(Context* ctx)

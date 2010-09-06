@@ -18,10 +18,17 @@ PIKA_IMPL(HookedFunction)
 
 HookedFunction::HookedFunction(Engine* eng, Type* ptype, Def* mdef,
                                NativeDef* ndef, ClassInfo* info, Package* pkg)
-        : Function(eng, ptype, mdef, pkg, 0),
+        : ThisSuper(eng, ptype, mdef, pkg, 0),
         ndef(ndef),
         info(info)
 {}
+
+HookedFunction::HookedFunction(const HookedFunction* rhs) : 
+        ThisSuper(rhs),
+        ndef(rhs->ndef),
+        info(rhs->info)
+{
+}
 
 HookedFunction::~HookedFunction() {}
 
@@ -46,7 +53,7 @@ HookedFunction* HookedFunction::Create(Engine* eng,
 Object* HookedFunction::Clone()
 {
     HookedFunction* bf = 0;    
-    GCNEW(engine, HookedFunction, bf, (engine, GetType(), def, ndef, info, location));        
+    GCNEW(engine, HookedFunction, bf, (this));        
     return bf;
 }
 

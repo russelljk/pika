@@ -27,8 +27,27 @@ Script::Script(Engine* eng, Type* scriptType, String* name, Package* pkg)
 
 {}
 
+Script::Script(const Script* rhs) :
+        ThisSuper(rhs),
+        literals(rhs->literals),
+        context(rhs->context),
+        entryPoint(rhs->entryPoint),
+        arguments(rhs->arguments),
+        import_value(rhs->import_value),
+        firstRun(rhs->firstRun),
+        running(rhs->running)
+{
+}
+        
 Script::~Script()
 {}
+
+Object* Script::Clone()
+{
+    Script* s = 0;
+    GCNEW(engine, Script, s, (this));
+    return s;
+}
 
 void Script::Initialize(LiteralPool* lp, Context* ctx, Function* entry)
 {

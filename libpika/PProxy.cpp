@@ -153,7 +153,6 @@ int Proxy_setWriter(Context* ctx, Value& self)
 
 void Proxy::StaticInitType(Engine* eng)
 {
-    Package* Pkg_World = eng->GetWorld();
     String* Proxy_String = eng->AllocString("Proxy");
     Type* Proxy_Type = Type::Create(eng, Proxy_String, eng->Object_Type, Proxy::Constructor, eng->Property_Type);
     

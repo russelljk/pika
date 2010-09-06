@@ -692,7 +692,7 @@ Instr* TryStmt::DoStmtCodeGen()
 {
     /*      [ OP_pushtry    ]
      *      [ try block     ]
-     *      [ OP_pophandler     ]
+     *      [ OP_pophandler ]
      *      [ OP_jump       ]-----.
      *  .---[ catch block + ]     |
      *  |   [ JMP_TARGET    ] <---'    
@@ -721,7 +721,10 @@ Instr* TryStmt::DoStmtCodeGen()
     Instr* icurr      = ipoptry;
     Instr* prevtarget = 0;
     
-    // specific catch statements: catch ex is Type
+    // catch ex is type
+    // ...
+    //
+    // 'catch is' blocks must come first, before the 'catch all' and 'else' blocks.
     if (catchis)
     {
         CatchIsBlock* curr = catchis;
@@ -808,6 +811,7 @@ Instr* TryStmt::DoStmtCodeGen()
         iassign->operand = symbol->offset;
     }
     
+    // Handle the else block that will executed only if no exception is raised/caught.
     if (elseblock)
     {
         Instr* iejump = Instr::Create(OP_jump);
@@ -1927,13 +1931,13 @@ Instr* FinallyStmt::DoStmtCodeGen()
      *     An exception is raised in the block and we have to unwind the stack and call the enclosing
      *     handler (if present).
      * 
-     * For all 3 we want to ensure that the finally block will always be called as the block is terminated.
+     * For all 3 we want to ensure that the finally block will always be called.
      * 
      * ---------------------------------------------------------------------------------------------
-     * 
+     *
      * 1.) Normal
      *     A. Insert OP_callfinally at the end of the block with the finally block as the target.
-     *     B. When the finally block returns we jump to the finished label.
+     *     B. When the finally block returns we unconditionally jump to the finished label.
      *   
      * 2.) Non-local-jump
      *     A. Insert OP_callfinally before each jump with the finally block as the target.

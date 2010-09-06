@@ -20,7 +20,8 @@ protected:
     friend class Engine;
 
     Script(Engine*, Type*, String*, Package*);
-
+    Script(const Script*);
+    
     void            Initialize(LiteralPool*, Context*, Function*);
     
     LiteralPool*    literals;
@@ -33,7 +34,7 @@ protected:
 public:
     virtual ~Script();
     
-    
+    virtual Object*  Clone();
 
     Package*         GetImportResult() { return import_value ? import_value : this; }
     void             SetImportResult(Package* impres);
