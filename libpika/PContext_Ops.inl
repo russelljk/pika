@@ -143,6 +143,7 @@ template<typename T> INLINE bool  gr_num(const T& a, const T& b) { return(a  > b
 template<typename T> INLINE bool lte_num(const T& a, const T& b) { return(a <= b); }
 template<typename T> INLINE bool gte_num(const T& a, const T& b) { return(a >= b); }
 
+// TODO: Overflow and Underflow exceptions need to be made for all shift operators
 INLINE void  lsh_num(pint_t& a, pint_t& b) { a <<= b; }
 INLINE void  rsh_num(pint_t& a, pint_t& b) { a >>= b; }
 INLINE void ursh_num(pint_t& a, pint_t& b)

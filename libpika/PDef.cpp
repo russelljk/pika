@@ -69,6 +69,7 @@ void Def::MarkRefs(Collector* c)
             localsInfo[i].name->Mark(c);
         }
     }
+    kwargs.DoMark(c);
 }
 
 void Def::SetBytecode(code_t* bc, u2 len)
@@ -85,7 +86,7 @@ void Def::AddLocalVar(Engine* eng, const char* name, bool isparam)
     lv.beg  = 0;
     lv.end  = 0;
     lv.param = isparam;
-    
+    // TODO : What about ... parameter and ** parameter.
     size_t idx = localsInfo.GetSize();
     
     localsInfo.Push(lv);

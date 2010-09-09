@@ -47,7 +47,7 @@ struct RegisterProperty
     const char*  getterName;    //!< Getter name.
     Nativecode_t setter;        //!< Setter funcion.
     const char*  setterName;    //!< Setter name.
-    bool         unattached;    //!< Don't make the function a InstanceMethod.
+    bool         unattached;    //!< Should the function's be attached to the Object/Type (ClassMethod or InstanceMethod).
 };
 
 class Bytecode
@@ -76,7 +76,7 @@ class PIKA_API Def : public GCObject
             literals(0),
             mustClose(false),
             isVarArg(false),
-            isKeyWord(false),
+            isKeyword(false),
             isStrict(false),
             line(-1) {}
     
@@ -93,7 +93,7 @@ class PIKA_API Def : public GCObject
             literals(0),
             mustClose(false),
             isVarArg(varargs),
-            isKeyWord(false),
+            isKeyword(false),
             isStrict(strict),
             line(-1) {}
 public:
@@ -136,7 +136,7 @@ public:
     LiteralPool* literals;    //!< Literals used in the bytecode.
     bool         mustClose;   //!< True if this function's locals are accessed by a child function.
     bool         isVarArg;    //!< Bytecode function that has the rest parameter or Native function that takes a variable number of arguments.
-    bool         isKeyWord;   //!< Function has keyword argument parameter.
+    bool         isKeyword;   //!< Function has keyword argument parameter.
     bool         isStrict;    //!< Native function must has the correct number of arguments.
     int          line;        //!< Line in the script this def is declared or -1 for native defs.
 };

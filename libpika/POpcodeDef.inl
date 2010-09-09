@@ -85,8 +85,8 @@
     
     DECL_OP( OP_unpack,         "unpack",       3, OF_w,        "" )
     
-    DECL_OP( OP_tailcall,       "tailcall",     3, OF_w,        "" )
-    DECL_OP( OP_call,           "call",         4, OF_bw,       "" )
+    DECL_OP( OP_tailcall,       "tailcall",     3, OF_bb,       "" )
+    DECL_OP( OP_call,           "call",         4, OF_bbb,      "" )
 
     DECL_OP( OP_dotget,         "dotget",       1, OF_none,     "" )
     DECL_OP( OP_dotset,         "dotset",       1, OF_none,     "" )

@@ -460,7 +460,7 @@ int Type_alloc(Context* ctx, Value& self)
         ctx->Push(vobj);
         ctx->Push(vfunc);
         
-        if (ctx->SetupCall(argc, false, 1))
+        if (ctx->SetupCall(argc))
         {
             ctx->Run();
         }

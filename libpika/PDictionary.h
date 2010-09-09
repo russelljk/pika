@@ -11,17 +11,22 @@ namespace pika {
         PIKA_DECL(Dictionary, Object)
     public:
         Dictionary(Engine*, Type*);
-        Dictionary(const Dictionary*);
+        Dictionary(const Dictionary*);        
         
         virtual ~Dictionary();
+        
         virtual void MarkRefs(Collector* c);
         virtual Object* Clone();
+        
         virtual bool BracketRead(const Value& key, Value& res);
         virtual bool BracketWrite(const Value& key, Value& value, u4 attr=0);
+        
+        virtual String* ToString();
         
         Array* Keys();
         Array* Values();
         
+        static Dictionary* Create(Engine* eng, Type* type);
         static void Constructor(Engine* eng, Type* type, Value& res);
         static void StaticInitType(Engine*);
     protected:

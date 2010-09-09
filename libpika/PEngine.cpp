@@ -856,6 +856,32 @@ String* Engine::ToString(Context* ctx, const Value& v)
     return emptyString;
 }
 
+String* Engine::SafeToString(Context* ctx, const Value& el)
+{
+    if (el.IsDerivedFrom(Array::StaticGetClass()))
+    {
+        // An array this could lead to an infinite loop, so just print ellipsis.
+        return this->AllocString("[...]");
+    }
+    else if (el.IsString())
+    {
+        return el.val.str;
+    }
+    else if (el.tag >= TAG_basic)
+    {
+        // Same danger with array elements can occur if an basic Object element and this Array have a cyclical references.
+        return this->AllocStringFmt("<instance %s : %p>", 
+                                     el.val.basic->GetType()->GetName()->GetBuffer(), 
+                                     el.val.object);
+    }
+    else
+    {
+        // Its a non object value.
+        return this->ToString(ctx, el);
+    }    
+    return emptyString;            
+}
+
 void Engine::CallConversionFunction(Context* ctx, String* name, Object* c, Value& res)
 {
     Value key(name);

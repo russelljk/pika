@@ -419,9 +419,9 @@ Instr* LocalDecl::GenerateCode()
 
 Instr* CallExpr::GenerateCode()
 {
-    Expr::Kind   k       = left->kind;
+    Expr::Kind k = left->kind;
     Instr* ilvalue = 0;
-    Instr* iargs   = 0;
+    Instr* iargs = 0;
     
     if (k == Expr::EXPR_dot)
     {
@@ -460,23 +460,43 @@ Instr* CallExpr::GenerateCode()
     }
     
     ExprList* curr = args;
-    u2 numargs = 0;
-    
+        
     while (curr)
     {
-        ++numargs;
+        if (curr->expr->kind == Expr::EXPR_kwarg)
+            break;
+    
         Expr* expr = curr->expr;
         Instr* iexpr = expr->GenerateCode();
         
-        if (iargs) iargs->Attach(iexpr);
-        else iargs = iexpr;
+        if (iargs)
+            iargs->Attach(iexpr);
+        else
+            iargs = iexpr;
+        
+        curr = curr->next;
+    }
+        
+    while (curr)
+    {
+        if (curr->expr->kind != Expr::EXPR_kwarg)
+            ASSERT(false); // somehow a regular argument ended up after a kwarg
+        
+        Expr* expr = curr->expr;
+        Instr* iexpr = expr->GenerateCode();
+        
+        if (iargs)
+            iargs->Attach(iexpr);
+        else
+            iargs = iexpr;
         
         curr = curr->next;
     }
     
     Instr* icall = Instr::Create(OP_call);
-    icall->operand   = numargs;
-    icall->operandu1 = retc ? retc : 1;
+    icall->operand   = argc;
+    icall->operandu1 = kwargc;
+    icall->operandu2 = retc ? retc : 1;
     if (iargs)
     {
         iargs->Attach(ilvalue);
@@ -1595,16 +1615,14 @@ Instr* ArrayExpr::GenerateCode()
 
 Instr* KeywordExpr::GenerateCode()
 {
-    //Instr* iname = name->GenerateCode();
+    Instr* iname = name->GenerateCode();
     Instr* ivalue = value->GenerateCode();
-    /*
+
     iname->
     Attach(ivalue)
     ;
     
     return iname;
-    */
-    return ivalue;
 }
 
 Instr* CondExpr::GenerateCode()

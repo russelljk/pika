@@ -194,7 +194,7 @@ private:
     Expr*           DoRealLiteralExpression();
     Expr*           DoStringLiteralExpression();
     Expr*           DoIntegerLiteralExpression();
-    ExprList*       DoExpressionList();
+    ExprList*       DoExpressionList(bool is_kwarg=false);
     LoadExpr*       DoSelfExpression();
     Expr*           DoFunctionExpression();
     

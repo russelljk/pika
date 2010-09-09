@@ -14,6 +14,7 @@
 #include "PValueEnumerator.h"
 #include "PNativeBind.h"
 #include "PContext_Ops.inl"
+#include "PDictionary.h"
 
 namespace pika {
 namespace {
@@ -908,11 +909,16 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
             // Bytecode variadic function:
             // Create the varargs Array. We only do this for byte-code
             // functions since native functions have direct access to the stack.
-            
-            Array *v = Array::Create(engine, 0, argdiff + 1, (GetStackPtr() - argdiff - 1));
-            Pop(argdiff);
-            Top().Set(v);
-            resultArgc = param_count;
+            if (def->isKeyword) {
+                Array *v = Array::Create(engine, 0, argdiff + 2, (GetStackPtr() - argdiff - 2));
+                Pop(argdiff);
+                Top1().Set(v);
+            } else {
+                Array *v = Array::Create(engine, 0, argdiff + 1, (GetStackPtr() - argdiff - 1));
+                Pop(argdiff);
+                Top().Set(v);
+            }
+            resultArgc = param_count;            
         }
         // Otherwise the function is a variadic native function.
         // We just keep the arguments given to us.
@@ -936,12 +942,15 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         bool adjustForVarArgs = def->isVarArg && !nativecall;
         int  argstart         = argc;
         Defaults* defaults    = fun->defaults;
+        int const keyword_adj = def->isKeyword && !nativecall ? 1 : 0;
         
         if (defaults)
         {
             size_t const numDefaults = defaults->Length();
-            int const numRegularArgs = (adjustForVarArgs) ? param_count - (int)numDefaults - 1
-                                       : param_count - (int)numDefaults;
+            int const numRegularArgs = (adjustForVarArgs) ? 
+                    (param_count - (int)numDefaults - 1 - keyword_adj) :
+                    (param_count - (int)numDefaults - keyword_adj);
+                    
             int const amttopush = numRegularArgs - argstart;
             int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
             
@@ -976,20 +985,26 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
             Array* v = Array::Create(engine, engine->Array_Type, 0, 0);
             Push(v);
         }
+        if (def->isKeyword) {
+            this->PushNull();
+        }
         resultArgc = param_count;
     }
     
     return resultArgc;
 }
 
-bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
+bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
 {
-    //  [ previous calls... ]
-    //  [ argument 0        ]
-    //  [ ...               ]
-    //  [ argument argc-1   ]
-    //  [ self or null      ]
-    //  [ function          ] < sp
+    //  [ ...   ]
+    //  [ arg 0 ]
+    //  [ ...   ]
+    //  [ arg N ] 
+    //  [ kw  0 ]
+    //  [ ...   ]
+    //  [ kw  N ]
+    //  [ self  ]
+    //  [ func  ] < sp
     
     Value frameVar = PopTop();
     Value selfVar  = PopTop();
@@ -997,32 +1012,95 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
     //  [ ...   ]
     //  [ arg 0 ]
     //  [ ...   ]
-    //  [ arg N ] < sp
-    
-    // frame variable is a derived from type Function.
-    
+    //  [ arg N ] 
+    //  [ kw  0 ]
+    //  [ ...   ]
+    //  [ kw  N ]  < sp
+        
+    // frameVar is a derived from type Function.
     if (engine->Function_Type->IsInstance(frameVar))
     {
         Function* fun = frameVar.val.function;
         Def* def = fun->GetDef();
+    
+        if (kwargc)
+        {
+            /* Copy keyword argument pairs to a temporary buffer so
+             * that we can manipulate the arguments at the top of
+             * the stack.
+             */
+            size_t kw_total_values = kwargc*2;
+            keywords.Resize(kw_total_values);
+            Pika_memcpy(keywords.GetAt(0), GetStackPtr()-kw_total_values, kw_total_values*sizeof(Value));
+            Pop(kw_total_values);
+        }
         
+        //  [ ...   ]
+        //  [ arg 0 ]
+        //  [ ...   ]
+        //  [ arg N ] < sp
+            
         // Adjust argc to match the definition's param_count.
         int  param_count = def->numArgs;
         int  argdiff     = (int)argc - param_count;
         bool nativecall  = (def->nativecode != 0);
-        
-        // Incorrect argument count.
+                
         if (argdiff != 0)
         {
+            // Incorrect argument count.
             argc = AdjustArgs(fun, def, param_count, argc, argdiff, nativecall);
         }
+        //TODO: Test all combos of varargs and kwargs
+        //TODO: Is we can count vargargs and kwargs as something otherthan parameters
+        //      Then we won't have to do all these silly tests. Also we could restrict
+        //      A function to having just varrgs and kwargs and no regular arguments.
+        //TODO: If we seperated native from script methods we could also remove the constant !native call
         else if (def->isVarArg && !nativecall && param_count)
         {
+            // Argument count is over by exactly 1 or 2. 
             GCPAUSE_NORUN(engine);
+            int amt = (def->isKeyword) ? 2 : 1;
             
-            Value* singlearg = GetStackPtr() - 1;
-            Array* v = Array::Create(engine, 0, 1, singlearg);
-            Top().Set(v);
+            // So create a single element array.
+            Value* singlearg = GetStackPtr() - amt;
+            Array* v = Array::Create(engine, 0, amt, singlearg);
+            (sp-amt)->Set(v);
+        }
+        
+        if (kwargc)
+        {
+            Dictionary* dict = 0;
+            if (def->isKeyword)
+            {
+                GCPAUSE_NORUN(engine);
+                dict = Dictionary::Create(engine, engine->Dictionary_Type);
+                Top().Set(dict);
+            }
+            /* Time to deal with the keyword arguments. */             
+            Value* args_start = sp - argc;
+            Table& kwargs = def->kwargs;
+            
+            for (Buffer<Value>::Iterator curr = keywords.Begin(); curr != keywords.End(); curr+=2)
+            {
+                Value idx(NULL_VALUE);
+                if (kwargs.Get(*curr, idx))
+                {
+                    ASSERT(idx.tag == TAG_integer);
+                    pint_t the_index = idx.val.integer;
+                    ASSERT(the_index < argc);
+                    *(args_start + the_index) = *(curr + 1);
+                }
+                else if (dict)
+                {
+                    dict->BracketWrite(*curr, *(curr+1));
+                }
+            }
+        }
+        else if (def->isKeyword)
+        {
+            GCPAUSE_NORUN(engine);
+            Dictionary* dict = Dictionary::Create(engine, engine->Dictionary_Type);
+            Top().Set(dict);
         }
         
         Value* newsp;
@@ -1177,7 +1255,7 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
                 //ASSERT(env == closure->lexEnv);
                 //LexicalEnv* oldEnv = env;
                 env = LexicalEnv::Create(engine, true); // ... create the lexical environment (ie the args + locals).
-                env->Set(bsp, def->numLocals);          // ... for now they point to our stack.
+                env->Set(bsp, def->numLocals);          // ... right now they point to the stack.
             }
             else
             {
@@ -1198,7 +1276,7 @@ bool Context::SetupCall(u2 argc, bool tailcall, u2 retc)
         if (frameVar.tag >= TAG_basic)
         {
             Push(frameVar);
-            return SetupOverride(argc, frameVar.val.basic, OVR_call);
+            return SetupOverride(argc, retc, kwargc, tailcall, frameVar.val.basic, OVR_call);
         }
         else
         {
@@ -1231,7 +1309,7 @@ void Context::CreateEnvAt(ScopeIter iter)
     }
 }
 
-bool Context::SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res)
+bool Context::SetupOverride(u2 argc, u2 retc, u2 kwargc, bool tailcall, Basic* obj, OpOverride ovr, bool* res)
 {
     ASSERT(obj);
     Value meth;
@@ -1243,7 +1321,7 @@ bool Context::SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res)
         {
             *res = true;
         }
-        return SetupCall(argc);
+        return SetupCall(argc, retc, kwargc, tailcall);
     }
     else if (!res)
     {
@@ -1853,7 +1931,7 @@ bool Context::OpUnpack(u2 expected)
         if (GetOverrideFrom(engine, obj, OVR_unpack, meth))
         {
             Push(meth);
-            return SetupCall(0, false, expected);
+            return SetupCall(0, expected);
         }
         else if (t.IsDerivedFrom(Array::StaticGetClass()))
         {

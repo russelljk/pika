@@ -389,10 +389,17 @@ FunctionDecl::FunctionDecl(NameNode* name, ParamDecl* args, Stmt* body,
         symtab(0),
         name(name),
         varArgs(false),
+        kwArgs(false),
         scriptBeg(begtxt),
         scriptEnd(endtxt)
 {
-    varArgs = (args) ? args->HasVarArgs() : false;
+    if (args) {
+        varArgs = args->HasVarArgs();
+        kwArgs = args->HasKeywordArgs();
+    } else {
+        varArgs = false;
+        kwArgs = false;
+    }    
 }
 
 const char* FunctionDecl::GetIdentifierName() { return name->GetName(); }
@@ -410,16 +417,18 @@ void FunctionDecl::CalculateResources(SymbolTable* st, CompileState& cs)
                                       name->GetName());
                                       
     def->isVarArg = varArgs ? 1 : 0;
+    def->isKeyword = kwArgs ? 1 : 0;
 }
 
 FunctionDecl::~FunctionDecl() { Pika_delete(symtab); }
 
-ParamDecl::ParamDecl(Id *name, bool rest, Expr* val)
+ParamDecl::ParamDecl(Id *name, bool rest, bool kw, Expr* val)
         : Decl(Decl::DECL_parameter),
         val(val),
         symbol(0),
         name(name),
         has_rest(rest),
+        has_kwargs(kw),
         next(0) {}
         
 void ParamDecl::CalculateDefaultResources(SymbolTable* st, CompileState& cs)
@@ -482,9 +491,19 @@ bool ParamDecl::HasDefaultValue()
 
 bool ParamDecl::HasVarArgs()
 {
-    if (next)
+    if (next) {
+        if (!next->next && has_rest)
+            return has_rest;
         return next->HasVarArgs();
+    }
     return has_rest;
+}
+
+bool ParamDecl::HasKeywordArgs()
+{
+    if (next)
+        return next->HasKeywordArgs();
+    return has_kwargs;
 }
 
 void KeywordExpr::CalculateResources(SymbolTable* st, CompileState& cs)
@@ -804,12 +823,23 @@ void CallExpr::CalculateResources(SymbolTable* st, CompileState& cs)
         }
         left->CalculateResources(st, cs);
     }
-    if (args) 
-    {
-        args->CalculateResources(st, cs);
-        size_t count = args->Count();
-        if (count > PIKA_MAX_ARGS)
-            state->SyntaxError(line, "Max number of arguments reached");
+    if (args) {       
+        ExprList* el = args;
+        while (el)
+        {
+            Expr* arg_expr = el->expr;
+            arg_expr->CalculateResources(st, cs);
+            
+            if (arg_expr->kind == EXPR_kwarg) {
+                if (++kwargc > PIKA_MAX_KWARGS)
+                    state->SyntaxError(line, "Max number of keyword arguments reached"); 
+            }
+            else {            
+                if (++argc > PIKA_MAX_ARGS)
+                    state->SyntaxError(line, "Max number of arguments reached");
+            }
+            el = el->next;            
+        }
     }
 }
 
@@ -902,7 +932,13 @@ FunExpr::~FunExpr() { Pika_delete(symtab); }
 void FunExpr::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     Pika_FunctionResourceCalculation(line, st, cs, args, body, &index, &def, &symtab, (name) ? name->name : 0);
-    def->isVarArg = (args) ? args->HasVarArgs() : false;
+    if (args) {
+        def->isVarArg = args->HasVarArgs();
+        def->isKeyword = args->HasKeywordArgs();
+    } else {
+        def->isVarArg = false;
+        def->isKeyword = false;
+    }
 }
 
 void PropExpr::CalculateResources(SymbolTable* st, CompileState& cs)

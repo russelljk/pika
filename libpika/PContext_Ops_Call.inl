@@ -11,9 +11,10 @@ PIKA_OPCODE(OP_tailcall)
     {
         env->EndCall();
     }
-    const u2 argc = GetShortOperand(instr);
+    const u1 argc = GetByteOperand(instr);
+    const u1 kwa  = GetByte2Operand(instr);
     
-    if (!SetupCall(argc, true, 1))
+    if (!SetupCall(argc, 1, kwa, true))
     {
         PIKA_RET(1)
     }
@@ -24,10 +25,11 @@ PIKA_NEXT()
 
 PIKA_OPCODE(OP_call)
 {
-    const u2 argc = GetShortOperand(instr);
-    const u1 retc = GetByteOperand(instr);
-    
-    if (SetupCall(argc, false, retc))
+    const u1 argc = GetByteOperand(instr);
+    const u1  kwa = GetByte2Operand(instr);
+    const u1 retc = GetByte3Operand(instr);    
+                
+    if (SetupCall(argc, retc, kwa, false))
     {
         ++numcalls;
     }

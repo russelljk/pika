@@ -15,6 +15,7 @@ struct Instr
 {
     Instr(Opcode code)
             : opcode(code),
+            operandu2(0),
             operandu1(0),
             operand(0),
             pos(0),
@@ -121,14 +122,10 @@ struct Instr
     }
     
     Opcode  opcode;
-    u1      operandu1;
-    union {
-        u2  operand;
-        struct {
-            u1 operandu2;
-            u1 operandu3;
-        };
-    };
+    
+    u1  operandu2;  // second byte if OP_bw, OP_bb, OP_bbb
+    u1  operandu1;  // second byte if OP_bw, OP_bb, OP_bbb    
+    u2  operand;    // word of OP_bw, OP_w
     u2      pos;
     u2      line;
     Instr*  next;
@@ -179,7 +176,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_setlocal:
     case OP_setglobal:
     case OP_setmember:
-    case OP_setlexical:       return -1;
+    case OP_setlexical:     return -1;
     case OP_pop:            return -1;
     case OP_acc:            return -1;
     
@@ -221,14 +218,14 @@ INLINE int OpcodeStackChange(Instr *ir)
     }
     case OP_tailcall:
     {
-        int operand = ir->operand;
+        int operand = ir->operand + (2 * ir->operandu1);
         operand     = -operand - 1; // ????: tailcall will be whatever the previous call was!
         return operand;
     }
     case OP_call:
     {
-        int retv    = ir->operandu1 ? ir->operandu1 : 1;
-        int operand = ir->operand;
+        int retv    = ir->operandu2 ? ir->operandu2 : 1;
+        int operand = ir->operand + (2 * ir->operandu1);
         operand     = -operand - retv;
         return operand;
     }

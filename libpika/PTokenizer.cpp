@@ -938,13 +938,6 @@ void Tokenizer::ReadControl()
             // .. , slice operator
             tokenType = TOK_slice;
             GetLook();
-            
-            if (look == '.')
-            {
-                // ... , varargs decl
-                tokenType = TOK_rest;
-                GetLook();
-            }
         }
     }
     break;
@@ -1051,7 +1044,18 @@ void Tokenizer::ReadControl()
         }
     }
     break;
+    
+    case ':':        
+        tokenType = look;
+        GetLook();
         
+        if (look == ':')
+        {
+            tokenType = TOK_keywordparam;
+            GetLook();
+        }    
+    break;
+    
     default:
         if (!IsAscii(look) && look != EOF && look != EOI) {
             state->SyntaxException(Exception::ERROR_syntax, line, col, "Non-ascii character encountered %d.\n", look);

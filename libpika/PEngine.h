@@ -230,6 +230,10 @@ public:
     
     String* ToString(Context* ctx, const Value& v);
     
+    /** Use this for arrays, dictionaries and other containers that may contain circular references which
+      * would result in an infinite loop. */
+    String* SafeToString(Context* ctx, const Value& v); 
+        
     void CreateRoots();
     void ScanRoots(Collector* c);
     void SweepStringTable();

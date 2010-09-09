@@ -20,6 +20,7 @@ enum OpcodeFormat
     OF_target, // target
     OF_w,      // word
     OF_bw,     // byte word
+    OF_bb,     // byte byte
     OF_bbb,    // byte byte byte
     OF_zero,   // not an opcode
 };
@@ -132,6 +133,8 @@ INLINE u2 OpcodeLength(Opcode oc)
     case OF_target:
     case OF_w:
     case OF_bw:
+    case OF_bb:    
+    case OF_bbb:
         return 1;
     case OF_zero:
     default:
@@ -148,13 +151,25 @@ union OpcodeLayout
     struct
     {
 #if defined(PIKA_BIG_ENDIAN)
+        union {
+        struct {
+            u1 b3;
+            u1 b2;
+        };
         u2 w;
+        };
         u1 b;
         u1 opcode;
 #else
         u1 opcode;
         u1 b;
+        union {
+        struct {
+            u1 b2;
+            u1 b3;
+        };
         u2 w;
+        };
 #endif
     };
 };
@@ -174,6 +189,10 @@ extern PIKA_API void Pika_PrintInstruction(code_t bc);
 // [w][b1][op]
 #define PIKA_MAKE_BW(op, b, w)  (PIKA_MAKE_W(op, w) | (PIKA_MAKE_B(b) << 8))
 
+// [??][b2][b1][op]
+#define PIKA_MAKE_BB(op, b1, b2) \
+    (PIKA_MAKE_BW(op, b1, CS_MAKEOPERAND(b2, 0x00)))
+    
 // [b3][b2][b1][op]
 #define PIKA_MAKE_BBB(op, b1, b2, b3) \
     (PIKA_MAKE_BW(op, b1, CS_MAKEOPERAND(b2, b3)))

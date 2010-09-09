@@ -147,7 +147,7 @@ public:
     void Reset();
 protected:   
     int AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int argdiff, bool nativecall);
-    
+    Buffer<Value>  keywords;
     AddressStack   addressStack;    //!< Stack of addresses used by the finally statement.
     ExceptionStack handlers;        //!< Stack of ExceptionBlocks used for exception handling.    
     ScopeStack     scopes;          //!< Stack of scopes
@@ -204,7 +204,8 @@ protected:
     
     /** Decode an return the byte operand of the given instruction. */
     PIKA_FORCE_INLINE u1 GetByteOperand(const code_t instr)  { return PIKA_GET_BYTEOF(instr);  }
-    
+    PIKA_FORCE_INLINE u1 GetByte2Operand(const code_t instr)  { return PIKA_GET_BYTE2OF(instr);  }    
+    PIKA_FORCE_INLINE u1 GetByte3Operand(const code_t instr)  { return PIKA_GET_BYTE3OF(instr);  }    
     /** Decode an return the short operand of the given instruction. */
     PIKA_FORCE_INLINE u2 GetShortOperand(const code_t instr) { return PIKA_GET_SHORTOF(instr); }
     
@@ -282,7 +283,11 @@ public:
     LexicalEnv* GetEnv() { return env; }
     void    CreateEnvAt(ScopeIter);
     
-    bool    SetupOverride(u2 argc, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
+    /** Sets up a generic override method. The arguments should already be pushed onto the stack. Followed by
+      * Keyword (name,value) pairs. Finally the object in question should be pushed.
+      */
+    bool    SetupOverride(u2 argc, u2 retc, u2 kwargc, bool tailcall, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
+    
     bool    SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the right hand side
     bool    SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the left hand side
     bool    SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res = 0);      // Unary prefix and postfix
@@ -319,7 +324,7 @@ public:
       * context->Push(argN);
       * context->Push(self);
       * context->Push(method);
-      * if (context->SetupCall(N, false, 1))
+      * if (context->SetupCall(N, 1, 0, false))
       *      context->Run();
       *  Value returned = context->PopTop();
       *  </pre>
@@ -330,7 +335,7 @@ public:
       *
       * @result true if Run needs to be called because the method is a bytecode method.
       */
-    bool SetupCall(u2 argc, bool tailcall = false, u2 retc = 1);
+    bool SetupCall(u2 argc, u2 retc = 1, u2 kwa = 0, bool tailcall = false);
     
     /** Suspend with a specified Value. */
     void DoSuspend(Value* v, size_t amt);

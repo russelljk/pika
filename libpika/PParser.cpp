@@ -2092,7 +2092,7 @@ Expr* Parser::DoPostfixExpression()
             --------------------------------------------------------------------------------------------           
             */
             Expr*     lhs  = expr;
-            ExprList* args = DoExpressionList();
+            ExprList* args = DoExpressionList(true);
             
             PIKA_NEWNODE(CallExpr, expr, (lhs, args));
             expr->line = lhs->line;
@@ -2480,13 +2480,39 @@ Expr* Parser::DoIntegerLiteralExpression()
     return expr;
 }
 
-ExprList* Parser::DoExpressionList()
+ExprList* Parser::DoExpressionList(bool is_kwarg)
 {
     ExprList* el = 0;
-    ExprList* firstel = 0;    
+    ExprList* firstel = 0;
+    bool has_kwarg = false;
+    
     do
     {
-        Expr* expr = DoExpression();
+        Expr* expr = 0;
+        if (tstream.GetType() == TOK_identifier &&
+            tstream.GetNextType() == ':')
+        {
+            int line = tstream.GetLineNumber();
+            StringExpr* sexpr = DoFieldName();
+            BufferNext();
+            Match(':');            
+            Expr* valexpr = DoExpression();
+            
+            PIKA_NEWNODE(KeywordExpr, expr, (sexpr, valexpr));
+            expr->line = line;
+            
+            if (!has_kwarg)
+                has_kwarg = true;
+        }
+        else if (!has_kwarg)
+        {
+            expr = DoExpression();
+        }
+        else
+        {
+            state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "expected token: 'identifier'. A keyword argument must be the last parameter(s) supplied");
+        }
+
         ExprList* nxtel = 0;
         
         PIKA_NEWNODE(ExprList, nxtel, (expr));
@@ -2529,12 +2555,12 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
             tstream.GetNextType() == ':')
         {
             int line = tstream.GetLineNumber();
-            IdExpr* idexpr = DoIdExpression();
+            StringExpr* sexpr = DoFieldName();
             BufferNext();
             Match(':');            
             Expr* valexpr = DoExpression();
             
-            PIKA_NEWNODE(KeywordExpr, expr, (idexpr, valexpr));
+            PIKA_NEWNODE(KeywordExpr, expr, (sexpr, valexpr));
             expr->line = line;
             
             if (!has_kwarg)
@@ -2546,7 +2572,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
         }
         else
         {
-            state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "Keyword Arguments must be the last parameter(s) supplied");
+            state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "expected token: 'identifier'. A keyword argument must be the last parameter(s) supplied");
         }
         
         ExprList* nxtel = 0;
@@ -2801,16 +2827,23 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
     while (tstream.GetType() != ')' && !tstream.IsEndOfStream())
     {
         bool rest_param = false;
+        bool kw_param = false;
+        
         Id* id = 0;
         Expr* def_expr = 0;
         
-        if (tstream.GetType() == TOK_rest)
+        if (tstream.GetType() == ':')
         {
-            Match(TOK_rest);
+            Match(':');
             BufferCurrent();
             rest_param = true;
         }
-        
+        else if (tstream.GetType() == TOK_keywordparam)
+        {
+            Match(TOK_keywordparam);
+            BufferCurrent();
+            kw_param = true;
+        }
         id = DoIdentifier();
         BufferCurrent();
         
@@ -2832,7 +2865,7 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
             state->SyntaxError(tstream.GetLineNumber(), "Expected default value for parameter '%s'.", id->name);
         }
         
-        PIKA_NEWNODE(ParamDecl, currParam, (id, rest_param, def_expr));
+        PIKA_NEWNODE(ParamDecl, currParam, (id, rest_param, kw_param, def_expr));
         currParam->line = id->line;
         
         if (!params)
@@ -2846,9 +2879,19 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
         
         if (tstream.GetType() != ')')
         {
-            if (rest_param && tstream.GetType() == ',')
+            if ((kw_param || rest_param) && tstream.GetType() == ',')
             {
-                state->SyntaxError(tstream.GetLineNumber(), "Variable argument declaration '...' must be the last parameter.");
+                if (kw_param) {
+                    state->SyntaxError(tstream.GetLineNumber(), "keyword argument declaration '::' must be the last parameter.");
+                } else {
+                    BufferNext();
+                    if (tstream.GetNextType() != TOK_keywordparam) {
+                        state->SyntaxError(tstream.GetLineNumber(), "variable argument declaration ':' can only be followed by keyword argument declaration '::'.");
+                    } else {
+                        Match(',');
+                        BufferCurrent();
+                    }
+                }                
             }
             else if (tstream.GetType() != ',')
             {

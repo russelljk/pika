@@ -87,7 +87,7 @@ public:
     INLINE bool IsUserData()    const { return  tag == TAG_userdata; }
     INLINE bool IsObject()      const { return (tag == TAG_object) && val.object; }
     
-    bool IsDerivedFrom(ClassInfo* c);
+    bool IsDerivedFrom(ClassInfo* c) const;
     
     INLINE pint_t      GetInteger()    const { return val.integer; }
     INLINE preal_t     GetReal()       const { return val.real; }

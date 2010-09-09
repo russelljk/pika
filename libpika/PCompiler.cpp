@@ -131,7 +131,7 @@ void DoConstantFold(Instr* ir, LiteralPool* lp)
                 CONTINUE_FOLD_LOOP();
             }
 
-            prev->operand = prev->operandu1 = 0;
+            prev->operand = prev->operandu1 = prev->operandu2 = 0;
             prev->target  = 0;
 
             if (jmp)
@@ -304,6 +304,18 @@ void Compiler::Emit()
             AddWord(bcn);
         }
         break;
+        case OF_bb:
+        {
+            bcn = PIKA_MAKE_BB(oc, (u1)curr->operand, curr->operandu1);
+            AddWord(bcn);
+        }
+        break;        
+        case OF_bbb:
+        {
+            bcn = PIKA_MAKE_BBB(oc, (u1)curr->operand, curr->operandu1, curr->operandu2);
+            AddWord(bcn);
+        }
+        break;        
         case OF_zero:
         default:
         {
@@ -353,6 +365,16 @@ void PrintBytecode(const u1* bc, size_t len)// OPCODE-CHANGE
         case OF_bw:
         {
             printf("%s %d %d\n", name, layout.b, layout.w);
+        }
+        break;
+        case OF_bb:
+        {
+            printf("%s %d %d\n", name, layout.b, layout.b2);
+        }
+        break;
+        case OF_bbb:
+        {
+            printf("%s %d %d %d\n", name, layout.b, layout.b2, layout.b3);
         }
         break;
         case OF_zero:

@@ -351,6 +351,7 @@ struct FunctionDecl : DeclarationTarget
     SymbolTable*    symtab;
     NameNode*       name;
     bool            varArgs;
+    bool            kwArgs;
     size_t          scriptBeg;
     size_t          scriptEnd;
 };
@@ -359,18 +360,20 @@ struct FunctionDecl : DeclarationTarget
 
 struct ParamDecl : Decl
 {
-    ParamDecl(Id* name, bool vargs, Expr* val);
+    ParamDecl(Id* name, bool vargs, bool kw, Expr* val);
     
     void            CalculateDefaultResources(SymbolTable* st, CompileState& cs);
     virtual void    CalculateResources(SymbolTable* st, CompileState& cs);
     void            Attach(ParamDecl* nxt);
     bool            HasDefaultValue();
     bool            HasVarArgs();
+    bool            HasKeywordArgs();
     
     Expr*       val;
     Symbol*     symbol;
     Id*         name;
-    bool        has_rest; // Parameter was proceeded by '...'
+    bool        has_rest; // Parameter was proceeded by ':'
+    bool        has_kwargs; // Parameter was proceeded by '::'
     ParamDecl*  next;
 };
 
@@ -771,13 +774,15 @@ struct CallExpr : Expr
     CallExpr(Expr *left, ExprList *args)
             : Expr(Expr::EXPR_call),
             left(left),
-            args(args), retc(1), redirectedcall(0) {}
+            args(args), argc(0), kwargc(), retc(1), redirectedcall(0) {}
             
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
         
     Expr* left;
     ExprList* args;
+    u2 argc;
+    u2 kwargc;
     u2 retc;
     u1 redirectedcall;
 };
@@ -1441,12 +1446,12 @@ struct ArrayExpr : Expr
 
 struct KeywordExpr : Expr
 {
-    KeywordExpr(IdExpr* name__, Expr* value__) : Expr(Expr::EXPR_kwarg), name(name__), value(value__) {}
+    KeywordExpr(StringExpr* name__, Expr* value__) : Expr(Expr::EXPR_kwarg), name(name__), value(value__) {}
     virtual ~KeywordExpr() {}
     
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
     virtual Instr* GenerateCode();
-    IdExpr* name;
+    StringExpr* name;
     Expr* value;
 };
 

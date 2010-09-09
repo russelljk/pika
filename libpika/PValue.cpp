@@ -31,7 +31,7 @@ PIKA_API const char* GetTypeString(u2 e)
     return STypeNames[MAX_TAG];
 }
 
-bool Value::IsDerivedFrom(ClassInfo* c)
+bool Value::IsDerivedFrom(ClassInfo* c) const
 {
     return (tag >= TAG_basic) && val.basic && val.basic->IsDerivedFrom(c);
 }

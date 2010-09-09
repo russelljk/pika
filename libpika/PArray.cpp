@@ -176,7 +176,7 @@ Array* Array::Create(Engine* eng, Type* type, size_t length, Value* elems)
     return v;
 }
 
-Object* Array::Clone() // TODO:: Clone members
+Object* Array::Clone()
 {
     Array* a = 0;
     GCNEW(engine, Array, a, (this));
@@ -232,34 +232,13 @@ String* Array::ToString()
     
     for (size_t i = 0; i < len; ++i)
     {
-        String* res = 0;
-        if (elements[i].IsDerivedFrom(Array::StaticGetClass()))
-        {
-            // An array this could lead to an infinite loop, so just print ellipsis.
-            res = engine->AllocString("[...]");
-        }
-        else if (elements[i].IsString())
-        {
-            res = elements[i].val.str;
-        }
-        else if (elements[i].tag >= TAG_basic)
-        {
-            // Same danger with array elements can occur if an basic Object element and this Array have a cyclical references.
-            res = engine->AllocStringFmt("<instance %s : %p>", 
-                                         elements[i].val.basic->GetType()->GetName()->GetBuffer(), 
-                                         elements[i].val.object);
-        }
-        else
-        {
-            // Its a non object value.
-            res = engine->ToString(ctx, elements[i]);
-        }
+        String* res = engine->SafeToString(ctx, elements[i]);
         
         if (res)
         {
             curr = String::ConcatSpace(curr, res);
         }
-        
+
         // Add a comma if this is not the last element.
         if (i + 1 != len)
             curr = String::Concat(curr, comma);

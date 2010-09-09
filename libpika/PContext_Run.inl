@@ -109,14 +109,17 @@
  */
 void Context::Run()
 {
+// Here we are setting up a array of goto addressess for use with 
+// GCC's 'labeled gotos' aka 'labels as values' extension.
+
 #   if defined(PIKA_LABELS_AS_VALUES)
 #       ifdef DECL_OP
 #           undef DECL_OP
 #       endif
-#       define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) &&lbl_##XOP,
+#       define DECL_OP(XOP, XNAME, XLENGTH, XFORMAT, XDESCR) &&lbl_##XOP,    
     static const void* static_jmp_addresses[] =
         {
-#       include "POpcodeDef.inl"    // Initialization of all the goto addresses.
+#       include "POpcodeDef.inl" // Initialize this once, the first time Run is called.
         };
 #   endif
         
@@ -370,9 +373,10 @@ void Context::Run()
                     {
 #   if 0
                         // Retrieves and reopens the class if it has been previously declared.
-                        // ¡¡¡ Not used because it causes name collisions !!!
+                        
+                        // ¡¡¡ Not used because it causes name collisions
                         // i.e. 2 classes in different packages with the same name 
-                        // both derived from the same basetype.
+                        // both derived from the same basetype  !!!
                         
                         // Alternatively we could use the complete "package[.subpackage]*.class" name to
                         // idenitify classes.
@@ -416,7 +420,7 @@ void Context::Run()
                     
                     if (!newtype)
                     {
-                        // TODO: Should the base-type's meta-type be responsible for creation of types.
+                        // TODO: Should the base-type's meta-type be responsible for creation of types?
                         // Otherwise if a C++ class T derived from class Type is sub-classed in pika the
                         // subclassed type S will not be derived from T but instead Type.
                         //
@@ -493,7 +497,7 @@ void Context::Run()
                 
                 if (!(vobj.IsObject() && obj))
                 {
-                    RaiseException("Attempt to create object literal.");
+                    RaiseException("attempt to create object literal failed.");
                 }
                 
                 while (beg < end)
