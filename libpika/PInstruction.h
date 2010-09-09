@@ -122,7 +122,13 @@ struct Instr
     
     Opcode  opcode;
     u1      operandu1;
-    u2      operand;
+    union {
+        u2  operand;
+        struct {
+            u1 operandu2;
+            u1 operandu3;
+        };
+    };
     u2      pos;
     u2      line;
     Instr*  next;

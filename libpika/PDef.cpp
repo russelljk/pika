@@ -78,14 +78,22 @@ void Def::SetBytecode(code_t* bc, u2 len)
     PIKA_NEW(Bytecode, bytecode, (bc, len));
 }
 
-void Def::AddLocalVar(Engine* eng, const char* name)
+void Def::AddLocalVar(Engine* eng, const char* name, bool isparam)
 {
     LocalVarInfo lv;
     lv.name = eng->AllocString(name);
     lv.beg  = 0;
     lv.end  = 0;
+    lv.param = isparam;
+    
+    size_t idx = localsInfo.GetSize();
+    
     localsInfo.Push(lv);
     eng->GetGC()->WriteBarrier(this, lv.name);
+    
+    Value vname(lv.name);
+    Value index((pint_t)idx);
+    kwargs.Set(vname, index);
 }
 
 void Def::SetLocalRange(size_t local, size_t start, size_t end)

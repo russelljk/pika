@@ -2172,7 +2172,7 @@ Expr* Parser::DoPostfixExpression()
             BufferNext();
             Match('(');
             const int call_terms[] = { ')', EOI, 0 };
-            ExprList* callargs = DoOptionalExpressionList(call_terms);
+            ExprList* callargs = DoOptionalExpressionList(call_terms, true);
             int line = tstream.GetLineNumber();
             
             Match(')');
@@ -2514,15 +2514,40 @@ ExprList* Parser::DoExpressionList()
     return firstel;
 }
 
-ExprList* Parser::DoOptionalExpressionList(const int* terms, bool optcomma)
+ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
 {
     ExprList* el = 0;
     ExprList* firstel = 0;
+    bool has_kwarg = false;
     
     while (!tstream.IsEndOfStream() && IsNotTerm(terms, tstream.GetType()) )
     {
         BufferNext();
-        Expr* expr = DoExpression();
+        Expr* expr = 0;
+
+        if (tstream.GetType() == TOK_identifier &&
+            tstream.GetNextType() == ':')
+        {
+            int line = tstream.GetLineNumber();
+            IdExpr* idexpr = DoIdExpression();
+            BufferNext();
+            Match(':');            
+            Expr* valexpr = DoExpression();
+            
+            PIKA_NEWNODE(KeywordExpr, expr, (idexpr, valexpr));
+            expr->line = line;
+            
+            if (!has_kwarg)
+                has_kwarg = true;
+        }
+        else if (!has_kwarg)
+        {
+            expr = DoExpression();
+        }
+        else
+        {
+            state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "Keyword Arguments must be the last parameter(s) supplied");
+        }
         
         ExprList* nxtel = 0;
         
@@ -2549,7 +2574,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool optcomma)
         {
             Match(',');
             BufferCurrent();
-            if (IsTerm(terms, tstream.GetType()) && !optcomma)
+            if (IsTerm(terms, tstream.GetType()))
                 Unexpected(terms[0]);
         }
     }    
@@ -2592,7 +2617,7 @@ Expr* Parser::DoArrayExpression()
     Match('[');
     
     const int arr_terms[] = { ']', EOI, 0 };
-    ExprList* elems = DoOptionalExpressionList(arr_terms, true);
+    ExprList* elems = DoOptionalExpressionList(arr_terms, false);
     
     int line = tstream.GetLineNumber();
     

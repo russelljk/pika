@@ -58,6 +58,10 @@ void Pika_FunctionResourceCalculation(
         args->CalculateDefaultResources(st, cs);
         args->CalculateResources((*symtab), cs);
         (*def)->numArgs = cs.localCount;
+        if (cs.localCount > PIKA_MAX_ARGS)
+        {
+            cs.SyntaxException(Exception::ERROR_syntax, funcline, "max number of argument for function declaration reached %d.", PIKA_MAX_ARGS);    
+        }
     }
     else
     {
@@ -126,7 +130,7 @@ void CompileState::SetLocalOffset(int off)
     localOffset = off;
 }
 
-int CompileState::NextLocalOffset(const char* name)
+int CompileState::NextLocalOffset(const char* name, bool isparam)
 {
     int off = localOffset;
     
@@ -136,7 +140,7 @@ int CompileState::NextLocalOffset(const char* name)
     }
     if (currDef)
     {
-        currDef->AddLocalVar(engine, name);
+        currDef->AddLocalVar(engine, name, isparam);
     }
     return off;
 }
@@ -435,7 +439,7 @@ void ParamDecl::CalculateResources(SymbolTable* st, CompileState& cs)
         symbol = st->Put(name->name);
     }
     
-    symbol->offset = cs.NextLocalOffset(name->name);
+    symbol->offset = cs.NextLocalOffset(name->name, true);
     
     if (next)
     {
@@ -481,6 +485,14 @@ bool ParamDecl::HasVarArgs()
     if (next)
         return next->HasVarArgs();
     return has_rest;
+}
+
+void KeywordExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+{
+    if (!name || !value)
+        state->SyntaxException(Exception::ERROR_syntax, line, "malformed keyword argument.");
+    name->CalculateResources(st, cs);
+    value->CalculateResources(st, cs);
 }
 
 void LocalDecl::CalculateResources(SymbolTable* st, CompileState& cs)
@@ -792,7 +804,13 @@ void CallExpr::CalculateResources(SymbolTable* st, CompileState& cs)
         }
         left->CalculateResources(st, cs);
     }
-    if (args) args->CalculateResources(st, cs);
+    if (args) 
+    {
+        args->CalculateResources(st, cs);
+        size_t count = args->Count();
+        if (count > PIKA_MAX_ARGS)
+            state->SyntaxError(line, "Max number of arguments reached");
+    }
 }
 
 void BinaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
@@ -898,6 +916,18 @@ void ExprList::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     if (expr) expr->CalculateResources(st, cs);
     if (next) next->CalculateResources(st, cs);
+}
+
+size_t ExprList::Count()
+{
+    size_t amt = 1;
+    ExprList* e = next;
+    while (e)
+    {
+        e = e->next;
+        ++amt;     
+    }
+    return amt;
 }
 
 void UnaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)

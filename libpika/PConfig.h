@@ -183,6 +183,8 @@ Keep in mind the range specified [min .. max ] and the limits of the data type u
 #define PIKA_NATIVE_STACK_EXTRA     16          // Amount you can safely push without checking for an operand stack overflow. Should be at least PIKA_OPERAND_STACK_EXTRA.
 #define PIKA_MAX_NATIVE_RECURSION   128         // Maximum number of recursive native calls allowed. And the number of interpreter calls allowed.
 #define PIKA_MAX_RETC               128         // Maximum number of return values allowed
+#define PIKA_MAX_ARGS               128
+#define PIKA_MAX_KWARGS             128
 
 #ifdef PIKA_64BIT_INT
 #   define          PINT_MAX       (LONG_LONG_MAX)

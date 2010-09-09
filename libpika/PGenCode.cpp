@@ -1593,6 +1593,20 @@ Instr* ArrayExpr::GenerateCode()
     return ibeg;
 }
 
+Instr* KeywordExpr::GenerateCode()
+{
+    //Instr* iname = name->GenerateCode();
+    Instr* ivalue = value->GenerateCode();
+    /*
+    iname->
+    Attach(ivalue)
+    ;
+    
+    return iname;
+    */
+    return ivalue;
+}
+
 Instr* CondExpr::GenerateCode()
 {
     Instr* icond      = cond->GenerateCode();
@@ -1939,7 +1953,7 @@ Instr* FinallyStmt::DoStmtCodeGen()
      *     A. Insert OP_callfinally at the end of the block with the finally block as the target.
      *     B. When the finally block returns we unconditionally jump to the finished label.
      *   
-     * 2.) Non-local-jump
+     * 2.) Non-local-jumps (return and continue, break loop in scope outside the block)
      *     A. Insert OP_callfinally before each jump with the finally block as the target.
      *     B. When the finally block returns the non-local-jump is performed, exiting the block.
      *  

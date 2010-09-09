@@ -15,6 +15,10 @@
 #   include "PCollector.h"
 #endif
 
+#ifndef PIKA_TABEL_HEADER
+#   include "PTable.h"
+#endif
+
 namespace pika {
 #if defined(PIKA_DLL) && defined(_WIN32)
 template class PIKA_API Buffer<LineInfo>;
@@ -72,6 +76,7 @@ class PIKA_API Def : public GCObject
             literals(0),
             mustClose(false),
             isVarArg(false),
+            isKeyWord(false),
             isStrict(false),
             line(-1) {}
     
@@ -88,6 +93,7 @@ class PIKA_API Def : public GCObject
             literals(0),
             mustClose(false),
             isVarArg(varargs),
+            isKeyWord(false),
             isStrict(strict),
             line(-1) {}
 public:
@@ -105,7 +111,7 @@ public:
     //TODO: AddLocalVar and SetLocalRange assume that the CompileState and Def assign the var the same offset.
     //      The offset of the var should be tracked by only one class.
     
-    void AddLocalVar(Engine*, const char*);
+    void AddLocalVar(Engine*, const char*, bool isparam=false);
     void SetLocalRange(size_t local, size_t start, size_t end);
     void SetSource(Engine* eng, const char* buff, size_t len);
            
@@ -117,18 +123,20 @@ public:
     u2               numArgs;     //!< Number of parameters, including the 'rest' parameter.
     u2               numLocals;   //!< Number of lexEnv and parameters.
     u2               stackLimit;  //!< Stack space needed for execution.
-    Buffer<LineInfo> lineInfo;    //!< Mapping of source code line numbers to bytecode position.
-    
-    /** Ranges for all local variables (including arguments) in this function. It should be noted that this runs
+    Buffer<LineInfo> lineInfo;    //!< Mapping of source code line numbers to bytecode position.    
+   
+     /** Ranges for all local variables (including arguments) in this function. It should be noted that this runs
       * from the local declaration to the end of the block it is declared in. Parameters will exist for the entire 
       * function's life time. No further calculations are performed.
       */
-    Buffer<LocalVarInfo> localsInfo;
+    Buffer<LocalVarInfo> localsInfo;    
     
+    Table        kwargs;      //!< Table of (string, int) pairs.
     ptrdiff_t    bytecodePos; //!< Point defined in parent's bytecode.
     LiteralPool* literals;    //!< Literals used in the bytecode.
     bool         mustClose;   //!< True if this function's locals are accessed by a child function.
     bool         isVarArg;    //!< Bytecode function that has the rest parameter or Native function that takes a variable number of arguments.
+    bool         isKeyWord;   //!< Function has keyword argument parameter.
     bool         isStrict;    //!< Native function must has the correct number of arguments.
     int          line;        //!< Line in the script this def is declared or -1 for native defs.
 };

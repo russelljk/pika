@@ -200,7 +200,7 @@ private:
     
     // These methods take null terminated arrays of terminator characters //////////////////////////
     
-    ExprList*       DoOptionalExpressionList(const int* terms, bool optcomma = false);
+    ExprList*       DoOptionalExpressionList(const int* terms, bool kwargs = false);
     Stmt*           DoStatementList(const int* terms);
     Stmt*           DoStatementListBlock(const int* terms);
     

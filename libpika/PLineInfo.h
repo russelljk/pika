@@ -21,7 +21,7 @@ struct LineInfo
 
 struct LocalVarInfo
 {
-    INLINE LocalVarInfo() : name(0), beg(0), end(0) {}
+    INLINE LocalVarInfo() : name(0), beg(0), end(0), param(false) {}
     
     // Local's name
     String* name;
@@ -29,6 +29,7 @@ struct LocalVarInfo
     // Use the function's LineInfo buffer to convert the bytecode offsets into line numbers.
     ptrdiff_t beg;
     ptrdiff_t end;
+    bool param;
 };
 
 }// pika

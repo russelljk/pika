@@ -140,7 +140,7 @@ struct CompileState
     
     int  GetLocalOffset() const;       // Gets the current local offset
     void SetLocalOffset(int off);      // Sets the current local offset
-    int  NextLocalOffset(const char*); // Gets the current local offset and then moves to the next offset.
+    int  NextLocalOffset(const char*, bool isparam = false); // Gets the current local offset and then moves to the next offset.
     Symbol* CreateLocalPlus(SymbolTable* st, const char* name, size_t extra);
     
     // Literal Handling ----------------------------------------------------------------------------
@@ -366,6 +366,7 @@ struct ParamDecl : Decl
     void            Attach(ParamDecl* nxt);
     bool            HasDefaultValue();
     bool            HasVarArgs();
+    
     Expr*       val;
     Symbol*     symbol;
     Id*         name;
@@ -700,6 +701,7 @@ struct Expr : TreeNode
         EXPR_invalid,
         EXPR_paren,    
         EXPR_namenode, 
+        EXPR_kwarg,
     };
     
     Expr(Kind kind) : kind(kind) {}
@@ -1437,6 +1439,17 @@ struct ArrayExpr : Expr
     ExprList*   elements;       //!< elements of the array.
 };
 
+struct KeywordExpr : Expr
+{
+    KeywordExpr(IdExpr* name__, Expr* value__) : Expr(Expr::EXPR_kwarg), name(name__), value(value__) {}
+    virtual ~KeywordExpr() {}
+    
+    virtual void CalculateResources(SymbolTable* st, CompileState& cs);
+    virtual Instr* GenerateCode();
+    IdExpr* name;
+    Expr* value;
+};
+
 // ExprList ///////////////////////////////////////////////////////////////////////////////////////
 
 struct ExprList : TreeNode
@@ -1444,6 +1457,8 @@ struct ExprList : TreeNode
     ExprList(Expr* e) : expr(e), next(0) {}
     
     virtual void CalculateResources(SymbolTable* st, CompileState& cs);
+    
+    size_t Count();
     
     Expr* expr;
     ExprList* next;
