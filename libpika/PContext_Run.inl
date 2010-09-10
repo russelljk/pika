@@ -370,64 +370,10 @@ void Context::Run()
                                            super->GetName()->GetBuffer());
                     }          
                     else
-                    {
-#   if 0
-                        // Retrieves and reopens the class if it has been previously declared.
-                        
-                        // ¡¡¡ Not used because it causes name collisions
-                        // i.e. 2 classes in different packages with the same name 
-                        // both derived from the same basetype  !!!
-                        
-                        // Alternatively we could use the complete "package[.subpackage]*.class" name to
-                        // idenitify classes.
-                        
-                        Type*  search   = 0;                        
-                        Array* subtypes = super->GetSubtypes();
-                                                
-                        for (size_t i = 0; i < subtypes->GetLength(); ++i)
-                        {
-                            Value* v = subtypes->GetAt(i);
-                            if (v->IsDerivedFrom(Type::StaticGetClass()) && (v->val.type->GetName() == name))
-                            {
-                                search = v->val.type;
-                                break;
-                            }
-                        }
-                        newtype = search ? search : Type::Create(engine, name, super, 0, superPkg);                        
-#   else
-                    // Create the new type.
-                    Value res(NULL_VALUE);                    
-                    if (specified_pkg && superPkg->HasSlot(vname)      && 
-                        superPkg->GetSlot(vname, res) && 
-                        res.IsDerivedFrom(Type::StaticGetClass())) 
-                    {                        
-                        Type* subj = res.val.type;
-                        if (subj->GetBase() == super)
-                        {
-                            newtype = subj;
-                        }
-                        else if (vsuper.IsNull())
-                        {
-                            newtype = subj;
-                        }
-                        else
-                        {
-                            ReportRuntimeError(Exception::ERROR_type, 
-                                               "re-declaration of existing class %s. base types do not match.",
-                                               subj->GetDotName()->GetBuffer());
-                        }
-                    }
-                    
-                    if (!newtype)
-                    {
-                        // TODO: Should the base-type's meta-type be responsible for creation of types?
-                        // Otherwise if a C++ class T derived from class Type is sub-classed in pika the
-                        // subclassed type S will not be derived from T but instead Type.
-                        //
-                        // virtual Type* NewType(name, init_fn, superPkg);
-                        newtype = super->NewType(name, superPkg); // Type::Create(engine, name, super, 0, superPkg);
-                    }
-#   endif
+                    {                    
+                        // TODO: Should we call CreateInstance instead? If so how do we initialize the super package
+                        //       and base type?
+                        newtype = super->NewType(name, superPkg);
                     }
                 }
                 else
@@ -1012,30 +958,10 @@ void Context::Run()
                                        engine->GetTypenameOf(pkg_name)->GetBuffer());
                 }
                 
-                // [name:String] < sp
-                // 
-                // Find the super package.
-                
-                if (super_pkg.IsObject())
-                {
-                    Value res(NULL_VALUE);
-                    Object* obj = super_pkg.val.object;
-                    if (obj->HasSlot(pkg_name)      && 
-                        obj->GetSlot(pkg_name, res))
-                    {
-                        Top() = res;
-                        PIKA_NEXT()
-                    }
-                    else if (engine->Package_Type->IsInstance(super_pkg))
-                    {
-                        super = super_pkg.val.package;
-                    }
-                }
-                else if (super_pkg.IsNull())
-                {
-                    super = this->package;
-                }
-                
+                super = (engine->Package_Type->IsInstance(super_pkg)) ?
+                         super_pkg.val.package :
+                         this->package;
+                                
                 if (super)
                 {                    
                     Object* newpkg = 0;
@@ -1056,7 +982,7 @@ void Context::Run()
                 else
                 {
                     ReportRuntimeError(Exception::ERROR_runtime, 
-                                       "Unable to create package: invalid super of type %s given.",                                            
+                                       "Unable to create package: invalid super package of type %s specified.",                                            
                                        engine->GetTypenameOf(super_pkg)->GetBuffer());
                 }
             }
