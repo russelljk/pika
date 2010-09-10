@@ -28,7 +28,7 @@ class Package;
 class Value;
 class Context;
 struct UserDataInfo;
-
+class Dictionary;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       ScopeKind                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,7 @@ struct ScopeInfo
 {
     void DoMark(Collector*);
     
+    Dictionary*  kwargs;
     LexicalEnv*  env;          //!< lexical environment (variables reachable outside this scope).
     Function*    closure;      //!< Function closure.
     Package*     package;      //!< Package (global scope).
@@ -165,6 +166,7 @@ protected:
     Function*      closure;         //!< Specified function for the current scope.
     Package*       package;         //!< Specified package for the current scope.
     LexicalEnv*    env;             //!< Lexical environment for the current scope.
+    Dictionary*    kwargs;
     bool           newCall;         //!< Is the current scope a result of the operator new.
     u4             argCount;        //!< Actual number of arguments stored on the stack.
     u4             retCount;        //!< Number of return values expected.
@@ -282,6 +284,9 @@ protected:
 public:
     LexicalEnv* GetEnv() { return env; }
     void    CreateEnvAt(ScopeIter);
+    
+    /** Returns a dictionary containing keyword argument passed to the current function. The result may be NULL. */
+    Dictionary* GetKeywordArgs() { return kwargs; }
     
     /** Sets up a generic override method. The arguments should already be pushed onto the stack. Followed by
       * Keyword (name,value) pairs. Finally the object in question should be pushed.

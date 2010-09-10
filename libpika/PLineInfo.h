@@ -19,9 +19,16 @@ struct LineInfo
 	code_t* pos;
 };
 
+enum ELocalVarType {
+    LVT_variable=0,
+    LVT_parameter=1,
+    LVT_rest=2,
+    LVT_keyword=3,
+};
+
 struct LocalVarInfo
 {
-    INLINE LocalVarInfo() : name(0), beg(0), end(0), param(false) {}
+    INLINE LocalVarInfo() : name(0), beg(0), end(0), type(LVT_variable) {}
     
     // Local's name
     String* name;
@@ -29,7 +36,7 @@ struct LocalVarInfo
     // Use the function's LineInfo buffer to convert the bytecode offsets into line numbers.
     ptrdiff_t beg;
     ptrdiff_t end;
-    bool param;
+    ELocalVarType type;
 };
 
 }// pika

@@ -138,8 +138,7 @@ Function* Function::Create(Engine* eng, RegisterFunction* rf, Package* loc)
 {
     String* funcName = eng->AllocString(rf->name);
     Def* def = Def::CreateWith(eng, funcName, rf->code,
-                               rf->argc, rf->varargs,
-                               rf->strict, 0);    
+                               rf->argc, rf->flags, 0);    
     return Create(eng, def, loc, 0);
 }
 
@@ -751,7 +750,7 @@ Function* Create_null_Function(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
     Package* pkg = eng->GetWorld();
-    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
+    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, DEF_VAR_ARGS, 0);
     return Function::Create(eng, def, pkg, 0);
 }
 
@@ -837,7 +836,7 @@ void Function::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     GCPAUSE_NORUN(eng);
     Package* pkg = eng->GetWorld();
-    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, true, false, 0);
+    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, DEF_VAR_ARGS, 0);
     Context* ctx = eng->GetActiveContext();
     if (ctx)
     {

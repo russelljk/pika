@@ -140,7 +140,7 @@ struct CompileState
     
     int  GetLocalOffset() const;       // Gets the current local offset
     void SetLocalOffset(int off);      // Sets the current local offset
-    int  NextLocalOffset(const char*, bool isparam = false); // Gets the current local offset and then moves to the next offset.
+    int  NextLocalOffset(const char*, ELocalVarType lvt = LVT_variable); // Gets the current local offset and then moves to the next offset.
     Symbol* CreateLocalPlus(SymbolTable* st, const char* name, size_t extra);
     
     // Literal Handling ----------------------------------------------------------------------------

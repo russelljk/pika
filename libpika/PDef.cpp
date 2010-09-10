@@ -42,10 +42,10 @@ Def* Def::Create(Engine* eng)
     return fn;
 }
 
-Def* Def::CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, bool varargs, bool strict, Def* parent)
+Def* Def::CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, u4 flags, Def* parent)
 {
     Def* def = 0;
-    PIKA_NEW(Def, def, (name, fn, argc, varargs, strict, parent));
+    PIKA_NEW(Def, def, (name, fn, argc, flags & DEF_VAR_ARGS, flags & DEF_STRICT, flags & DEF_KEYWORD_ARGS, parent));
     eng->AddToGC(def);
     return def;
 }
@@ -79,22 +79,25 @@ void Def::SetBytecode(code_t* bc, u2 len)
     PIKA_NEW(Bytecode, bytecode, (bc, len));
 }
 
-void Def::AddLocalVar(Engine* eng, const char* name, bool isparam)
+void Def::AddLocalVar(Engine* eng, const char* name, ELocalVarType lvt)
 {
     LocalVarInfo lv;
     lv.name = eng->AllocString(name);
     lv.beg  = 0;
     lv.end  = 0;
-    lv.param = isparam;
+    lv.type = lvt;
     // TODO : What about ... parameter and ** parameter.
     size_t idx = localsInfo.GetSize();
     
     localsInfo.Push(lv);
     eng->GetGC()->WriteBarrier(this, lv.name);
     
-    Value vname(lv.name);
-    Value index((pint_t)idx);
-    kwargs.Set(vname, index);
+    if (lvt == LVT_parameter)
+    {
+        Value vname(lv.name);
+        Value index((pint_t)idx);
+        kwargs.Set(vname, index);
+    }    
 }
 
 void Def::SetLocalRange(size_t local, size_t start, size_t end)

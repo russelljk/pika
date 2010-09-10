@@ -80,8 +80,7 @@ void Package::AddNative(RegisterFunction* fns, size_t count)
     {
         String* funname = engine->AllocString(fns[i].name);
         
-        Def* fn = Def::CreateWith(engine, funname, fns[i].code, fns[i].argc,
-                                                  fns[i].varargs, fns[i].strict, 0);
+        Def* fn = Def::CreateWith(engine, funname, fns[i].code, fns[i].argc, fns[i].flags, 0);
                                                   
         Value vname(funname);
         Value vfn(fn);
@@ -296,22 +295,22 @@ void Package::StaticInitType(Engine* eng)
         
     static RegisterFunction Package_methods[] =
     {
-        { "getGlobal", Package_getGlobal, 1, 0, 1 },
-        { "setGlobal", Package_setGlobal, 2, 0, 1 },
-        { "hasGlobal", Package_hasGlobal, 1, 0, 1 },
-        { "getName",   Package_getName,   0, 0, 1 },
+        { "getGlobal", Package_getGlobal, 1, DEF_STRICT },
+        { "setGlobal", Package_setGlobal, 2, DEF_STRICT },
+        { "hasGlobal", Package_hasGlobal, 1, DEF_STRICT },
+        { "getName",   Package_getName,   0, DEF_STRICT },
     };
     
     static RegisterFunction Package_classMethods[] =
     {
-        { "openPath", Package_openPath, 0, 1, 0 },
+        { "openPath", Package_openPath, 0, DEF_VAR_ARGS },
     };
     
     static RegisterProperty Pkg_Properties[] =
     {
-        { "parent", Pkg_getParent, "getParent", 0, 0, false },
-        { "name",   Pkg_getName,   "getName",   0, 0, false },
-        { "path",   Pkg_getPath,   "getPath",   0, 0, false },
+        { "parent", Pkg_getParent, "getParent", 0, 0 },
+        { "name",   Pkg_getName,   "getName",   0, 0 },
+        { "path",   Pkg_getPath,   "getPath",   0, 0 },
     };
     
     eng->Package_Type->EnterMethods(Package_methods, countof(Package_methods));

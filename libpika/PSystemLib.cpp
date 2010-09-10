@@ -517,14 +517,14 @@ void InitSystemLIB(Engine* eng)
     { 
         // Setup 'math' package as an import.
         String* math_String = eng->AllocString("math");
-        static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0, 0 };
+        static RegisterFunction math_FuncDef = { "math", math_lib_load, 0, 0 };
         Value mathfn(Function::Create(eng, &math_FuncDef, World_Package));
         eng->PutImport(math_String, mathfn);
     }    
     { 
         // Setup 'os' package as an import.
         String*  os_String = eng->AllocString("os");
-        static RegisterFunction os_FuncDef = { "os", os_lib_load, 0, 0, 0 };    
+        static RegisterFunction os_FuncDef = { "os", os_lib_load, 0, 0 };    
         Value osfn(Function::Create(eng, &os_FuncDef, World_Package));
         eng->PutImport(os_String, osfn);
     }

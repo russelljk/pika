@@ -347,10 +347,10 @@ void Context::Run()
                 Type*    newtype   = 0;
                 Package* superPkg  = 0;
                 bool     nullsuper = vsuper.IsNull();
-                
+                bool     specified_pkg =  false;
                 if (vpkg.IsDerivedFrom(Package::StaticGetClass()))
                 {
-                    superPkg = vpkg.val.package;
+                    superPkg = vpkg.val.package;specified_pkg=true;
                 }
                 else
                 {
@@ -397,7 +397,7 @@ void Context::Run()
 #   else
                     // Create the new type.
                     Value res(NULL_VALUE);                    
-                    if (superPkg->HasSlot(vname)      && 
+                    if (specified_pkg && superPkg->HasSlot(vname)      && 
                         superPkg->GetSlot(vname, res) && 
                         res.IsDerivedFrom(Type::StaticGetClass())) 
                     {                        

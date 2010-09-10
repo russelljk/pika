@@ -205,7 +205,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, getname, propdef->getter,
-                                       0, false, true, 0);
+                                       0, DEF_STRICT, 0);
                                         
             getter = propdef->unattached ? Function::Create(engine, def, pkg) : 
                                            InstanceMethod::Create(engine, 0, 0, def, pkg, this);
@@ -226,7 +226,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, setname, propdef->setter,
-                                       1, false, true, 0);
+                                       1, DEF_STRICT, 0);
                                        
             setter =  propdef->unattached ? Function::Create(engine, def, pkg) :
                                             InstanceMethod::Create(engine, 0, 0, def, pkg, this);
@@ -274,8 +274,7 @@ void Type::EnterMethods(RegisterFunction* fns, size_t count, Package* pkg)
     {
         String* methodName = engine->AllocString(fns[i].name);
         Def* def = Def::CreateWith(engine, methodName, fns[i].code,
-                                   fns[i].argc, fns[i].varargs,
-                                   fns[i].strict, 0);
+                                   fns[i].argc, fns[i].flags, 0);
                                    
         Function* closure = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
         AddFunction(closure);
@@ -290,8 +289,7 @@ void Type::EnterClassMethods(RegisterFunction* fns, size_t count, Package* pkg)
     {
         String* methodName = engine->AllocString(fns[i].name);
         Def* def = Def::CreateWith(engine, methodName, fns[i].code,
-                                   fns[i].argc, fns[i].varargs,
-                                   fns[i].strict, 0);
+                                   fns[i].argc, fns[i].flags, 0);
                                    
         Function* closure = ClassMethod::Create(engine, 0, 0, def, pkg, this);
         AddFunction(closure);
@@ -556,13 +554,13 @@ void Type::StaticInitType(Engine* eng)
     
     static RegisterFunction TypeFunctions[] =
     {
-        { "new", Type_alloc,  0, 1, 0 },
+        { "new", Type_alloc,  0, DEF_VAR_ARGS },
     };
     
     static RegisterFunction TypeClassMethods[] =
     {
-        { "create",     Type_create, 4, 0, 1 },
-        { "createWith", Type_createWith, 4, 1, 0 },
+        { "create",     Type_create,     4, DEF_STRICT   },
+        { "createWith", Type_createWith, 4, DEF_VAR_ARGS },
     };
     
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));

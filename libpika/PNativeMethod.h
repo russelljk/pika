@@ -685,7 +685,8 @@ struct VarType<TCLASS*>                                                         
     INLINE operator TCLASS*()                                                                   \
     {                                                                                           \
         if (!val->IsDerivedFrom(TCLASS::StaticGetClass()))                                      \
-            RaiseException("Expecting %s argument\n.", TCLASS::StaticGetClass()->GetName());    \
+            RaiseException(Exception::ERROR_type, "expecting argument of type '%s'.\n",         \
+                           TCLASS::StaticGetClass()->GetName());                                \
         return (TCLASS*)val;                                                                    \
     }                                                                                           \
     Object* val;                                                                                \
@@ -704,7 +705,8 @@ struct VarType<const TCLASS*>                                                   
     INLINE operator const TCLASS*()                                                             \
     {                                                                                           \
         if (!val->IsDerivedFrom(TCLASS::StaticGetClass()))                                      \
-            RaiseException("Expecting %s argument\n.", TCLASS::StaticGetClass()->GetName());    \
+            RaiseException(Exception::ERROR_type, "expecting argument of type '%s'.\n",         \
+                           TCLASS::StaticGetClass()->GetName());                                \
         return (TCLASS*)val;                                                                    \
     }                                                                                           \
     Object* val;                                                                                \
@@ -724,7 +726,8 @@ struct VarType<TCLASS&>                                                         
     INLINE operator TCLASS&()                                                                   \
     {                                                                                           \
         if (!val->IsDerivedFrom(TCLASS::StaticGetClass()))                                      \
-            RaiseException("Expecting %s argument\n.", TCLASS::StaticGetClass()->GetName());    \
+            RaiseException(Exception::ERROR_type, "expecting argument of type '%s'.\n",         \
+                           TCLASS::StaticGetClass()->GetName());                                \
         return *(TCLASS*)val;                                                                   \
     }                                                                                           \
     Object* val;                                                                                \
@@ -825,7 +828,7 @@ struct VarType<Function*>
             }
             else
             {
-                RaiseException(Exception::ERROR_type, "Expecting %s argument\n.", Function::StaticGetClass()->GetName());
+                RaiseException(Exception::ERROR_type, "expecting argument of type '%s'.\n", Function::StaticGetClass()->GetName());
             }
         }
         return (Function*)val;

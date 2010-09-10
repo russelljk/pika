@@ -881,7 +881,7 @@ void Engine::InitializeWorld()
         
         static RegisterProperty Value_Properties[] =
         {
-            { "type", Primitive_getType, "getType", 0, 0, false },
+            { "type", Primitive_getType, "getType", 0, 0 },
         };
         
         T_Type->EnterProperties(Value_Properties, countof(Value_Properties));
@@ -891,8 +891,8 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Error_Functions[] =
         {
-            { OPINIT_CSTR, Error_init,     1, 0, 1 },
-            { "toString",  Error_toString, 0, 0, 1 },
+            { OPINIT_CSTR, Error_init,     1, DEF_STRICT },
+            { "toString",  Error_toString, 0, DEF_STRICT },
         };
         
         String* Error_String = AllocString("Error");
@@ -949,15 +949,15 @@ void Engine::InitializeWorld()
         
         static RegisterFunction DummyFunctions[] =
         {
-            { "printp",  Dummy_printp,  0, 1, 0 },
-            { "sprintp", Dummy_sprintp, 0, 1, 0 },
-            { "print",   Dummy_Print,   0, 1, 0 },
-            { "println", Dummy_PrintLn, 0, 1, 0 },
-            { "say",     Dummy_PrintLn, 0, 1, 0 },
-            { "range",   Global_range,  0, 1, 0 },
-            { "each",    Global_each,   3, 0, 1 },
-            { "gcRun",   Global_gcRun,  1, 0, 1 },
-            { "assert",  World_assert,  0, 1, 0 },
+            { "printp",  Dummy_printp,  0, DEF_VAR_ARGS },
+            { "sprintp", Dummy_sprintp, 0, DEF_VAR_ARGS },
+            { "print",   Dummy_Print,   0, DEF_VAR_ARGS },
+            { "println", Dummy_PrintLn, 0, DEF_VAR_ARGS },
+            { "say",     Dummy_PrintLn, 0, DEF_VAR_ARGS },
+            { "range",   Global_range,  0, DEF_VAR_ARGS },
+            { "each",    Global_each,   3, DEF_STRICT },
+            { "gcRun",   Global_gcRun,  1, DEF_STRICT },
+            { "assert",  World_assert,  0, DEF_VAR_ARGS },
         };
         
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
@@ -968,16 +968,16 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Null_Functions[] =
         {
-            { "toString",   Null_toString,  0, 0, 0 },
-            { "toInteger",  Null_toInteger, 0, 0, 0 },
-            { "toReal",     Null_toReal,    0, 0, 0 },
-            { "toNumber",   Null_toNumber,  0, 0, 0 },
-            { "toBoolean",  Null_toBoolean, 0, 0, 0 },
+            { "toString",   Null_toString,  0, 0 },
+            { "toInteger",  Null_toInteger, 0, 0 },
+            { "toReal",     Null_toReal,    0, 0 },
+            { "toNumber",   Null_toNumber,  0, 0 },
+            { "toBoolean",  Null_toBoolean, 0, 0 },
         };
         
         static RegisterFunction Null_ClassMethods[] =
         {
-            { NEW_CSTR,  Null_init, 0, 1, 0 },
+            { NEW_CSTR,  Null_init, 0, DEF_VAR_ARGS },
         };
         
         Null_Type = Type::Create(this, AllocString("Null"), T_Type, 0, Pkg_World);
@@ -992,16 +992,16 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Boolean_Functions[] =
         {
-            { "toString",   Boolean_toString,  0, 0, 0 },
-            { "toInteger",  Boolean_toInteger, 0, 0, 0 },
-            { "toReal",     Boolean_toReal,    0, 0, 0 },
-            { "toNumber",   Boolean_toNumber,  0, 0, 0 },
-            { "toBoolean",  Boolean_toBoolean, 0, 0, 0 },
+            { "toString",   Boolean_toString,  0, 0 },
+            { "toInteger",  Boolean_toInteger, 0, 0 },
+            { "toReal",     Boolean_toReal,    0, 0 },
+            { "toNumber",   Boolean_toNumber,  0, 0 },
+            { "toBoolean",  Boolean_toBoolean, 0, 0 },
         };
         
         static RegisterFunction Boolean_ClassMethods[] =
         {
-            { NEW_CSTR,   Boolean_init,      0, 1, 0 },
+            { NEW_CSTR,   Boolean_init,      0, DEF_VAR_ARGS },
         };
         
         Boolean_Type  = Type::Create(this, AllocString("Boolean"), T_Type, 0, Pkg_World);
@@ -1015,16 +1015,16 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Integer_Functions[] =
         {
-            { "toString",   Integer_toString,  0, 1, 0 },
-            { "toInteger",  Integer_toInteger, 0, 0, 0 },
-            { "toReal",     Integer_toReal,    0, 0, 0 },
-            { "toNumber",   Integer_toNumber,  0, 0, 0 },
-            { "toBoolean",  Integer_toBoolean, 0, 0, 0 },
+            { "toString",   Integer_toString,  0, DEF_VAR_ARGS },
+            { "toInteger",  Integer_toInteger, 0, 0 },
+            { "toReal",     Integer_toReal,    0, 0 },
+            { "toNumber",   Integer_toNumber,  0, 0 },
+            { "toBoolean",  Integer_toBoolean, 0, 0 },
         };
         
         static RegisterFunction Integer_ClassMethods[] =
         {
-            { NEW_CSTR, Integer_init, 0, 1, 0 },
+            { NEW_CSTR, Integer_init, 0, DEF_VAR_ARGS },
         };
         
         Integer_Type  = Type::Create(this, AllocString("Integer"), T_Type, 0, Pkg_World);
@@ -1040,24 +1040,24 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Real_Functions[] =
         {
-            { "toString",   Real_toString,  0, 0, 0 },
-            { "toInteger",  Real_toInteger, 0, 0, 0 },
-            { "toReal",     Real_toReal,    0, 0, 0 },
-            { "toNumber",   Real_toNumber,  0, 0, 0 },
-            { "toBoolean",  Real_toBoolean, 0, 0, 0 },
-            { "nan?",       Real_isnan,     0, 0, 0 },
+            { "toString",   Real_toString,  0, 0 },
+            { "toInteger",  Real_toInteger, 0, 0 },
+            { "toReal",     Real_toReal,    0, 0 },
+            { "toNumber",   Real_toNumber,  0, 0 },
+            { "toBoolean",  Real_toBoolean, 0, 0 },
+            { "nan?",       Real_isnan,     0, 0 },
             // TODO:: finite? infinite? SignBit etc...
         };
         
         static RegisterProperty Real_Properties[] =
         {
-            { "integer",  Real_integer,  "getInteger",  0, 0, false },
-            { "fraction", Real_fraction, "getFraction", 0, 0, false },
+            { "integer",  Real_integer,  "getInteger",  0, 0 },
+            { "fraction", Real_fraction, "getFraction", 0, 0 },
         };
         
         static RegisterFunction Real_ClassMethods[] =
         {
-            { NEW_CSTR, Real_init, 0, 1, 0 },
+            { NEW_CSTR, Real_init, 0, DEF_VAR_ARGS },
         };
         
         Real_Type  = Type::Create(this, AllocString("Real"), T_Type, 0, Pkg_World);

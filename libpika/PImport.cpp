@@ -122,10 +122,8 @@ Package* Pika_importScript(Context* ctx, String* name)
     {       
         ctx->Push(script);
         script->Run(0);
-        //ptrdiff_t diff = ctx->GetStackSize() - sp;
-        //if (diff > 0)
-        ctx->Pop(2); // [script] + [return value]
-                
+        
+        ctx->Pop(1); // pop script                
         return script->GetImportResult();
     }
     return 0;

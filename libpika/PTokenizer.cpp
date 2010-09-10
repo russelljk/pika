@@ -1051,7 +1051,7 @@ void Tokenizer::ReadControl()
         
         if (look == ':')
         {
-            tokenType = TOK_keywordparam;
+            tokenType = TOK_coloncolon;
             GetLook();
         }    
     break;

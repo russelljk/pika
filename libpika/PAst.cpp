@@ -130,7 +130,7 @@ void CompileState::SetLocalOffset(int off)
     localOffset = off;
 }
 
-int CompileState::NextLocalOffset(const char* name, bool isparam)
+int CompileState::NextLocalOffset(const char* name, ELocalVarType lvt)
 {
     int off = localOffset;
     
@@ -140,7 +140,7 @@ int CompileState::NextLocalOffset(const char* name, bool isparam)
     }
     if (currDef)
     {
-        currDef->AddLocalVar(engine, name, isparam);
+        currDef->AddLocalVar(engine, name, lvt);
     }
     return off;
 }
@@ -448,7 +448,7 @@ void ParamDecl::CalculateResources(SymbolTable* st, CompileState& cs)
         symbol = st->Put(name->name);
     }
     
-    symbol->offset = cs.NextLocalOffset(name->name, true);
+    symbol->offset = cs.NextLocalOffset(name->name, has_rest ? LVT_rest : (has_kwargs ? LVT_keyword : LVT_parameter));
     
     if (next)
     {

@@ -4,6 +4,9 @@
  *
  *  DO NOT INCLUDE DIRECTLY!
  */
+ 
+/* Templates for native instance methods with up to 10 arguments. */
+
 // Method0 /////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename TClass, typename TRet>

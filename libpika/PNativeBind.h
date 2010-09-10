@@ -27,7 +27,7 @@ struct PIKA_API NativeDef : GCObject
     int retc;
 };
 
-/** A Function object that directly binds a native C/C++ function, instance method, 
+/** A Function object that directly binds a native C/C++ function, instance method  or
   * class method to its script equivalent. 
   */
 struct PIKA_API HookedFunction : Function
@@ -35,7 +35,7 @@ struct PIKA_API HookedFunction : Function
     PIKA_DECL(HookedFunction, Function)
 public:
     explicit HookedFunction(Engine*    eng,
-                            Type*      ptype,                   
+                            Type*      ptype,
                             Def*       mdef,
                             NativeDef* def,
                             ClassInfo* info,
@@ -65,8 +65,8 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeMethod(meth);
 
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction::Hook, def->GetArgCount(), false, true, 0);
+        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+            HookedFunction::Hook, def->GetArgCount(), DEF_STRICT, 0);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
         return bm;
@@ -83,8 +83,8 @@ public:
 
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeStaticMethod(meth);        
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction::StaticHook, def->GetArgCount(), false, true, 0);
+        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+            HookedFunction::StaticHook, def->GetArgCount(), DEF_STRICT, 0);
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
     }
@@ -101,8 +101,8 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeStaticMethodVA(meth);
         
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction::StaticHook, def->GetArgCount(), true, false, 0);
+        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+            HookedFunction::StaticHook, def->GetArgCount(), DEF_VAR_ARGS, 0);
 
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
@@ -121,8 +121,8 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeFunctionVA(meth);
         
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocString(name) : eng->emptyString),
-            HookedFunction::Hook, def->GetArgCount(), true, false, 0);
+        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+            HookedFunction::Hook, def->GetArgCount(), DEF_VAR_ARGS, 0);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
         return bm;
@@ -153,7 +153,31 @@ public:
     NativeDef* ndef;
     ClassInfo* info;
 };
-
+/** Binds Functions,Properties and Variables to an Object.
+  * requirements:
+  *
+  * The type AClass must has the static method StaticGetClass, most commonly obtained by
+  * Adding PIKA_DECL and PIKA_IMPL to the class body and source file repspectively.
+  *  
+  * The Object or Type must already be created. 
+  *
+  * You should also stop the Collector before adding slots since multiple objects may be allocated.
+  *
+  * usage:
+  * 
+  * Package* pkg = engine->GetWorld();
+  * Type* Foo_Type = Type::Create(engine, engine->AllocStringNC("Foo"), Foo_Base_Type, Foo::Constructor, pkg);
+  * 
+  * SlotBinder<Foo>(engine, Foo_Type, pkg)
+  * .Method( &Foo::Bar, "bar")
+  * .PropertyRW( "length",
+  *     &Foo::GetLength, "getLength",
+  *     &Foo::SetLength, "setLength")
+  * ;
+  *
+  * Replace Foo_Base_Type with a pointer to the base class's Type object. Replace Foo::Constructor with the function that
+  * contructs new instances.
+  */
 template<typename AClass>
 struct SlotBinder
 {
@@ -164,6 +188,8 @@ struct SlotBinder
             object(obj)            
     {}
     
+    /** Adds a native instance method. HookedFunction takes care of type checking.
+      */
     template<typename AMeth>
     SlotBinder& Method(AMeth meth, const char* name)
     {
@@ -174,8 +200,8 @@ struct SlotBinder
     
     SlotBinder& Alias(const char* aliasname, const char* name)
     {
-        String* name_String = engine->AllocString(name);
-        String* aliasname_String = engine->AllocString(aliasname);
+        String* name_String = engine->AllocStringNC(name);
+        String* aliasname_String = engine->AllocStringNC(aliasname);
 
         Value res;
         if (object->GetSlot(name_String, res))
@@ -216,7 +242,7 @@ struct SlotBinder
                            AMethWrite  writeMeth,
                            const char* writeName)   // name of the write function (ie SetXXXX ) or null
     {
-        String*   name = engine->AllocString(propName);
+        String*   name = engine->AllocStringNC(propName);
         Function* rm   = HookedFunction::Bind<AMethRead>(engine,  readMeth,  readName  ? readName  : "", package, class_info);
         Function* wm   = HookedFunction::Bind<AMethWrite>(engine, writeMeth, writeName ? writeName : "", package, class_info);
         Property* p    = Property::CreateReadWrite(engine, name, rm, wm);
@@ -236,7 +262,7 @@ struct SlotBinder
                           AMethRead   rMeth,
                           const char* rName)
     {
-        String*   name  = engine->AllocString(propName);
+        String*   name  = engine->AllocStringNC(propName);
         Function* rmeth = HookedFunction::Bind<AMethRead>(engine, rMeth, rName ? rName : "", package, class_info);
         Property* prop  = Property::CreateRead(engine, name, rmeth);
 
@@ -252,7 +278,7 @@ struct SlotBinder
                           AMethWrite  wMeth,
                           const char* wName)
     {
-        String*   name  = engine->AllocString(propName);
+        String*   name  = engine->AllocStringNC(propName);
         Function* wmeth = HookedFunction::Bind<AMethWrite>(engine, wMeth, wName ? wName : "", package, class_info);
         Property* prop  = Property::CreateWrite(engine, name, wmeth);
 
@@ -266,7 +292,7 @@ struct SlotBinder
     template<typename AType>
     SlotBinder& Constant(AType val, const char* propName)
     {
-        String* name = engine->AllocString(propName);
+        String* name = engine->AllocStringNC(propName);
         object->SetSlot(name, val, Slot::ATTR_protected);
         return *this;
     }
@@ -274,7 +300,7 @@ struct SlotBinder
     template<typename AType>
     SlotBinder& Internal(AType val, const char* propName)
     {
-        String* name = engine->AllocString(propName);
+        String* name = engine->AllocStringNC(propName);
         object->SetSlot(name, val, Slot::ATTR_internal | Slot::ATTR_forcewrite);
         return *this;
     }
@@ -282,7 +308,7 @@ struct SlotBinder
     template<typename AType>
     SlotBinder& Member(AType val, const char* propName)
     {
-        String* name = engine->AllocString(propName);
+        String* name = engine->AllocStringNC(propName);
         object->SetSlot(name, val);
         return *this;
     }
@@ -293,10 +319,12 @@ struct SlotBinder
                          bool         varargs = true,
                          bool         strict  = false)
     {
-        String* name = engine->AllocString(cname);
-        
+        String* name = engine->AllocStringNC(cname);
+        u4 flags = 0;
+        if (varargs) flags |= DEF_VAR_ARGS;
+        if (strict)  flags |= DEF_STRICT;
         Def* fn = Def::CreateWith(engine, name,
-            code, argc, varargs, strict, 0);
+            code, argc, flags, 0);
 
         Function* closure = Function::Create(engine, fn, package);
         object->AddFunction(closure);
@@ -312,9 +340,13 @@ struct SlotBinder
         if (!object->IsDerivedFrom(Type::StaticGetClass()))
             return Register(code, cname, argc, varargs, strict);
         
-        String* name = engine->AllocString(cname);        
+        u4 flags = 0;
+        if (varargs) flags |= DEF_VAR_ARGS;
+        if (strict)  flags |= DEF_STRICT;
+                
+        String* name = engine->AllocStringNC(cname);        
         Def* fn = Def::CreateWith(engine, name,
-            code, argc, varargs, strict, 0);
+            code, argc, flags, 0);
 
         Function* closure = InstanceMethod::Create(engine, 0, 0, fn, package, (Type*)object);
         object->AddFunction(closure);
@@ -330,9 +362,13 @@ struct SlotBinder
         if (!object->IsDerivedFrom(Type::StaticGetClass()))
             return Register(code, cname, argc, varargs, strict);
         
-        String* name = engine->AllocString(cname);        
+        u4 flags = 0;
+        if (varargs) flags |= DEF_VAR_ARGS;
+        if (strict)  flags |= DEF_STRICT;
+                
+        String* name = engine->AllocStringNC(cname);        
         Def* fn = Def::CreateWith(engine, name,
-            code, argc, varargs, strict, 0);
+            code, argc, flags, 0);
 
         Function* closure = ClassMethod::Create(engine, 0, 0, fn, package, (Type*)object);
         object->AddFunction(closure);

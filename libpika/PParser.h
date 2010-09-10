@@ -47,7 +47,7 @@ struct TokenStream
     
     void Initialize();
     void Advance();
-    
+    void InitTokens();
     INLINE int GetType()     const { return curr.tokenType; }
     INLINE int GetNextType() const { return next.tokenType; }
     INLINE int GetPrevType() const { return prev.tokenType; }

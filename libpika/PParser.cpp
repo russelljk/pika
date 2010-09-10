@@ -84,7 +84,7 @@ TokenStream::TokenStream(CompileState* state, std::ifstream* yyin)
     : state(state), tokenizer(0),
     yyin(yyin)        
 {
-    prev.tokenType = curr.tokenType = next.tokenType = EOF;
+    InitTokens();
     PIKA_NEW(Tokenizer, tokenizer, (state, yyin));
 }
 
@@ -92,7 +92,7 @@ TokenStream::TokenStream(CompileState* state, const char* buffer, size_t len)
     : state(state), tokenizer(0),
     yyin(0)        
 {
-    prev.tokenType = curr.tokenType = next.tokenType = EOF;
+    InitTokens();
     PIKA_NEW(Tokenizer, tokenizer, (state, buffer, len));
 }
     
@@ -100,8 +100,16 @@ TokenStream::TokenStream(CompileState* state, IScriptStream* stream)
 : state(state), tokenizer(0),
 yyin(0) 
 {
-    prev.tokenType = curr.tokenType = next.tokenType = EOF;
+    InitTokens();
     PIKA_NEW(Tokenizer, tokenizer, (state, stream));
+}
+
+void TokenStream::InitTokens()
+{
+    prev.tokenType = curr.tokenType = next.tokenType = EOF;
+    Pika_memzero(&prev, sizeof(Token));
+    Pika_memzero(&curr, sizeof(Token));
+    Pika_memzero(&next, sizeof(Token)); 
 }
 
 TokenStream::~TokenStream()
@@ -2838,9 +2846,9 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
             BufferCurrent();
             rest_param = true;
         }
-        else if (tstream.GetType() == TOK_keywordparam)
+        else if (tstream.GetType() == TOK_coloncolon)
         {
-            Match(TOK_keywordparam);
+            Match(TOK_coloncolon);
             BufferCurrent();
             kw_param = true;
         }
@@ -2860,7 +2868,7 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
             BufferCurrent();
         }
         
-        if (def_vals && !def_expr && !rest_param)
+        if (def_vals && !def_expr && !rest_param && !kw_param)
         {
             state->SyntaxError(tstream.GetLineNumber(), "Expected default value for parameter '%s'.", id->name);
         }
@@ -2885,7 +2893,7 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
                     state->SyntaxError(tstream.GetLineNumber(), "keyword argument declaration '::' must be the last parameter.");
                 } else {
                     BufferNext();
-                    if (tstream.GetNextType() != TOK_keywordparam) {
+                    if (tstream.GetNextType() != TOK_coloncolon) {
                         state->SyntaxError(tstream.GetLineNumber(), "variable argument declaration ':' can only be followed by keyword argument declaration '::'.");
                     } else {
                         Match(',');

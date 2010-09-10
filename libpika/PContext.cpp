@@ -82,8 +82,8 @@ void Context::StaticInitType(Engine* eng)
     
     static RegisterFunction Context_Methods[] =
     {
-        {"call",  Context_call,  0, 0, 1 },
-        {"setup", Context_Setup, 0, 1, 0 },
+        {"call",  Context_call,  0, DEF_STRICT },
+        {"setup", Context_Setup, 0, DEF_VAR_ARGS },
     };
     
     SlotBinder<Context>(eng, eng->Context_Type)
@@ -150,7 +150,7 @@ void ScopeInfo::DoMark(Collector* c)
     if (closure) closure->Mark(c);
     if (package) package->Mark(c);
     if (env)     env->Mark(c);
-    
+    if (kwargs)  kwargs->Mark(c);
     MarkValue(c, self);
 }
 
@@ -174,7 +174,8 @@ PIKA_IMPL(Context)
 PIKA_FORCE_INLINE void Context::PushCallScope()
 {
     ScopeInfo& currA = *scopesTop;
-    
+
+    currA.kwargs = kwargs;
     currA.env = env;
     currA.pc = pc;
     currA.self = self;
@@ -216,7 +217,7 @@ PIKA_FORCE_INLINE void Context::PopCallScope()
     ScopeInfo& currA = *scopesTop;
     
     ASSERT(currA.kind == SCOPE_call);
-    
+    kwargs = currA.kwargs;
     env = currA.env;
     pc = currA.pc;
     sp = stack + currA.stackTop;
@@ -300,6 +301,7 @@ Context::Context(Engine* eng, Type* obj_type)
       closure(0),
       package(0),
       env(0),
+      kwargs(0),
       newCall(false),
       argCount(0),
       retCount(1),
@@ -333,10 +335,12 @@ void Context::Reset()
     addressStack.Resize(0);
     handlers.Resize(0);
     
+    acc = NULL_VALUE;
     callsCount      = 1;
     closure         = 0;
     package         = 0;
     env             = 0;
+    kwargs          = 0;
     state           = UNUSED;
     prev            = 0;
     pc              = 0;
@@ -939,18 +943,16 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         
         // Bytecode function with a varags parameter.
         
-        bool adjustForVarArgs = def->isVarArg && !nativecall;
+        int const adjustForVarArgs = (def->isVarArg && !nativecall) ? 1 : 0;
         int  argstart         = argc;
         Defaults* defaults    = fun->defaults;
-        int const keyword_adj = def->isKeyword && !nativecall ? 1 : 0;
+        int const keyword_adj = (def->isKeyword && !nativecall) ? 1 : 0;
         
         if (defaults)
         {
             size_t const numDefaults = defaults->Length();
-            int const numRegularArgs = (adjustForVarArgs) ? 
-                    (param_count - (int)numDefaults - 1 - keyword_adj) :
-                    (param_count - (int)numDefaults - keyword_adj);
-                    
+            int const numRegularArgs = param_count - (int)numDefaults - adjustForVarArgs - keyword_adj;
+            
             int const amttopush = numRegularArgs - argstart;
             int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
             
@@ -969,7 +971,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         }
         else
         {
-            int const numRegularArgs = (adjustForVarArgs) ? param_count - 1 : param_count;
+            int const numRegularArgs = param_count - adjustForVarArgs - keyword_adj;
             int const amttopush = numRegularArgs - argstart;
             for (int p = 0; p < amttopush; ++p)
             {
@@ -980,14 +982,16 @@ int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int a
         // Create an empty variable arguments Array if needed.
         if (adjustForVarArgs)
         {
-            GCPAUSE_NORUN(engine);
-            
+            GCPAUSE_NORUN(engine);            
             Array* v = Array::Create(engine, engine->Array_Type, 0, 0);
             Push(v);
         }
-        if (def->isKeyword) {
+        
+        if (keyword_adj)
+        {
             this->PushNull();
         }
+        
         resultArgc = param_count;
     }
     
@@ -1067,9 +1071,9 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             (sp-amt)->Set(v);
         }
         
+        Dictionary* dict = 0;
         if (kwargc)
-        {
-            Dictionary* dict = 0;
+        {            
             if (def->isKeyword)
             {
                 GCPAUSE_NORUN(engine);
@@ -1078,12 +1082,12 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             }
             /* Time to deal with the keyword arguments. */             
             Value* args_start = sp - argc;
-            Table& kwargs = def->kwargs;
+            Table& kwords = def->kwargs;
             
             for (Buffer<Value>::Iterator curr = keywords.Begin(); curr != keywords.End(); curr+=2)
             {
                 Value idx(NULL_VALUE);
-                if (kwargs.Get(*curr, idx))
+                if (kwords.Get(*curr, idx))
                 {
                     ASSERT(idx.tag == TAG_integer);
                     pint_t the_index = idx.val.integer;
@@ -1096,7 +1100,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
                 }
             }
         }
-        else if (def->isKeyword)
+        else if (def->isKeyword && !nativecall)
         {
             GCPAUSE_NORUN(engine);
             Dictionary* dict = Dictionary::Create(engine, engine->Dictionary_Type);
@@ -1150,7 +1154,8 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         
         // Initialize all local (non-parameter) variables to null.
         for (Value* p = newsp; p < sp; ++p) { p->SetNull(); }
-        
+
+        kwargs    = dict;
         bsp       = argv;
         self      = selfVar;
         pc        = def->GetBytecode();
@@ -2397,10 +2402,12 @@ void Context::MarkRefs(Collector* c)
     
     // Mark current scope.
     
-    if (env) env->Mark(c);
+    if (env)     env->Mark(c);
     if (closure) closure->Mark(c);
     if (package) package->Mark(c);
-    
+    if (kwargs)  kwargs->Mark(c);
+
+    MarkValue(c, acc);
     MarkValue(c,  self);
     MarkValues(c, bsp, sp);
 }

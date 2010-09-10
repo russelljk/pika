@@ -31,13 +31,16 @@ class LiteralPool;
 
 typedef int (*Nativecode_t)(Context* ctx, Value& self);
 
+#define DEF_VAR_ARGS        (0x1)
+#define DEF_STRICT          (0x2)
+#define DEF_KEYWORD_ARGS    (0x4)
+
 struct RegisterFunction
 {
     const char*  name;    //!< Name of the function.
     Nativecode_t code;    //!< Pointer to the function.
-    u2           argc;    //!< Number of arguments expected.
-    bool         varargs; //!< Function takes a variable number of arguments.
-    bool         strict;  //!< Function must be called with the correct number of arguments.
+    u2           argc;    //!< Number of arguments expected.   
+    u4           flags;
 };
 
 struct RegisterProperty
@@ -81,7 +84,7 @@ class PIKA_API Def : public GCObject
             line(-1) {}
     
     Def(String* declname, Nativecode_t fn, u2 argc, 
-        bool varargs, bool strict, Def* parent_def) : name(declname),
+        bool varargs, bool strict, bool kwas, Def* parent_def) : name(declname),
             source(0),
             parent(parent_def),
             bytecode(0),
@@ -93,7 +96,7 @@ class PIKA_API Def : public GCObject
             literals(0),
             mustClose(false),
             isVarArg(varargs),
-            isKeyword(false),
+            isKeyword(kwas),
             isStrict(strict),
             line(-1) {}
 public:
@@ -102,7 +105,7 @@ public:
     virtual void MarkRefs(Collector* c);
     
     static Def* CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, 
-                           bool varargs, bool strict, Def* parent);
+                           u4 flags, Def* parent);
     static Def* Create(Engine* eng);
     
     void            SetBytecode(code_t* bc, u2 len);
@@ -111,7 +114,7 @@ public:
     //TODO: AddLocalVar and SetLocalRange assume that the CompileState and Def assign the var the same offset.
     //      The offset of the var should be tracked by only one class.
     
-    void AddLocalVar(Engine*, const char*, bool isparam=false);
+    void AddLocalVar(Engine*, const char*, ELocalVarType lvt = LVT_variable);
     void SetLocalRange(size_t local, size_t start, size_t end);
     void SetSource(Engine* eng, const char* buff, size_t len);
            

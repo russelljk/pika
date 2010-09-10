@@ -212,8 +212,7 @@ void Object::EnterFunctions(RegisterFunction* fns, size_t count, Package* pkg)
     {
         String* funcName = engine->AllocString(fns[i].name);
         Def* fn = Def::CreateWith(engine, funcName, fns[i].code,
-                                  fns[i].argc, fns[i].varargs,
-                                  fns[i].strict, 0);
+                                  fns[i].argc, fns[i].flags, 0);
                                   
         Function* closure = Function::Create(engine, fn, pkg);
         AddFunction(closure);
@@ -237,7 +236,7 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, getname, propdef->getter,
-                                       0, false, true, 0);
+                                       0, DEF_STRICT, 0);
                                         
             getter = Function::Create(engine, def, pkg);
             
@@ -257,7 +256,7 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, setname, propdef->setter,
-                                       1, false, true, 0);
+                                       1, DEF_STRICT, 0);
                                        
             setter =  Function::Create(engine, def, pkg);
             
@@ -456,7 +455,7 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction GlobalFunctions[] =
     {
-        { "import", Global_import, 0, 1, 0 },
+        { "import", Global_import, 0, DEF_VAR_ARGS },
     };
     
     Pkg_World->AddNative(GlobalFunctions, countof(GlobalFunctions));
@@ -465,17 +464,17 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction ObjectFunctions[] =
     {
-        { "remove",         Object_remove,        0, 1, 0 },
-        { "getEnumerator",  Object_getEnumerator, 0, 1, 0 },
-        { "clone",          Object_clone,         0, 0, 0 },
-        { OPINIT_CSTR,      Object_init,          0, 1, 0 },
-        { "toString",       Object_toString,      0, 0, 0 },
+        { "remove",         Object_remove,        0, DEF_VAR_ARGS },
+        { "getEnumerator",  Object_getEnumerator, 0, DEF_VAR_ARGS },
+        { "clone",          Object_clone,         0, 0 },
+        { OPINIT_CSTR,      Object_init,          0, 0 },
+        { "toString",       Object_toString,      0, 0 },
     };
     
     static RegisterFunction Object_ClassMethods[] =
     {
-        { "rawDotRead",  Object_rawDotRead,  2, 0, 1 },
-        { "rawDotWrite", Object_rawDotWrite, 3, 0, 1 },
+        { "rawDotRead",  Object_rawDotRead,  2, DEF_STRICT },
+        { "rawDotWrite", Object_rawDotWrite, 3, DEF_STRICT },
     };
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
@@ -491,14 +490,14 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction enumFunctions[] =
     {
-        { "rewind" , Enumerator_rewind,  0, 0, 0 },
-        { "valid?",  Enumerator_valid,   0, 0, 0 },
-        { "advance", Enumerator_advance, 0, 0, 0 },
+        { "rewind" , Enumerator_rewind,  0, 0 },
+        { "valid?",  Enumerator_valid,   0, 0 },
+        { "advance", Enumerator_advance, 0, 0 },
     };
     
     static RegisterProperty enumProperties[] =
     {
-        { "value", Enumerator_getCurrent, "getValue", 0, 0, false },
+        { "value", Enumerator_getCurrent, "getValue", 0, 0 },
     };
     
     eng->Enumerator_Type = Type::Create(eng, eng->AllocString("Enumerator"), eng->Basic_Type, 0, Pkg_World);
@@ -511,7 +510,7 @@ void Object::StaticInitType(Engine* eng)
     // Property ///////////////////////////////////////////////////////////////
     static RegisterFunction Property_Functions[] =
     {
-        { "toString", Property_toString, 0, 0, 0 },
+        { "toString", Property_toString, 0, 0 },
     };
         
     eng->Property_Type = Type::Create(eng, eng->AllocString("Property"), eng->Basic_Type, 0, Pkg_World);
