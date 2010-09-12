@@ -291,14 +291,13 @@ void Package::StaticInitType(Engine* eng)
     String* pkgstr = eng->AllocString("Package");
     
     Pkg_World->SetType(eng->Package_Type);
-    eng->Type_Type->SetType(eng->Package_Type->GetType());
-        
+    //eng->Type_Type->SetType(eng->Package_Type->GetType());
+    
     static RegisterFunction Package_methods[] =
     {
         { "getGlobal", Package_getGlobal, 1, DEF_STRICT },
         { "setGlobal", Package_setGlobal, 2, DEF_STRICT },
         { "hasGlobal", Package_hasGlobal, 1, DEF_STRICT },
-        { "getName",   Package_getName,   0, DEF_STRICT },
     };
     
     static RegisterFunction Package_classMethods[] =

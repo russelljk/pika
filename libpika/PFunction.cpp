@@ -865,7 +865,6 @@ void Function::StaticInitType(Engine* eng)
     .RegisterMethod(Function_genAs,         "genAs")
     .RegisterMethod(Function_printLiterals, "printLiterals")
     .RegisterClassMethod(Function_printBytecode,    "printBytecode")
-    .PropertyR("location",  &Function::GetLocation, "getLocation")
     .Constant((pint_t)PIKA_MAX_RETC,             "MAX_RET_COUNT")
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;

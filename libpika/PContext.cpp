@@ -82,23 +82,24 @@ void Context::StaticInitType(Engine* eng)
     
     static RegisterFunction Context_Methods[] =
     {
-        {"call",  Context_call,  0, DEF_STRICT },
-        {"setup", Context_Setup, 0, DEF_VAR_ARGS },
+        { "call",  Context_call,  0, DEF_STRICT   },
+        { "setup", Context_Setup, 0, DEF_VAR_ARGS },
     };
     
     SlotBinder<Context>(eng, eng->Context_Type)
-    .Constant((pint_t)Context::SUSPENDED,   "SUSPENDED")
-    .Constant((pint_t)Context::RUNNING,     "RUNNING")
-    .Constant((pint_t)Context::DEAD,        "DEAD")
-    .Constant((pint_t)Context::UNUSED,      "UNUSED")
-    .StaticMethodVA(&Context::Suspend,      "suspend")
-    .Method(&Context::IsSuspended,          "suspended?")
-    .Method(&Context::IsRunning,            "running?")
-    .Method(&Context::IsDead,               "dead?")
-    .Method(&Context::IsUnused,             "unused?")
-    .Method(&Context::ToBoolean,            "toBoolean")
-    .PropertyR("state", &Context::GetState, "getState")
+    .Constant((pint_t)Context::SUSPENDED,           "SUSPENDED")
+    .Constant((pint_t)Context::RUNNING,             "RUNNING")
+    .Constant((pint_t)Context::DEAD,                "DEAD")
+    .Constant((pint_t)Context::UNUSED,              "UNUSED")
+    .StaticMethodVA(&Context::Suspend,              "suspend")
+    .Method(&Context::ToBoolean,                    "toBoolean")    
+    .PropertyR("suspended?", &Context::IsSuspended, 0)
+    .PropertyR("running?",   &Context::IsRunning,   0)
+    .PropertyR("dead?",      &Context::IsDead,      0)
+    .PropertyR("unused?",    &Context::IsUnused,    0)
+    .PropertyR("state",      &Context::GetState,    "getState")
     ;
+    
     eng->Context_Type->EnterMethods(Context_Methods, countof(Context_Methods));
     eng->GetWorld()->SetSlot(Context_String, eng->Context_Type);
 }
@@ -182,7 +183,6 @@ PIKA_FORCE_INLINE void Context::PushCallScope()
     currA.stackTop = sp - stack;
     currA.stackBase = bsp - stack;
     currA.closure = closure;
-    currA.newCall = newCall;
     currA.argCount = argCount;
     currA.retCount = retCount;
     currA.numTailCalls = numTailCalls;
@@ -224,7 +224,6 @@ PIKA_FORCE_INLINE void Context::PopCallScope()
     bsp = stack + currA.stackBase;
     self = currA.self;
     closure = currA.closure;
-    newCall = currA.newCall;
     argCount = currA.argCount;
     retCount = currA.retCount;
     numTailCalls = currA.numTailCalls;
@@ -302,7 +301,6 @@ Context::Context(Engine* eng, Type* obj_type)
       package(0),
       env(0),
       kwargs(0),
-      newCall(false),
       argCount(0),
       retCount(1),
       numTailCalls(0),
@@ -344,7 +342,6 @@ void Context::Reset()
     state           = UNUSED;
     prev            = 0;
     pc              = 0;
-    newCall         = false;
     argCount        = 0;
     retCount        = 1;
     numTailCalls    = 0;
@@ -1161,7 +1158,6 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         pc        = def->GetBytecode();
         closure   = fun;
         package   = fun->GetLocation();
-        newCall   = false;
         argCount  = argc;
         acc.SetNull();
         ASSERT(closure);
@@ -2244,7 +2240,7 @@ Object* Context::Clone()
 void Context::Init(Context* ctx)
 {
     if (ctx->GetArgCount() != 1)
-        RaiseException("Context.init requires exactly 1 argument.");
+        RaiseException("Context.init requires exactly 1 argument %d given.", ctx->GetArgCount());
     if (state != UNUSED)
         RaiseException("Cannot initialize a context that has been used.");
     Value& f = ctx->GetArg(0);

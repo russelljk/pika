@@ -540,7 +540,7 @@ void Context::Run()
             */
             PIKA_OPCODE(OP_ret)
             {
-                Value retvar = (newCall) ? self : Top();
+                Value retvar = Top();
                 int const expected_retc = retCount;
                 
                 if (env && !env->IsAllocated())

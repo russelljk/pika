@@ -467,7 +467,7 @@ void Object::StaticInitType(Engine* eng)
         { "remove",         Object_remove,        0, DEF_VAR_ARGS },
         { "getEnumerator",  Object_getEnumerator, 0, DEF_VAR_ARGS },
         { "clone",          Object_clone,         0, 0 },
-        { OPINIT_CSTR,      Object_init,          0, 0 },
+        { OPINIT_CSTR,      Object_init,          0, DEF_VAR_ARGS },
         { "toString",       Object_toString,      0, 0 },
     };
     

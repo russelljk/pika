@@ -61,7 +61,6 @@ struct ScopeInfo
     u4           argCount;     //!< Argument count (can vary from the functions parameter count).
     u4           retCount;     //!< Expected # of return values  >= 1.
     u4           numTailCalls; //!< Number of tail calls performed.
-    bool         newCall;      //!< Is a new expression call.
     ScopeKind    kind;         //!< Type of scope we are (tell us which fields we are concerned with).
 };
 
@@ -167,7 +166,6 @@ protected:
     Package*       package;         //!< Specified package for the current scope.
     LexicalEnv*    env;             //!< Lexical environment for the current scope.
     Dictionary*    kwargs;
-    bool           newCall;         //!< Is the current scope a result of the operator new.
     u4             argCount;        //!< Actual number of arguments stored on the stack.
     u4             retCount;        //!< Number of return values expected.
     u4             numTailCalls;    //!< Number of tail-calls since the last return.
