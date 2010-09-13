@@ -111,7 +111,8 @@ Module* Pika_importModule(Context* ctx, String* name)
 }
 
 /** Loads a script from disk.
-  * No check is made to ensure that the script was already loaded. */
+  * No check is made to ensure that the script was already loaded.
+  */
 Package* Pika_importScript(Context* ctx, String* name)
 {
     Engine* engine = ctx->GetEngine();

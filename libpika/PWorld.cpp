@@ -645,6 +645,15 @@ int World_assert(Context* ctx, Value& self)
     return 0;
 }
 
+Type* CreateErrorType(Engine* eng, const char* name, Type* base)
+{
+    Package* Pkg_World = eng->GetWorld();
+    String* error_name = eng->AllocString(name);
+    Type* error_type = Type::Create(eng, error_name, base, Error_NewFn, Pkg_World);
+    Pkg_World->SetSlot(error_name, error_type);
+    return error_type;
+}
+
 }// namespace
 
 class GCPause : public Object
@@ -798,24 +807,34 @@ void Engine::InitializeWorld()
         this->toString_String   = AllocString("toString");
         this->true_String       = AllocString("true");
         this->userdata_String   = AllocString("UserData");
+        this->names_String      = AllocString("names");
         this->values_String     = AllocString("values");
         
         String*  Imports_Str = AllocString(IMPORTS_STR);
         String*  Types_Str   = AllocString("baseTypes");
-        T_Type       = Type::Create(this, AllocString("T"),         0,            0,                    Pkg_World, 0);
-        Basic_Type   = Type::Create(this, AllocString("BasicObj"),  T_Type,       0,                    Pkg_World, 0);
+        
+        /* Manually create the most basic Types and their accompanying 'meta' Types. We need to do
+         * this because they are all somewhat inter-connected. In order to create a meta type we
+         * need to create all the type from Value->Type and then fixup their types.
+         *
+         * NOTE: If changes are made to the order OR class hierarchy then testing needs to be done
+         *       to ensure that the type,base are correct and that type.subtypes has the correct
+         *       type.
+         */
+        T_Type       = Type::Create(this, AllocString("Value"),     0,            0,                    Pkg_World, 0);
+        Basic_Type   = Type::Create(this, AllocString("Basic"),     T_Type,       0,                    Pkg_World, 0);
         Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object::Constructor,  Pkg_World, 0);
         Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package::Constructor, Pkg_World, 0);
         Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, Type::Constructor,    Pkg_World, 0);
         
-        Type* TypeType_Type    = Type::Create(this, AllocString("Type-Type"),     Type_Type, 0, Pkg_World, 0);
-        Type* PackageType_Type = Type::Create(this, AllocString("Package-Type"),  Type_Type, 0, Pkg_World, TypeType_Type);
-        Type* ValueType_Type   = Type::Create(this, AllocString("T-Type"),        Type_Type, 0, Pkg_World, TypeType_Type);
-        Type* BasicType_Type   = Type::Create(this, AllocString("BasicObj-Type"), Type_Type, 0, Pkg_World, TypeType_Type);
-        Type* ObjectType_Type  = Type::Create(this, AllocString("Object-Type"),   Type_Type, 0, Pkg_World, TypeType_Type);
+        Type* TypeType_Type    = Type::Create(this, AllocString("Type-Type"),    Type_Type,       0, Pkg_World, 0);        
+        Type* ValueType_Type   = Type::Create(this, AllocString("Value-Type"),   Type_Type,       0, Pkg_World, TypeType_Type);
+        Type* BasicType_Type   = Type::Create(this, AllocString("Basic-Type"),   ValueType_Type,  0, Pkg_World, TypeType_Type);
+        Type* ObjectType_Type  = Type::Create(this, AllocString("Object-Type"),  BasicType_Type,  0, Pkg_World, TypeType_Type);
+        Type* PackageType_Type = Type::Create(this, AllocString("Package-Type"), ObjectType_Type, 0, Pkg_World, TypeType_Type);
         
-        T_Type   ->SetType( ValueType_Type  );
-        Basic_Type   ->SetType( BasicType_Type  );
+        T_Type       ->SetType( ValueType_Type   );
+        Basic_Type   ->SetType( BasicType_Type   );
         Object_Type  ->SetType( ObjectType_Type  );
         Package_Type ->SetType( PackageType_Type );
         Type_Type    ->SetType( TypeType_Type    );
@@ -823,14 +842,20 @@ void Engine::InitializeWorld()
         
         Array_Type = Type::Create(this, AllocString("Array"), Object_Type, Array::Constructor, Pkg_World);
         
+        /* We need to go back an fix any arrays created before the Array type was created.
+         * If we don't do this then the subtypes array of the following will be typeless
+         * and useless.
+         */
         Basic_Type   ->GetSubtypes()->SetType(Array_Type);
         Object_Type  ->GetSubtypes()->SetType(Array_Type);
         Package_Type ->GetSubtypes()->SetType(Array_Type);
         Type_Type    ->GetSubtypes()->SetType(Array_Type);
+        ValueType_Type->GetSubtypes()->SetType(Array_Type);
+        BasicType_Type->GetSubtypes()->SetType(Array_Type);
+        ObjectType_Type->GetSubtypes()->SetType(Array_Type);
         
-        //Basic_Type->GetType()->GetSubtypes()->SetType(Array_Type);
-        Object_Type->GetType()->GetSubtypes()->SetType(Array_Type);
-        
+        /* Create the Function hierarchy. Initialization happens elsewhere.
+         */
         String* Function_String = AllocString("Function");
         Function_Type       = Type::Create(this, Function_String,               Object_Type,   Function::Constructor,       Pkg_World);
         BoundFunction_Type  = Type::Create(this, AllocString("BoundFunction"),  Function_Type, BoundFunction::Constructor,  Pkg_World);
@@ -838,6 +863,8 @@ void Engine::InitializeWorld()
         ClassMethod_Type    = Type::Create(this, AllocString("ClassMethod"),    Function_Type, ClassMethod::Constructor,    Pkg_World);
         LocalsObject_Type   = Type::Create(this, AllocString("LocalsObject"),   Object_Type,   LocalsObject::Constructor,   Pkg_World);
         
+        /* NativeFunction and NativeMethod refer to the same C++ type, much like the Error subtypes.
+         */
         NativeFunction_Type = Type::Create(this, AllocString("NativeFunction"), Function_Type, 0, Pkg_World);
         NativeFunction_Type->SetFinal(true);
         NativeFunction_Type->SetAbstract(true);
@@ -885,10 +912,11 @@ void Engine::InitializeWorld()
         };
         
         T_Type->EnterProperties(Value_Properties, countof(Value_Properties));
-        this->Pkg_World->SetSlot(this->AllocString("BasicObj"), this->Basic_Type);
+        this->Pkg_World->SetSlot(this->AllocString("Basic"), this->Basic_Type);
         
-        // Error ///////////////////////////////////////////////////////////////////////////////////
-        
+        /* Initialize all the Error types. Each of these is basically an Object, we have
+         * no need to create a new C++ type for Errors yet.
+         */        
         static RegisterFunction Error_Functions[] =
         {
             { OPINIT_CSTR, Error_init,     1, DEF_STRICT },
@@ -900,52 +928,20 @@ void Engine::InitializeWorld()
         
         Pkg_World->SetSlot(Error_String, Error_Type);
         Error_Type->EnterMethods(Error_Functions, countof(Error_Functions));
+                
+        RuntimeError_Type      = CreateErrorType(this, "RuntimeError",      Error_Type);
+        TypeError_Type         = CreateErrorType(this, "TypeError",         Error_Type);        
+        ReferenceError_Type    = CreateErrorType(this, "ReferenceError",    Error_Type);
+        ArithmeticError_Type   = CreateErrorType(this, "ArithmeticError",   Error_Type);
+        OverflowError_Type     = CreateErrorType(this, "OverflowError",     ArithmeticError_Type);
+        UnderflowError_Type    = CreateErrorType(this, "UnderflowError",    ArithmeticError_Type);
+        DivideByZeroError_Type = CreateErrorType(this, "DivideByZeroError", ArithmeticError_Type);
+        SyntaxError_Type       = CreateErrorType(this, "SyntaxError",       Error_Type);
+        IndexError_Type        = CreateErrorType(this, "IndexError",        Error_Type);      
+        SystemError_Type       = CreateErrorType(this, "SystemError",       Error_Type);
+        AssertError_Type       = CreateErrorType(this, "AssertError",       Error_Type);
         
-        String* error_name = AllocString("RuntimeError");
-        RuntimeError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, RuntimeError_Type);
-        
-        error_name = AllocString("TypeError");
-        TypeError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, TypeError_Type);
-        
-        error_name = AllocString("ReferenceError");
-        ReferenceError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, ReferenceError_Type);
-        
-        error_name = AllocString("ArithmeticError");
-        ArithmeticError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, ArithmeticError_Type);
-        
-        error_name = AllocString("OverflowError");
-        OverflowError_Type = Type::Create(this, error_name, ArithmeticError_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, OverflowError_Type);
-        
-        error_name = AllocString("UnderflowError");
-        UnderflowError_Type = Type::Create(this, error_name, ArithmeticError_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, UnderflowError_Type);
-        
-        error_name = AllocString("DivideByZeroError");
-        DivideByZeroError_Type = Type::Create(this, error_name, ArithmeticError_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, DivideByZeroError_Type);
-                        
-        error_name = AllocString("SyntaxError");
-        SyntaxError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, SyntaxError_Type);
-        
-        error_name = AllocString("IndexError");
-        IndexError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, IndexError_Type);
-        
-        error_name = AllocString("SystemError");
-        SystemError_Type = Type::Create(this, error_name, Error_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, SystemError_Type);
-        
-        error_name = AllocString("AssertError");
-        AssertError_Type = Type::Create(this, error_name, RuntimeError_Type, Error_NewFn, Pkg_World);
-        Pkg_World->SetSlot(error_name, AssertError_Type);
-        
-        // World ...////////////////////////////////////////////////////////////////////////////////////
+        // world ///////////////////////////////////////////////////////////////////////////////////////
         
         static RegisterFunction DummyFunctions[] =
         {
@@ -962,8 +958,7 @@ void Engine::InitializeWorld()
         
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
         Pkg_World->SetType(Package_Type);
-        
-        
+                
         // Null ////////////////////////////////////////////////////////////////////////////////////////
         
         static RegisterFunction Null_Functions[] =

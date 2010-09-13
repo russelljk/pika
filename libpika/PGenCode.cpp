@@ -125,8 +125,10 @@ void CompileFunction(int line, CompileState* state, Stmt* body, Def* def)
         
         while (last)
         {   
-            /* If the instruction has a valid line number and it is not the same as the
-             * previous line number then add debug line info to the function definition. */
+            /* If the instruction has a valid line number and it is not the same 
+             * as the previous line number then add debug line info to the 
+             * function definition. 
+             */
             if (last->line != 0 && last->line != currline)
             {
                 LineInfo li;
@@ -154,6 +156,10 @@ void CompileFunction(int line, CompileState* state, Stmt* body, Def* def)
     }
 }
 
+/* Generate code that will short curcuit if the first operand evaluates to a 
+ * certain boolean value. This is used for both the "and" and "or" boolean
+ * operators.
+ */
 Instr* GenerateShortCircuitOp(Expr* exprA, Expr* exprB, bool isand)
 {
     if (exprA->kind == Expr::EXPR_load)
@@ -538,7 +544,8 @@ Instr* UnaryExpr::GenerateCode()
     Instr* iexpr = expr->GenerateCode();
     Instr* iop   = Instr::Create(op);
     
-    if (kind == EXPR_preincr || kind == EXPR_postincr || kind == EXPR_predecr || kind == EXPR_postdecr)
+    if (kind == EXPR_preincr || kind == EXPR_postincr || 
+        kind == EXPR_predecr || kind == EXPR_postdecr)
     {
         Expr::Kind k = expr->kind;
         Expr* exprres = expr;

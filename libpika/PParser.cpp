@@ -2252,7 +2252,7 @@ Expr* Parser::DoPostfixExpression()
             tstream.Advance();
             
             Expr* lhs = expr;
-            Expr* rhs = DoPrimaryExpression();
+            Expr* rhs = DoPrefixExpression();
             
             PIKA_NEWNODE(BinaryExpr, expr, (Expr::EXPR_pow, lhs, rhs));
             expr->line = lhs->line;

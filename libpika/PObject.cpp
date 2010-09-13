@@ -192,7 +192,7 @@ Enumerator* Object::GetEnumerator(String* enumType)
     {
         values = true;
     }
-    else if ((enumType != engine->keys_String) &&
+    else if ((enumType != engine->names_String) &&
              (enumType != engine->emptyString))
     {
         return Basic::GetEnumerator(enumType);

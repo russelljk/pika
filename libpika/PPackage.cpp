@@ -51,7 +51,7 @@ bool Package::GetGlobal(const Value& key, Value& res)
 
 bool Package::SetGlobal(const Value& key, Value& val, u4 attr)
 {
-    if (!ThisSuper::CanSetSlot(key))
+    if (!CanSetGlobal(key))
     {
         if (!(attr & Slot::ATTR_forcewrite))
         {
@@ -70,6 +70,18 @@ bool Package::SetGlobal(const Value& key, Value& val, u4 attr)
     {
         return false;
     }
+    return true;
+}
+
+bool Package::CanSetGlobal(const Value& key)
+{
+    Table::ESlotState ss = members.CanSet(key);
+    switch (ss)
+    {
+    case Table::SS_yes: return true;
+    case Table::SS_no:  return false;
+    case Table::SS_nil: return (superPackage && !superPackage->CanSetGlobal(key)) ? false : true;
+    };
     return true;
 }
 
@@ -295,21 +307,21 @@ void Package::StaticInitType(Engine* eng)
     
     static RegisterFunction Package_methods[] =
     {
-        { "getGlobal", Package_getGlobal, 1, DEF_STRICT },
-        { "setGlobal", Package_setGlobal, 2, DEF_STRICT },
-        { "hasGlobal", Package_hasGlobal, 1, DEF_STRICT },
+        { "__getGlobal", Package_getGlobal, 1, DEF_STRICT },
+        { "__setGlobal", Package_setGlobal, 2, DEF_STRICT },
+        { "__hasGlobal", Package_hasGlobal, 1, DEF_STRICT },
     };
     
     static RegisterFunction Package_classMethods[] =
     {
-        { "openPath", Package_openPath, 0, DEF_VAR_ARGS },
+        { "__openPath", Package_openPath, 0, DEF_VAR_ARGS },
     };
     
     static RegisterProperty Pkg_Properties[] =
     {
-        { "parent", Pkg_getParent, "getParent", 0, 0 },
-        { "name",   Pkg_getName,   "getName",   0, 0 },
-        { "path",   Pkg_getPath,   "getPath",   0, 0 },
+        { "__parent", Pkg_getParent, "__getParent", 0, 0 },
+        { "__name",   Pkg_getName,   "__getName",   0, 0 },
+        { "__path",   Pkg_getPath,   "__getPath",   0, 0 },
     };
     
     eng->Package_Type->EnterMethods(Package_methods, countof(Package_methods));

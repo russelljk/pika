@@ -275,6 +275,7 @@ public:
     String* toReal_String;
     String* toBoolean_String;
     
+    String* names_String;
     String* values_String;
     String* elements_String;
     String* keys_String;

@@ -326,10 +326,19 @@ Type* Type::NewType(String* nm, Package* l)
 {
     return Type::Create(engine, nm, this, 0, l); 
 }
-    
-bool Type::GetGlobal(const Value& key, Value& result) {return GetSlot(key, result);}
 
-bool Type::SetGlobal(const Value& key, Value& val, u4 attr) {return SetSlot(key, val, attr);}
+/** Usually called inside a class block this function checks its members->type->superPackage in that order. The baseType
+  * is not checked since this type is not derived from baseType, only instances need to read from the baseType.
+  */
+bool Type::GetGlobal(const Value& key, Value& result)
+{
+    return GetSlot(key, result);
+}
+
+bool Type::SetGlobal(const Value& key, Value& val, u4 attr)
+{
+    return SetSlot(key, val, attr);
+}
 
 void Type::AddSubtype(Type* subtype)
 {

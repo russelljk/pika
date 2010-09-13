@@ -227,7 +227,7 @@ Engine* Engine::Create()
 
 Engine::Engine()
         : length_String(0), null_String(0), emptyString(0), Object_String(0), toNumber_String(0), toString_String(0),
-        toInteger_String(0), toReal_String(0), toBoolean_String(0), values_String(0), elements_String(0), keys_String(0),
+        toInteger_String(0), toReal_String(0), toBoolean_String(0), names_String(0), values_String(0), elements_String(0), keys_String(0),
         indices_String(0), Enumerator_String(0), Property_String(0), userdata_String(0), Array_String(0), true_String(0),
         false_String(0), message_String(0), dot_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
         T_Type(0), Basic_Type(0), Object_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
@@ -979,6 +979,7 @@ void Engine::CreateRoots()
     AddToRoots(Property_String);
     AddToRoots(userdata_String);
     AddToRoots(null_String);
+    AddToRoots(names_String);
     AddToRoots(values_String);
     AddToRoots(keys_String);
     AddToRoots(elements_String);

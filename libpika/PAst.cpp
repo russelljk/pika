@@ -973,7 +973,7 @@ void UnaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
         expr->CalculateResources(st, cs);
         
         if (kind == EXPR_preincr || kind == EXPR_postincr ||
-                kind == EXPR_predecr || kind == EXPR_postdecr)
+            kind == EXPR_predecr || kind == EXPR_postdecr)
         {
             Expr::Kind k = expr->kind;
             

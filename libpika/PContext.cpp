@@ -704,7 +704,24 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
             }
             case OP_idiv: div_num(a.val.integer, b.val.integer); break;
             case OP_mod:  mod_num(a.val.integer, b.val.integer); break;
-            case OP_pow:  pow_num(a.val.integer, b.val.integer); break;
+            case OP_pow:  
+                {
+                    preal_t ai = a.val.integer;
+                    preal_t bi = b.val.integer;
+                    
+                    
+                    pow_num(ai, bi);
+                    
+                    if (Pika_RealIsInteger(ai))
+                    {
+                        a.Set((pint_t)ai);
+                    }
+                    else
+                    {
+                        a.Set((preal_t)ai);
+                    }
+                }
+            break;
             default: break;
             }
             Pop();

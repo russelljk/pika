@@ -34,7 +34,7 @@ public:
     static Package* Create(Engine* eng, String* name, Package* super = 0);
     static void     Constructor(Engine* eng, Type* obj_type, Value& res);
     static void     StaticInitType(Engine* eng);
-    
+    virtual bool    CanSetGlobal(const Value& key);
     virtual void     Init(Context*);
     virtual Package* GetSuper();
     virtual String*  GetName();

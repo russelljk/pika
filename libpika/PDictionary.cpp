@@ -3,6 +3,7 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
+#include "PObjectEnumerator.h"
 
 namespace pika {
 
@@ -33,6 +34,31 @@ void Dictionary::MarkRefs(Collector* c)
 {
     ThisSuper::MarkRefs(c);
     elements.DoMark(c);
+}
+
+Enumerator* Dictionary::GetEnumerator(String* kind)
+{
+    bool values=false;
+    bool punt = true;
+    if (kind == engine->elements_String)
+    {
+        values = true;
+        punt = false;
+    }
+    else if (kind == engine->keys_String or kind == engine->emptyString)
+    {
+        values = false;
+        punt = false;
+    }
+    
+    if (!punt)
+    {
+        GCPAUSE_NORUN(engine);
+        Enumerator* newEnumerator = 0;
+        GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, values, this, elements));
+        return newEnumerator;
+    }    
+    return ThisSuper::GetEnumerator(kind);
 }
 
 bool Dictionary::BracketRead(const Value& key, Value& res)
