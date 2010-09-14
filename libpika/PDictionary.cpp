@@ -45,7 +45,7 @@ Enumerator* Dictionary::GetEnumerator(String* kind)
         values = true;
         punt = false;
     }
-    else if (kind == engine->keys_String or kind == engine->emptyString)
+    else if (kind == engine->keys_String || kind == engine->emptyString)
     {
         values = false;
         punt = false;
