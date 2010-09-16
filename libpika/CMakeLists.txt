@@ -191,7 +191,7 @@ install (TARGETS pika
          LIBRARY        DESTINATION lib
          ARCHIVE        DESTINATION lib         
          FRAMEWORK      DESTINATION Library/Frameworks
-         # For not OSX Framework build.
+         # For OSX Framework build.
          PUBLIC_HEADER  DESTINATION ${PIKA_INCLUDE_DIR}
          PRIVATE_HEADER DESTINATION ${PIKA_INCLUDE_DIR}/PrivateHeaders)
 
@@ -201,7 +201,10 @@ install (TARGETS pika
 #-------------------------------------------------------------------------------
 
 if (NOT PIKA_USE_FRAMEWORKS OR WIN32)
-         configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc" @ONLY)
+         configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika.pc.in" 
+                         "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc" 
+                         @ONLY)
+         
          install (FILES       "${CMAKE_CURRENT_BINARY_DIR}/pc/pika.pc"
                   DESTINATION "lib/pkgconfig"
                   COMPONENT   "pkgconfig")
@@ -210,3 +213,5 @@ endif (NOT PIKA_USE_FRAMEWORKS OR WIN32)
 include(CPack)
 
 SET(CPACK_NSIS_MODIFY_PATH ON)
+
+

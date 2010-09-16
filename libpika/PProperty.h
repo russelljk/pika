@@ -12,8 +12,8 @@ namespace pika {
   * accessor function is auto-magically called without the users intervention, the property will
   * then appear as a normal field.
   * 
-  * Properties will always be slower than direct access but can be useful if certain
-  * operations need to performed on the value before it is set or retrieved.
+  * Properties will always be slower than direct access but can be useful under certain
+  * conditions.
   */
 class PIKA_API Property : public Basic
 {

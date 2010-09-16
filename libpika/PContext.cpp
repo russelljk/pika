@@ -876,15 +876,12 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
                        engine->GetTypenameOf(b)->GetBuffer());
 }
 
-int Context::AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int argdiff, bool nativecall)
+int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const argc, int const argdiff, bool const nativecall)
 {
     int resultArgc = argc;
+    
     // For strict native methods this will raise an exception.
-#if defined(PIKA_STRICT_ARGC)
-    if (!def->isVarArg)
-#else
     if (def->isStrict && nativecall)
-#endif
     {
         if (argdiff > 0)
         {
@@ -1062,7 +1059,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         int  param_count = def->numArgs;
         int  argdiff     = (int)argc - param_count;
         bool nativecall  = (def->nativecode != 0);
-                
+        
         if (argdiff != 0)
         {
             // Incorrect argument count.

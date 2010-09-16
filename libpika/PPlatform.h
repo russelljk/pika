@@ -10,12 +10,12 @@ extern void Pika_addhistory(const char* ln);
 // ---- String Functions ----
 
 /** Compares two strings that might contain non-ascii or null characters. */
-extern int      Pika_StringCompare(const char* a, size_t lena, const char* b, size_t lenb);
-extern size_t   Pika_StringHash(const char* str);
-extern size_t   Pika_StringHash(const char* str, size_t len);
-extern int      Pika_snprintf(char* buff, size_t count, const char* fmt, ...);
-
-extern char*    Pika_strtok(char*, const char*, char**);
+extern int         Pika_StringCompare(const char* a, size_t lena,
+                                      const char* b, size_t lenb);
+extern size_t      Pika_StringHash(const char* str);
+extern size_t      Pika_StringHash(const char* str, size_t len);
+extern int         Pika_snprintf(char* buff, size_t count, const char* fmt, ...);
+extern char*       Pika_strtok(char*, const char*, char**);
 extern const char* Pika_index(const char* str, int x);
 extern const char* Pika_rindex(const char* str, int x);
 

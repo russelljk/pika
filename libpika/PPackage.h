@@ -31,10 +31,10 @@ public:
     using Basic::SetSlot;
 #   endif
     
-    static Package* Create(Engine* eng, String* name, Package* super = 0);
-    static void     Constructor(Engine* eng, Type* obj_type, Value& res);
-    static void     StaticInitType(Engine* eng);
-    virtual bool    CanSetGlobal(const Value& key);
+    static  Package* Create(Engine* eng, String* name, Package* super = 0);
+    static  void     Constructor(Engine* eng, Type* obj_type, Value& res);
+    static  void     StaticInitType(Engine* eng);
+    
     virtual void     Init(Context*);
     virtual Package* GetSuper();
     virtual String*  GetName();
@@ -45,6 +45,7 @@ public:
     virtual Object*  Clone();
     virtual bool     GetGlobal(const Value& key, Value& res);
     virtual bool     SetGlobal(const Value& key, Value& value, u4 attr = 0);
+    virtual bool     CanSetGlobal(const Value& key);
     virtual bool     GetSlot(const Value& key, Value& res);
     
     void AddNative(RegisterFunction* fns, size_t count);

@@ -19,12 +19,10 @@ Property::Property(Engine* eng, String* nm, Function* get, Function* set)
         getter(get),
         setter(set),
         name(nm) 
-{
-}
+{}
 
 Property::~Property()
-{
-}
+{}
 
 Type* Property::GetType() const { return engine->Property_Type; }
 
@@ -35,13 +33,13 @@ bool Property::GetSlot(const Value& key, Value& result)
 
 void Property::MarkRefs(Collector* c)
 {
-    if (name)   name->Mark(c);
+    if (name) name->Mark(c);
     if (getter) getter->Mark(c);
     if (setter) setter->Mark(c);
 }
 
 bool Property::CanWrite() { return setter != 0; }
-bool Property::CanRead() { return getter != 0; }
+bool Property::CanRead()  { return getter != 0; }
 
 Function* Property::Reader() { return getter; }
 Function* Property::Writer() { return setter; }

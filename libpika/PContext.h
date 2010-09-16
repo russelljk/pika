@@ -146,7 +146,7 @@ public:
     /** Reset the Context to a used state. Slots are not reset. */
     void Reset();
 protected:   
-    int AdjustArgs(Function* fun, Def* def, int param_count, u4 argc, int argdiff, bool nativecall);
+    int AdjustArgs(Function* fun, Def* def, int const param_count, u4 const argc, int const argdiff, bool const nativecall);
     Buffer<Value>  keywords;
     AddressStack   addressStack;    //!< Stack of addresses used by the finally statement.
     ExceptionStack handlers;        //!< Stack of ExceptionBlocks used for exception handling.    

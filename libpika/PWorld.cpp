@@ -368,7 +368,7 @@ int Boolean_init(Context* ctx, Value& self)
 
 ///////////////////////////////////////////// World ////////////////////////////////////////////////
 
-int Dummy_Print(Context* ctx, Value& self)
+int Global_Print(Context* ctx, Value& self)
 {
     u4 argc = ctx->GetArgCount();
     GCPAUSE(ctx->GetEngine());
@@ -384,7 +384,7 @@ int Dummy_Print(Context* ctx, Value& self)
     return 0;
 }
 
-int Dummy_PrintLn(Context* ctx, Value& self)
+int Global_PrintLn(Context* ctx, Value& self)
 {
     u4 argc = ctx->GetArgCount();
     
@@ -401,9 +401,9 @@ int Dummy_PrintLn(Context* ctx, Value& self)
 #define PIKA_MAX_POS_ARGS 16
 
 String* Pika_sprintp(Context* ctx,    // context
-                            String*  fmt,    // format string
-                            u2       argc,   // argument count + 1
-                            String*  args[]) // arguments, args[0] is ignored
+                     String*  fmt,    // format string
+                     u2       argc,   // argument count + 1
+                     String*  args[]) // arguments, args[0] is ignored
 {
     Engine* eng = ctx->GetEngine();
     TStringBuffer& buff = eng->string_buff;
@@ -471,7 +471,7 @@ String* Pika_sprintp(Context* ctx,    // context
     return fmt;
 }
 
-int Dummy_printp(Context* ctx, Value& self)
+int Global_printp(Context* ctx, Value& self)
 {
     String* strargs[PIKA_MAX_POS_ARGS];
     String* fmt = ctx->GetStringArg(0);
@@ -494,7 +494,7 @@ int Dummy_printp(Context* ctx, Value& self)
     return 1;
 }
 
-int Dummy_sprintp(Context* ctx, Value& self)
+int Global_sprintp(Context* ctx, Value& self)
 {
     String* strargs[PIKA_MAX_POS_ARGS];
     String* fmt = ctx->GetStringArg(0);
@@ -620,7 +620,7 @@ void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
-int World_assert(Context* ctx, Value& self)
+int Global_assert(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
     
@@ -945,15 +945,15 @@ void Engine::InitializeWorld()
         
         static RegisterFunction DummyFunctions[] =
         {
-            { "printp",  Dummy_printp,  0, DEF_VAR_ARGS },
-            { "sprintp", Dummy_sprintp, 0, DEF_VAR_ARGS },
-            { "print",   Dummy_Print,   0, DEF_VAR_ARGS },
-            { "println", Dummy_PrintLn, 0, DEF_VAR_ARGS },
-            { "say",     Dummy_PrintLn, 0, DEF_VAR_ARGS },
-            { "range",   Global_range,  0, DEF_VAR_ARGS },
-            { "each",    Global_each,   3, DEF_STRICT },
-            { "gcRun",   Global_gcRun,  1, DEF_STRICT },
-            { "assert",  World_assert,  0, DEF_VAR_ARGS },
+            { "printp",  Global_printp,  0, DEF_VAR_ARGS },
+            { "sprintp", Global_sprintp, 0, DEF_VAR_ARGS },
+            { "print",   Global_Print,   0, DEF_VAR_ARGS },
+            { "println", Global_PrintLn, 0, DEF_VAR_ARGS },
+            { "say",     Global_PrintLn, 0, DEF_VAR_ARGS },
+            { "range",   Global_range,   0, DEF_VAR_ARGS },
+            { "each",    Global_each,    3, DEF_STRICT   },
+            { "gcRun",   Global_gcRun,   1, DEF_STRICT   },
+            { "assert",  Global_assert,  0, DEF_VAR_ARGS },
         };
         
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
