@@ -1571,33 +1571,13 @@ Stmt* Parser::DoExpressionStatement()
 
 Expr* Parser::DoExpression()
 {
-    return DoNullSelectExpression();
-}
-
-// lhs ?? rhs
-Expr* Parser::DoNullSelectExpression()
-{
-    Expr* expr = DoConditionalExpression();
-    
-    while (tstream.GetType() == TOK_nullselect)
-    {        
-        Expr* lhs = expr;
-        
-        BufferNext();
-        tstream.Advance();
-        
-        Expr* rhs = DoConditionalExpression();
-        
-        PIKA_NEWNODE(NullSelectExpr, expr, (lhs, rhs));
-        expr->line = lhs->line; // !!! set line number
-    }
-    return expr;
+    return DoConditionalExpression();
 }
 
 // cond ? expr : expr
 Expr* Parser::DoConditionalExpression()
 {
-    Expr* expr = DoConcatExpression();
+    Expr* expr = DoNullSelectExpression();
     
     if (tstream.GetType() == '?')
     {        
@@ -1615,6 +1595,26 @@ Expr* Parser::DoConditionalExpression()
         
         PIKA_NEWNODE(CondExpr, expr, (cond, then, otherwise));
         expr->line = cond->line; // !!! set line number
+    }
+    return expr;
+}
+
+// lhs ?? rhs
+Expr* Parser::DoNullSelectExpression()
+{
+    Expr* expr = DoConcatExpression();
+    
+    while (tstream.GetType() == TOK_nullselect)
+    {        
+        Expr* lhs = expr;
+        
+        BufferNext();
+        tstream.Advance();
+        
+        Expr* rhs = DoConditionalExpression();
+        
+        PIKA_NEWNODE(NullSelectExpr, expr, (lhs, rhs));
+        expr->line = lhs->line; // !!! set line number
     }
     return expr;
 }
@@ -1935,6 +1935,7 @@ Expr* Parser::DoAddExpression()
 }
 
 // lhs * rhs
+// lhs // rhs
 // lhs / rhs
 // lhs % rhs
 // lhs mod rhs
