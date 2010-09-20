@@ -96,8 +96,6 @@ struct FileScriptStream : IScriptStream
     virtual bool IsEof();
 
 private:
-    // TODO: move this into tokenizer class so that other streams can use it.
-    void CheckBom();
     void CheckGood();
     
     char*  buffer;
@@ -193,7 +191,9 @@ protected:
 
     const char*     GetBeginPtr() const { return script_buf.GetAt(tokenBegin); }
     const char*     GetEndPtr()   const { return script_buf.GetAt(tokenEnd);   }
-        
+    
+    void            CheckBom();
+    
     bool            IsEndOfStream();
     void            EatWhitespace();
     u4              ReadDigits(u4 radix, u8& int_part);

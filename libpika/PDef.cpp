@@ -86,7 +86,7 @@ void Def::AddLocalVar(Engine* eng, const char* name, ELocalVarType lvt)
     lv.beg  = 0;
     lv.end  = 0;
     lv.type = lvt;
-    // TODO : What about ... parameter and ** parameter.
+    // TODO : What about the : parameter and :: parameter.
     size_t idx = localsInfo.GetSize();
     
     localsInfo.Push(lv);

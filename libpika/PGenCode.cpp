@@ -1392,7 +1392,7 @@ Instr* IndexExpr::GenerateCodeSet()
 
 Instr* DotBindExpr::GenerateCode()
 {
-    Instr* iop    = Instr::Create(OP_dotget); // TODO: OP_subget
+    Instr* iop    = Instr::Create(GetOpcode()); // TODO: OP_subget
     Instr* ileft  = left->GenerateCode();
     Instr* idup   = Instr::Create(OP_dup);
     Instr* iright = right->GenerateCode();
@@ -1411,7 +1411,7 @@ Instr* DotBindExpr::GenerateCode()
 
 Instr* DotBindExpr::GenerateCodeSet()
 {
-    Instr* iop    = Instr::Create(OP_dotset); // TODO: OP_subset
+    Instr* iop    = Instr::Create(SetOpcode()); // TODO: OP_subset
     Instr* ileft  = left->GenerateCode();
     Instr* idup   = Instr::Create(OP_dup);
     Instr* iright = right->GenerateCode();

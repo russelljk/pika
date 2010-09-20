@@ -180,14 +180,17 @@ extern PIKA_API void Pika_PrintInstruction(code_t bc);
 #define CS_LOBYTE(w)            ((u1)((u2)(w) & 0x00ff))
 #define CS_HIBYTE(w)            ((u1)((u2)(w) >> 8))
 
-// [op]
-#define PIKA_MAKE_B(op)         (((code_t)(op)) & 0xFF)
+// [??][??][??][op]
+#define PIKA_MAKE_B(op) \
+    (((code_t)(op)) & 0xFF)
 
-// [w][??][op]
-#define PIKA_MAKE_W(op, w)      (PIKA_MAKE_B(op) | (((((code_t)(w)) & 0xFFFF)) << 16))
+// [   w  ][??][op]
+#define PIKA_MAKE_W(op, w) \
+    (PIKA_MAKE_B(op) | (((((code_t)(w)) & 0xFFFF)) << 16))
 
-// [w][b1][op]
-#define PIKA_MAKE_BW(op, b, w)  (PIKA_MAKE_W(op, w) | (PIKA_MAKE_B(b) << 8))
+// [   w  ][b1][op]
+#define PIKA_MAKE_BW(op, b, w) \
+    (PIKA_MAKE_W(op, w) | (PIKA_MAKE_B(b) << 8))
 
 // [??][b2][b1][op]
 #define PIKA_MAKE_BB(op, b1, b2) \
@@ -197,11 +200,11 @@ extern PIKA_API void Pika_PrintInstruction(code_t bc);
 #define PIKA_MAKE_BBB(op, b1, b2, b3) \
     (PIKA_MAKE_BW(op, b1, CS_MAKEOPERAND(b2, b3)))
     
-#define PIKA_GET_OPCODEOF(x)    ((Opcode)((u1)x & 0xFF))
-#define PIKA_GET_SHORTOF(x)     ((x >> 16)  & 0xFFFF)
-#define PIKA_GET_BYTEOF(x)      ((x >> 8)   & 0xFF)
-#define PIKA_GET_BYTE2OF(x)     ((x >> 16)  & 0xFF)
-#define PIKA_GET_BYTE3OF(x)     ((x >> 24)  & 0xFF)
+#define PIKA_GET_OPCODEOF(x) ((Opcode)((u1)x & 0xFF))
+#define PIKA_GET_SHORTOF(x)  ((x >> 16)  & 0xFFFF)
+#define PIKA_GET_BYTEOF(x)   ((x >> 8)   & 0xFF)
+#define PIKA_GET_BYTE2OF(x)  ((x >> 16)  & 0xFF)
+#define PIKA_GET_BYTE3OF(x)  ((x >> 24)  & 0xFF)
 
 }// pika
 

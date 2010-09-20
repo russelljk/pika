@@ -162,12 +162,16 @@ void ExceptionBlock::DoMark(Collector* c)
     MarkValue(c, self);
 }
 
+/** What we are doing is reading from obj.type.override where override is the
+  * appropriate override name. We intentially skip obj's members since its
+  * unlikely to be the correct function, especially when obj is a type.
+  */
 bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res)
 {
     String* what = eng->GetOverrideString(ovr);
     Value vwhat(what);
     Type* objType = obj->GetType();
-    return objType->GetField(vwhat, res); // XXX: Get Override
+    return objType->GetField(vwhat, res);
 }
 
 PIKA_IMPL(Context)
@@ -1009,6 +1013,23 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
     return resultArgc;
 }
 
+/* TODO: This method, and the one it calls AdjustArgs, need to be rewritten and
+ * simplified. 
+ * 
+ * We have 4 types of callable 'objects' to consider:
+ * 1. Native Functions => Function is called.
+ * 2. Bytecode Functions => Bytecode scope if prepared.
+ * 3. Objects that override opCall => Which becomes a native or bytecode function. 
+ * 4. Uncallable object => Exception.
+ *   
+ * We also have to deal with the following, which are not mutually exclusive:
+ * 1. Too many arguments
+ * 2. Too few arguments
+ * 3. Variable Argument Functions
+ * 4. Keyword Argument Functions
+ * 5. Default Values
+ *   
+ */
 bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
 {
     //  [ ...   ]
@@ -1065,11 +1086,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             // Incorrect argument count.
             argc = AdjustArgs(fun, def, param_count, argc, argdiff, nativecall);
         }
-        //TODO: Test all combos of varargs and kwargs
-        //TODO: Is we can count vargargs and kwargs as something otherthan parameters
-        //      Then we won't have to do all these silly tests. Also we could restrict
-        //      A function to having just varrgs and kwargs and no regular arguments.
-        //TODO: If we seperated native from script methods we could also remove the constant !native call
+        
         else if (def->isVarArg && !nativecall && param_count)
         {
             // Argument count is over by exactly 1 or 2. 
@@ -2363,7 +2380,7 @@ void Context::Suspend(Context* ctx)
     if (!ctx->prev)
     {
         ctx->ReportRuntimeError(Exception::ERROR_runtime,
-                                "cannot yield from this context: no context to yield to.");
+                                "cannot yield from this context: nothing to yield to.");
     }
     
     if (ctx->nativeCallDepth > 1) // 1 is for this function call
@@ -2394,7 +2411,7 @@ void Context::MarkRefs(Collector* c)
     {
         a->DoMark(c);
         
-        // TODO: Would it be faster to just mark the 'ENTIRE' stack from top to bottom.
+        // TODO: Would it be faster to just mark the 'ENTIRE' stack from top to bottom?
         //       What I mean is there ever a gap between scope stack ranges?
         
         if (a->kind == SCOPE_call)
@@ -3014,7 +3031,6 @@ Context::EErrRes Context::OpException(Exception& e)
         }
         else
         {
-            // TODO: Error type hierarchy.
             switch (e.kind)
             {
             case Exception::ERROR_syntax:      engine->SyntaxError_Type->CreateInstance(thrown);       break;

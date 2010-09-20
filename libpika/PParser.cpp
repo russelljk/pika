@@ -1779,7 +1779,7 @@ Expr* Parser::DoEqualExpression()
            tstream.GetType() == TOK_ne      ||
            tstream.GetType() == TOK_same    ||
            tstream.GetType() == TOK_notsame ||
-           tstream.GetType() == TOK_is      || 
+           tstream.GetType() == TOK_is      ||
            tstream.GetType() == TOK_has     )
     {
         Expr::Kind k;        
@@ -1812,15 +1812,15 @@ Expr* Parser::DoEqualExpression()
         
         BufferNext();
         tstream.Advance();
-        
-        if (k == Expr::EXPR_same && tstream.GetType() == TOK_not)
+        /*
+        if (k == Expr::EXPR_is && tstream.GetType() == TOK_not)
         {
-            k = Expr::EXPR_notsame;
+            k = Expr::EXPR_isnot;
             
             BufferNext();            
             tstream.Advance();
         }
-        
+        */
         Expr* rhs = DoCompExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
@@ -2041,7 +2041,7 @@ Expr* Parser::DoPrefixExpression()
         dotexpr = (DotExpr*)operand;
         Expr* lhs = dotexpr->left;
         Expr* rhs = dotexpr->right;
-        PIKA_NEWNODE(DotBindExpr, expr, (lhs, rhs));
+        PIKA_NEWNODE(DotBindExpr, expr, (lhs, rhs, dotexpr->GetOpcode() == OP_subget));
         expr->line = line;
         return expr;
     }
@@ -2900,18 +2900,18 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
                         Match(',');
                         BufferCurrent();
                     }
-                }                
+                }
             }
             else if (tstream.GetType() != ',')
             {
-                if (close) Expected(')');                
+                if (close) Expected(')');
                 else       break;
             }
             else
             {
                 Match(',');
                 BufferCurrent();
-            }            
+            }
 
         }
     }

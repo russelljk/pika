@@ -2,7 +2,7 @@
  *  PConfig_Borland.h
  *  See Copyright Notice in Pika.h
  */
-// TODO: This file needs to be updated.
+// TODO: This file needs to be updated or dropped.
 
 #define PIKA_BORLANDC   // Borland Turbo Explorer   
 #define PIKA_WIN        // Only on windows?

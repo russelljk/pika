@@ -4,20 +4,32 @@
  */
 #include "Pika.h"
 
-
 namespace pika {
+
+void LineDebugData::DoMark(Collector* c)
+{
+    if (func) func->Mark(c);
+
+}
+
+void LineDebugData::Reset()
+{
+    pc   = 0;
+    line = 0;
+    func = 0;
+
+}
 
 PIKA_IMPL(Debugger)
 
 Debugger::Debugger(Engine* eng, Type* obj_type)
     : ThisSuper(eng, obj_type),
     debugHook(0),
-    lineFunc(0),
-    callFunc(0),
-    raiseFunc(0),
-    returnFunc(0),
     ignorePkg(0)
-{}
+{
+    Pika_memzero(hooks, sizeof(hook_t) * HE_max);
+    Pika_memzero(callbacks, sizeof(Function*) * HE_max);    
+}
 
 Debugger::~Debugger() {}
 
@@ -25,12 +37,12 @@ void Debugger::MarkRefs(Collector* c)
 {
     ThisSuper::MarkRefs(c);
     
-    breakpoints.DoMark(c);
+    for (size_t i = 0; i < HE_max; ++i)
+    {
+        if (callbacks[i])
+            callbacks[i]->Mark(c);
+    }
     
-    if (lineFunc) lineFunc->Mark(c);
-    if (callFunc) callFunc->Mark(c);
-    if (raiseFunc) raiseFunc->Mark(c);
-    if (returnFunc) returnFunc->Mark(c);
     if (ignorePkg) ignorePkg->Mark(c);
     
     lineData.DoMark(c);
@@ -40,6 +52,7 @@ void Debugger::SetIgnore(Package* pkg) { ignorePkg = pkg; }
 
 void Debugger::OnInstr(Context* ctx, code_t* xpc, Function* fn)
 {
+    Function* lineFunc = callbacks[HE_instruction];
     if (fn == lineFunc || !lineFunc)
         return;
     if (ignorePkg && fn->IsLocatedIn(ignorePkg))
@@ -62,10 +75,10 @@ void Debugger::OnInstr(Context* ctx, code_t* xpc, Function* fn)
                 lineData.pc = pc;
                 
                 ctx->CheckStackSpace(4);
-                ctx->Push(fn);                   // arg 1
+                ctx->Push(fn);                    // arg 1
                 ctx->Push((pint_t)lineData.line); // arg 2
-                ctx->PushNull();                 // self
-                ctx->Push(lineFunc);             // function
+                ctx->PushNull();                  // self
+                ctx->Push(lineFunc);              // function
                 
                 if (ctx->SetupCall(2))
                 {
@@ -78,7 +91,7 @@ void Debugger::OnInstr(Context* ctx, code_t* xpc, Function* fn)
     }
 }
 
-String* Debugger::GetInstr()
+String* Debugger::GetInstruction()
 {
     if (lineData)
     {
@@ -97,8 +110,10 @@ String* Debugger::GetInstr()
                 switch (fmt)
                 {
                     case OF_target:
-                    case OF_w:  return engine->AllocStringFmt("%s 0x%hx",     opcodename, instr.w);
-                    case OF_bw: return engine->AllocStringFmt("%s 0x%x 0x%x", opcodename, instr.b, instr.w);
+                    case OF_w:  return engine->AllocStringFmt("%s 0x%hx",                  opcodename, instr.w);
+                    case OF_bw: return engine->AllocStringFmt("%s 0x%hhx 0x%hx",           opcodename, instr.b, instr.w);
+                    case OF_bb: return engine->AllocStringFmt("%s 0x%hhx 0x%hhx\n",        opcodename, instr.b, instr.b2);
+                    case OF_bbb:return engine->AllocStringFmt("%s 0x%hhx 0x%hhx 0x%hhx\n", opcodename, instr.b, instr.b2, instr.b3);               
                     default: break;
                 }
                 return engine->AllocString(opcodename);
@@ -108,11 +123,13 @@ String* Debugger::GetInstr()
     return engine->emptyString;
 }
 
-void Debugger::SetLineCB(Nullable<Function*> fn)
+void Debugger::SetCallback(pint_t he, Nullable<Function*> fn)
 {
-    lineFunc = fn;
+    if (he < 0 || he >= HE_max)
+        RaiseException("attempt to set invalid debugger callback.");
     
-    if (!lineFunc)
+    callbacks[he] = fn;
+    if (he == HE_instruction && !fn)
     {
         lineData.Reset();
     }
@@ -129,7 +146,10 @@ struct DebugHook : IHook
         return false;
     }
     
-    virtual void Release(HookEvent) { Pika_delete(this); }
+    virtual void Release(HookEvent)
+    { 
+        Pika_delete(this);
+    }
     
     Debugger* dbg;
 };
@@ -173,20 +193,6 @@ pint_t Debugger::GetPC()
     return (pint_t)pdiff;
 }
 
-void Debugger::LineDebugData::DoMark(Collector* c)
-{
-    if (func) func->Mark(c);
-    if (ctx)  ctx->Mark(c);
-}
-
-void Debugger::LineDebugData::Reset()
-{
-    pc   = 0;
-    line = 0;
-    func = 0;
-    ctx  = 0;
-}
-
 void Debugger::Constructor(Engine* eng, Type* type, Value& res)
 {
     Debugger* dbg=0;
@@ -207,14 +213,27 @@ void Debugger::StaticInitType(Engine* eng)
     
     GCNEW(eng, Debugger, dbg, (eng, dbg_type));
     
+    NamedConstant Hook_Constants[] =    {
+        { "CALL",        HE_call        },
+        { "RETURN",      HE_return      },
+        { "YIELD",       HE_yield       },
+        { "NATIVECALL",  HE_nativeCall  },
+        { "INSTRUCTION", HE_instruction },
+        { "EXCEPT",      HE_except      },
+        { "IMPORT",      HE_import      },      
+    };
+    
     SlotBinder<Debugger>(eng, dbg_type)
-    .Method(&Debugger::SetLineCB,   "setLineCB")
-    .Method(&Debugger::GetInstr,    "getInstr")
+    .Method(&Debugger::SetCallback, "setCallback")
+    .PropertyR("instruction", &Debugger::GetInstruction,  "getInstruction")
     .Method(&Debugger::GetPC,       "getPC")
     .Method(&Debugger::Quit,        "quit")
     .Method(&Debugger::Start,       "start")
-    .PropertyRW("ignore", &Debugger::GetIgnore, "getIgnore",
-                &Debugger::SetIgnore, "setIgnore");
+    .PropertyRW("ignore",
+            &Debugger::GetIgnore,   "getIgnore",
+            &Debugger::SetIgnore,   "setIgnore");
+    
+    Basic::EnterConstants(dbg_type, Hook_Constants, countof(Hook_Constants));
     
     eng->SetDebugger(dbg);
     

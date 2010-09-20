@@ -815,7 +815,7 @@ int Function_location(Context* ctx, Value& self)
 
 void InstanceMethod::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
-    InstanceMethod* im = InstanceMethod::Create(eng, obj_type, eng->null_Function, eng->T_Type);
+    InstanceMethod* im = InstanceMethod::Create(eng, obj_type, eng->null_Function, eng->Value_Type);
     res.Set(im);
 }
 
@@ -828,7 +828,7 @@ void BoundFunction::Constructor(Engine* eng, Type* obj_type, Value& res)
 
 void ClassMethod::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
-    ClassMethod* bf = ClassMethod::Create(eng, obj_type, eng->null_Function, eng->T_Type);
+    ClassMethod* bf = ClassMethod::Create(eng, obj_type, eng->null_Function, eng->Value_Type);
     res.Set(bf);
 }
 

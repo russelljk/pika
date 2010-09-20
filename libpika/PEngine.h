@@ -77,8 +77,8 @@ private:
 
 /* Engine
  *
- * TODO: A default Context may be needed. It would be the parent of any other
- *       Contexts.
+ * TODO: A root Context may be needed. It would be the parent of any other
+ *       Contexts. This would cause problems when yielding though.
  */
 class PIKA_API Engine
 {
@@ -151,12 +151,12 @@ public:
     /** Adds a HookEvent handler.
       * @see IHook 
       */
-    void AddHook(HookEvent he, IHook* h);
+    void AddHook(HookEvent he, hook_t h);
     
     /** Remove a HookEvent handler. 
       * @see IHook 
       */
-    bool RemoveHook(HookEvent he, IHook* h);
+    bool RemoveHook(HookEvent he, hook_t h);
     
     // Path management /////////////////////////////////////////////////////////
     
@@ -291,45 +291,45 @@ public:
     String* OpDispose_String;
     String* OpUse_String;
     String* loading_String;
-
-    Type*   T_Type;
-    Type*       Basic_Type;
-    Type*       Object_Type;
-    Type*           Dictionary_Type;
-    Type*           Function_Type;
-    Type*               InstanceMethod_Type;
-    Type*               ClassMethod_Type;
-    Type*               BoundFunction_Type;
-    Type*               NativeFunction_Type;
-    Type*               NativeMethod_Type;
-    Type*           Array_Type;
-    Type*           Context_Type;
-    Type*       	Package_Type;
-    Type*               Module_Type;
-    Type*               Script_Type;
-    Type*           ByteArray_Type;
-    Type*           LocalsObject_Type;
-    Type*       	Type_Type;
-    Type*       	Error_Type;
-    Type*               RuntimeError_Type;
-    Type*                   AssertError_Type;
-    Type*               TypeError_Type;
-    Type*               ReferenceError_Type;
-    Type*               ArithmeticError_Type;
-    Type*               OverflowError_Type;
-    Type*               UnderflowError_Type;
-    Type*               DivideByZeroError_Type;
-    Type*               SyntaxError_Type;
-    Type*               IndexError_Type;
-    Type*               SystemError_Type;  
     
-    Type*       String_Type;
-    Type*   Null_Type;
-    Type*   Boolean_Type;
-    Type*   Integer_Type;
-    Type*   Real_Type;
-    Type*       Enumerator_Type;
-    Type*       Property_Type;
+    Type*   Value_Type;
+    Type*       Basic_Type;
+    Type*           Object_Type;
+    Type*               Dictionary_Type;
+    Type*               Function_Type;
+    Type*                   InstanceMethod_Type;
+    Type*                   ClassMethod_Type;
+    Type*                   BoundFunction_Type;
+    Type*                   NativeFunction_Type;
+    Type*                   NativeMethod_Type;
+    Type*               Array_Type;
+    Type*               Context_Type;
+    Type*               Package_Type;
+    Type*                   Module_Type;
+    Type*                   Script_Type;
+    Type*               ByteArray_Type;
+    Type*               LocalsObject_Type;
+    Type*               Type_Type;
+    Type*               Error_Type;
+    Type*                   RuntimeError_Type;
+    Type*                       AssertError_Type;
+    Type*                   TypeError_Type;
+    Type*                   ReferenceError_Type;
+    Type*                   ArithmeticError_Type;
+    Type*                   OverflowError_Type;
+    Type*                   UnderflowError_Type;
+    Type*                   DivideByZeroError_Type;
+    Type*                   SyntaxError_Type;
+    Type*                   IndexError_Type;
+    Type*                   SystemError_Type;  
+    Type*           Enumerator_Type;
+    Type*           Property_Type;    
+    Type*           String_Type;
+    Type*       Null_Type;
+    Type*       Boolean_Type;
+    Type*       Integer_Type;
+    Type*       Real_Type;
+
     
     Function* null_Function;
     

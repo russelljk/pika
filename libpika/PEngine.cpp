@@ -160,7 +160,7 @@ void Engine::RemoveAllHooks()
         
         while (curr)
         {
-            IHook* h = curr->hook;
+            hook_t h = curr->hook;
             
             if (h)
             {
@@ -181,7 +181,7 @@ bool Engine::CallHook(HookEvent he, void* data)
     
     while (curr)
     {
-        IHook* h = curr->hook;        
+        hook_t h = curr->hook;        
         if (h && h->OnEvent(he, data))
             return true;
         curr = curr->next;
@@ -189,7 +189,7 @@ bool Engine::CallHook(HookEvent he, void* data)
     return false;
 }
 
-void Engine::AddHook(HookEvent he, IHook* h)
+void Engine::AddHook(HookEvent he, hook_t h)
 {
     HookEntry* hook = (HookEntry*)Pika_malloc(sizeof(HookEntry));
     hook->hook = h;
@@ -197,7 +197,7 @@ void Engine::AddHook(HookEvent he, IHook* h)
     hooks[he] = hook;
 }
 
-bool Engine::RemoveHook(HookEvent he, IHook* h)
+bool Engine::RemoveHook(HookEvent he, hook_t h)
 {
     HookEntry** pointerTo = &(hooks[he]);
     HookEntry*  current   =   hooks[he];
@@ -230,11 +230,12 @@ Engine::Engine()
         toInteger_String(0), toReal_String(0), toBoolean_String(0), names_String(0), values_String(0), elements_String(0), keys_String(0),
         indices_String(0), Enumerator_String(0), Property_String(0), userdata_String(0), Array_String(0), true_String(0),
         false_String(0), message_String(0), dot_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
-        T_Type(0), Basic_Type(0), Object_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
+        Value_Type(0), Basic_Type(0), Object_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
         NativeMethod_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
         LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
         ArithmeticError_Type(0), OverflowError_Type(0), UnderflowError_Type(0), DivideByZeroError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
-        String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0), Enumerator_Type(0), Property_Type(0), null_Function(0),
+        Enumerator_Type(0), Property_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0),
+        null_Function(0),
         paths(0),
         string_table(0),
         Pkg_World(0), Pkg_Imports(0), Pkg_Types(0),
@@ -931,7 +932,7 @@ void Engine::CreateRoots()
     AddToRoots(Pkg_Types);
     AddToRoots(ByteArray_Type);
     AddToRoots(LocalsObject_Type);
-    AddToRoots(T_Type);
+    AddToRoots(Value_Type);
     AddToRoots(Basic_Type);
     AddToRoots(Object_Type);
     AddToRoots(Dictionary_Type);

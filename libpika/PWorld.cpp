@@ -821,8 +821,8 @@ void Engine::InitializeWorld()
          *       to ensure that the type,base are correct and that type.subtypes has the correct
          *       type.
          */
-        T_Type       = Type::Create(this, AllocString("Value"),     0,            0,                    Pkg_World, 0);
-        Basic_Type   = Type::Create(this, AllocString("Basic"),     T_Type,       0,                    Pkg_World, 0);
+        Value_Type   = Type::Create(this, AllocString("Value"),     0,            0,                    Pkg_World, 0);
+        Basic_Type   = Type::Create(this, AllocString("Basic"),     Value_Type,   0,                    Pkg_World, 0);
         Object_Type  = Type::Create(this, AllocString("Object"),    Basic_Type,   Object::Constructor,  Pkg_World, 0);
         Package_Type = Type::Create(this, AllocString("Package"),   Object_Type,  Package::Constructor, Pkg_World, 0);
         Type_Type    = Type::Create(this, AllocString("Type"),      Package_Type, Type::Constructor,    Pkg_World, 0);
@@ -833,7 +833,7 @@ void Engine::InitializeWorld()
         Type* ObjectType_Type  = Type::Create(this, AllocString("Object-Type"),  BasicType_Type,  0, Pkg_World, TypeType_Type);
         Type* PackageType_Type = Type::Create(this, AllocString("Package-Type"), ObjectType_Type, 0, Pkg_World, TypeType_Type);
         
-        T_Type       ->SetType( ValueType_Type   );
+        Value_Type   ->SetType( ValueType_Type   );
         Basic_Type   ->SetType( BasicType_Type   );
         Object_Type  ->SetType( ObjectType_Type  );
         Package_Type ->SetType( PackageType_Type );
@@ -911,7 +911,7 @@ void Engine::InitializeWorld()
             { "type", Primitive_getType, "getType", 0, 0 },
         };
         
-        T_Type->EnterProperties(Value_Properties, countof(Value_Properties));
+        Value_Type->EnterProperties(Value_Properties, countof(Value_Properties));
         this->Pkg_World->SetSlot(this->AllocString("Basic"), this->Basic_Type);
         
         /* Initialize all the Error types. Each of these is basically an Object, we have
@@ -975,12 +975,11 @@ void Engine::InitializeWorld()
             { NEW_CSTR,  Null_init, 0, DEF_VAR_ARGS },
         };
         
-        Null_Type = Type::Create(this, AllocString("Null"), T_Type, 0, Pkg_World);
+        Null_Type = Type::Create(this, AllocString("Null"), Value_Type, 0, Pkg_World);
         Null_Type->EnterMethods(Null_Functions, countof(Null_Functions));
         Null_Type->EnterClassMethods(Null_ClassMethods, countof(Null_ClassMethods));
         Null_Type->SetFinal(true);
         Null_Type->SetAbstract(true);
-        Null_Type->SetType(Type_Type);/// XXX: ????
         Pkg_World->SetSlot("Null", Null_Type);
         
         // Boolean /////////////////////////////////////////////////////////////////////////////////////
@@ -999,7 +998,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR,   Boolean_init,      0, DEF_VAR_ARGS },
         };
         
-        Boolean_Type  = Type::Create(this, AllocString("Boolean"), T_Type, 0, Pkg_World);
+        Boolean_Type  = Type::Create(this, AllocString("Boolean"), Value_Type, 0, Pkg_World);
         Boolean_Type->EnterMethods(Boolean_Functions, countof(Boolean_Functions));
         Boolean_Type->EnterClassMethods(Boolean_ClassMethods, countof(Boolean_ClassMethods));
         Pkg_World->SetSlot("Boolean", Boolean_Type);
@@ -1022,7 +1021,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR, Integer_init, 0, DEF_VAR_ARGS },
         };
         
-        Integer_Type  = Type::Create(this, AllocString("Integer"), T_Type, 0, Pkg_World);
+        Integer_Type  = Type::Create(this, AllocString("Integer"), Value_Type, 0, Pkg_World);
         Integer_Type->EnterMethods(Integer_Functions, countof(Integer_Functions));
         Integer_Type->EnterClassMethods(Integer_ClassMethods, countof(Integer_ClassMethods));
         Integer_Type->SetSlot("MAX", (pint_t)PINT_MAX);
@@ -1055,7 +1054,7 @@ void Engine::InitializeWorld()
             { NEW_CSTR, Real_init, 0, DEF_VAR_ARGS },
         };
         
-        Real_Type  = Type::Create(this, AllocString("Real"), T_Type, 0, Pkg_World);
+        Real_Type  = Type::Create(this, AllocString("Real"), Value_Type, 0, Pkg_World);
         Real_Type->EnterMethods(Real_Functions, countof(Real_Functions));
         Real_Type->EnterClassMethods(Real_ClassMethods, countof(Real_ClassMethods));
         Real_Type->EnterProperties(Real_Properties, countof(Real_Properties));

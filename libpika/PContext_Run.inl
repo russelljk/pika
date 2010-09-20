@@ -639,7 +639,7 @@ void Context::Run()
                 if (!prev)
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "cannot yield from this context: no context to yield to.");
+                                       "cannot yield from this context: nothing to yield to.");
                 }                
                 
                 if (nativeCallDepth > 0)
@@ -668,7 +668,7 @@ void Context::Run()
                 if (!prev)
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "cannot yield from this context: no context to yield to.");
+                                       "cannot yield from this context: nothing to yield to.");
                 }
                 
                 if (nativeCallDepth > 0)

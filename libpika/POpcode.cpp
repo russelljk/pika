@@ -59,20 +59,13 @@ void Pika_PrintInstruction(code_t bc)
     {
         OpcodeFormat fmt = OpcodeFormats[instr.opcode];
         const char* name = OpcodeNames[instr.opcode];        
+        // OPCODE-CHANGE
         switch (fmt) {
         case OF_target:
-        case OF_w:
-            printf("%s %d\n", name, instr.w);
-            return;            
-        case OF_bw:
-            printf("%s %d %d\n", name, instr.b, instr.w);
-            return;
-        case OF_bb:
-            printf("%s %d %d\n", name, instr.b, instr.b2);
-            return;
-        case OF_bbb:
-            printf("%s %d %d %d\n", name, instr.b, instr.b2, instr.b3);
-            return;
+        case OF_w:  printf("%s %d\n", name, instr.w);return;            
+        case OF_bw: printf("%s %d %d\n", name, instr.b, instr.w);return;
+        case OF_bb: printf("%s %d %d\n", name, instr.b, instr.b2);return;
+        case OF_bbb:printf("%s %d %d %d\n", name, instr.b, instr.b2, instr.b3);return;
         default:
             printf("%s\n", name);
         }

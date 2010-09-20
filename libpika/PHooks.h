@@ -14,6 +14,7 @@ class Object;
 class Package;
 
 struct IHook;
+typedef IHook* hook_t;
 
 enum HookEvent {
     HE_call,        //!< Bytecode function is called
@@ -27,7 +28,7 @@ enum HookEvent {
 };
 
 struct HookEntry {
-    IHook*      hook;
+    hook_t      hook;
     HookEntry*  next;
 };
 

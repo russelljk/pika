@@ -410,6 +410,7 @@ Tokenizer::Tokenizer(CompileState* s, std::ifstream* fs)
     PIKA_NEW(FileScriptStream, script_stream, (fs));
     PrepKeywords();
     GetLook();
+    
 }
 
 Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
@@ -433,6 +434,7 @@ Tokenizer::Tokenizer(CompileState* s, const char* buf, size_t len)
     PIKA_NEW(StringScriptStream, script_stream, (buf, len));
     PrepKeywords();
     GetLook();
+    
 }
 
 Tokenizer::Tokenizer(CompileState* cs, IScriptStream* stream)
@@ -455,6 +457,7 @@ Tokenizer::Tokenizer(CompileState* cs, IScriptStream* stream)
 {
     PrepKeywords();
     GetLook();
+
 }
 
 void Tokenizer::PrepKeywords()
@@ -1058,7 +1061,13 @@ void Tokenizer::ReadControl()
     
     default:
         if (!IsAscii(look) && look != EOF && look != EOI) {
-            state->SyntaxException(Exception::ERROR_syntax, line, col, "Non-ascii character encountered %d.\n", look);
+            if (line == 1 && col == 1) {
+                CheckBom(); 
+                return;
+            }
+            else {
+                state->SyntaxException(Exception::ERROR_syntax, line, col, "Non-ascii character encountered %d.\n", look);
+            }
         }
         tokenType = look;
         GetLook();    
@@ -1234,7 +1243,6 @@ FileScriptStream::FileScriptStream(std::ifstream* fs) : buffer(0), pos(0), buffe
 		throw; // re-throw
 	}
     buffer[bufferLength] = EOF;
-    CheckBom();
 }
 
 FileScriptStream::~FileScriptStream() { Pika_free(buffer); }
@@ -1251,20 +1259,20 @@ int FileScriptStream::Get() { return pos <= bufferLength && buffer ? buffer[pos+
 int FileScriptStream::Peek() { return pos <= bufferLength && buffer ? buffer[pos] : EOF; }
 bool FileScriptStream::IsEof() { return pos > bufferLength || !buffer; }
 
-void FileScriptStream::CheckBom()
+void Tokenizer::CheckBom()
 {
-    if (bufferLength >= 3)
-    {
-        // UTF8 BOM
-        u1 x = (u1)buffer[0];
-        u1 y = (u1)buffer[1];
-        u1 z = (u1)buffer[2];
-
-        if ((x == 0xEF && y == 0xBB && z == 0xBF))
-        {
-            pos = 3;
-            return;
-        }
+    u1 x = look;
+    if (x == 0xEF) {
+        x = script_stream->Get();
+        if (x == 0xBB) {
+            x = script_stream->Get();
+            if (x == 0xBF) {  
+                look = ' ';            
+                GetNext();
+                return;
+            }
+        }        
+        state->SyntaxException(Exception::ERROR_syntax, 0, 0, "invalid or incomplete utf-8 Byte Order Marker found.");
     }
 }
 

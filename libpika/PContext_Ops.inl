@@ -2,9 +2,6 @@
  *  PContext_Ops.inl
  *  See Copyright Notice in Pika.h
  */
-// TODO: Change xxx_num(T&,T&) to xxx_num(T&,T&,Value& res)
-//       remove gCompiler line 22 code block
-//       remove gContext ArithBinary? OP_div code.
 
 #ifndef PCONTEXT_OPS_INL
 #define PCONTEXT_OPS_INL

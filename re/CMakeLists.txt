@@ -71,7 +71,7 @@ if (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
     target_link_libraries (pikaRegExp pcre)
 endif (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
 
-install (TARGETS pikaRegExp
+install (TARGETS        pikaRegExp
          RUNTIME        DESTINATION bin
          LIBRARY        DESTINATION lib
          ARCHIVE        DESTINATION lib         

@@ -108,16 +108,16 @@ public:
                            u4 flags, Def* parent);
     static Def* Create(Engine* eng);
     
-    void            SetBytecode(code_t* bc, u2 len);
-    INLINE code_t*  GetBytecode() const { return(bytecode) ? bytecode->code : 0; }
-
+    void           SetBytecode(code_t* bc, u2 len);
+    INLINE code_t* GetBytecode() const { return(bytecode) ? bytecode->code : 0; }
+    
     //TODO: AddLocalVar and SetLocalRange assume that the CompileState and Def assign the var the same offset.
     //      The offset of the var should be tracked by only one class.
     
     void AddLocalVar(Engine*, const char*, ELocalVarType lvt = LVT_variable);
     void SetLocalRange(size_t local, size_t start, size_t end);
     void SetSource(Engine* eng, const char* buff, size_t len);
-           
+    
     String*          name;        //!< Declared name.
     String*          source;      //!< Source code.
     Def*             parent;      //!< Parent function.
@@ -127,8 +127,8 @@ public:
     u2               numLocals;   //!< Number of lexEnv and parameters.
     u2               stackLimit;  //!< Stack space needed for execution.
     Buffer<LineInfo> lineInfo;    //!< Mapping of source code line numbers to bytecode position.    
-   
-     /** Ranges for all local variables (including arguments) in this function. It should be noted that this runs
+    
+    /** Ranges for all local variables (including arguments) in this function. It should be noted that this runs
       * from the local declaration to the end of the block it is declared in. Parameters will exist for the entire 
       * function's life time. No further calculations are performed.
       */

@@ -1371,10 +1371,19 @@ struct IndexExpr : DotExpr
   */
 struct DotBindExpr : DotExpr
 {
-    DotBindExpr(Expr *l, Expr *r) : DotExpr(l, r) { kind = Expr::EXPR_dotbind; }
+    DotBindExpr(Expr *l, Expr *r, bool index = false) 
+        : DotExpr(l, r), is_index(index)
+    { 
+        kind = Expr::EXPR_dotbind; 
+    }
     
     virtual Instr* GenerateCode();
     virtual Instr* GenerateCodeSet();
+    
+    virtual Opcode  GetOpcode() const { return is_index ? OP_subget : OP_dotget; }
+    virtual Opcode  SetOpcode() const { return is_index ? OP_subset : OP_dotset; }
+        
+    bool is_index;
 };
 
 /** A list of (key, value) pairs used as the elements of an object literal. */
