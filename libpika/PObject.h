@@ -24,6 +24,7 @@ class Array;
 class Type;
 class Object;
 
+/** Instance creation function used by types. */
 typedef void (*Type_NewFn)(Engine*, Type*, Value&);
 
 ////////////////////////////////////////////// Object //////////////////////////////////////////////
@@ -41,13 +42,16 @@ public:
 #   endif
     friend class ObjectEnumerator;
 protected:
-    INLINE Object(Engine* eng, Type* typeObj)
-            : Basic(eng), type(typeObj)
-    {}
+    INLINE Object(Engine* eng, Type* typeObj) : Basic(eng), type(typeObj), members(0) {}
     
     INLINE Object(const Object* rhs)
-            : Basic(rhs->engine), type(rhs->type), members(rhs->members)
-    {}
+            : Basic(rhs->engine), type(rhs->type), members(0)
+    { 
+        if (rhs->members)
+        {
+            Members(*(rhs->members));
+        }
+    }
 public:
     virtual ~Object();
     
@@ -96,45 +100,60 @@ public:
       */
     static Object* StaticNew(Engine* eng, Type* objType);
     
-    /** Sets a slot in an object's slot-table, bypassing operator overrides and properties.
-      * 
+    /** Sets a slot in an object's slot-table, bypassing operator overrides and 
+      * properties.
+      *
       * @param obj  [in] Pointer to the object.
       * @param key  [in] The slot's name or key to be set.
       * @param val  [in] The value to set the slot to.
       * @result     If the slot was set true is returned.
-      * @note       For use in scripts since native applications can use the Object::SetSlot member 
-      *              function.
+      * @note       For use in scripts since native applications can call Object::SetSlot. 
       */
     static bool RawSet(Object* obj, Value& key, Value& val);
     
-    /** Returns a slot in an object's slot-table, bypassing operator overrides and properties.
-      * 
+    /** Returns a slot in an object's slot-table, bypassing operator overrides 
+      * and properties.
+      *
       * @param obj  [in] Pointer to the object.
       * @param key  [in] The slot's name or key to be returned.
       * @result     The value of the slot.
-      * @note       For use in scripts since native applications can use the Object::GetSlot member 
-      *              function.
+      * @note       For use in scripts since native applications can call Object::GetSlot.
       */
     static Value RawGet(Object* obj, Value& key);
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
 protected:
-    Type* type;    
-    /* TODO { We need to test having the members lazily created. Given the sheer
-     *        number of Objects that do not have i-vars by default (Function, 
-     *        LocalsObject, Context, Dictionary, All Function Derived Types, 
-     *        Random, Debugger, etc...).
-     *
-     *        Package derived types could create the Table automatically since
-     *        its needed in the constructor. 
-     *        
-     *        Engine could even mantain a MemPool of Tables if we don't want to
-     *        fragment the system memory any further. 
-     *
-     *        Make sure to do tests before, after. Including stress tests. }
-     */
-    Table members; // Instance Variables
+    /** Return a reference to this object's members Table. If the table does not
+      * exist it will be created.
+      */
+    Table& Members();
+    
+    /** Return a reference to this object's members Table. If the table does not
+      * exist it will be cloned from the Table provided.
+      *
+      * @param other [in] The Table to clone is Object::members is not allocated.
+      */
+    Table& Members(const Table& other);
+    
+    /** This object's type. 
+      *
+      * @warning All object should have a type so make sure when you create an
+      * object that you provide a valid type.
+      *
+      * @note During Engine's start-up there are a handful of object that are created
+      * sans types. In that case the type will be set to the correct type before
+      * a the start-up is finished.
+      */    
+    Type* type;
+    
+    /** Table of instance variables which are created lazily when written to.
+      *
+      * @note If you are deriving from Object use Object::Members to write to 
+      * the members table. If you need to read from the Table check that it 
+      * existing first, do not create it unless you are writing to it.
+      */
+    Table* members; // Instance Variables
 };
 
 #define GETSELF(TYPE, OBJ, TYPENAME)                                                \

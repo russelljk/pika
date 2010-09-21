@@ -226,7 +226,7 @@ public:
         FreeList = fb;
     }
     
-    INLINE T* Pika_new()
+    INLINE T* New()
     {
         T* t = (T*)this->RawAlloc();
         t = Pika_construct<T>(t); // construct and return it.

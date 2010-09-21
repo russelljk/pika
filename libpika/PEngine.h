@@ -22,6 +22,12 @@
 #   include "PObject.h"
 #endif
 
+#if defined(PIKA_USE_TABLE_POOL)
+#   ifndef PIKA_MEMPOOL_HEADER
+#       include "PMemPool.h"
+#   endif
+#endif
+
 namespace pika {
 class Script;
 class Object;
@@ -337,6 +343,16 @@ public:
     void    AddBaseType(String*, Type*);
     
     static String* NumberToString(Engine* eng, const Value& v);
+
+#if defined(PIKA_USE_TABLE_POOL)
+public:
+    Table*  NewTable();
+    Table*  NewTable(const Table&);
+    void    DelTable(Table*);
+private:
+    MemObjPool<Table> Table_Pool;
+#endif
+
 private:
     HookEntry*      hooks[HE_max];  //!< Debug hooks into the interpreter
     PathManager*    paths;          //!< Paths used for importing

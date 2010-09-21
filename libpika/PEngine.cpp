@@ -197,6 +197,27 @@ void Engine::AddHook(HookEvent he, hook_t h)
     hooks[he] = hook;
 }
 
+#if defined(PIKA_USE_TABLE_POOL)
+
+Table* Engine::NewTable()
+{
+    return Table_Pool.New();
+}
+
+Table* Engine::NewTable(const Table& t)
+{
+    void* vp = Table_Pool.RawAlloc();
+    Table* nt = new (vp) Table(t);
+    return nt;
+}
+
+void Engine::DelTable(Table* t)
+{
+    Table_Pool.Delete(t);
+}
+
+#endif
+
 bool Engine::RemoveHook(HookEvent he, hook_t h)
 {
     HookEntry** pointerTo = &(hooks[he]);
@@ -236,6 +257,9 @@ Engine::Engine()
         ArithmeticError_Type(0), OverflowError_Type(0), UnderflowError_Type(0), DivideByZeroError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
         Enumerator_Type(0), Property_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0),
         null_Function(0),
+#if defined(PIKA_USE_TABLE_POOL)
+        Table_Pool(TABLE_POOL_SIZE),
+#endif
         paths(0),
         string_table(0),
         Pkg_World(0), Pkg_Imports(0), Pkg_Types(0),

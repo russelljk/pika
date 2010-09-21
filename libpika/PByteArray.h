@@ -13,7 +13,7 @@ namespace pika {
  * to be created.
  *
  * Like the string objects, bytes objects can include arbitrary binary data including nulls.
- * The member variable 'byteorder' specifies the order that data is read and writen.
+ * The member variable 'byteorder' specifies the order that data is read and written.
  * 'byteorder' defaults to whatever the system byteorder is.
  *
  */

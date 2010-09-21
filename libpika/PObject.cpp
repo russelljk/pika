@@ -36,20 +36,27 @@ Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Object* self, Tabl
 
 PIKA_IMPL(Object)
 
-Object::~Object() {}
+Object::~Object()
+{
+#if defined(PIKA_USE_TABLE_POOL) 
+    if (members)
+        engine->DelTable(members);
+#else
+    delete members;
+#endif
+}
 
 Object* Object::StaticNew(Engine* eng, Type* type)
 {
     Object* newObject = 0;
     GCNEW(eng, Object, newObject, (eng, type));
-    
     return newObject;
 }
 
 void Object::MarkRefs(Collector* c)
 {
-    members.DoMark(c);
-    if (type) type->Mark(c);
+    if (members) members->DoMark(c);
+    if (type)    type->Mark(c);
 }
 
 String* Object::ToString()
@@ -122,7 +129,7 @@ bool Object::SetSlot(const Value& key, Value& val, u4 attr)
         WriteBarrier(key);
     if (val.IsCollectible())
         WriteBarrier(val);
-    if (!members.Set(key, val, attr))
+    if (!Members().Set(key, val, attr))
     {
         return false;
     }
@@ -131,7 +138,7 @@ bool Object::SetSlot(const Value& key, Value& val, u4 attr)
 
 bool Object::GetSlot(const Value& key, Value& result)
 {
-    if (!members.Get(key, result))
+    if (!members || !members->Get(key, result))
     {
         if (!type || !type->GetField(key, result))
         {
@@ -143,17 +150,17 @@ bool Object::GetSlot(const Value& key, Value& result)
 
 bool Object::HasSlot(const Value& key)
 {
-    return members.Exists(key);
+    return members ? members->Exists(key) : false;
 }
 
 bool Object::DeleteSlot(const Value& key)
 {
-    return members.Remove(key);
+    return members ? members->Remove(key) : false;
 }
 
 bool Object::CanSetSlot(const Value& key)
 {
-    Table::ESlotState ss = members.CanSet(key);
+    Table::ESlotState ss = members ? members->CanSet(key) : Table::SS_nil;
     switch (ss)
     {
     case Table::SS_yes: return true;
@@ -174,7 +181,7 @@ bool Object::BracketWrite(const Value& key, Value& val, u4 attr)
         WriteBarrier(key);
     if (val.IsCollectible())
         WriteBarrier(val);
-    return members.Set(key, val, attr | Slot::ATTR_forcewrite);
+    return Members().Set(key, val, attr | Slot::ATTR_forcewrite);
 }
 
 Object* Object::Clone()
@@ -192,13 +199,12 @@ Enumerator* Object::GetEnumerator(String* enumType)
     {
         values = true;
     }
-    else if ((enumType != engine->names_String) &&
+    else if (!members || (enumType != engine->names_String) &&
              (enumType != engine->emptyString))
     {
         return Basic::GetEnumerator(enumType);
     }
-    
-    Enumerator* newEnumerator = CreateSlotEnumerator(engine, values, this, this->members);
+    Enumerator* newEnumerator = CreateSlotEnumerator(engine, values, this, *(this->members));
     return newEnumerator;
 }
 
@@ -293,6 +299,32 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
             ASSERT(false && "property not added");
         }
     }
+}
+
+Table& Object::Members(const Table& other)
+{
+    if (!members)
+    {
+#if defined(PIKA_USE_TABLE_POOL)    
+        members = engine->NewTable(other);
+#else
+        members = new Table(other);
+#endif
+    }
+    return *members;
+}
+
+Table& Object::Members()
+{
+    if (!members)
+    {
+#if defined(PIKA_USE_TABLE_POOL)    
+        members = engine->NewTable();
+#else
+        members = new Table();
+#endif
+    }
+    return *members;
 }
 
 namespace {

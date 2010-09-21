@@ -354,7 +354,8 @@ void Context::Reset()
     self.SetNull();
     
     // TODO { Should we clean out this Context's members? }
-    //members.Clear(); 
+    //if (members) 
+    //    members->Clear(); 
 }
 
 Context::~Context() { Pika_free(stack); }

@@ -109,10 +109,10 @@ Enumerator* Type::GetEnumerator(String* enumtype)
         {
             filter = eng->Property_Type;
         }
-        if (filter)
+        if (members && filter)
         {
             FilterEnum* filterenum = 0;
-            GCNEW(eng, FilterEnum, filterenum, (eng, true, this, this->members, filter));
+            GCNEW(eng, FilterEnum, filterenum, (eng, true, this, *(this->members), filter));
             return filterenum;
         }
     } // GCPAUSE_NORUN
@@ -354,7 +354,7 @@ void Type::AddSubtype(Type* subtype)
 
 bool Type::GetField(const Value& key, Value& result)
 {
-    if (members.Get(key, result))
+    if (members && members->Get(key, result))
     {
         return true;
     }
@@ -363,10 +363,13 @@ bool Type::GetField(const Value& key, Value& result)
 
 bool Type::CanSetField(const Value& key)
 {
-    Table::ESlotState ss = members.CanSet(key);
-    if (Table::SS_no == ss)
+    if (members)
     {
-        return false;
+        Table::ESlotState ss = members->CanSet(key);
+        if (Table::SS_no == ss)
+        {
+            return false;
+        }
     }
     return baseType ? baseType->CanSetField(key) : true;
 }

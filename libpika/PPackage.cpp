@@ -41,7 +41,7 @@ bool Package::GetSlot(const Value& key, Value& res)
 
 bool Package::GetGlobal(const Value& key, Value& res)
 {
-    if (members.Get(key, res))
+    if (members && members->Get(key, res))
         return true;
 
     if (superPackage && superPackage->GetGlobal(key, res))
@@ -66,7 +66,7 @@ bool Package::SetGlobal(const Value& key, Value& val, u4 attr)
         WriteBarrier(key);
     if (val.IsCollectible())
         WriteBarrier(val);
-    if (!members.Set(key, val, attr))
+    if (!Members().Set(key, val, attr))
     {
         return false;
     }
@@ -75,7 +75,7 @@ bool Package::SetGlobal(const Value& key, Value& val, u4 attr)
 
 bool Package::CanSetGlobal(const Value& key)
 {
-    Table::ESlotState ss = members.CanSet(key);
+    Table::ESlotState ss = members ? members->CanSet(key) : Table::SS_nil;
     switch (ss)
     {
     case Table::SS_yes: return true;

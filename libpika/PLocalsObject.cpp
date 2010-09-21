@@ -120,7 +120,9 @@ bool LocalsObject::HasSlot(const Value& key)
             return true;
         }
     }
-    return members.Exists(key);
+    if (!members)
+        return false;
+    return members->Exists(key);
 }
 
 bool LocalsObject::SetSlot(const Value& key, Value& value, u4 attr)
