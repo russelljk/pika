@@ -352,7 +352,9 @@ void Context::Reset()
     numRuns         = 0;
     nativeCallDepth = 0;
     self.SetNull();
-//  members.Clear(); // TODO: Should we clean out this Context's members ?
+    
+    // TODO { Should we clean out this Context's members? }
+    //members.Clear(); 
 }
 
 Context::~Context() { Pika_free(stack); }

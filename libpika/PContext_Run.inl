@@ -337,17 +337,18 @@ void Context::Run()
                 GCPAUSE(engine);
                 /*
                 [ typename ]
-                [ super    ]
+                [ base     ]
                 [ < sp >   ]
                 */
-                Value&   vsuper = Top();    // base type
+                Value&   vbase  = Top(); // base type
                 Value&   vname  = Top1();
                 Value&   vpkg   = Top2();
                 String*  name   = vname.val.str;
                 Type*    newtype   = 0;
                 Package* superPkg  = 0;
-                bool     nullsuper = vsuper.IsNull();
+                bool     nullsuper = vbase.IsNull();
                 bool     specified_pkg =  false;
+                
                 if (vpkg.IsDerivedFrom(Package::StaticGetClass()))
                 {
                     superPkg = vpkg.val.package;specified_pkg=true;
@@ -357,10 +358,10 @@ void Context::Run()
                     superPkg = this->package;
                 }               
                                 
-                if (vsuper.IsDerivedFrom(Type::StaticGetClass()) || nullsuper)
+                if (vbase.IsDerivedFrom(Type::StaticGetClass()) || nullsuper)
                 {
                     // Super is a valid type object.
-                    Type* super = nullsuper ? engine->Object_Type : vsuper.val.type;
+                    Type* super = nullsuper ? engine->Object_Type : vbase.val.type;
                     
                     if (super->IsFinal())
                     {
@@ -370,18 +371,20 @@ void Context::Run()
                                            super->GetName()->GetBuffer());
                     }          
                     else
-                    {                    
-                        // TODO: Should we call CreateInstance instead? If so how do we initialize the super package
-                        //       and base type?
+                    {
+                        /* TODO { Ideally we would call CreateInstance instead. 
+                         *        If so how do we initialize the super package
+                         *        and base type? }
+                         */
                         newtype = super->NewType(name, superPkg);
                     }
                 }
                 else
                 {
                     // We cannot extend a non-type object.
-                    String* supername = engine->GetTypenameOf(vsuper);
+                    String* supername = engine->GetTypenameOf(vbase);
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "Attempt to extend type: %s.",
+                                       "attempt to extend non-type derived value: %s.",
                                        supername->GetBuffer());
                 }
                 Pop();
@@ -413,15 +416,25 @@ void Context::Run()
             {
                 GCPAUSE(engine);
                 
-                Value   vobj(NULL_VALUE);
+                Value vobj(NULL_VALUE);                
                 
-                Type*  type_obj  = 0;
-                u2     elemCount = GetShortOperand(instr);
-                u2     elemDepth = elemCount * 2;
-                Value  type_val  = PopTop();
-                Value* beg       = GetStackPtr() - elemDepth;
-                Value* end       = GetStackPtr();
-                                
+                Type* type_obj = 0;
+                
+                u2 elemCount = GetShortOperand(instr);
+                u2 elemDepth = elemCount * 2;
+                
+                Value type_val = PopTop();
+                
+                Value* beg = GetStackPtr() - elemDepth;
+                Value* end = GetStackPtr();
+                
+                /* If the value on top of the stack is a Type we are creating
+                 * an object literal. 
+                 *
+                 * If the value is null we are creating a Dictionary.
+                 *
+                 * For any other value we need to raise an exception.
+                 */
                 if (type_val.IsDerivedFrom(Type::StaticGetClass()))
                 {
                     type_obj = type_val.val.type;
@@ -435,7 +448,8 @@ void Context::Run()
                     ReportRuntimeError(Exception::ERROR_runtime,
                                        "invalid type value for object literal.");
                 }
-                               
+                
+                /* Some one might have specified the type as a Dictionary manually. */
                 bool is_dict = type_obj->IsSubtype(engine->Dictionary_Type);
 
                 type_obj->CreateInstance(vobj);
@@ -446,16 +460,35 @@ void Context::Run()
                     RaiseException("attempt to create object literal failed.");
                 }
                 
+                /* Loop through each {key,val} pair and add it to the new
+                 * object/dictionary.
+                 *
+                 * TODO { If we can break this up by writing:
+                 *        if (is_dict)
+                 *          while ...
+                 *              add to dict
+                 *          end
+                 *        else
+                 *          while (...)
+                 *              add to object
+                 *          end
+                 *        end
+                 *       We would only need to test if(is_dict) once instead of
+                 *       once per element. }
+                 */
                 while (beg < end)
                 {
                     Value* val  = beg;
-                    Value* prop = beg + 1;
+                    Value* key = beg + 1;
                     if (is_dict)
                     {
-                        obj->BracketWrite(*prop, *val);
+                        obj->BracketWrite(*key, *val);
                     }
-                    else if (prop->IsNull())
+                    else if (key->IsNull())
                     {
+                        /* If the key is null then this is an inlined
+                         * Property or Function.
+                         */
                         if (val->IsDerivedFrom(Function::StaticGetClass()))
                         {
                             obj->AddFunction(val->val.function);
@@ -467,7 +500,7 @@ void Context::Run()
                     }
                     else
                     {
-                        obj->SetSlot(*prop, *val);
+                        obj->SetSlot(*key, *val);
                     }
                     beg += 2;
                 }
@@ -485,21 +518,35 @@ void Context::Run()
             
             PIKA_OPCODE(OP_forto)
             {
+                /* Grab the offset of the for loop's local variables and
+                 * the top three values off the stack.
+                 *
+                 * [ .... ]
+                 * [ from ]
+                 * [ to   ]
+                 * [ step ] < sp
+                 */
                 u2 localOffset = GetShortOperand(instr);
                 
                 Value& from = Top2();
-                Value& to   = Top1();
+                Value& to = Top1();
                 Value& step = Top();
                 
+                
+                /* We only deal with integers. So raise an exception if 
+                 * thats not the case.
+                 *
+                 * TODO { Should we convert reals to integers here or not? }
+                 */
                 if ((from.tag != TAG_integer) || (to.tag   != TAG_integer) || (step.tag != TAG_integer))
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
                                        "for loop type error: expecting integer.");
                 }
                 
-                // to avoid an infinite loop we make sure the step variable points in the same
-                // direction as the range.
-                
+                /* To avoid an infinite loop we make sure the step variable points in the same
+                 * direction as the range. Then we adjust the step's sign accordingly.
+                 */
                 pint_t  diff  = to.val.integer - from.val.integer;
                 pint_t& istep = step.val.integer;
                 
@@ -508,10 +555,13 @@ void Context::Run()
                     istep = (diff < 0) ? -1 : 1;
                 }
                 
-                // !!! Modify the code !!!
-                // We need to do this each time because another run through the code might
-                // yield a different comparison test.
-                
+                /* WARNING {
+                 * We need to modify the code by spacing the correct opcode needed.
+                 *
+                 * We need to do this EVERY time because another run through the code might
+                 * yield a different comparison test.
+                 * }
+                 */
                 if (istep < 0)
                 {
                     *(pc + PIKA_FORTO_COMP_OFFSET) = PIKA_MAKE_B(OP_gt); // Set the op to >
@@ -521,8 +571,9 @@ void Context::Run()
                     *(pc + PIKA_FORTO_COMP_OFFSET) = PIKA_MAKE_B(OP_lt); // Set the op to <
                 }
                 
-                // from to and step variable are stored in order.
-                
+                /* Set the loop variables: 'from', 'to' and 'step'. 
+                 * The variables are stored in order.
+                 */
                 SetLocal(from, localOffset);
                 SetLocal(to,   localOffset + 1);
                 SetLocal(step, localOffset + 2);
@@ -546,15 +597,28 @@ void Context::Run()
                 if (env && !env->IsAllocated())
                     env->EndCall();
                     
-                // TODO: it might be worthwhile to add a (debug) check on the current scope
-                //       to ensure that it is a call scope.
-                
+
+                 
+                /* Only one return value so we push it and then pad the extra return
+                 * values needed with nulls.
+                 *
+                 * TODO { It might be worthwhile to add a (debug) check on the current scope
+                 *        to ensure that it is a call scope. For a correctly compiled script
+                 *        the current scope should always be a call scope. However, if we
+                 *        add support for pre-compiled scripts things could go very wrong. }
+                 */
                 PopCallScope();
                 
                 Push(retvar);
                 
                 if (expected_retc > 1)
                 {
+                    /* Check that we have enough room for the unspecified
+                     * return values. 
+                     */
+                    CheckStackSpace(expected_retc - 1);
+                    
+                    /* Now pad the needed values with nulls. */
                     for (int i = 1; i < expected_retc; ++ i)
                     {
                         PushNull();
@@ -562,6 +626,7 @@ void Context::Run()
                 }
                 
 #   ifndef PIKA_NO_HOOKS
+                /* Call the return Hook if its present. */
                 if (engine->HasHook(HE_return))
                 {
                     engine->CallHook(HE_return, (void*)this);
@@ -584,32 +649,39 @@ void Context::Run()
                 
                 if (expectedRetc > retc)
                 {
-                    // Not enough return values.
-                    //
-                    int diff = expectedRetc - retc; // the difference
-                    //
-                    // TODO: invalid pointer could arise?
-                    //
-                    // Copy the all return values inorder.
+                    /* Expected number of return values is greater-than the number
+                     * Provided.
+                     * 
+                     * We copy down the specified return values and pad the difference
+                     * with nulls.
+                     */                     
+                    size_t diff = expectedRetc - retc;
+                    
+                    /* Copy the all return values inorder. */
                     for (Value* curr = (top - retc); curr < top; ++curr)
                     {
                         Push(*curr);
                     }
-                    //
-                    // Push null for the rest.
-                    for (int i = 0; i < diff; ++ i)
+                    
+                    /* Check that we have enough room for the unspecified
+                     * return values. 
+                     */
+                    CheckStackSpace(diff);
+                    
+                    /* Push null for the rest. */
+                    for (size_t i = 0; i < diff; ++ i)
                     {
                         PushNull();
                     }
                 }
                 else
                 {
-                    // Expected number of return values is less-than or equal to the number
-                    // Provided.
-                    //
-                    // If we expect less return values (N) than given only the last N are
-                    // provided.
-                    //
+                    /* Expected number of return values is less-than or equal to the number
+                     * Provided.
+                     * 
+                     * If we expect less return values (N) than given only the last N are
+                     * provided.
+                     */
                     Value* startPtr = top - retc;
                     Value* endPtr = startPtr + expectedRetc;
                     for (Value* curr = startPtr; curr != endPtr; ++curr)
@@ -618,6 +690,7 @@ void Context::Run()
                     }
                 }
 #   ifndef PIKA_NO_HOOKS
+                /* Call the return Hook if its present. */
                 if (engine->HasHook(HE_return))
                 {
                     engine->CallHook(HE_return, (void*)this);

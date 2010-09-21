@@ -14,6 +14,11 @@ namespace pika {
   * 
   * Properties will always be slower than direct access but can be useful under certain
   * conditions.
+  *
+  * TODO { Property should really be an Object, like Function. However, this should
+  *        only happen if we restructure the heirarchy to optionally support instance variables. 
+  *        Since properties can not be modified directly there is little reason for
+  *        them to have a Table of instance variables 99.9% of the time. }
   */
 class PIKA_API Property : public Basic
 {
@@ -26,14 +31,14 @@ public:
     static Property* CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter);
     static Property* CreateRead     (Engine* eng, String* name, Function* getter);
     static Property* CreateWrite    (Engine* eng, String* name, Function* setter);
-
+    
     virtual void  MarkRefs(Collector* c);
     virtual Type* GetType() const;
     virtual bool  GetSlot(const Value& key, Value& result);
-
+    
     virtual bool  CanWrite();
     virtual bool  CanRead();
-
+    
     virtual Function* Reader();
     virtual Function* Writer();
     virtual String*   Name();

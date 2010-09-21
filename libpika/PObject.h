@@ -28,7 +28,7 @@ typedef void (*Type_NewFn)(Engine*, Type*, Value&);
 
 ////////////////////////////////////////////// Object //////////////////////////////////////////////
 
-/** Base class for all Pika object's.
+/** Base class for all propertied and typed objects.
   * Each object has an associated type and a slot-table where instance variables are kept.
   */
 class PIKA_API Object : public Basic
@@ -120,8 +120,21 @@ public:
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
 protected:
-    Type*   type;
-    Table   members; // Instance Variables
+    Type* type;    
+    /* TODO { We need to test having the members lazily created. Given the sheer
+     *        number of Objects that do not have i-vars by default (Function, 
+     *        LocalsObject, Context, Dictionary, All Function Derived Types, 
+     *        Random, Debugger, etc...).
+     *
+     *        Package derived types could create the Table automatically since
+     *        its needed in the constructor. 
+     *        
+     *        Engine could even mantain a MemPool of Tables if we don't want to
+     *        fragment the system memory any further. 
+     *
+     *        Make sure to do tests before, after. Including stress tests. }
+     */
+    Table members; // Instance Variables
 };
 
 #define GETSELF(TYPE, OBJ, TYPENAME)                                                \
