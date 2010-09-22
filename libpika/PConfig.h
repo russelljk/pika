@@ -280,9 +280,9 @@ INLINE bool IsLower(int x)  { return IsAscii(x) && (islower(x) != 0); } // Is a 
 INLINE int  ToLower(int x)  { return(IsLetter(x)) ? tolower(x) : x; }   // Converts a letter to lower case.
 INLINE int  ToUpper(int x)  { return(IsLetter(x)) ? toupper(x) : x; }   // Converts a letter to upper case.
 
-INLINE bool IsLetterOrDigit(int x)   { return IsAscii(x) && (isalnum(x) != 0); } // Is a letter or a digit.
-INLINE bool IsIdentifierExtra(int x) { return x == '_'   || x == '$'; }          // Is part of a valid identifier.
-INLINE bool IsValidDigit(int x)      { return IsDigit(x) || x == '_'; }          // Is part of a valid number literal.
+INLINE bool IsLetterOrDigit(int x)        { return IsAscii(x) && (isalnum(x) != 0); } // Is a letter or a digit.
+INLINE bool IsIdentifierExtra(int x)      { return x == '_'; }                        // Is part of a valid identifier.
+INLINE bool IsValidDigit(int x)           { return IsDigit(x) || x == '_'; }          // Is part of a valid number literal.
 
 #define PIKA_BUFFER_MAX_LEN     (PINT_MAX)             // Max length a vector or other buffer may be.
 #define PIKA_STRING_MAX_LEN     (PIKA_BUFFER_MAX_LEN) // Max length a string may be.

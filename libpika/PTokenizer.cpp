@@ -589,10 +589,12 @@ void Tokenizer::GetMoreInput()
 
 void Tokenizer::ReadIdentifier()
 {
-    // [a-zA-Z$_][a-zA-Z0-9$_]*[?!]?
+    // [a-zA-Z_][a-zA-Z0-9_]*[?!]?
     
     if (!(IsLetter(look) || IsIdentifierExtra(look))) // make sure we start with an appropriate character.
-        state->SyntaxException(Exception::ERROR_syntax, line, col, "Expecting letter, '$' or '_' while reading identifier");
+        state->SyntaxException(Exception::ERROR_syntax, line, col, "Expecting letter or '_' while reading identifier");
+    
+    GetLook();
         
     while (IsLetterOrDigit(look) || IsIdentifierExtra(look))
     {
