@@ -161,7 +161,7 @@ bool File::Open(String* name, String* opts)
     if (handle) Close();
     GCPAUSE(engine);
     
-    String* fullpath = use_paths ? engine->GetPathManager()->FindFile(name) : 0;
+    String* fullpath = use_paths ? engine->Paths()->FindFile(name) : 0;
     
     if (fullpath)
         name = fullpath;

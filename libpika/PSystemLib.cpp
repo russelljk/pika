@@ -335,30 +335,6 @@ int os_fileExtOf(Context* ctx, Value&)
     return 1;
 }
 
-int os_addPath(Context* ctx, Value&)
-{
-    Engine* eng = ctx->GetEngine();
-    for (size_t a = 0; a < ctx->GetArgCount(); ++a)
-    {
-        String* path = ctx->GetStringArg(a);
-        if ( !path->HasNulls() )
-            eng->AddSearchPath(path);
-    }
-    return 0;
-}
-
-int os_addEnvPath(Context* ctx, Value&)
-{
-    Engine* eng = ctx->GetEngine();
-    for (size_t a = 0; a < ctx->GetArgCount(); ++a)
-    {
-        String* path = ctx->GetStringArg(a);
-        if ( !path->HasNulls() && path->GetLength() > 0)
-            eng->AddEnvPath(path->GetBuffer());
-    }
-    return 0;
-}
-
 String* FindFileName(Engine* eng, String* path)
 {
     const char* fullpath  = path->GetBuffer();
@@ -500,8 +476,7 @@ int os_lib_load(Context* ctx, Value&)
     .Register    ( os_getFullPath,           "getFullPath")
     .Register    ( os_fileExtOf,             "fileExtOf")
     .Register    ( os_fileNameOf,            "fileNameOf")
-    .Register    ( os_addPath,               "addPath")
-    .Register    ( os_addEnvPath,            "addEnvPath")
+    .Constant    (eng->Paths(),              "paths")
     ;
     
     eng->PutImport(os_String, os_Package);

@@ -53,100 +53,6 @@ String* FindPackageName(Engine* eng, String* path)
     return 0;
 }
 
-bool EndsWithSeperator(const char* str, size_t len)
-{
-    if (len > 0 && str[len - 1] == PIKA_PATH_SEP_CHAR)
-        return true;
-    return false;
-}
-
-PathManager::PathManager(Engine* eng)
-        : engine(eng)
-{
-    char* const buff = Pika_GetCurrentDirectory();
-    String* startingPath = 0;
-    
-    if (buff)
-    {
-        startingPath = engine->AllocString(buff);
-        Pika_free(buff);
-    }
-    else
-    {
-        startingPath = engine->AllocString("./");
-    }
-    
-    if (startingPath)
-        AddPath(startingPath);
-}
-
-PathManager::~PathManager() {}
-
-bool PathManager::IsValidFile(const char* path)
-{
-    return Pika_FileExists(path) && !Pika_IsDirectory(path);
-}
-
-String* PathManager::FindFile(String* file)
-{
-    // first determine the maximum length our path string can be
-    size_t max_sz = 0;
-    for (size_t i = 0; i < searchPaths.GetSize(); ++i) // should move this to AddPath and keep an instance variable maxPathSize
-    {
-        size_t const sz = searchPaths[i]->GetLength() + 1;
-        if (sz > max_sz || max_sz == 0)
-        {
-            max_sz = sz;
-        }
-    }
-    size_t const file_name_sz = file->GetLength();
-    size_t BUFF_SZ = file_name_sz + max_sz;
-    
-    if (SizeAdditionOverflow(max_sz, file_name_sz) || // bigger than max(size_t) or
-        BUFF_SZ > PIKA_STRING_MAX_LEN) // Too big the fit in a String 
-    {
-        BUFF_SZ = PIKA_STRING_MAX_LEN;
-    }
-    
-    // allocate a temp buffer
-    char* temp = (char*)Pika_malloc(sizeof(char) * (BUFF_SZ + 1));
-    int oldErrno = errno;
-    errno = 0;
-    for (size_t i = 0; i < searchPaths.GetSize(); ++i)
-    {
-        String* currpath = searchPaths[i];
-        
-        if (Pika_snprintf(temp, BUFF_SZ, "%s%s", currpath->GetBuffer(), file->GetBuffer()) < 0)
-        {
-            continue;
-        }
-        temp[BUFF_SZ] = '\0';
-        
-        if (IsValidFile(temp))
-        {
-            String* res = engine->AllocString(temp);
-            Pika_free(temp);
-            errno = oldErrno;
-            return res;
-        }
-    }
-    Pika_free(temp);
-    
-    if (IsValidFile(file->GetBuffer()))
-    {
-        return file;
-    }
-    errno = oldErrno;
-    return 0;
-}
-
-void PathManager::MarkRefs(Collector* c)
-{
-    size_t sz = searchPaths.GetSize();
-    for (size_t i = 0; i < sz; ++i)
-        c->MoveToGray(searchPaths[i]);
-}
-
 void Engine::InitHooks()
 {
     Pika_memzero(hooks, sizeof(HookEntry*)*HE_max);
@@ -251,7 +157,7 @@ Engine::Engine()
         toInteger_String(0), toReal_String(0), toBoolean_String(0), names_String(0), values_String(0), elements_String(0), keys_String(0),
         indices_String(0), Enumerator_String(0), Property_String(0), userdata_String(0), Array_String(0), true_String(0),
         false_String(0), message_String(0), dot_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
-        Value_Type(0), Basic_Type(0), Object_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
+        Value_Type(0), Basic_Type(0), Object_Type(0), PathManager_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
         NativeMethod_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
         LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
         ArithmeticError_Type(0), OverflowError_Type(0), UnderflowError_Type(0), DivideByZeroError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
@@ -277,8 +183,7 @@ Engine::~Engine()
 {
     RemoveAllHooks();
     
-    Pika_delete(gc);
-    Pika_delete(paths);
+    Pika_delete(gc);    
     Pika_delete(string_table);
     UnloadAllModules();
 }
@@ -399,53 +304,14 @@ bool Engine::PutImport(String* libname, Value value)
 
 void Engine::AddEnvPath(const char* var)
 {
-    if (!var)
-        return;
-        
-    GCPAUSE_NORUN(this);
-    
-    char* path = 0;
-    const char* next_pos = 0;
-    int m, n;
-    const char delim = ':';
-    
-    for (path = getenv(var); path && *path; path += m)
-    {
-        if ( (next_pos = Pika_index(path, delim)) )
-        {
-            n = next_pos - path;
-            m = n + 1;
-        }
-        else
-        {
-            m = n = strlen(path);
-        }
-        AddSearchPath(AllocString(path, n));
-    }
+    String* str_path = AllocStringNC(var);
+    paths->AddEnvPath(str_path);
 }
 
-bool PathManager::Finalize()
-{
-    return false;
-}
-
-void PathManager::AddPath(String* path)
-{
-    GCPAUSE_NORUN(engine);
-    if ( !EndsWithSeperator(path->GetBuffer(),
-                            path->GetLength())
-       )
-    {
-        path = String::Concat(path, engine->AllocString(PIKA_PATH_SEP));
-    }
-    
-    engine->GetGC()->WriteBarrier(this, path);
-    searchPaths.Push(path);
-}
 
 void Engine::AddSearchPath(const char* path)
 {
-    String* str_path = AllocString(path);
+    String* str_path = AllocStringNC(path);
     paths->AddPath(str_path);
 }
 
@@ -959,6 +825,7 @@ void Engine::CreateRoots()
     AddToRoots(Value_Type);
     AddToRoots(Basic_Type);
     AddToRoots(Object_Type);
+    AddToRoots(PathManager_Type);
     AddToRoots(Dictionary_Type);
     AddToRoots(Function_Type);
     AddToRoots(Array_Type);
@@ -1028,9 +895,7 @@ void Engine::CreateRoots()
 }
 
 void Engine::ScanRoots(Collector *c)
-{
-    paths->Mark(c);
-    
+{    
     for (ModuleIterator iter = modules.Begin(); iter != modules.End(); ++iter)
     {
         c->ForceToGray(*iter);

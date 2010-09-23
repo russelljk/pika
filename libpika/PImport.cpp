@@ -95,7 +95,7 @@ Module* Pika_importModule(Context* ctx, String* name)
     String*  ver_name = Pika_ConstructModuleFnName(eng, name, PIKALIB_PREFIX_VER);
     String* full_path = 0;
     
-    if ((full_path = eng->GetPathManager()->FindFile(file_name)))
+    if ((full_path = eng->Paths()->FindFile(file_name)))
     {
         file_name = full_path;
     }

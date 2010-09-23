@@ -7,6 +7,7 @@
 #include "PLocalsObject.h"
 #include "PByteArray.h"
 #include "PFile.h"
+
 namespace pika {
 extern void InitSystemLIB(Engine*);
 extern void Initialize_ImportAPI(Engine*);
@@ -783,9 +784,7 @@ void Engine::InitializeWorld()
         
         this->string_buff.SetCapacity(512);
         this->string_buff.Clear();
-        
-        GCNEW(this, PathManager, paths, (this));
-        
+                
         this->Array_String      = AllocString("Array");
         this->Enumerator_String = AllocString("Enumerator");
         this->Object_String     = AllocString("Object");
@@ -882,6 +881,9 @@ void Engine::InitializeWorld()
         Script::StaticInitType(this);
         Function::StaticInitType(this);
         String::StaticInitType(this);
+        PathManager::StaticInitType(this);
+        
+        GCNEW(this, PathManager, paths, (this, PathManager_Type));
         
         Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
         Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);

@@ -212,7 +212,7 @@ String* String::Concat(String* a, String* b)
     
     eng->string_buff[len] = 0;
     
-    return eng->AllocString(&eng->string_buff[0], len);
+    return eng->AllocStringNC(&eng->string_buff[0], len);
 }
 
 Array* String::Split(String* search)

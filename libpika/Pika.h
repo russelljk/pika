@@ -36,6 +36,7 @@ class           Enumerator;
 class               DummyEnumerator;
 class               ValueEnumerator;
 class           Object;
+class               PathManager;
 class               Package;
 class                   Type;
 class                   Module;
@@ -85,6 +86,7 @@ class Table;
 #include "PUserData.h"
 #include "PClassInfo.h"
 #include "PObject.h"
+#include "PPathManager.h"
 #include "PDictionary.h"
 #include "PContext.h"
 #include "PFunction.h"

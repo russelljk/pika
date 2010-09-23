@@ -39,47 +39,17 @@ class Package;
 class Collector;
 class Module;
 class StringTable;
+class PathManager;
 
 #if defined(PIKA_DLL) && defined(_WIN32)
 template class PIKA_API Buffer<char>;
 template class PIKA_API Buffer<Module*>;
 template class PIKA_API Buffer<Script*>;
 template class PIKA_API Buffer<Value>;
-template class PIKA_API Buffer<String*>;
 #endif
 
 typedef Buffer<char> TStringBuffer;
 
-/* PathManager
- *
- * TODO: paths added need to be checked for consistency
- * TODO: PathManager needs to become a full script Type so that scrips can use it.
- */
-struct PIKA_API PathManager : GCObject
-{
-    PathManager(Engine*);
-    
-    virtual ~PathManager();
-    
-    virtual String* FindFile(String* file);
-    virtual void    MarkRefs(Collector* c);
-    virtual bool    Finalize();
-    virtual void    AddPath(String* str);
-    
-    INLINE size_t GetSize() const { return searchPaths.GetSize(); }
-    
-    INLINE String* At(size_t idx) {
-        if (idx < GetSize())
-            return searchPaths[idx];
-        return 0;
-    }
-    
-private:
-    bool IsValidFile(const char*); 
-    
-    Buffer<String*> searchPaths;
-    Engine*         engine;
-};
 
 /* Engine
  *
@@ -175,7 +145,7 @@ public:
     /** Adds a search path to the PathManager. */
     void AddSearchPath(String* path);
     
-    INLINE PathManager* GetPathManager() const { return paths; }
+    INLINE PathManager* Paths() const { return paths; }
     
     Script* Compile(const char* name);
     Script* Compile(String* name, Context* parent = 0);
@@ -301,6 +271,7 @@ public:
     Type*   Value_Type;
     Type*       Basic_Type;
     Type*           Object_Type;
+    Type*               PathManager_Type;
     Type*               Dictionary_Type;
     Type*               Function_Type;
     Type*                   InstanceMethod_Type;
