@@ -164,7 +164,6 @@ public:
   * You should also stop the Collector before adding slots since multiple objects may be allocated.
   *
   * usage:
-  * 
   * Package* pkg = engine->GetWorld();
   * Type* Foo_Type = Type::Create(engine, engine->AllocStringNC("Foo"), Foo_Base_Type, Foo::Constructor, pkg);
   * 
@@ -188,7 +187,13 @@ struct SlotBinder
             object(obj)            
     {}
     
-    /** Adds a native instance method. HookedFunction takes care of type checking.
+    /** Adds a native instance method.
+      *
+      * usage:
+      * Method(&Class::Method, "name")
+      *
+      * @param meth Pointer to the C++ method.
+      * @param name Name of the method, does not need to be the same as the C++ method.
       */
     template<typename AMeth>
     SlotBinder& Method(AMeth meth, const char* name)
@@ -198,6 +203,14 @@ struct SlotBinder
         return *this;
     }
     
+    /** Create an alias between two slots.
+      *
+      * usage:
+      * Alias("aliasName", "name")
+      * 
+      * @param aliasname Name of the alias
+      * @param name      Name of the original slot we are aliasing.
+      */
     SlotBinder& Alias(const char* aliasname, const char* name)
     {
         String* name_String = engine->AllocStringNC(name);
@@ -211,6 +224,15 @@ struct SlotBinder
         return *this;
     }
     
+    /** Adds a native instance method.
+      *
+      * usage:
+      * StaticMethod(&Class::Method, "name")
+      * StaticMethod(StaticFunction, "name")
+      *
+      * @param meth Pointer to the C++ static method or function.
+      * @param name Name of the method, does not need to be the same as the C++ method.
+      */    
     template<typename AMeth>
     SlotBinder& StaticMethod(AMeth meth, const char* name)
     {
@@ -219,6 +241,14 @@ struct SlotBinder
         return *this;
     }
     
+    /** Adds a variable argument, native instance method. Should be of the form void MethodName(Context* ctx) {...}.
+      *
+      * usage:
+      * MethodVA(&Class::Method, "name")
+      *
+      * @param meth Pointer to the C++ method.
+      * @param name Name of the method, does not need to be the same as the C++ method.
+      */     
     template<typename AMeth>
     SlotBinder& MethodVA(AMeth meth, const char* name)
     {
@@ -227,6 +257,15 @@ struct SlotBinder
         return *this;
     }
     
+    /** Adds a variable argument static method. Should be of the form void MethodName(Context* ctx) {...}.
+      *
+      * usage:
+      * StaticMethodVA(&Class::Method, "name")
+      * StaticMethodVA(StaticFunction, "name")
+      *
+      * @param meth Pointer to the C++ static method or function.
+      * @param name Name of the method, does not need to be the same as the C++ method.
+      */ 
     template<typename AMeth>
     SlotBinder& StaticMethodVA(AMeth meth, const char* name)
     {
@@ -235,12 +274,25 @@ struct SlotBinder
         return *this;
     }
     
+    /** Add a read/write property to the object. You can optionally add the name 
+      * for the getter and setter methods which will then be added to the object
+      * along side the property.
+      * 
+      * usage:
+      * PropertyRW("name", &Class::Reader, "readName", &Class::Writer, "writeName")
+      *
+      * @param  propName    The name of the property
+      * @param  readMeth    Pointer to the properties getter function.
+      * @param  readName    Name of the getter function. If null the getter function will not be added.
+      * @param  writeMeth   Pointer to the properties setter function.
+      * @param  writeName   Name of the setter function. If null the setter function will not be added.
+      */
     template<typename AMethRead, typename AMethWrite>
     SlotBinder& PropertyRW(const char* propName,
                            AMethRead   readMeth,
-                           const char* readName,    // name of the read function (ie GetXXXX ) or null
+                           const char* readName,    // name of the read function or null
                            AMethWrite  writeMeth,
-                           const char* writeName)   // name of the write function (ie SetXXXX ) or null
+                           const char* writeName)   // name of the write function or null
     {
         String*   name = engine->AllocStringNC(propName);
         Function* rm   = HookedFunction::Bind<AMethRead>(engine,  readMeth,  readName  ? readName  : "", package, class_info);
@@ -257,6 +309,17 @@ struct SlotBinder
         return *this;
     }
     
+    /** Add a read-only property to the object. You can optionally add the name 
+      * for the getter method which will then be added to the object along side
+      * the property.
+      * 
+      * usage:
+      * PropertyR("name", &Class::Reader, "readName")
+      * 
+      * @param  propName    The name of the property
+      * @param  rMeth       Pointer to the properties getter function.
+      * @param  rName       Name of the getter function. If null the getter function will not be added.
+      */
     template<typename AMethRead>
     SlotBinder& PropertyR(const char* propName,
                           AMethRead   rMeth,
@@ -273,6 +336,17 @@ struct SlotBinder
         return *this;
     }
     
+    /** Add a write-only property to the object. You can optionally add the name 
+      * for the setter method which will then be added to the object along side
+      * the property.
+      *
+      * usage:
+      * PropertyW("name", &Class::Writer, "writeName")
+      * 
+      * @param  propName    The name of the property
+      * @param  rMeth       Pointer to the properties getter function.
+      * @param  rName       Name of the getter function. If null the getter function will not be added.
+      */
     template<typename AMethWrite>
     SlotBinder& PropertyW(const char* propName,
                           AMethWrite  wMeth,
@@ -289,6 +363,15 @@ struct SlotBinder
         return *this;
     }
     
+    /** Add a constant to the object. The constant will be protected, which means
+      * it cannot be modified at runtime.
+      *
+      * usage:
+      * Constant(value, "name")
+      * 
+      * @param  val      The constant value.
+      * @param  propName The name of the constant.
+      */
     template<typename AType>
     SlotBinder& Constant(AType val, const char* propName)
     {
@@ -297,6 +380,15 @@ struct SlotBinder
         return *this;
     }
     
+    /** Add an internal value to the object. The constant will be internal, which means
+      * it cannot be modified, enumerated or deleted.
+      *
+      * usage:
+      * Internal(value, "name")
+      *  
+      * @param  val      The constant value.
+      * @param  propName The name of the constant.
+      */    
     template<typename AType>
     SlotBinder& Internal(AType val, const char* propName)
     {
@@ -305,6 +397,14 @@ struct SlotBinder
         return *this;
     }
     
+    /** Add a member variable to the object.
+      *
+      * usage:
+      * Member(value, "name")
+      *  
+      * @param  val      The constant value.
+      * @param  propName The name of the constant.
+      */    
     template<typename AType>
     SlotBinder& Member(AType val, const char* propName)
     {
@@ -313,6 +413,17 @@ struct SlotBinder
         return *this;
     }
     
+    /** Register a native script Function.
+      *
+      * usage:
+      * Register(func_ptr, "name", ArgCount, true, false)
+      * 
+      * @param  code    Pointer to the Function.
+      * @param  cname   The name of the Function.
+      * @param  argc    Expected argument count.
+      * @param  varargs Function accepts a variable number of arguments.
+      * @param  strict  Argument count must be exact.
+      */ 
     SlotBinder& Register(Nativecode_t code,
                          const char*  cname,
                          u2           argc    = 0,
@@ -331,6 +442,17 @@ struct SlotBinder
         return *this;
     }
     
+    /** Register a native script InstanceMethod.
+      *
+      * usage:
+      * RegisterMethod(func_ptr, "name", ArgCount, true, false)
+      *  
+      * @param  code    Pointer to the function.
+      * @param  cname   The name of the InstanceMethod.
+      * @param  argc    Expected argument count.
+      * @param  varargs InstanceMethod accepts a variable number of arguments.
+      * @param  strict  Argument count must be exact.
+      */ 
     SlotBinder& RegisterMethod(Nativecode_t code,
                          const char*  cname,
                          u2           argc    = 0,
@@ -353,6 +475,17 @@ struct SlotBinder
         return *this;
     }
     
+    /** Register a native script ClassMethod.
+      *
+      * usage:
+      * RegisterClassMethod(func_ptr, "name", ArgCount, true, false)
+      *  
+      * @param  code    Pointer to the function.
+      * @param  cname   The name of the ClassMethod.
+      * @param  argc    Expected argument count.
+      * @param  varargs ClassMethod accepts a variable number of arguments.
+      * @param  strict  Argument count must be exact.
+      */ 
     SlotBinder& RegisterClassMethod(Nativecode_t code,
                          const char*  cname,
                          u2           argc    = 0,
@@ -375,10 +508,10 @@ struct SlotBinder
         return *this;
     }
         
-    ClassInfo* class_info;
-    Package*   package;
-    Engine*    engine;
-    Basic*    object;
+    ClassInfo* class_info;  //!< ClassInfo, used for type checks when a C++ method is called.
+    Package* package;       //!< Package all function are located inside.
+    Engine* engine;         //!< Pointer to the Engine.
+    Basic* object;          //!< Object we are binding slots to.
 };
 
 }// pika
