@@ -15,35 +15,40 @@ struct Slot
 {
     enum Attributes
     {
-        ATTR_none       = 0x0,  // no attributes
-        ATTR_nodelete   = 0x1,  // cannot be removed
-        ATTR_final      = 0x2,  // cannot change values
-        ATTR_noenum     = 0x4,  // is not enumerated by an Enumerator or foreach statement
-        ATTR_forcewrite = 0x8,  // forces a final Slot to be overwritten.
-        ATTR_virtual    = 0x10,
+        ATTR_none       = 0x0,             // no attributes
+        ATTR_nodelete   = PIKA_BITFLAG(0), // cannot be removed
+        ATTR_final      = PIKA_BITFLAG(1), // cannot change values
+        ATTR_noenum     = PIKA_BITFLAG(2), // is not enumerated by an Enumerator or foreach statement
+        ATTR_forcewrite = PIKA_BITFLAG(3), // forces a final Slot to be overwritten.
+        ATTR_virtual    = PIKA_BITFLAG(4),
         ATTR_protected  = (ATTR_final | ATTR_nodelete),
         ATTR_internal   = (ATTR_final | ATTR_noenum | ATTR_nodelete),
     };
-
+    
     INLINE Slot(const Value& k, Value& v, u4 a)
             : key(k),
             val(v),
             next(0),
             attr(a)
     {}
-
+    
     Value key;  //!< Lookup key or name of the slot.
     Value val;  //!< Value of the slot.
     Slot* next; //!< Next chained slot.
-    u4    attr; //!< Bitwise or'ed attributes of the slot.
+    u4 attr;    //!< Bitwise or'ed attributes of the slot.
 };
 
+/** A hash table class used for instance variables and associative arrays in Pika.
+  * The size is always a power of two, which allows us to quickly perform the hash 
+  * function using only a subtraction and an bitwise and.
+  */
 class PIKA_API Table 
 {
 public:
     /*
      * Simple forward iterator that allows you to move throught each slot in a table.
-     * Warning: Do not change the key of the slot!
+     * Warning: Do not change the key of the slot! You will make it impossible to find
+     *          during a lookup!
      */
     struct Iterator 
     {
@@ -115,12 +120,13 @@ public:
     
     enum ESlotState
     {
-        SS_yes = 1,      // Slot exists and can be set.
-        SS_no  = 1 << 1, // Slot is a property or marked as final.
-        SS_nil = 1 << 2, // Slot does not exist.
+        SS_yes = PIKA_BITFLAG(0), // Slot exists and can be set.
+        SS_no  = PIKA_BITFLAG(1), // Slot is a property or marked as final.
+        SS_nil = PIKA_BITFLAG(2), // Slot does not exist.
     };
+    
     ESlotState CanSet(const Value& key);
-
+    
     /** Determines if a slot can be overloaded by a child table. */
     bool CanInherit(const Value& key);
     
@@ -141,10 +147,7 @@ public:
     size_t count; //!< The number of elements in the table.
     size_t size;  //!< The length of the slots member variable.
     
-    size_t NumElements()
-    {
-        return count;
-    }
+    inline size_t NumElements() const { return count; }
     
     static size_t const MAX_TABLE_SLOTS; //!< Maximum number of slots a table can have.
     static size_t const MAX_TABLE_SIZE;  //!< Maximum number of rows a table can have.

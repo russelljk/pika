@@ -32,11 +32,11 @@ struct Symbol
 
 enum SymbolType
 {
-    ST_main     = (0x1 << 0),
-    ST_package  = (0x1 << 1),
-    ST_function = (0x1 << 2),
-    ST_using    = (0x1 << 3),
-    ST_noinherit= (0x1 << 4),
+    ST_main     = PIKA_BITFLAG(0),
+    ST_package  = PIKA_BITFLAG(1),
+    ST_function = PIKA_BITFLAG(2),
+    ST_using    = PIKA_BITFLAG(3),
+    ST_noinherit= PIKA_BITFLAG(4),
 };
 
 class SymbolTable

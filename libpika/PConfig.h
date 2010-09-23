@@ -302,6 +302,8 @@ typedef u4 code_t; // needs to be 32bit
 
 #define PIKA_MAX_NESTED_FUNCTIONS 255
 
+#define PIKA_BITFLAG(P) ((u4)((0x1) << P))
+
 #if defined(ENABLE_TRACE)
 #define trace0(msg)                 fprintf(stderr, msg)
 #define trace1(msg, A)              fprintf(stderr, msg, A)
