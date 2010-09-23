@@ -46,7 +46,7 @@ void Pika_FunctionResourceCalculation(
     (*def)->literals = cs.literals;
     
     *symtab = 0;
-    PIKA_NEW(SymbolTable, (*symtab), (st, false, false, true));
+    PIKA_NEW(SymbolTable, (*symtab), (st, 0));
     
     if ((*symtab)->IncrementDepth() > PIKA_MAX_NESTED_FUNCTIONS)
     {
@@ -328,7 +328,7 @@ Id::~Id() { Pika_free(name); }
 void Program::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     symtab = 0;
-    PIKA_NEW(SymbolTable, symtab, (st, true));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_main));
     
     cs.literals = LiteralPool::Create(cs.engine);
     
@@ -350,7 +350,7 @@ void Program::CalculateResources(SymbolTable* st, CompileState& cs)
 void FunctionProg::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     symtab = 0;
-    PIKA_NEW(SymbolTable, symtab, (st, false));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_function));
     
     cs.literals = LiteralPool::Create(cs.engine);
     
@@ -730,7 +730,7 @@ ForToStmt::~ForToStmt() { Pika_delete(symtab); }
 
 void ForToStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
-    PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock()));
+    PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
     
     // Create the looping variable's symbol along to extra local variables
     // (for 'to' and 'by'.)
@@ -749,7 +749,7 @@ ForeachStmt::~ForeachStmt()
 
 void ForeachStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
-    PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock()));
+    PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
     PIKA_NEWNODE(LocalDecl, iterVar, (id));
     iterVar->line = id->line;
     PIKA_NEWNODE(IdExpr, idexpr, (id));
@@ -781,7 +781,7 @@ void IfStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 void BlockStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
     symtab = 0;
-    PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock()));
+    PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
     
     if (stmts)
     {
@@ -1092,7 +1092,7 @@ void CatchIsBlock::CalculateResources(SymbolTable* st, CompileState& cs)
 {
     CompileState::TryState trystate = cs.trystate;
     
-    PIKA_NEW(SymbolTable, symtab, (st, false, false, false, false));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit));
     
     symbol = symtab->Put(catchvar->name);
     symbol->offset = cs.NextLocalOffset(catchvar->name);
@@ -1119,7 +1119,7 @@ void TryStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
     CompileState::TryState trystate = cs.trystate;
     
-    PIKA_NEW(SymbolTable, tryTab, (st, st->IsWithBlock()));
+    PIKA_NEW(SymbolTable, tryTab, (st, st->IsWithBlock() ? ST_using : 0));
     
     cs.trystate.inTry = true;
     
@@ -1135,7 +1135,7 @@ void TryStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     
     if (catchBlock)
     {
-        PIKA_NEW(SymbolTable, catchTab, (st, false, false, false, false));
+        PIKA_NEW(SymbolTable, catchTab, (st, ST_noinherit));
         symbol = catchTab->Put(caughtVar->name);
         symbol->offset = cs.NextLocalOffset(caughtVar->name);
         
@@ -1277,10 +1277,7 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
             bool parent_block_symbol = (idleft->symbol && idleft->symbol->table != st && st->IsWithBlock());
             
             if (!idleft->symbol || parent_block_symbol)
-            { // Not defined or defined elsewhere
-                // Do variables default to the global scope for this block ?
-                bool def_global = st->DefaultsToGlobal();
-                
+            {                
                 // Create a symbol.
                 // NOTE: We don't call shadow because the symbol does NOT exist in the current symboltable.
                 idleft->symbol = st->Put(idleft->id->name);
@@ -1288,8 +1285,9 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
                 // Is this a with/class block ?
                 idleft->symbol->isWith = st->IsWithBlock();
                 
-                if (!def_global)
-                { // Create a new local variable.
+                if (!st->VarsAreGlobal())
+                { 
+                    // Create a new local variable.
                     idleft->symbol->isGlobal = false;
                     idleft->symbol->offset = cs.NextLocalOffset(idleft->id->name);
                     idleft->index = idleft->symbol->offset;
@@ -1424,7 +1422,7 @@ void FinallyStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     if (block)
         block->CalculateResources(st, cs);
         
-    PIKA_NEW(SymbolTable, symtab, (st, false, false, false, false));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit));
     
     if (finalize_block)
         finalize_block->CalculateResources(symtab, cs);
@@ -1441,7 +1439,7 @@ UsingStmt::~UsingStmt() { Pika_delete(symtab); }
 
 void UsingStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
 {
-    PIKA_NEW(SymbolTable, symtab, (st, true, true));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_using));
     
     if (with)
         with->CalculateResources(st, cs);
@@ -1464,7 +1462,7 @@ void PkgDecl::CalculateResources(SymbolTable* st, CompileState& cs)
     
     id->CalculateResources(st, cs);
     
-    PIKA_NEW(SymbolTable, symtab, (st, true, false, false, false));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_package));
     
     body->CalculateResources(symtab, cs);
     
@@ -1523,7 +1521,7 @@ void ClassDecl::CalculateResources(SymbolTable* st, CompileState& cs)
     
     if (stmts)
     {
-        PIKA_NEW(SymbolTable, symtab, (st, true, false, false, false));
+        PIKA_NEW(SymbolTable, symtab, (st, ST_package));
         stmts->CalculateResources(symtab, cs);
     }
 }

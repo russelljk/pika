@@ -9,14 +9,17 @@
 #include "PMemory.h"
 #include "PPlatform.h"
 
+#define FLAG2FIELD(X, F) ((X & F) ? 1 : 0)
+
 namespace pika {
 
-SymbolTable::SymbolTable(SymbolTable* parent, bool global, bool with, bool isfunc, bool inherit)
-        : defaultGlobal(global),
-        isWith(with),
-        isFunction(isfunc),
-        inherit(inherit),
-        parent(parent)
+SymbolTable::SymbolTable(SymbolTable* parent, u4 flags)
+    : parent(parent),
+    fMain(FLAG2FIELD(flags, ST_main)),
+    fPackage(FLAG2FIELD(flags, ST_package)),
+    fFunction(FLAG2FIELD(flags, ST_function)),
+    fUsing(FLAG2FIELD(flags, ST_using)),
+    fNoInherit(FLAG2FIELD(flags, ST_noinherit))
 {
     Pika_memzero(table, sizeof(Symbol*) * HASHSIZE);
     depth = (parent) ? parent->depth : 0;
@@ -45,7 +48,7 @@ Symbol* SymbolTable::Shadow(const char* name)
     size_t  i = Pika_StringHash(name) & (HASHSIZE - 1);
     Symbol* s = 0;
 
-    PIKA_NEW(Symbol, s, (name, this, defaultGlobal, IsWithBlock()));
+    PIKA_NEW(Symbol, s, (name, this, fPackage || fMain, fUsing ));
 
     s->next  = table[i];
     table[i] = s;
@@ -67,7 +70,7 @@ Symbol* SymbolTable::Put(const char* name)
     }
 
     s = 0;
-    PIKA_NEW(Symbol, s, (name, this, defaultGlobal, IsWithBlock()));
+    PIKA_NEW(Symbol, s, (name, this, fPackage || fMain, fUsing));
 
     s->next = table[i];
     table[i] = s;

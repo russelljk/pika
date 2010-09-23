@@ -6,79 +6,83 @@
 #define PIKA_SYMBOLTABLE_HEADER
 
 namespace pika {
-    class Engine;
-    class SymbolTable;
+class Engine;
+class SymbolTable;
 
-    struct Symbol
+struct Symbol
+{
+    Symbol(const char* n, SymbolTable* tab, bool g, bool  w)
+            : name(n), 
+            table(tab), 
+            isGlobal(g), 
+            isWith(w), 
+            offset(-1), 
+            next(0)
+    {}
+
+    ~Symbol() {}
+
+    const char*  name;  //!< Variable name
+    SymbolTable* table; //!< SymbolTable we are defined in.
+    bool isGlobal;      //!< Global symbol.
+    bool isWith;        //!< Member symbol.
+    int offset;         //!< Local variable offset, -1 otherwise.
+    Symbol* next;       //!< Next symbol in the SymbolTable.
+};
+
+enum SymbolType
+{
+    ST_main     = (0x1 << 0),
+    ST_package  = (0x1 << 1),
+    ST_function = (0x1 << 2),
+    ST_using    = (0x1 << 3),
+    ST_noinherit= (0x1 << 4),
+};
+
+class SymbolTable
+{
+public:
+    enum { HASHSIZE = 256 };
+
+    SymbolTable(SymbolTable* parent,
+                u4 flags = 0); // Inherits parent's scope (currently false only for catch & finally blocks).
+    
+    ~SymbolTable();
+    
+    Symbol* Shadow(const char* name);
+    Symbol* Put(const char* name);
+    Symbol* Get(const char* name);
+
+    bool IsDefined(const char* name);
+    
+    bool VarsAreGlobal() const { return fPackage || fUsing; }
+    bool DefaultsToGlobal() const { return fMain || fPackage || fUsing; }
+    
+    bool GetWith() { return fUsing; }
+
+    bool IsWithBlock() const
     {
-        Symbol(const char* n, SymbolTable* tab, bool g, bool  w)
-                : name(n), 
-                table(tab), 
-                isGlobal(g), 
-                isWith(w), 
-                offset(-1), 
-                next(0)
-        {}
+        if (fUsing || fNoInherit)
+            return fUsing;
+        return parent ? parent->IsWithBlock() : false;
+    }
 
-        ~Symbol() {}
+    int GetDepth() const { return depth; }
 
-        const char*  name;
-        SymbolTable* table;
-        bool         isGlobal;
-        bool         isWith;
-        int          offset;
-        Symbol*      next;
-    };
+    int IncrementDepth();
 
-    class SymbolTable
-    {
-    public:
-        enum { HASHSIZE = 256 };
-
-        SymbolTable(SymbolTable* parent,
-                    bool global  = false, // Variables default to global scope. Default for top-level script scope, packages and classes.
-                    bool with    = false, // Variables default to slot_table. Default for with statements.
-                    bool func    = false, // Default for functions.
-                    bool inherit = true); // Inherits parent's scope (currently false only for catch & finally blocks).
-
-        ~SymbolTable();
-
-        Symbol* Shadow(const char* name);
-        Symbol* Put(const char* name);
-        Symbol* Get(const char* name);
-
-        bool IsDefined(const char* name);
-
-        bool DefaultsToGlobal() const { return defaultGlobal || isWith; }
-
-        bool GetWith() { return isWith; }
-
-        bool IsWithBlock() const
-        {
-            if (isFunction)
-                return false;
-            else if (isWith || !inherit)
-                return isWith;
-            return parent ? parent->IsWithBlock() : false;
-        }
-
-        int GetDepth() const { return depth; }
-
-        int IncrementDepth();
-
-        void Dump();
-        void Dump(pika::Engine*, class Table* tab);
-        
-        int          depth;
-        bool         defaultGlobal;
-        bool         isWith;
-        bool         isFunction;
-        bool         inherit;
-        SymbolTable* parent;
-        Symbol*      table[HASHSIZE];
-    };
+    void Dump();
+    void Dump(pika::Engine*, class Table* tab);
+private:
+    int depth;        
+    SymbolTable* parent;
+    Symbol* table[HASHSIZE];
+    u4 fMain:1;
+    u4 fPackage:1;
+    u4 fFunction:1;
+    u4 fUsing:1;
+    u4 fNoInherit:1;
+};
 }// pika
-
-
 
 #endif

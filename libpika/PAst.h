@@ -378,7 +378,7 @@ struct ParamDecl : Decl
 };
 
 // VarDecl /////////////////////////////////////////////////////////////////////////////////////////
-
+// global <id> [ = <expr> ]
 struct VarDecl : Decl
 {
     VarDecl(Id* name)
@@ -399,7 +399,7 @@ struct VarDecl : Decl
 };
 
 // LocalDecl ///////////////////////////////////////////////////////////////////////////////////////
-
+// local <id> [ = <expr> ]
 struct LocalDecl : VarDecl
 {
     LocalDecl(Id* name) : VarDecl(name), newLocal(false) {}
@@ -410,7 +410,7 @@ struct LocalDecl : VarDecl
 };
 
 // MemberDeclaration ///////////////////////////////////////////////////////////////////////////////
-
+// member <id> [ = <expr> ]
 struct MemberDeclaration : VarDecl
 {
     MemberDeclaration(Id* name) : VarDecl(name) {}
