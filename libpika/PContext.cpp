@@ -819,36 +819,6 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
         }
     }
     break; // TAG_real
-    /*
-    case TAG_string:
-    {
-        if (b.tag == TAG_integer && op == OP_mul)
-        {
-            pint_t i = b.val.integer;
-            String* str = a.val.str;
-            String* res = String::Multiply(str, i);
-            a.Set(res);
-            Pop();
-            return;
-        }
-    }
-    break;
-
-    case TAG_enumerator:
-    case TAG_property:            
-    case TAG_userdata:
-    case TAG_object:
-    {
-        Basic* obj = a.val.basic;
-        bool res = false;
-        if (SetupOverrideLhs(obj, ovr, &res))
-        {
-            ++numcalls;
-        }
-        if (res) return;
-    }
-    break;
-    default: break;*/
     }
     // Check for override from the lhs operand
     if (a.tag >= TAG_basic)
@@ -2297,8 +2267,7 @@ void Context::Setup(Context* ctx)
     //              < sp
     //
     //  The function we are using as an entry-point should be pushed onto the stack.
-    
-    //if (sp <= bsp + 1) {
+        
     if (sp <= bsp)
     {
         RaiseException("Context not initialized. Please pass the function to execute to the context's constructor.");
@@ -2309,9 +2278,7 @@ void Context::Setup(Context* ctx)
     {
         prev = ctx;
         
-        Value fn = PopTop();
-        //Value selfobj = PopTop();
-        
+        Value fn = PopTop();                
         u2 argc = ctx->GetArgCount();
         
         CheckStackSpace(argc + 3);
@@ -2325,8 +2292,7 @@ void Context::Setup(Context* ctx)
             WriteBarrier(v);
             Push(v);
         }
-        
-        //Push(selfobj); // push self
+                
         PushNull();
         Push(fn);      // re-push function
         
@@ -2341,12 +2307,6 @@ void Context::Setup(Context* ctx)
         {
             state = DEAD;
         }
-        /*else
-        {
-            // TODO: we have already called the function. we need to check before setup call.
-            prev->ReportRuntimeError(Exception::ERROR_runtime,
-                                     "cannot create a context coroutine from a native function.");
-        }*/
     }
     else
     {

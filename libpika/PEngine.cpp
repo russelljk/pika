@@ -721,10 +721,8 @@ String* Engine::ToString(Context* ctx, const Value& v)
     case TAG_def:    return AllocString("<def>");
     case TAG_string: return v.val.str ? v.val.str : emptyString;
     
-    // TODO: Fix the enumerator's and userdata's toString conversion.
-        
     case TAG_enumerator: return AllocString("enumerator");
-    case TAG_property:   return String::ConcatSpace(Property_String, v.val.property->Name());
+    case TAG_property:   return String::ConcatSep(Property_String, v.val.property->Name(), ':');
     
     case TAG_userdata:
     case TAG_object:
