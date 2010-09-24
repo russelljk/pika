@@ -29,18 +29,28 @@ class Context;
 class Function;
 class LiteralPool;
 
+/** The proto-type for a native function callable by Pika.
+  *
+  * @param [in] The Context we are called from.
+  * @param [in] The self object if a method.
+  *
+  * @result The number of arguments returned on the Context's stack. The Context
+  *         will adjust the count to match whats expected.
+  */
 typedef int (*Nativecode_t)(Context* ctx, Value& self);
 
-#define DEF_VAR_ARGS        (0x1)
-#define DEF_STRICT          (0x2)
-#define DEF_KEYWORD_ARGS    (0x4)
+enum DefFlags {
+    DEF_VAR_ARGS     = PIKA_BITFLAG(0), //!< Def takes a variable number of arguments.
+    DEF_STRICT       = PIKA_BITFLAG(1), //!< Def takes a strict number of arguments.
+    DEF_KEYWORD_ARGS = PIKA_BITFLAG(2)  //!< Create a keyword argument when called.
+};
 
 struct RegisterFunction
 {
     const char*  name;    //!< Name of the function.
     Nativecode_t code;    //!< Pointer to the function.
     u2           argc;    //!< Number of arguments expected.   
-    u4           flags;
+    u4           flags;   //!< Functions DefFlags, or'ed together.
 };
 
 struct RegisterProperty
