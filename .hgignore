@@ -5,5 +5,7 @@ build/**
 b2/**
 bx/**
 build_frame/**
+docs/**
+doxygen/**
 
 .DS_Store

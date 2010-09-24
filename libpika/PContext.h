@@ -409,7 +409,8 @@ public:
     /** Returns a local variable of the current scope.
       * @param idx  [in] Index of the local variable.
       * @result     Reference to the local variable.
-      * @warning
+      *
+      * @warning    No check is made to ensure the idx is a valid local variable.
       */
     INLINE Value& GetLocal(u4 idx) { return *(bsp + idx); }
     
@@ -425,8 +426,7 @@ public:
       * @param val  [in] The Value to set the local variable to.
       * @param idx  [in] Index of the local variable.
       *
-      * @note No check is made to ensure that bsp[idx] is the location of
-      *       a local variable.
+      * @note       No check is made to ensure the idx is a valid local variable.
       */
     INLINE void SetLocal(const Value& val, u4 idx) { *(bsp + idx) = val; }
     
@@ -441,7 +441,8 @@ public:
     /** Return a pointer to just beyond the top element of the stack. */
     
     INLINE Value* GetStackPtr() { return sp; }
-        
+    
+    /** Return the size of the entire stack all the way to the stack pointer. */
     INLINE size_t GetStackSize() const { return sp - stack; }
     
     /** Run the bytecode interpreter. Should be if SetupCall returns true. */

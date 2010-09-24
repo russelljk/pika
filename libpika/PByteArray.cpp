@@ -182,52 +182,63 @@ bool ByteArray::SetSlot(const Value& key, Value& value, u4 attr)
     return ThisSuper::SetSlot(key, value, attr);
 }
 
+String* ByteArray::ReadStringLength(pint_t len)
+{        
+    if (len == 0)
+    {
+        return engine->emptyString;
+    }
+    else if (len < 0)
+    {
+        RaiseException("Cannot read string of negative length.");
+    }
+    
+    if ((pos + (size_t)len) > (size_t)GetLength())
+    {
+        RaiseException("Attempt to read beyond length of a byte-array's buffer.");
+    }
+    String* res = engine->AllocString((const char*)buffer.GetAt(pos), len);
+    pos += len;
+    return res;
+}
+
+String* ByteArray::ReadStringAll()
+{
+    size_t end = buffer.GetSize();
+    size_t amt = end - pos;
+    ASSERT(end >= pos);
+    String* res = 0;
+    if (amt)
+    {
+        res = engine->AllocString((const char*)buffer.GetAt(pos), amt);
+        pos = end;
+    }
+    else
+    {
+        res = engine->emptyString;
+    }
+    return res;
+}
+
 String* ByteArray::ReadString(Context* ctx)
 {
     u2 argc = ctx->GetArgCount();
-    String* res = 0;
+    
     
     if (argc == 0)
     {
-        size_t end = buffer.GetSize();
-        size_t amt = end - pos;
-        ASSERT(end >= pos);
-        
-        if (amt)
-        {
-            res = engine->AllocString((const char*)buffer.GetAt(pos), amt);
-            pos = end;
-        }
-        else
-        {
-            res = engine->emptyString;
-        }
+        return ReadStringAll();
     }
     else if (argc == 1)
     {
         pint_t len = ctx->GetIntArg(0);
-        
-        if (len == 0)
-        {
-            return engine->emptyString;
-        }
-        else if (len < 0)
-        {
-            RaiseException("Cannot read string of negative length.");
-        }
-        
-        if ((pos + (size_t)len) > (size_t)GetLength())
-        {
-            RaiseException("Attempt to read beyond length of a byte-array's buffer.");
-        }
-        res = engine->AllocString((const char*)buffer.GetAt(pos), len);
-        pos += len;
+        return ReadStringLength(len);
     }
     else
     {
         ctx->WrongArgCount();
     }
-    return res;
+    return engine->emptyString;
 }
 
 bool ByteArray::ReadBoolean()
@@ -648,6 +659,9 @@ void ByteArray::StaticInitType(Engine* eng)
     .Method(&ByteArray::ReadBoolean,        "readBoolean")
     .Method(&ByteArray::ReadInteger,        "readInteger")
     .Method(&ByteArray::ReadReal,           "readReal")
+    .Method(&ByteArray::ReadByte,           "readByte")
+    .Method(&ByteArray::ReadWord,           "readWord")
+    .Method(&ByteArray::ReadDword,          "readDword")
     .RegisterMethod(ByteArray_nextBytes,    "nextBytes")
     .MethodVA(&ByteArray::ReadString,       "readString")
     .Method(&ByteArray::Slice,              OPSLICE_STR)

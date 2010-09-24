@@ -156,7 +156,7 @@ public:
     
     INLINE void AddToGC(GCObject* gcobj)      { gc->Add(gcobj); }
     INLINE void AddToGCNoRun(GCObject* gcobj) { gc->AddNoRun(gcobj); }
-    INLINE void AddToRoots(GCObject *gcobj)   { gc->AddRoot(gcobj); }
+    INLINE void AddToRoots(GCObject *gcobj)   { gc->AddAsRoot(gcobj); }
     
     INLINE void PauseGC()       { gc->Pause(); }
     INLINE void ResumeGC()      { gc->Resume(); }

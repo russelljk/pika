@@ -202,7 +202,7 @@ void Collector::ChangeContext(GCObject* c)
     activeCtx = c;
 }
 
-void Collector::AddRoot(GCObject* c)
+void Collector::AddAsRoot(GCObject* c)
 {
     if (!c) return;
     c->Unlink();
@@ -210,6 +210,22 @@ void Collector::AddRoot(GCObject* c)
     
     RootObject* robj = new RootObject(c);
     robj->InsertAfter(head);
+}
+
+bool Collector::RemoveAsRoot(GCObject* c)
+{
+    for (RootObject* curr = head->next; curr != head; curr = curr->next)
+    {
+        if (curr->GetObj() == c)
+        {
+            curr->Unlink();
+            delete curr;
+            c->Unlink();
+            c->InsertAfter(grays);
+            return true;
+        }
+    }
+    return false;
 }
 
 void Collector::Check()
@@ -398,7 +414,7 @@ bool Collector::IncrementalScan(bool b)
 void Collector::FreeAll()
 {
     // Delete all RootObjects and
-    // add their gc-object to the black list.
+    // add the GCObject to the black list.
     RootObject* robj = head->next;
     while (robj != head)
     {
@@ -412,20 +428,18 @@ void Collector::FreeAll()
         delete robj;
         robj = next;
     }
-    //
+    
     // Delete the head.
-    //
+    
     delete head;
     head = 0;
-    //
+    
     // Free each list.
-    //
     FreeList(whites);
     FreeList(blacks);
     FreeList(grays);
-    //
+    
     // Free each list marker.
-    //
     FreeObject(whites);
     FreeObject(blacks);
     FreeObject(grays);

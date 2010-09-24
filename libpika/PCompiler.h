@@ -10,6 +10,7 @@
 
 namespace pika {
 struct CompileState;
+typedef Buffer<code_t> CodeBuff;
 
 /** Compiles the intermediate representation (aka the Instr class) into bytecode.
   */
@@ -32,12 +33,12 @@ public:
 private:
     void Emit();
     void AddWord(code_t w);
-
-    int     max_stack;       //!< max space the operand stack needs.
-    Def*    def;             //!< def that this code belongs to.
-    Instr*  start;           //!< def that this code belongs to.
-    CompileState*  state;    //!< Compile state we are compiling from.
-    Buffer<code_t> bytecode; //!< Byte code result of the compilation.
+    
+    int max_stack;       //!< max space the operand stack needs.
+    Def* def;            //!< def that this code belongs to.
+    Instr* start;        //!< def that this code belongs to.
+    CompileState* state; //!< Compile state we are compiling from.
+    CodeBuff bytecode;   //!< Byte code result of the compilation.
 };
 
 void PrintBytecode(const u1* bc, size_t len);

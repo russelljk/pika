@@ -47,17 +47,28 @@ public:
     virtual pint_t GetLength();
     virtual void   SetLength(ssize_t);
     
-    virtual void    WriteString(String* s, bool resize);    
-    virtual void    WriteReal(preal_t);
-    virtual void    WriteBoolean(bool);
-    virtual void    Write(Value);
-    virtual void    WriteInteger(pint_t);
-    
-    virtual String* ReadString(Context*);    
+    virtual String* ReadString(Context*);
+    virtual String* ReadStringLength(pint_t len);
+    virtual String* ReadStringAll();
     virtual preal_t ReadReal();    
     virtual bool    ReadBoolean();
-    virtual pint_t  ReadInteger();
+    virtual pint_t  ReadInteger();        
+    virtual u1      ReadByte();
+    virtual u2      ReadWord();
+    virtual u4      ReadDword();
+    virtual u8      ReadQword();
     
+    virtual void  WriteString(String* s, bool resize);    
+    virtual void  WriteReal(preal_t);
+    virtual void  WriteBoolean(bool);
+    virtual void  Write(Value);
+    virtual void  WriteInteger(pint_t);        
+    virtual void  WriteByte(u1);
+    virtual void  WriteWord(u2);
+    virtual void  WriteDword(u4);
+    virtual void  WriteQword(u8);
+    virtual void  WriteByteAt(u1 u, size_t at);
+        
     virtual void    Init(Context*);
     virtual Object* Slice(pint_t, pint_t);
 
@@ -77,17 +88,6 @@ public:
     static ByteArray* Create(Engine*, Type*, u1*, size_t);
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
-        
-    virtual u1  ReadByte();
-    virtual u2  ReadWord();
-    virtual u4  ReadDword();
-    virtual u8  ReadQword();
-    
-    virtual void  WriteByte(u1);
-    virtual void  WriteWord(u2);
-    virtual void  WriteDword(u4);
-    virtual void  WriteQword(u8);
-    virtual void  WriteByteAt(u1 u, size_t at);
 protected:
     virtual void  InitializeWith(u1*, size_t);
     virtual void  SmartResize(size_t sizeneeded);

@@ -36,7 +36,7 @@ public:
         UserFlagsStart  = Root,
     };
     
-    INLINE GCObject() : gcprev(0), gcnext(0), gcextra(0) { }
+    INLINE   GCObject() : gcprev(0), gcnext(0), gcextra(0) { }
     virtual ~GCObject() {}
     
     virtual void MarkRefs(Collector*);
@@ -76,52 +76,55 @@ protected:
 };
 
 /** A tri-color, incremental, mark and sweep garbage collector.
-  * The collector is proactive, meaning it will invoke itself as objects are added without the need
-  * to explicitly call to Check.
-  * 
+  * The collector is proactive, meaning it will invoke itself as objects are 
+  * added without the need to explicitly call to Check.
+  * <pre>
   * The collection phases is divided into three major parts.
   * 
   * 1. move-roots stage:
-  *         Currently the only atomic operation. The black-list and gray-list will be empty. The
-  *         white-list will contain all objects that the collector controls. All root objects are
-  *         then moved into the gray list in preparation of the scanning phase.
+  *         Currently the only atomic operation. The black-list and gray-list 
+  *         will be empty. The white-list will contain all objects that the 
+  *         collector controls. All root objects are then moved into the gray
+  *         list in preparation of the scanning phase.
   * 2. scan-grays stage:
-  *         All objects in the gray list are marked and moved into the black-list. Any white object
-  *         that can be reached from a gray object is moved to the end of the gray list so that it
-  *         can be scanned. When there are no more objects in the gray-list we move to the
-  *         sweep-whites stage.
+  *         All objects in the gray list are marked and moved into the black-list. 
+  *         Any white object that can be reached from a gray object is moved to 
+  *         the end of the gray list so that it can be scanned. When there are 
+  *         no more objects in the gray-list we move to the sweep-whites stage.
   * 3. sweep-whites stage:
-  *         Ideally at this point all whites would be considered garbage an could be freed. But for
-  *         performance reasons the active-context does not perform a write barrier as
-  *         objects are pushed onto its stack or functions are called (etc.) Therefore before each
-  *         sweep iteration we need to remark the active-context to ensure that any recently created
-  *         objects that are still visible from the roots do not get destroyed. Once every white-list
-  *         object is destroyed the collector resets, moves all black-list objects into the white-list and
-  *         starts over with the move-roots stage.
-  * 
-  * @note   Root objects are destroyed liked ordinary objects; The only difference is that there is no need
-  *         to mark a root object.
-  */ 
+  *         Ideally at this point all whites would be considered garbage an could 
+  *         be freed. But for performance reasons the active-context does not 
+  *         perform a write barrier as objects are pushed onto its stack or 
+  *         functions are called (etc.) Therefore before each sweep iteration we
+  *         need to remark the active-context to ensure that any recently created
+  *         objects that are still visible from the roots do not get destroyed. 
+  *         Once every white-list object is destroyed the collector resets, moves
+  *         all black-list objects into the white-list and starts over with the 
+  *         move-roots stage.
+  * </pre>
+  * @note   Root objects are destroyed liked ordinary objects; The only difference 
+  *         is that there is no need to mark a root object.
+  */
 class PIKA_API Collector 
 {
 public:
     enum 
     {
-        // These values can be adjusted as needed.
-
-        // Number of allocation between gc runs.
-        // A value of 1 means the it runs on each allocation (don't do that!)
-        // Higher values mean more garbage is accumulated. How that
-        // affects performance depends on the script the objects in use.
-
+        // These values can be adjusted as needed, but only at compile time.
+        
+        /** Number of allocation between gc runs.
+          * A value of 1 means the it runs on each allocation (don't do that!)
+          * Higher values mean more garbage is accumulated. How that
+          * affects performance depends on the script the objects in use.
+          */
         GC_NUM_ALLOCS = 256,
-
-        // Number of iterations to perform per run.
-        // Setting this too low (< 25-50 or so) can affect performance
-        // more than setting it too high because of the overhead involved
-        // (particularly in the sweep stage where the active context is marked
-        // before each run).
-
+        
+        /** Number of iterations to perform per run.
+          * Setting this too low (< 25-50 or so) can affect performance
+          * more than setting it too high because of the overhead involved
+          * (particularly in the sweep stage where the active context is marked
+          * before each run).
+          */
         GC_NUM_ITERATIONS = 2048,
     };
     
@@ -137,9 +140,10 @@ public:
     ~Collector();
     
     /** Pause the collector.
-      * Will prevent the collector from running, and should be used whenever you create multiple
-      * objects at the same time without 'rooting' them. Since the creation of the second object
-      * might cause the first to be collected before any references to it are established.
+      * Will prevent the collector from running, and should be used whenever you 
+      * create multiple objects at the same time without 'rooting' them. Since 
+      * the creation of the second object might cause the first to be collected 
+      * before any references to it are established.
       */
     void Pause();
     
@@ -165,13 +169,11 @@ public:
     void Check();
     
     /** Add a root object to this collector. */
-    void AddRoot(GCObject*);
-    
-    /*
-    TODO: Remove root object method.
-    bool RemoveRoot(GCObject*) {...}    
-    */
-    
+    void AddAsRoot(GCObject*);
+        
+    /** Remove a root object. The Object will be reinserted into the GC in the gray list. */
+    bool RemoveAsRoot(GCObject*);
+        
     /** Add an object to this collector.
       * @note May cause the collector run.
       */
@@ -195,14 +197,15 @@ public:
     /** Move the passed argument to the gray list no matter what list its in. */    
     void ForceToGray(GCObject*);
     
-    /** Call this method when adding a new reference (new_ref) to and existing object (old_ref).
-      * This is necessary in order to maintain the invariant that no black object points to
-      * any white objects. If you do not perform a write barrier new_ref might be freed while old_ref
-      * still points to it.
+    /** Call this method when adding a new reference (new_ref) to and existing 
+      * object (old_ref). This is necessary in order to maintain the invariant 
+      * that no black object points to any white objects. If you do not perform 
+      * a write barrier new_ref might be freed while old_ref still points to it.
       *   
-      * @note   Is is only necessary to call WriteBarrier after the object has been added to the collector.
-      *         When constructing a new object you should set all its initial references before you call
-      *         Collector::Add, that way do not have to call WriteBarrier at all.
+      * @note   Is is only necessary to call WriteBarrier after an object has been 
+      *         added to the collector. When constructing a new object you should 
+      *         set all its initial references before you call Collector::Add, 
+      *         that way do not have to call WriteBarrier at all.
       *
       * @param old_ref  [in] The object the reference will be added to.
       * @param new_ref  [in] The reference being added.
@@ -251,7 +254,8 @@ private:
       * We have to do this since a write-barrier is not performed for values pushed onto 
       * the stack or stored in the activation record.
       */
-    GCObject* activeCtx;    
+    GCObject* activeCtx;
+    
     /*  
         Circular list of all GCObjects we are resposible for.
         
@@ -260,11 +264,11 @@ private:
         :::::::::::::::::::::::::::::::::::::::::::::::::::::
         
                              black 
-                     .----> ^    v
+                     .----> /    \
              sweep--/      /      \
                    /      ^        v
                   /      /          \
-                  '---> ^            v
+                  '---> /            \
                       white <--<--< gray 
                             ^     ^
                             |     |
@@ -273,26 +277,28 @@ private:
                              scan 
         
         Scan object moves from gray list during the scan phase.
-        Sweep object moves through the white list freeing each un-reachable object during the sweep phase.
+        Sweep object moves through the white list freeing each 
+        un-reachable object during the sweep phase.
         
         :::::::::::::::::::::::::::::::::::::::::::::::::::::
         ::                 Root objects                    ::
         :::::::::::::::::::::::::::::::::::::::::::::::::::::
         
-                           .-head--->---.
-                           |            |
-                           ^            v <<:::: All root objects are contained inside a circular list.
-                           |            |
-                           '-----<------'
+                           .-->--head-->--.
+                           |              |
+                           ^              v
+                           |              | <<<< All root objects are contained inside a circular list.
+                           ^              v 
+                           |              |
+                           '---<------<---'
     
     */
     GCObject* blacks; //!< All objects seen and marked.
     GCObject* grays;  //!< All objects seen but not marked.
     GCObject* whites; //!< All objects unmarked and unseen; Potential garbage.
     GCObject* scan;   //!< Points to the next object to be marked. Can point anywhere between grays and whites.
-    GCObject* sweep;  //!< Used during sweep phase, point to the next object to be freed.
-    
-    RootObject* head; // Circular list of all root objects.
+    GCObject* sweep;  //!< Used during sweep phase, point to the next object to be freed.    
+    RootObject* head; //!< Circular list of all root objects.
 };
 
 INLINE void MarkValue(Collector* c, Value& v)
