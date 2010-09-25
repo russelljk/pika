@@ -55,8 +55,8 @@ void Pika_FunctionResourceCalculation(
     
     if (args)
     {
-        args->CalculateDefaultResources(st, cs);
-        args->CalculateResources((*symtab), cs);
+        args->CalculateDefaultResources(st);
+        args->CalculateResources((*symtab));
         (*def)->numArgs = cs.localCount;
         if (cs.localCount > PIKA_MAX_ARGS)
         {
@@ -70,7 +70,7 @@ void Pika_FunctionResourceCalculation(
     
     if (body)
     {
-        body->CalculateResources((*symtab), cs);
+        body->CalculateResources((*symtab));
     }
     (*def)->numLocals = cs.localCount;
     
@@ -325,36 +325,36 @@ Id::Id(char *name): name(name), next(0) {}
 
 Id::~Id() { Pika_free(name); }
 
-void Program::CalculateResources(SymbolTable* st, CompileState& cs)
+void Program::CalculateResources(SymbolTable* st)
 {
     symtab = 0;
     PIKA_NEW(SymbolTable, symtab, (st, ST_main));
     
-    cs.literals = LiteralPool::Create(cs.engine);
+    state->literals = LiteralPool::Create(state->engine);
     
-    def = Def::Create(cs.engine);
+    def = Def::Create(state->engine);
     
     def->numLocals = 0;
     def->mustClose = false;
-    def->name = cs.engine->AllocString("__main");
-    def->literals = cs.literals;
+    def->name = state->engine->AllocString("__main");
+    def->literals = state->literals;
     
-    index = cs.AddConstant(def);
-    cs.currDef = def;
+    index = state->AddConstant(def);
+    state->currDef = def;
     
-    stmts->CalculateResources(symtab, cs);
+    stmts->CalculateResources(symtab);
     
-    def->numLocals = cs.localCount; // even though a program defaults to global it might still have lexEnv!
+    def->numLocals = state->localCount; // even though a program defaults to global it might still have lexEnv!
 }
 
-void FunctionProg::CalculateResources(SymbolTable* st, CompileState& cs)
+void FunctionProg::CalculateResources(SymbolTable* st)
 {
     symtab = 0;
     PIKA_NEW(SymbolTable, symtab, (st, ST_function));
     
-    cs.literals = LiteralPool::Create(cs.engine);
+    state->literals = LiteralPool::Create(state->engine);
     
-    Pika_FunctionResourceCalculation(line, st, cs,
+    Pika_FunctionResourceCalculation(line, st, *state,
                                       args, stmts,
                                       &index,
                                       &def,
@@ -372,10 +372,10 @@ const char* NamedTarget::GetIdentifierName()
     return name->GetName();
 }
 
-void NamedTarget::CalculateResources(SymbolTable* st, CompileState& cs)
+void NamedTarget::CalculateResources(SymbolTable* st)
 {
-    CreateSymbol(st, cs);
-    name->CalculateResources(st, cs);
+    CreateSymbol(st);
+    name->CalculateResources(st);
 }
 
 FunctionDecl::FunctionDecl(NameNode* name, ParamDecl* args, Stmt* body,
@@ -404,12 +404,12 @@ FunctionDecl::FunctionDecl(NameNode* name, ParamDecl* args, Stmt* body,
 
 const char* FunctionDecl::GetIdentifierName() { return name->GetName(); }
 
-void FunctionDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void FunctionDecl::CalculateResources(SymbolTable* st)
 {
-    CreateSymbol(st, cs);
-    name->CalculateResources(st, cs);
+    CreateSymbol(st);
+    name->CalculateResources(st);
     
-    Pika_FunctionResourceCalculation(line, st, cs,
+    Pika_FunctionResourceCalculation(line, st, *state,
                                       args, body,
                                       &index,
                                       &def,
@@ -431,13 +431,13 @@ ParamDecl::ParamDecl(Id *name, bool rest, bool kw, Expr* val)
         has_kwargs(kw),
         next(0) {}
         
-void ParamDecl::CalculateDefaultResources(SymbolTable* st, CompileState& cs)
+void ParamDecl::CalculateDefaultResources(SymbolTable* st)
 {
-    if (val) val->CalculateResources(st, cs);
-    if (next) next->CalculateDefaultResources(st, cs);
+    if (val) val->CalculateResources(st);
+    if (next) next->CalculateDefaultResources(st);
 }
 
-void ParamDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void ParamDecl::CalculateResources(SymbolTable* st)
 {
     if (st->IsDefined(name->name))
     {
@@ -448,11 +448,11 @@ void ParamDecl::CalculateResources(SymbolTable* st, CompileState& cs)
         symbol = st->Put(name->name);
     }
     
-    symbol->offset = cs.NextLocalOffset(name->name, has_rest ? LVT_rest : (has_kwargs ? LVT_keyword : LVT_parameter));
+    symbol->offset = state->NextLocalOffset(name->name, has_rest ? LVT_rest : (has_kwargs ? LVT_keyword : LVT_parameter));
     
     if (next)
     {
-        next->CalculateResources(st, cs);
+        next->CalculateResources(st);
     }
 }
 
@@ -506,15 +506,15 @@ bool ParamDecl::HasKeywordArgs()
     return has_kwargs;
 }
 
-void KeywordExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void KeywordExpr::CalculateResources(SymbolTable* st)
 {
     if (!name || !value)
         state->SyntaxException(Exception::ERROR_syntax, line, "malformed keyword argument.");
-    name->CalculateResources(st, cs);
-    value->CalculateResources(st, cs);
+    name->CalculateResources(st);
+    value->CalculateResources(st);
 }
 
-void LocalDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void LocalDecl::CalculateResources(SymbolTable* st)
 {
     if (st->IsDefined(name->name))
     {
@@ -539,14 +539,14 @@ void LocalDecl::CalculateResources(SymbolTable* st, CompileState& cs)
     
     if (newLocal)
     {
-        symbol->offset = cs.NextLocalOffset(name->name);
+        symbol->offset = state->NextLocalOffset(name->name);
     }
     
     if (next)
-        next->CalculateResources(st, cs);
+        next->CalculateResources(st);
 }
 
-void MemberDeclaration::CalculateResources(SymbolTable* st, CompileState& cs)
+void MemberDeclaration::CalculateResources(SymbolTable* st)
 {
     if (st->IsDefined(name->name))
     {
@@ -560,13 +560,13 @@ void MemberDeclaration::CalculateResources(SymbolTable* st, CompileState& cs)
     symbol->isGlobal = true;
     symbol->isWith   = true;
     symbol->offset = -1;
-    nameIndex = cs.AddConstant(name->name);
+    nameIndex = state->AddConstant(name->name);
     
     if (next)
-        next->CalculateResources(st, cs);
+        next->CalculateResources(st);
 }
 
-void VarDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void VarDecl::CalculateResources(SymbolTable* st)
 {
     if (st->IsDefined(name->name))
     {
@@ -580,13 +580,13 @@ void VarDecl::CalculateResources(SymbolTable* st, CompileState& cs)
     symbol->isGlobal = true;
     symbol->isWith   = false;
     symbol->offset = -1;
-    nameIndex = cs.AddConstant(name->name);
+    nameIndex = state->AddConstant(name->name);
     
     if (next)
-        next->CalculateResources(st, cs);
+        next->CalculateResources(st);
 }
 
-void BreakStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void BreakStmt::DoStmtResources(SymbolTable* st)
 {
     if (id)
     {
@@ -599,7 +599,7 @@ void BreakStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void ContinueStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void ContinueStmt::DoStmtResources(SymbolTable* st)
 {
     if (id)
     {
@@ -613,7 +613,7 @@ void ContinueStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void LabeledStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void LabeledStmt::DoStmtResources(SymbolTable* st)
 {
     ASSERT(id && stmt);
     
@@ -639,11 +639,11 @@ void LabeledStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
             state->SyntaxWarning(WARN_mild, line, "label \"%s\" has no meaning in this context.", id->name);
         }
 #endif
-        stmt->CalculateResources(st, cs);
+        stmt->CalculateResources(st);
     }
 }
 
-void ExprStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void ExprStmt::DoStmtResources(SymbolTable* st)
 {
     ExprList* curr = exprList;
     
@@ -664,7 +664,7 @@ void ExprStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
                 case Expr::EXPR_postdecr:
                 case Expr::EXPR_call:
                 case Expr::EXPR_new:
-                    expr->CalculateResources(st, cs);
+                    expr->CalculateResources(st);
                     break;
                     
                 default:
@@ -675,21 +675,21 @@ void ExprStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
         }
         else
         {
-            expr->CalculateResources(st, cs);
+            expr->CalculateResources(st);
         }
         curr = curr->next;
     }
 }
 
-void RetStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void RetStmt::DoStmtResources(SymbolTable* st)
 {
     count = 0;
     ExprList* curr = exprs;
-    isInTry = cs.trystate.inTry;
+    isInTry = state->trystate.inTry;
     while (curr)
     {
         ++count;
-        curr->expr->CalculateResources(st, cs);
+        curr->expr->CalculateResources(st);
         curr = curr->next;
         if (count >= PIKA_MAX_RETC)
         {
@@ -700,14 +700,14 @@ void RetStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void YieldStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void YieldStmt::DoStmtResources(SymbolTable* st)
 {
     count = 0;
     ExprList* curr = exprs;
     while (curr)
     {
         ++count;
-        curr->expr->CalculateResources(st, cs);
+        curr->expr->CalculateResources(st);
         curr = curr->next;
         if (count >= PIKA_MAX_RETC)
         {
@@ -718,17 +718,17 @@ void YieldStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void LoopStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void LoopStmt::DoStmtResources(SymbolTable* st)
 {
     if (body)
     {
-        body->CalculateResources(st, cs);
+        body->CalculateResources(st);
     }
 }
 
 ForToStmt::~ForToStmt() { Pika_delete(symtab); }
 
-void ForToStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void ForToStmt::DoStmtResources(SymbolTable* st)
 {
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
     
@@ -736,10 +736,10 @@ void ForToStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     // (for 'to' and 'by'.)
     symbol = state->CreateLocalPlus(symtab, id->name, 2);
     
-    from->CalculateResources(symtab, cs);
-    to  ->CalculateResources(symtab, cs);
-    step->CalculateResources(symtab, cs);
-    body->CalculateResources(symtab, cs);
+    from->CalculateResources(symtab);
+    to  ->CalculateResources(symtab);
+    step->CalculateResources(symtab);
+    body->CalculateResources(symtab);
 }
 
 ForeachStmt::~ForeachStmt()
@@ -747,7 +747,7 @@ ForeachStmt::~ForeachStmt()
     Pika_delete(symtab);
 }
 
-void ForeachStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void ForeachStmt::DoStmtResources(SymbolTable* st)
 {
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
     PIKA_NEWNODE(LocalDecl, iterVar, (id));
@@ -756,36 +756,36 @@ void ForeachStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     
     
     idexpr->line = iterVar->name->line;
-    enum_offset = cs.NextLocalOffset("");
+    enum_offset = state->NextLocalOffset("");
     
-    type_expr->CalculateResources(symtab, cs);
-    iterVar->CalculateResources(symtab, cs);
-    idexpr->CalculateResources(symtab, cs);
-    in->CalculateResources(symtab, cs);
-    body->CalculateResources(symtab, cs);
+    type_expr->CalculateResources(symtab);
+    iterVar->CalculateResources(symtab);
+    idexpr->CalculateResources(symtab);
+    in->CalculateResources(symtab);
+    body->CalculateResources(symtab);
 }
 
-void CondLoopStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void CondLoopStmt::DoStmtResources(SymbolTable* st)
 {
-    if (cond) cond->CalculateResources(st, cs);
-    if (body) body->CalculateResources(st, cs);
+    if (cond) cond->CalculateResources(st);
+    if (body) body->CalculateResources(st);
 }
 
-void IfStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void IfStmt::DoStmtResources(SymbolTable* st)
 {
-    if (cond)       cond     ->CalculateResources(st, cs);
-    if (then_part)  then_part->CalculateResources(st, cs);
-    if (next)       next     ->CalculateResources(st, cs);
+    if (cond)       cond     ->CalculateResources(st);
+    if (then_part)  then_part->CalculateResources(st);
+    if (next)       next     ->CalculateResources(st);
 }
 
-void BlockStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void BlockStmt::DoStmtResources(SymbolTable* st)
 {
     symtab = 0;
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
     
     if (stmts)
     {
-        stmts->CalculateResources(symtab, cs);
+        stmts->CalculateResources(symtab);
     }
 }
 
@@ -793,22 +793,22 @@ BlockStmt::~BlockStmt() { Pika_delete(symtab); }
 
 DeclStmt::DeclStmt(Decl *decl): Stmt(Stmt::STMT_decl), decl(decl) {}
 
-void DeclStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void DeclStmt::DoStmtResources(SymbolTable* st)
 {
     if (decl)
     {
-        decl->CalculateResources(st, cs);
+        decl->CalculateResources(st);
     }
 }
 
 ParenExpr::~ParenExpr() {}
     
-void ParenExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void ParenExpr::CalculateResources(SymbolTable* st)
 {
-    expr->CalculateResources(st,cs);
+    expr->CalculateResources(st);
 }
 
-void CallExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void CallExpr::CalculateResources(SymbolTable* st)
 {
     if (left)
     {
@@ -821,14 +821,14 @@ void CallExpr::CalculateResources(SymbolTable* st, CompileState& cs)
                 redirectedcall = true;
             }
         }
-        left->CalculateResources(st, cs);
+        left->CalculateResources(st);
     }
     if (args) {       
         ExprList* el = args;
         while (el)
         {
             Expr* arg_expr = el->expr;
-            arg_expr->CalculateResources(st, cs);
+            arg_expr->CalculateResources(st);
             
             if (arg_expr->kind == EXPR_kwarg) {
                 if (++kwargc > PIKA_MAX_KWARGS)
@@ -843,13 +843,13 @@ void CallExpr::CalculateResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void BinaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void BinaryExpr::CalculateResources(SymbolTable* st)
 {
-    left ->CalculateResources(st, cs);
-    right->CalculateResources(st, cs);
+    left ->CalculateResources(st);
+    right->CalculateResources(st);
 }
 
-void IdExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void IdExpr::CalculateResources(SymbolTable* st)
 {
     symbol = st->Get(id->name);
     
@@ -868,7 +868,7 @@ void IdExpr::CalculateResources(SymbolTable* st, CompileState& cs)
     
         int depth = st->GetDepth() - symbol->table->GetDepth();
         depthindex = depth;
-        Def* currDef = cs.currDef;
+        Def* currDef = state->currDef;
         
         while (depth-- && (currDef = currDef->parent)); // XXX: If we ever need the entire chain to be marked this is the place to do it.
         
@@ -886,52 +886,52 @@ void IdExpr::CalculateResources(SymbolTable* st, CompileState& cs)
     }
     else if (IsGlobal())
     {
-        index = cs.AddConstant(id->name);
+        index = state->AddConstant(id->name);
     }
 }
 
-void MemberExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void MemberExpr::CalculateResources(SymbolTable* st)
 {
-    index = cs.AddConstant(id->name);
+    index = state->AddConstant(id->name);
 }
 
 StringExpr::~StringExpr() { Pika_free(string); }
 
-void StringExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void StringExpr::CalculateResources(SymbolTable* st)
 {
     //if (!length)
     //    length = strlen(string);
     
-    index = cs.AddConstant(string, length);
+    index = state->AddConstant(string, length);
 }
 
-void IntegerExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void IntegerExpr::CalculateResources(SymbolTable* st)
 {
-    index = cs.AddConstant(integer);
+    index = state->AddConstant(integer);
 }
 
-void RealExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void RealExpr::CalculateResources(SymbolTable* st)
 {
-    index = cs.AddConstant(real);
+    index = state->AddConstant(real);
 }
 
 DotExpr::DotExpr(Expr *l, Expr *r) : BinaryExpr(Expr::EXPR_dot, l, r) {}
 
-void DotExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void DotExpr::CalculateResources(SymbolTable* st)
 {
-    BinaryExpr::CalculateResources(st, cs);
+    BinaryExpr::CalculateResources(st);
 }
 
-void IndexExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void IndexExpr::CalculateResources(SymbolTable* st)
 {
-    DotExpr::CalculateResources(st, cs);
+    DotExpr::CalculateResources(st);
 }
 
 FunExpr::~FunExpr() { Pika_delete(symtab); }
 
-void FunExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void FunExpr::CalculateResources(SymbolTable* st)
 {
-    Pika_FunctionResourceCalculation(line, st, cs, args, body, &index, &def, &symtab, (name) ? name->name : 0);
+    Pika_FunctionResourceCalculation(line, st, *state, args, body, &index, &def, &symtab, (name) ? name->name : 0);
     if (args) {
         def->isVarArg = args->HasVarArgs();
         def->isKeyword = args->HasKeywordArgs();
@@ -941,17 +941,17 @@ void FunExpr::CalculateResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void PropExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void PropExpr::CalculateResources(SymbolTable* st)
 {
-    if (nameexpr) nameexpr->CalculateResources(st, cs);
-    if (getter)   getter  ->CalculateResources(st, cs);
-    if (setter)   setter  ->CalculateResources(st, cs);
+    if (nameexpr) nameexpr->CalculateResources(st);
+    if (getter)   getter  ->CalculateResources(st);
+    if (setter)   setter  ->CalculateResources(st);
 }
 
-void ExprList::CalculateResources(SymbolTable* st, CompileState& cs)
+void ExprList::CalculateResources(SymbolTable* st)
 {
-    if (expr) expr->CalculateResources(st, cs);
-    if (next) next->CalculateResources(st, cs);
+    if (expr) expr->CalculateResources(st);
+    if (next) next->CalculateResources(st);
 }
 
 size_t ExprList::Count()
@@ -966,11 +966,11 @@ size_t ExprList::Count()
     return amt;
 }
 
-void UnaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void UnaryExpr::CalculateResources(SymbolTable* st)
 {
     if (expr)
     {
-        expr->CalculateResources(st, cs);
+        expr->CalculateResources(st);
         
         if (kind == EXPR_preincr || kind == EXPR_postincr ||
             kind == EXPR_predecr || kind == EXPR_postdecr)
@@ -994,7 +994,7 @@ void UnaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void DictionaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void DictionaryExpr::CalculateResources(SymbolTable* st)
 {
     FieldList* curr = fields;
     
@@ -1013,7 +1013,7 @@ void DictionaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
         */
         if (curr->name)
         {
-            curr->name->CalculateResources(st, cs);
+            curr->name->CalculateResources(st);
             if (curr->name->kind == Expr::EXPR_string)
             {
                 StringExpr* str = (StringExpr*)curr->name;
@@ -1025,19 +1025,19 @@ void DictionaryExpr::CalculateResources(SymbolTable* st, CompileState& cs)
         }
         if (curr->value)
         {
-            curr->value->CalculateResources(st, cs);
+            curr->value->CalculateResources(st);
         }
         
         curr = curr->next;
     }
 }
 
-void LoadExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void LoadExpr::CalculateResources(SymbolTable* st)
 {
 #if !defined(PIKA_LOCALS_CANNOT_CLOSE)
     if (loadkind == LK_locals)
     {
-        for (Def* curr = cs.currDef->parent; curr != 0; curr = curr->parent)
+        for (Def* curr = state->currDef->parent; curr != 0; curr = curr->parent)
         {
            curr->mustClose = true;
         }
@@ -1045,27 +1045,27 @@ void LoadExpr::CalculateResources(SymbolTable* st, CompileState& cs)
 #endif
 }
 
-void ArrayExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void ArrayExpr::CalculateResources(SymbolTable* st)
 {
-    if (elements) elements->CalculateResources(st, cs);
+    if (elements) elements->CalculateResources(st);
 }
 
-void CondExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void CondExpr::CalculateResources(SymbolTable* st)
 {
-    if (cond)  cond ->CalculateResources(st, cs);
-    if (exprA) exprA->CalculateResources(st, cs);
-    if (exprB) exprB->CalculateResources(st, cs);
+    if (cond)  cond ->CalculateResources(st);
+    if (exprA) exprA->CalculateResources(st);
+    if (exprB) exprB->CalculateResources(st);
 }
 
-void NullSelectExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void NullSelectExpr::CalculateResources(SymbolTable* st)
 {
-    if (exprA) exprA->CalculateResources(st, cs);
-    if (exprB) exprB->CalculateResources(st, cs);
+    if (exprA) exprA->CalculateResources(st);
+    if (exprB) exprB->CalculateResources(st);
 }
 
 SliceExpr::~SliceExpr() {}
 
-void SliceExpr::CalculateResources(SymbolTable* st, CompileState& cs)
+void SliceExpr::CalculateResources(SymbolTable* st)
 {
     Id* id = 0;
     char *slice = Pika_strdup(OPSLICE_STR);
@@ -1076,11 +1076,11 @@ void SliceExpr::CalculateResources(SymbolTable* st, CompileState& cs)
     
     slicefun->line = id->line = expr->line;
     
-    slicefun->CalculateResources(st, cs);
+    slicefun->CalculateResources(st);
     
-    if (expr) expr->CalculateResources(st, cs);
-    if (from) from->CalculateResources(st, cs);
-    if (to)   to  ->CalculateResources(st, cs);
+    if (expr) expr->CalculateResources(st);
+    if (from) from->CalculateResources(st);
+    if (to)   to  ->CalculateResources(st);
 }
 
 CatchIsBlock::~CatchIsBlock()
@@ -1088,25 +1088,25 @@ CatchIsBlock::~CatchIsBlock()
     Pika_delete(symtab);
 }
 
-void CatchIsBlock::CalculateResources(SymbolTable* st, CompileState& cs)
+void CatchIsBlock::CalculateResources(SymbolTable* st)
 {
-    CompileState::TryState trystate = cs.trystate;
+    CompileState::TryState trystate = state->trystate;
     
     PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit));
     
     symbol = symtab->Put(catchvar->name);
-    symbol->offset = cs.NextLocalOffset(catchvar->name);
+    symbol->offset = state->NextLocalOffset(catchvar->name);
     
-    cs.trystate = trystate;
-    cs.trystate.inCatch = true;
-    cs.trystate.catchVarOffset = symbol->offset;
+    state->trystate = trystate;
+    state->trystate.inCatch = true;
+    state->trystate.catchVarOffset = symbol->offset;
     
-    isexpr->CalculateResources(symtab, cs);
-    block->CalculateResources(symtab, cs);
+    isexpr->CalculateResources(symtab);
+    block->CalculateResources(symtab);
     
-    cs.trystate = trystate;
+    state->trystate = trystate;
     
-    if (next) next->CalculateResources(st, cs);
+    if (next) next->CalculateResources(st);
 }
 
 TryStmt::~TryStmt()
@@ -1115,52 +1115,52 @@ TryStmt::~TryStmt()
     Pika_delete(catchTab);
 }
 
-void TryStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void TryStmt::DoStmtResources(SymbolTable* st)
 {
-    CompileState::TryState trystate = cs.trystate;
+    CompileState::TryState trystate = state->trystate;
     
     PIKA_NEW(SymbolTable, tryTab, (st, st->IsWithBlock() ? ST_using : 0));
     
-    cs.trystate.inTry = true;
+    state->trystate.inTry = true;
     
-    tryBlock->CalculateResources(tryTab, cs);
+    tryBlock->CalculateResources(tryTab);
     
-    cs.trystate = trystate;
+    state->trystate = trystate;
     
     if (!catchis && !catchBlock)
     {
         state->SyntaxException(Exception::ERROR_syntax, line, "Attempt to create a try block without a catch block.");
     }
-    if (catchis) catchis->CalculateResources(st, cs);
+    if (catchis) catchis->CalculateResources(st);
     
     if (catchBlock)
     {
         PIKA_NEW(SymbolTable, catchTab, (st, ST_noinherit));
         symbol = catchTab->Put(caughtVar->name);
-        symbol->offset = cs.NextLocalOffset(caughtVar->name);
+        symbol->offset = state->NextLocalOffset(caughtVar->name);
         
-        cs.trystate = trystate;
-        cs.trystate.inCatch = true;
-        cs.trystate.catchVarOffset = symbol->offset;
+        state->trystate = trystate;
+        state->trystate.inCatch = true;
+        state->trystate.catchVarOffset = symbol->offset;
         
-        catchBlock->CalculateResources(catchTab, cs);
+        catchBlock->CalculateResources(catchTab);
     }
-    cs.trystate = trystate;
+    state->trystate = trystate;
     if (elseblock)
     {
-        elseblock->CalculateResources(st, cs);
+        elseblock->CalculateResources(st);
     }
 }
 
-void RaiseStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void RaiseStmt::DoStmtResources(SymbolTable* st)
 {
     if (expr)
     {
-        expr->CalculateResources(st, cs);
+        expr->CalculateResources(st);
     }
-    else if (cs.trystate.inCatch)
+    else if (state->trystate.inCatch)
     {
-        reraiseOffset = cs.trystate.catchVarOffset;
+        reraiseOffset = state->trystate.catchVarOffset;
     }
     else
     {
@@ -1168,7 +1168,7 @@ void RaiseStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
     }
 }
 
-void DeclarationTarget::CreateSymbol(SymbolTable* st, CompileState& cs)
+void DeclarationTarget::CreateSymbol(SymbolTable* st)
 {
     const char* namestr = GetIdentifierName();
     if (st->IsDefined(namestr))
@@ -1186,28 +1186,28 @@ void DeclarationTarget::CreateSymbol(SymbolTable* st, CompileState& cs)
     {
         symbol->isWith   = false;
         symbol->isGlobal = false;
-        symbol->offset = cs.NextLocalOffset(namestr);
+        symbol->offset = state->NextLocalOffset(namestr);
     }
     else
     {
         symbol->isWith   = with;
         symbol->isGlobal = true;
-        nameindex      = cs.AddConstant(namestr);
+        nameindex      = state->AddConstant(namestr);
     }
 }
 
 PropertyDecl::~PropertyDecl() {}
 
-void PropertyDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void PropertyDecl::CalculateResources(SymbolTable* st)
 {
     PIKA_NEWNODE(StringExpr, name_expr, (Pika_strdup(name->GetName()), strlen(name->GetName())));
     
-    name_expr->CalculateResources(st, cs);
+    name_expr->CalculateResources(st);
     
-    if (getter) getter->CalculateResources(st, cs);
-    if (setter) setter->CalculateResources(st, cs);
+    if (getter) getter->CalculateResources(st);
+    if (setter) setter->CalculateResources(st);
     
-    NamedTarget::CalculateResources(st, cs);
+    NamedTarget::CalculateResources(st);
 }
 
 AssignmentStmt::AssignmentStmt(ExprList* l, ExprList* r)
@@ -1219,7 +1219,7 @@ AssignmentStmt::AssignmentStmt(ExprList* l, ExprList* r)
         isCall(false),
     unpackCount(0) {}
     
-void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void AssignmentStmt::DoStmtResources(SymbolTable* st)
 {
     ExprList* curr    = 0;
     size_t    num_lhs = 0;
@@ -1235,7 +1235,7 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
         while (curr)
         {
             ++num_rhs;
-            curr->expr->CalculateResources(st, cs);
+            curr->expr->CalculateResources(st);
             curr = curr->next;
         }
     }
@@ -1267,7 +1267,7 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
         {
             // Id Expression:
             //
-            curr->expr->CalculateResources(st, cs);
+            curr->expr->CalculateResources(st);
             IdExpr* idleft = (IdExpr*)curr->expr;
             //
             // We want to pick the right storage kind for an undefined identifier.
@@ -1289,7 +1289,7 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
                 { 
                     // Create a new local variable.
                     idleft->symbol->isGlobal = false;
-                    idleft->symbol->offset = cs.NextLocalOffset(idleft->id->name);
+                    idleft->symbol->offset = state->NextLocalOffset(idleft->id->name);
                     idleft->index = idleft->symbol->offset;
                     idleft->newLocal = true;
                 }
@@ -1298,7 +1298,7 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
         else if (!isskip)
         {
             // Dot Expression.
-            curr->expr->CalculateResources(st, cs);
+            curr->expr->CalculateResources(st);
         }
         ++num_lhs;
         curr = curr->next;
@@ -1353,7 +1353,7 @@ Opcode AssignmentStmt::GetOpcode() const
     return OP_nop;
 }
 
-void VariableTarget::CalculateResources(SymbolTable* st, CompileState& cs)
+void VariableTarget::CalculateResources(SymbolTable* st)
 {
     // First do the right-hand side expressions.
     
@@ -1361,7 +1361,7 @@ void VariableTarget::CalculateResources(SymbolTable* st, CompileState& cs)
     ExprList* ex = exprs;
     
     if (exprs)
-        exprs->CalculateResources(st, cs);
+        exprs->CalculateResources(st);
         
     while (ex)
     {
@@ -1376,7 +1376,7 @@ void VariableTarget::CalculateResources(SymbolTable* st, CompileState& cs)
     VarDecl* vd = decls;
     
     if (decls)
-        decls->CalculateResources(st, cs);
+        decls->CalculateResources(st);
         
     while (vd)
     {
@@ -1417,15 +1417,15 @@ FinallyStmt::FinallyStmt(Stmt* block, Stmt* finalize_block)
         
 FinallyStmt::~FinallyStmt() { Pika_delete(symtab); }
 
-void FinallyStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void FinallyStmt::DoStmtResources(SymbolTable* st)
 {
     if (block)
-        block->CalculateResources(st, cs);
+        block->CalculateResources(st);
         
     PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit));
     
     if (finalize_block)
-        finalize_block->CalculateResources(symtab, cs);
+        finalize_block->CalculateResources(symtab);
 }
 
 UsingStmt::UsingStmt(Expr* e, Stmt* b)
@@ -1437,15 +1437,15 @@ UsingStmt::UsingStmt(Expr* e, Stmt* b)
 
 UsingStmt::~UsingStmt() { Pika_delete(symtab); }
 
-void UsingStmt::DoStmtResources(SymbolTable* st, CompileState& cs)
+void UsingStmt::DoStmtResources(SymbolTable* st)
 {
     PIKA_NEW(SymbolTable, symtab, (st, ST_using));
     
     if (with)
-        with->CalculateResources(st, cs);
+        with->CalculateResources(st);
         
     if (block)
-        block->CalculateResources(symtab, cs);
+        block->CalculateResources(symtab);
 }
 
 PkgDecl::PkgDecl(NameNode* nnode, Stmt* body, StorageKind sto)
@@ -1456,29 +1456,29 @@ PkgDecl::PkgDecl(NameNode* nnode, Stmt* body, StorageKind sto)
     
 PkgDecl::~PkgDecl() { Pika_delete(symtab); }
 
-void PkgDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void PkgDecl::CalculateResources(SymbolTable* st)
 {
     PIKA_NEWNODE(StringExpr, id, (Pika_strdup(name->GetName()), strlen(name->GetName())));
     
-    id->CalculateResources(st, cs);
+    id->CalculateResources(st);
     
     PIKA_NEW(SymbolTable, symtab, (st, ST_package));
     
-    body->CalculateResources(symtab, cs);
+    body->CalculateResources(symtab);
     
-    NamedTarget::CalculateResources(st, cs);
+    NamedTarget::CalculateResources(st);
 }
 
-void NameNode::CalculateResources(SymbolTable* st, CompileState& cs)
+void NameNode::CalculateResources(SymbolTable* st)
 {
     if (idexpr)
     {
         idexpr->newLocal = true;
-        idexpr->CalculateResources(st, cs);
+        idexpr->CalculateResources(st);
     }
     else if (dotexpr)
     {
-        dotexpr->CalculateResources(st, cs);
+        dotexpr->CalculateResources(st);
     }
 }
 
@@ -1509,20 +1509,20 @@ ClassDecl::~ClassDecl()
     Pika_delete(symtab);    
 }
 
-void ClassDecl::CalculateResources(SymbolTable* st, CompileState& cs)
+void ClassDecl::CalculateResources(SymbolTable* st)
 {
     PIKA_NEWNODE(StringExpr, stringid, (Pika_strdup(name->GetName()), strlen(name->GetName())));
     
-    stringid->CalculateResources(st, cs);
+    stringid->CalculateResources(st);
     
-    if (super) super->CalculateResources(st, cs);
+    if (super) super->CalculateResources(st);
     
-    NamedTarget::CalculateResources(st, cs);
+    NamedTarget::CalculateResources(st);
     
     if (stmts)
     {
         PIKA_NEW(SymbolTable, symtab, (st, ST_package));
-        stmts->CalculateResources(symtab, cs);
+        stmts->CalculateResources(symtab);
     }
 }
 

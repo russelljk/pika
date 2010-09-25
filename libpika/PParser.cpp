@@ -2214,7 +2214,7 @@ Expr* Parser::DoPostfixExpression()
             }
             else
             {
-                Match(TOK_slice);
+                Match(TOK_to);
                 BufferCurrent();
                 Expr* fromexpr = rhs;
                 Expr* toexpr = DoExpression();

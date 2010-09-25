@@ -353,7 +353,7 @@ void Engine::ReadExecutePrintLoop()
             try
             {
                 Program* tree = parser->DoParse();
-                tree->CalculateResources(0, *comp_state);
+                tree->CalculateResources(0);
                 
                 if (comp_state->HasErrors())
                 {
@@ -481,7 +481,7 @@ Script* Engine::Compile(String* name, Context* parent)
         try
         {
             Program* tree = parser->DoParse();
-            tree->CalculateResources(0, *comp_state);
+            tree->CalculateResources(0);
             
             if (comp_state->HasErrors())
             {

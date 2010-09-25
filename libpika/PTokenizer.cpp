@@ -940,9 +940,27 @@ void Tokenizer::ReadControl()
         
         if (look == '.')
         {
-            // .. , slice operator
-            tokenType = TOK_slice;
+            // .. , cat operator
+            tokenType = TOK_cat;
             GetLook();
+            
+            if (look == '.')
+            {
+                // ... , cat space operator
+                tokenType = TOK_catspace;
+                GetLook();
+
+                if (look == '=')
+                {
+                    tokenType = TOK_catspassign;
+                    GetLook();
+                }
+            }
+            else if (look == '=')
+            {
+                tokenType = TOK_catassign;
+                GetLook();
+            }            
         }
     }
     break;
@@ -964,31 +982,7 @@ void Tokenizer::ReadControl()
         }
     }
     break;
-        
-    case '@':
-    {
-        tokenType = TOK_cat;
-        GetLook();
-        
-        if (look == '@')
-        {
-            tokenType = TOK_catspace;
-            GetLook();
             
-            if (look == '=')
-            {
-                tokenType = TOK_catspassign;
-                GetLook();
-            }
-        }
-        else if (look == '=')
-        {
-            tokenType = TOK_catassign;
-            GetLook();
-        }
-    }
-    break;
-        
     case '^':
     {
         tokenType = look;

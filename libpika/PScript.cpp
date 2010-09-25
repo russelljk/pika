@@ -80,7 +80,7 @@ Script* Script::CreateWithBuffer(Engine* eng, String* buff, String* name, Packag
         tree = parser->DoParse();
         if (!tree)
             RaiseException(Exception::ERROR_syntax, "Attempt to generate type \"%s\" parse tree failed.\n", name->GetBuffer());
-        tree->CalculateResources(0, *cs);
+        tree->CalculateResources(0);
         
         if (cs->HasErrors())
             RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");

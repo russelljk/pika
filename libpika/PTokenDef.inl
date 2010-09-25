@@ -47,13 +47,15 @@ TOKEN_DEF(TOK_do,             "do")
 
 TOKEN_DEF(TOK_same,           "===")
 TOKEN_DEF(TOK_notsame,        "!==")
-TOKEN_DEF(TOK_slice,          "..")
-TOKEN_DEF(TOK_coloncolon,   "::")
+TOKEN_DEF(TOK_coloncolon,     "::")
 TOKEN_DEF(TOK_nullselect,     "??")
-TOKEN_DEF(TOK_catspace,       "@@")
-TOKEN_DEF(TOK_catspassign,    "@@=")
-TOKEN_DEF(TOK_cat,            "@")
-TOKEN_DEF(TOK_catassign,      "@=")
+
+TOKEN_DEF(TOK_catspace,       "...")
+TOKEN_DEF(TOK_catspassign,    "...=")
+
+TOKEN_DEF(TOK_cat,            "..")
+TOKEN_DEF(TOK_catassign,      "...=")
+
 TOKEN_DEF(TOK_lte,            "<=")
 TOKEN_DEF(TOK_gte,            ">=")
 TOKEN_DEF(TOK_increment,      "++")

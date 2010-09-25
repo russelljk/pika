@@ -534,7 +534,7 @@ void Function::InitWithBody(String* body)
     
     Program* tree = parser->DoFunctionParse();
     ASSERT(tree);
-    tree->CalculateResources(0, *cs);
+    tree->CalculateResources(0);
     
     if (cs->HasErrors())
         RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");
