@@ -321,7 +321,7 @@ void CompileState::SyntaxErrorSummary()
     fflush(stderr);
 }
 
-Id::Id(char *name): name(name), next(0) {}
+Id::Id(CompileState* s, char *name) : TreeNode(s), name(name), next(0) {}
 
 Id::~Id() { Pika_free(name); }
 
@@ -378,10 +378,10 @@ void NamedTarget::CalculateResources(SymbolTable* st)
     name->CalculateResources(st);
 }
 
-FunctionDecl::FunctionDecl(NameNode* name, ParamDecl* args, Stmt* body,
+FunctionDecl::FunctionDecl(CompileState* s, NameNode* name, ParamDecl* args, Stmt* body,
                            size_t begtxt, size_t endtxt,
                            StorageKind sk)
-        : DeclarationTarget(Decl::DECL_function, sk),
+        : DeclarationTarget(s, Decl::DECL_function, sk),
         def(0),
         index(0),
         args(args),
@@ -422,8 +422,8 @@ void FunctionDecl::CalculateResources(SymbolTable* st)
 
 FunctionDecl::~FunctionDecl() { Pika_delete(symtab); }
 
-ParamDecl::ParamDecl(Id *name, bool rest, bool kw, Expr* val)
-        : Decl(Decl::DECL_parameter),
+ParamDecl::ParamDecl(CompileState* s, Id *name, bool rest, bool kw, Expr* val)
+        : Decl(s, Decl::DECL_parameter),
         val(val),
         symbol(0),
         name(name),
@@ -750,9 +750,9 @@ ForeachStmt::~ForeachStmt()
 void ForeachStmt::DoStmtResources(SymbolTable* st)
 {
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
-    PIKA_NEWNODE(LocalDecl, iterVar, (id));
+    PIKA_NEWNODE(LocalDecl, iterVar, (state, id));
     iterVar->line = id->line;
-    PIKA_NEWNODE(IdExpr, idexpr, (id));
+    PIKA_NEWNODE(IdExpr, idexpr, (state, id));
     
     
     idexpr->line = iterVar->name->line;
@@ -791,7 +791,7 @@ void BlockStmt::DoStmtResources(SymbolTable* st)
 
 BlockStmt::~BlockStmt() { Pika_delete(symtab); }
 
-DeclStmt::DeclStmt(Decl *decl): Stmt(Stmt::STMT_decl), decl(decl) {}
+DeclStmt::DeclStmt(CompileState* s, Decl *decl) : Stmt(s, Stmt::STMT_decl), decl(decl) {}
 
 void DeclStmt::DoStmtResources(SymbolTable* st)
 {
@@ -915,7 +915,7 @@ void RealExpr::CalculateResources(SymbolTable* st)
     index = state->AddConstant(real);
 }
 
-DotExpr::DotExpr(Expr *l, Expr *r) : BinaryExpr(Expr::EXPR_dot, l, r) {}
+DotExpr::DotExpr(CompileState* s, Expr *l, Expr *r) : BinaryExpr(s, Expr::EXPR_dot, l, r) {}
 
 void DotExpr::CalculateResources(SymbolTable* st)
 {
@@ -1007,7 +1007,7 @@ void DictionaryExpr::CalculateResources(SymbolTable* st)
             if (curr->name->kind == Expr::EXPR_string)
             {
                 StringExpr* strexpr = (StringExpr*)curr->name;
-                PIKA_NEWNODE(Id, fun->name, (Pika_strdup( strexpr->string )));
+                PIKA_NEWNODE(Id, fun->name, (state, Pika_strdup( strexpr->string )));
             }
         }
         */
@@ -1070,8 +1070,8 @@ void SliceExpr::CalculateResources(SymbolTable* st)
     Id* id = 0;
     char *slice = Pika_strdup(OPSLICE_STR);
     
-    PIKA_NEWNODE(Id, id, (slice));
-    PIKA_NEWNODE(MemberExpr, slicefun, (id));
+    PIKA_NEWNODE(Id, id, (state, slice));
+    PIKA_NEWNODE(MemberExpr, slicefun, (state, id));
     
     
     slicefun->line = id->line = expr->line;
@@ -1200,7 +1200,7 @@ PropertyDecl::~PropertyDecl() {}
 
 void PropertyDecl::CalculateResources(SymbolTable* st)
 {
-    PIKA_NEWNODE(StringExpr, name_expr, (Pika_strdup(name->GetName()), strlen(name->GetName())));
+    PIKA_NEWNODE(StringExpr, name_expr, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     name_expr->CalculateResources(st);
     
@@ -1210,8 +1210,8 @@ void PropertyDecl::CalculateResources(SymbolTable* st)
     NamedTarget::CalculateResources(st);
 }
 
-AssignmentStmt::AssignmentStmt(ExprList* l, ExprList* r)
-        : Stmt(Stmt::STMT_decl),
+AssignmentStmt::AssignmentStmt(CompileState* s, ExprList* l, ExprList* r)
+        : Stmt(s, Stmt::STMT_decl),
         left(l),
         right(r),
         isBinaryOp(false),
@@ -1409,8 +1409,8 @@ void VariableTarget::CalculateResources(SymbolTable* st)
     }
 }
 
-FinallyStmt::FinallyStmt(Stmt* block, Stmt* finalize_block)
-        : Stmt(Stmt::STMT_finallyblock),
+FinallyStmt::FinallyStmt(CompileState* s, Stmt* block, Stmt* finalize_block)
+        : Stmt(s, Stmt::STMT_finallyblock),
         block(block),
         symtab(0),
         finalize_block(finalize_block) {}
@@ -1428,8 +1428,8 @@ void FinallyStmt::DoStmtResources(SymbolTable* st)
         finalize_block->CalculateResources(symtab);
 }
 
-UsingStmt::UsingStmt(Expr* e, Stmt* b)
-        : Stmt(Stmt::STMT_with),
+UsingStmt::UsingStmt(CompileState* s, Expr* e, Stmt* b)
+        : Stmt(s, Stmt::STMT_with),
         with(e),
         block(b),
         symtab(0)
@@ -1448,8 +1448,8 @@ void UsingStmt::DoStmtResources(SymbolTable* st)
         block->CalculateResources(symtab);
 }
 
-PkgDecl::PkgDecl(NameNode* nnode, Stmt* body, StorageKind sto)
-        : NamedTarget(nnode, DECL_package, sto),
+PkgDecl::PkgDecl(CompileState* s, NameNode* nnode, Stmt* body, StorageKind sto)
+        : NamedTarget(s, nnode, DECL_package, sto),
         symtab(0),
         id(0),
     body(body) {}
@@ -1458,7 +1458,7 @@ PkgDecl::~PkgDecl() { Pika_delete(symtab); }
 
 void PkgDecl::CalculateResources(SymbolTable* st)
 {
-    PIKA_NEWNODE(StringExpr, id, (Pika_strdup(name->GetName()), strlen(name->GetName())));
+    PIKA_NEWNODE(StringExpr, id, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     id->CalculateResources(st);
     
@@ -1511,7 +1511,7 @@ ClassDecl::~ClassDecl()
 
 void ClassDecl::CalculateResources(SymbolTable* st)
 {
-    PIKA_NEWNODE(StringExpr, stringid, (Pika_strdup(name->GetName()), strlen(name->GetName())));
+    PIKA_NEWNODE(StringExpr, stringid, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     stringid->CalculateResources(st);
     

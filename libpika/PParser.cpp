@@ -233,7 +233,7 @@ void Parser::DoScript()
     Stmt*  stmts = DoStatementList(terms);
     size_t end   = tstream.prev.endOffset;
     
-    PIKA_NEWNODE(Program, root, (stmts, beg, end));
+    PIKA_NEWNODE(Program, root, (state, stmts, beg, end));
 }
 
 void Parser::DoFunctionScript()
@@ -253,7 +253,7 @@ void Parser::DoFunctionScript()
     size_t end   = tstream.prev.endOffset;
     
     Match(TOK_end);
-    PIKA_NEWNODE(FunctionProg, root, (stmts, beg, end, params));
+    PIKA_NEWNODE(FunctionProg, root, (state, stmts, beg, end, params));
 }
 
 void Parser::Match(int x)
@@ -394,7 +394,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case ';':
     {
         Match(';');
-        PIKA_NEWNODE(EmptyStmt, stmt, ());
+        PIKA_NEWNODE(EmptyStmt, stmt, (state));
         stmt->line = line;
     }
     break;
@@ -442,7 +442,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
         }
         else
         {
-            PIKA_NEWNODE(EmptyStmt, stmt, ());
+            PIKA_NEWNODE(EmptyStmt, stmt, (state));
             stmt->line = -1;
         }
         break;
@@ -491,8 +491,8 @@ Stmt* Parser::DoClassStatement()
     BufferCurrent();
     classbody = DoStatementList(class_terms);
     
-    PIKA_NEWNODE(ClassDecl, decl, (name, super, classbody, sk));
-    PIKA_NEWNODE(DeclStmt, stmt, (decl));
+    PIKA_NEWNODE(ClassDecl, decl, (state, name, super, classbody, sk));
+    PIKA_NEWNODE(DeclStmt, stmt, (state, decl));
     stmt->line = decl->line = line;
     
     return DoFinallyBlock(stmt);
@@ -521,7 +521,7 @@ LoadExpr* Parser::DoSelfExpression()
     LoadExpr* expr = 0;
     int line = tstream.GetLineNumber();
     Match(TOK_self);
-    PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_self));
+    PIKA_NEWNODE(LoadExpr, expr, (state, LoadExpr::LK_self));
     expr->line = line;
     return expr;
 }
@@ -557,10 +557,10 @@ NameNode* Parser::DoNameNode(bool canbedot)
             {
                 BufferCurrent();
                 Id* id = DoIdentifier();
-                PIKA_NEWNODE(MemberExpr, rhs, (id));
+                PIKA_NEWNODE(MemberExpr, rhs, (state, id));
                 rhs->line = id->line;            
                 
-                PIKA_NEWNODE(DotExpr, expr, (lhs, rhs));
+                PIKA_NEWNODE(DotExpr, expr, (state, lhs, rhs));
                 expr->line = rhs->line;                
             }
             else {                
@@ -570,7 +570,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
                 rhs = DoExpression();
                 Match(']');
                 
-                PIKA_NEWNODE(IndexExpr, expr, (lhs, rhs));
+                PIKA_NEWNODE(IndexExpr, expr, (state, lhs, rhs));
                 expr->line = rhs->line;
             }
         }
@@ -578,7 +578,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
         if (expr->kind == Expr::EXPR_dot)
         {
             DotExpr* de = (DotExpr*)expr;
-            PIKA_NEWNODE(NameNode, name, (de));
+            PIKA_NEWNODE(NameNode, name, (state, de));
             name->line = line;
         }
         else
@@ -589,7 +589,7 @@ NameNode* Parser::DoNameNode(bool canbedot)
     else
     {
         IdExpr* idexpr = DoIdExpression();
-        PIKA_NEWNODE(NameNode, name, (idexpr));
+        PIKA_NEWNODE(NameNode, name, (state, idexpr));
         name->line = line;
     }
     return name;
@@ -612,8 +612,8 @@ Stmt* Parser::DoPackageDeclaration()
     
     Match(TOK_end);
     
-    PIKA_NEWNODE(PkgDecl, decl, (id, body, sk));
-    PIKA_NEWNODE(DeclStmt, stmt, (decl));
+    PIKA_NEWNODE(PkgDecl, decl, (state, id, body, sk));
+    PIKA_NEWNODE(DeclStmt, stmt, (state, decl));
     
     stmt->line = decl->line = line;
     
@@ -681,13 +681,13 @@ Stmt* Parser::DoPropertyStatement()
     
     if (getfirst)
     {
-        PIKA_NEWNODE(PropertyDecl, decl, (name, firstexpr, secondexpr, sk));
+        PIKA_NEWNODE(PropertyDecl, decl, (state, name, firstexpr, secondexpr, sk));
     }
     else
     {
-        PIKA_NEWNODE(PropertyDecl, decl, (name, secondexpr, firstexpr, sk));
+        PIKA_NEWNODE(PropertyDecl, decl, (state, name, secondexpr, firstexpr, sk));
     }
-    PIKA_NEWNODE(DeclStmt, stmt, (decl));
+    PIKA_NEWNODE(DeclStmt, stmt, (state, decl));
     stmt->line = decl->line = name->line;
     
     return stmt;
@@ -705,7 +705,7 @@ Stmt* Parser::DoStatementList(const int* terms)
         if (currstmt)
         {
             Stmt* stmtseq = 0;
-            PIKA_NEWNODE(StmtList, stmtseq, (currstmt, nxtstmt));
+            PIKA_NEWNODE(StmtList, stmtseq, (state, currstmt, nxtstmt));
             stmtseq->line = currstmt->line;
             
             currstmt = stmtseq;
@@ -718,7 +718,7 @@ Stmt* Parser::DoStatementList(const int* terms)
     
     if (!currstmt)
     {
-        PIKA_NEWNODE(EmptyStmt, currstmt, ());
+        PIKA_NEWNODE(EmptyStmt, currstmt, (state));
         currstmt->line = tstream.GetLineNumber();
     }
     
@@ -738,7 +738,7 @@ Stmt* Parser::DoStatementListBlock(const int* terms)
     Stmt* stmt = 0;
     Stmt* stmtList = DoStatementList(terms);
     
-    PIKA_NEWNODE(BlockStmt, stmt, (stmtList));
+    PIKA_NEWNODE(BlockStmt, stmt, (state, stmtList));
     stmt->line = stmtList->line;
     return stmt;
 }
@@ -755,7 +755,7 @@ Stmt* Parser::DoFinallyBlock(Stmt* in)
         
         Match(TOK_end);
         
-        PIKA_NEWNODE(FinallyStmt, out, (in, finalizeBlock));
+        PIKA_NEWNODE(FinallyStmt, out, (state, in, finalizeBlock));
         out->line = in->line;
     }
     else
@@ -790,7 +790,7 @@ Stmt* Parser::DoUsingStatement()
     Stmt* block = DoStatementList(terms);
     
     UsingStmt* stmt;
-    PIKA_NEWNODE(UsingStmt, stmt, (with, block));
+    PIKA_NEWNODE(UsingStmt, stmt, (state, with, block));
     stmt->line = line;
     
     if (tstream.GetType() == TOK_end)
@@ -800,9 +800,9 @@ Stmt* Parser::DoUsingStatement()
         Match(TOK_end);
         Stmt* out = 0;
         Stmt* finalizeBlock = 0;
-        PIKA_NEWNODE(EmptyStmt, finalizeBlock, ());
+        PIKA_NEWNODE(EmptyStmt, finalizeBlock, (state));
         finalizeBlock->line = eline;
-        PIKA_NEWNODE(FinallyStmt, out, (stmt, finalizeBlock));
+        PIKA_NEWNODE(FinallyStmt, out, (state, stmt, finalizeBlock));
         out->line = eline;
         return out;
     }    
@@ -845,7 +845,7 @@ Stmt* Parser::DoTryStatement()
             
             BufferCurrent();
             CatchIsBlock* c;
-            PIKA_NEWNODE(CatchIsBlock, c, (id, is, body));
+            PIKA_NEWNODE(CatchIsBlock, c, (state, id, is, body));
             
             if (!cis)
                 cis = c;
@@ -875,7 +875,7 @@ Stmt* Parser::DoTryStatement()
     }
     
     Stmt* stmt = 0;
-    PIKA_NEWNODE(TryStmt, stmt, (tryblock, catchblock, caughtvar, cis, elsebody));
+    PIKA_NEWNODE(TryStmt, stmt, (state, tryblock, catchblock, caughtvar, cis, elsebody));
     stmt->line = line;
     
     return DoFinallyBlock(stmt);
@@ -896,7 +896,7 @@ Stmt* Parser::DoLabeledStatement()
         Stmt* stmt    = DoStatement(true);
         Stmt* lblstmt = 0;
         
-        PIKA_NEWNODE(LabeledStmt, lblstmt, (id, stmt));
+        PIKA_NEWNODE(LabeledStmt, lblstmt, (state, id, stmt));
         
         lblstmt->line = id->line;
         
@@ -912,7 +912,7 @@ Stmt* Parser::DoVarStatement()
     DoEndOfStatement();
     
     Stmt* stmt = 0;
-    PIKA_NEWNODE(DeclStmt, stmt, (decl));
+    PIKA_NEWNODE(DeclStmt, stmt, (state, decl));
     
     stmt->line = decl->line;
     
@@ -954,15 +954,15 @@ Decl* Parser::DoVarDeclaration()
         
         if (is_local)
         {
-            PIKA_NEWNODE(LocalDecl, nxtdecl, (name));
+            PIKA_NEWNODE(LocalDecl, nxtdecl, (state, name));
         }
         else if (is_member)
         {
-            PIKA_NEWNODE(MemberDeclaration, nxtdecl, (name));
+            PIKA_NEWNODE(MemberDeclaration, nxtdecl, (state, name));
         }
         else
         {
-            PIKA_NEWNODE(VarDecl, nxtdecl, (name));
+            PIKA_NEWNODE(VarDecl, nxtdecl, (state, name));
         }
         
         nxtdecl->line = name->line;
@@ -989,7 +989,7 @@ Decl* Parser::DoVarDeclaration()
         VariableTarget* vt;
         
         ExprList* el = DoExpressionList();
-        PIKA_NEWNODE(VariableTarget, vt, (firstdecl, el, sto));
+        PIKA_NEWNODE(VariableTarget, vt, (state, firstdecl, el, sto));
         vt->line = firstdecl->line;
         return vt;
     }
@@ -1038,8 +1038,8 @@ Stmt* Parser::DoFunctionStatement()
     Stmt* body = DoFunctionBody();
     size_t end = tstream.prev.endOffset;
     
-    PIKA_NEWNODE(FunctionDecl, decl, (name, params, body, beg, end, sk));
-    PIKA_NEWNODE(DeclStmt, stmt, (decl));
+    PIKA_NEWNODE(FunctionDecl, decl, (state, name, params, body, beg, end, sk));
+    PIKA_NEWNODE(DeclStmt, stmt, (state, decl));
     decl->line = stmt->line = name->line;
     return stmt;
 }
@@ -1064,7 +1064,7 @@ Stmt* Parser::DoIfStatement()
     const int terms[] = { TOK_end, TOK_elseif, TOK_else, 0 };
     body = DoStatementListBlock(first_terms);
     
-    PIKA_NEWNODE(IfStmt, stmt, (cond, body, unless));
+    PIKA_NEWNODE(IfStmt, stmt, (state, cond, body, unless));
     stmt->line = cond->line;
     
     while (Optional(TOK_elseif))
@@ -1080,7 +1080,7 @@ Stmt* Parser::DoIfStatement()
         
         body = DoStatementListBlock(terms);
         
-        PIKA_NEWNODE(IfStmt, elseifStmt, (cond, body, unless));
+        PIKA_NEWNODE(IfStmt, elseifStmt, (state, cond, body, unless));
         elseifStmt->line = cond->line;
         stmt->Attach(elseifStmt);
     }
@@ -1093,7 +1093,7 @@ Stmt* Parser::DoIfStatement()
     Match(TOK_end);
     
     Stmt* condStmt = 0;
-    PIKA_NEWNODE(ConditionalStmt, condStmt, (stmt, elsePart));
+    PIKA_NEWNODE(ConditionalStmt, condStmt, (state, stmt, elsePart));
     condStmt->line = stmt->line;
     
     condStmt->line = cond->line;
@@ -1115,7 +1115,7 @@ Stmt* Parser::DoWhileStatement()
 
     body = DoStatementListBlock(Static_finally_terms);
     
-    PIKA_NEWNODE(CondLoopStmt, stmt, (cond, body, false, false));
+    PIKA_NEWNODE(CondLoopStmt, stmt, (state, cond, body, false, false));
     stmt->line = cond->line;
            
     return DoFinallyBlock(stmt);
@@ -1133,7 +1133,7 @@ Stmt* Parser::DoLoopStatement()
     body = DoStatementListBlock(Static_finally_terms);
     
     
-    PIKA_NEWNODE(LoopStmt, stmt, (body));
+    PIKA_NEWNODE(LoopStmt, stmt, (state, body));
     stmt->line = line;
     
     return DoFinallyBlock(stmt);
@@ -1197,7 +1197,7 @@ void Parser::DoForToHeader(ForToHeader* header)
     else
     {
         Expr* estep;
-        PIKA_NEWNODE(IntegerExpr, estep, ((header->isdown) ? -1 : 1));
+        PIKA_NEWNODE(IntegerExpr, estep, (state, (header->isdown) ? -1 : 1));
         estep->line = header->to->line;
         header->step = estep;
     }    
@@ -1242,7 +1242,7 @@ Stmt* Parser::DoForToStatement(ForHeader* fh)
     
     body = DoStatementListBlock(Static_finally_terms);
     
-    PIKA_NEWNODE(ForToStmt, stmt, (header.head.id, header.from, header.to, header.step, body, header.isdown));
+    PIKA_NEWNODE(ForToStmt, stmt, (state, header.head.id, header.from, header.to, header.step, body, header.isdown));
     stmt->line = header.head.line;
     return DoFinallyBlock(stmt);
 }
@@ -1267,7 +1267,7 @@ void Parser::DoForEachHeader(ForEachHeader* header)
     else
     {
         StringExpr* of;
-        PIKA_NEWNODE(StringExpr, of, (Pika_strdup(""), 0));
+        PIKA_NEWNODE(StringExpr, of, (state, Pika_strdup(""), 0));
         of->line = header->head.line;
         header->of = of;
     }
@@ -1286,7 +1286,7 @@ Stmt* Parser::DoForEachStatement(ForHeader* fh)
         
     Stmt* body = DoStatementListBlock(Static_finally_terms);    
     Stmt* stmt = 0;
-    PIKA_NEWNODE(ForeachStmt, stmt, (header.head.id, header.of, header.subject, body));
+    PIKA_NEWNODE(ForeachStmt, stmt, (state, header.head.id, header.of, header.subject, body));
     stmt->line = header.head.line;
        
     return DoFinallyBlock(stmt);
@@ -1300,7 +1300,7 @@ StringExpr* Parser::DoFieldName()
     {
         char* idstr = tstream.GetString();
         
-        PIKA_NEWNODE(StringExpr, name, (idstr, tstream.GetStringLength()));
+        PIKA_NEWNODE(StringExpr, name, (state, idstr, tstream.GetStringLength()));
         
         tstream.Advance();
     }
@@ -1325,7 +1325,7 @@ Stmt* Parser::DoRaiseStatement()
         expr = DoExpression();
     }
     
-    PIKA_NEWNODE(RaiseStmt, stmt, (expr));
+    PIKA_NEWNODE(RaiseStmt, stmt, (state, expr));
     
     if (expr) stmt->line = expr->line;
     else      stmt->line = line;
@@ -1350,7 +1350,7 @@ Stmt* Parser::DoReturnStatement()
         exprList = DoExpressionList();
     }
     
-    PIKA_NEWNODE(RetStmt, stmt, (exprList));
+    PIKA_NEWNODE(RetStmt, stmt, (state, exprList));
     
     if (exprList)
     {
@@ -1381,7 +1381,7 @@ Stmt* Parser::DoYieldStatement()
         exprList = DoExpressionList();
     }
     
-    PIKA_NEWNODE(YieldStmt, stmt, (exprList));
+    PIKA_NEWNODE(YieldStmt, stmt, (state, exprList));
     
     if (exprList)
     {
@@ -1416,7 +1416,7 @@ Stmt* Parser::DoBreakStatement()
         }
     }
     
-    PIKA_NEWNODE(BreakStmt, stmt, (id));
+    PIKA_NEWNODE(BreakStmt, stmt, (state, id));
     stmt->line = line;
     
     stmt = DoOptionalJumpStatement(stmt);
@@ -1443,7 +1443,7 @@ Stmt* Parser::DoContinueStatement()
         }
     }
     
-    PIKA_NEWNODE(ContinueStmt, stmt, (id));
+    PIKA_NEWNODE(ContinueStmt, stmt, (state, id));
     stmt->line = line;
     
     stmt = DoOptionalJumpStatement(stmt);
@@ -1470,7 +1470,7 @@ Stmt* Parser::DoOptionalJumpStatement(Stmt* stmt)
         Expr* cond = DoExpression();
         Stmt* ifstmt = 0;
         
-        PIKA_NEWNODE(IfStmt, ifstmt, (cond, stmt, unless));
+        PIKA_NEWNODE(IfStmt, ifstmt, (state, cond, stmt, unless));
         
         ifstmt->line = cond->line = stmt->line;
         
@@ -1544,7 +1544,7 @@ Stmt* Parser::DoExpressionStatement()
         ExprList* rhs = DoExpressionList();
         
         DoEndOfStatement();
-        PIKA_NEWNODE(AssignmentStmt, stmt, (lhs, rhs));
+        PIKA_NEWNODE(AssignmentStmt, stmt, (state, lhs, rhs));
         
         if (akind != AssignmentStmt::ASSIGN_STMT)
         {
@@ -1555,7 +1555,7 @@ Stmt* Parser::DoExpressionStatement()
     else
     {
         DoEndOfStatement();
-        PIKA_NEWNODE(ExprStmt, stmt, (expr));
+        PIKA_NEWNODE(ExprStmt, stmt, (state, expr));
     }
     
     stmt->line = expr->line;
@@ -1593,7 +1593,7 @@ Expr* Parser::DoConditionalExpression()
         
         Expr* otherwise = DoConditionalExpression();
         
-        PIKA_NEWNODE(CondExpr, expr, (cond, then, otherwise));
+        PIKA_NEWNODE(CondExpr, expr, (state, cond, then, otherwise));
         expr->line = cond->line; // !!! set line number
     }
     return expr;
@@ -1613,7 +1613,7 @@ Expr* Parser::DoNullSelectExpression()
         
         Expr* rhs = DoConditionalExpression();
         
-        PIKA_NEWNODE(NullSelectExpr, expr, (lhs, rhs));
+        PIKA_NEWNODE(NullSelectExpr, expr, (state, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1635,7 +1635,7 @@ Expr* Parser::DoConcatExpression()
         
         Expr* rhs = DoLogOrExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1656,7 +1656,7 @@ Expr* Parser::DoLogOrExpression()
         
         Expr* rhs = DoLogXorExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1677,7 +1677,7 @@ Expr* Parser::DoLogXorExpression()
         
         Expr* rhs = DoLogAndExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1698,7 +1698,7 @@ Expr* Parser::DoLogAndExpression()
         
         Expr* rhs = DoOrExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1718,7 +1718,7 @@ Expr* Parser::DoOrExpression()
         tstream.Advance();
         Expr* rhs = DoXorExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1739,7 +1739,7 @@ Expr* Parser::DoXorExpression()
         
         Expr* rhs = DoAndExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1760,7 +1760,7 @@ Expr* Parser::DoAndExpression()
         
         Expr* rhs = DoEqualExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1823,7 +1823,7 @@ Expr* Parser::DoEqualExpression()
         */
         Expr* rhs = DoCompExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1867,7 +1867,7 @@ Expr* Parser::DoCompExpression()
         
         Expr* rhs = DoShiftExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -1903,7 +1903,7 @@ Expr* Parser::DoShiftExpression()
         
         Expr* rhs = DoAddExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line;
     }
     return expr;
@@ -1928,7 +1928,7 @@ Expr* Parser::DoAddExpression()
         
         Expr* rhs = DoMulExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line;
     }
     return expr;
@@ -1971,7 +1971,7 @@ Expr* Parser::DoMulExpression()
         
         Expr* rhs = DoPrefixExpression();
         
-        PIKA_NEWNODE(BinaryExpr, expr, (k, lhs, rhs));
+        PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
     }
     return expr;
@@ -2016,7 +2016,7 @@ Expr* Parser::DoPrefixExpression()
         Expr* operand = DoPrefixExpression();
         Expr* expr = 0;
         
-        PIKA_NEWNODE(UnaryExpr, expr, (k, operand));
+        PIKA_NEWNODE(UnaryExpr, expr, (state, k, operand));
         expr->line = line;
         
         return expr;
@@ -2041,7 +2041,7 @@ Expr* Parser::DoPrefixExpression()
         dotexpr = (DotExpr*)operand;
         Expr* lhs = dotexpr->left;
         Expr* rhs = dotexpr->right;
-        PIKA_NEWNODE(DotBindExpr, expr, (lhs, rhs, dotexpr->GetOpcode() == OP_subget));
+        PIKA_NEWNODE(DotBindExpr, expr, (state, lhs, rhs, dotexpr->GetOpcode() == OP_subget));
         expr->line = line;
         return expr;
     }
@@ -2103,7 +2103,7 @@ Expr* Parser::DoPostfixExpression()
             Expr*     lhs  = expr;
             ExprList* args = DoExpressionList(true);
             
-            PIKA_NEWNODE(CallExpr, expr, (lhs, args));
+            PIKA_NEWNODE(CallExpr, expr, (state, lhs, args));
             expr->line = lhs->line;
             
             return expr; // TODO: continue?
@@ -2123,7 +2123,7 @@ Expr* Parser::DoPostfixExpression()
                 
             Expr* lhs = expr;
             tstream.Advance();
-            PIKA_NEWNODE(UnaryExpr, expr, (Expr::EXPR_postincr, lhs));
+            PIKA_NEWNODE(UnaryExpr, expr, (state, Expr::EXPR_postincr, lhs));
             expr->line = lhs->line;
             return expr;
         }
@@ -2146,7 +2146,7 @@ Expr* Parser::DoPostfixExpression()
             Expr* other = DoExpression();
                         
             Expr* resExpr = 0;
-            PIKA_NEWNODE(CondExpr, resExpr, (cond, expr, other, unless));
+            PIKA_NEWNODE(CondExpr, resExpr, (state, cond, expr, other, unless));
             resExpr->line = expr->line;
             return resExpr;
         }
@@ -2163,7 +2163,7 @@ Expr* Parser::DoPostfixExpression()
             Expr* lhs = expr;
                         
             tstream.Advance();
-            PIKA_NEWNODE(UnaryExpr, expr, (Expr::EXPR_postdecr, lhs));
+            PIKA_NEWNODE(UnaryExpr, expr, (state, Expr::EXPR_postdecr, lhs));
             expr->line = lhs->line;
             return expr;
         }
@@ -2186,7 +2186,7 @@ Expr* Parser::DoPostfixExpression()
             
             Match(')');
             
-            PIKA_NEWNODE(CallExpr, expr, (lhs, callargs));
+            PIKA_NEWNODE(CallExpr, expr, (state, lhs, callargs));
             expr->line = line;
         }
         continue;
@@ -2209,7 +2209,7 @@ Expr* Parser::DoPostfixExpression()
                 
                 Match(']');
                 
-                PIKA_NEWNODE(IndexExpr, expr, (lhs, rhs));
+                PIKA_NEWNODE(IndexExpr, expr, (state, lhs, rhs));
                 expr->line = line;
             }
             else
@@ -2222,7 +2222,7 @@ Expr* Parser::DoPostfixExpression()
                 
                 Match(']');
                 
-                PIKA_NEWNODE(SliceExpr, expr, (lhs, fromexpr, toexpr));
+                PIKA_NEWNODE(SliceExpr, expr, (state, lhs, fromexpr, toexpr));
                 expr->line = line;
             }
         }
@@ -2238,8 +2238,8 @@ Expr* Parser::DoPostfixExpression()
             Expr* rhs = 0;
             Id* id = DoIdentifier();
             
-            PIKA_NEWNODE(MemberExpr, rhs, (id));
-            PIKA_NEWNODE(DotExpr,    expr, (lhs, rhs));
+            PIKA_NEWNODE(MemberExpr, rhs, (state, id));
+            PIKA_NEWNODE(DotExpr,    expr, (state, lhs, rhs));
             
             expr->line = rhs->line = id->line;
         }
@@ -2255,7 +2255,7 @@ Expr* Parser::DoPostfixExpression()
             Expr* lhs = expr;
             Expr* rhs = DoPrefixExpression();
             
-            PIKA_NEWNODE(BinaryExpr, expr, (Expr::EXPR_pow, lhs, rhs));
+            PIKA_NEWNODE(BinaryExpr, expr, (state, Expr::EXPR_pow, lhs, rhs));
             expr->line = lhs->line;
         }
         default:
@@ -2282,7 +2282,7 @@ Expr* Parser::DoPrimaryExpression()
         Match('(');
         expr = DoExpression();
         Expr* pexpr=0;
-        PIKA_NEWNODE(ParenExpr, pexpr, (expr));
+        PIKA_NEWNODE(ParenExpr, pexpr, (state, expr));
         pexpr->line =line;
         expr = pexpr;
         Match(')');
@@ -2309,15 +2309,15 @@ Expr* Parser::DoPrimaryExpression()
         size_t end = tstream.curr.endOffset;
 
         ExprList* elist = 0;
-        PIKA_NEWNODE(ExprList, elist, (expr));
+        PIKA_NEWNODE(ExprList, elist, (state, expr));
         elist->line = expr->line;
 
         ExprStmt* body = 0;
-        PIKA_NEWNODE(ExprStmt, body, (elist));
+        PIKA_NEWNODE(ExprStmt, body, (state, elist));
         body->line = expr->line;
         
         Expr* fun;
-        PIKA_NEWNODE(FunExpr, fun, (params, body, beg, end));
+        PIKA_NEWNODE(FunExpr, fun, (state, params, body, beg, end));
         fun->line = line;
         return fun;
     }
@@ -2331,7 +2331,7 @@ Expr* Parser::DoPrimaryExpression()
     case TOK_locals:
     {
         tstream.Advance();
-        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_locals));
+        PIKA_NEWNODE(LoadExpr, expr, (state, LoadExpr::LK_locals));
         expr->line = line;
     }
     break;
@@ -2346,28 +2346,28 @@ Expr* Parser::DoPrimaryExpression()
     case TOK_super:
     {
         Match(TOK_super);        
-        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_super));
+        PIKA_NEWNODE(LoadExpr, expr, (state, LoadExpr::LK_super));
         expr->line = line;
     }
     break;
     case TOK_null:
     {
         tstream.Advance();
-        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_null));
+        PIKA_NEWNODE(LoadExpr, expr, (state, LoadExpr::LK_null));
         expr->line = line;
     }
     break;
     case TOK_true:
     {
         tstream.Advance();
-        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_true));
+        PIKA_NEWNODE(LoadExpr, expr, (state, LoadExpr::LK_true));
         expr->line = line;
     }
     break;
     case TOK_false:
     {
         tstream.Advance();
-        PIKA_NEWNODE(LoadExpr, expr, (LoadExpr::LK_false));
+        PIKA_NEWNODE(LoadExpr, expr, (state, LoadExpr::LK_false));
         expr->line = line;
     }
     break;
@@ -2387,7 +2387,7 @@ Id* Parser::DoIdentifier()
         
         tstream.Advance();
         
-        PIKA_NEWNODE(Id, id, (value));
+        PIKA_NEWNODE(Id, id, (state, value));
         id->line = line;
     }
     else
@@ -2403,7 +2403,7 @@ IdExpr* Parser::DoIdExpression()
     int line = tstream.GetLineNumber();
     Id* id = DoIdentifier();
     
-    PIKA_NEWNODE(IdExpr, expr, (id));
+    PIKA_NEWNODE(IdExpr, expr, (state, id));
     expr->line = line;
     
     return expr;
@@ -2417,7 +2417,7 @@ Expr* Parser::DoRealLiteralExpression()
     
     Match(TOK_realliteral);
     
-    PIKA_NEWNODE(RealExpr, expr, (value));
+    PIKA_NEWNODE(RealExpr, expr, (state, value));
     expr->line = line;
     
     return expr;
@@ -2433,7 +2433,7 @@ Expr* Parser::DoStringLiteralExpression()
     {
         bool need_more = true;
         // Get the first part of the string-constructor
-        PIKA_NEWNODE(StringExpr, expr, (value, len));
+        PIKA_NEWNODE(StringExpr, expr, (state, value, len));
         expr->line = line;
         
         // Start cat'ing the string parts together.
@@ -2441,7 +2441,7 @@ Expr* Parser::DoStringLiteralExpression()
         {
             // Grab the expression in-between the braces. And concat it to what we already have.
             Expr* rhs = DoNameNode(true);
-            PIKA_NEWNODE(BinaryExpr, expr, (BinaryExpr::EXPR_cat, expr, rhs));
+            PIKA_NEWNODE(BinaryExpr, expr, (state, BinaryExpr::EXPR_cat, expr, rhs));
             rhs->line = line;
             expr->line = line;
             
@@ -2451,17 +2451,17 @@ Expr* Parser::DoStringLiteralExpression()
             if (Optional(TOK_string_b))
             {
                 // Grab another segment of the string...
-                PIKA_NEWNODE(StringExpr, rhs, (value, len));
+                PIKA_NEWNODE(StringExpr, rhs, (state, value, len));
             }
             else
             {
                 // Grab the last part of the string...
                 Match(TOK_string_l);
-                PIKA_NEWNODE(StringExpr, rhs, (value, len));
+                PIKA_NEWNODE(StringExpr, rhs, (state, value, len));
                 need_more = false;
             }
             // cat the previous parts to the new part.
-            PIKA_NEWNODE(BinaryExpr, expr, (BinaryExpr::EXPR_cat, expr, rhs));
+            PIKA_NEWNODE(BinaryExpr, expr, (state, BinaryExpr::EXPR_cat, expr, rhs));
             expr->line = line;
             rhs->line = line;            
         }
@@ -2469,7 +2469,7 @@ Expr* Parser::DoStringLiteralExpression()
     else
     {
         Match(TOK_stringliteral);
-        PIKA_NEWNODE(StringExpr, expr, (value, len));
+        PIKA_NEWNODE(StringExpr, expr, (state, value, len));
         expr->line = line;
     }
     return expr;
@@ -2483,13 +2483,13 @@ Expr* Parser::DoIntegerLiteralExpression()
     
     Match(TOK_integerliteral);
     
-    PIKA_NEWNODE(IntegerExpr, expr, (value));
+    PIKA_NEWNODE(IntegerExpr, expr, (state, value));
     expr->line = line;
     
     return expr;
 }
 
-ExprList* Parser::DoExpressionList(bool is_kwarg)
+ExprList* Parser::DoExpressionList(bool is_call)
 {
     ExprList* el = 0;
     ExprList* firstel = 0;
@@ -2498,7 +2498,8 @@ ExprList* Parser::DoExpressionList(bool is_kwarg)
     do
     {
         Expr* expr = 0;
-        if (tstream.GetType() == TOK_identifier &&
+        
+        if (is_call && tstream.GetType() == TOK_identifier &&
             tstream.GetNextType() == ':')
         {
             int line = tstream.GetLineNumber();
@@ -2507,7 +2508,7 @@ ExprList* Parser::DoExpressionList(bool is_kwarg)
             Match(':');            
             Expr* valexpr = DoExpression();
             
-            PIKA_NEWNODE(KeywordExpr, expr, (sexpr, valexpr));
+            PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
             expr->line = line;
             
             if (!has_kwarg)
@@ -2521,10 +2522,10 @@ ExprList* Parser::DoExpressionList(bool is_kwarg)
         {
             state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "expected token: 'identifier'. A keyword argument must be the last parameter(s) supplied");
         }
-
+        
         ExprList* nxtel = 0;
         
-        PIKA_NEWNODE(ExprList, nxtel, (expr));
+        PIKA_NEWNODE(ExprList, nxtel, (state, expr));
         nxtel->line = expr->line;
         
         if (!firstel)
@@ -2549,7 +2550,7 @@ ExprList* Parser::DoExpressionList(bool is_kwarg)
     return firstel;
 }
 
-ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
+ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call)
 {
     ExprList* el = 0;
     ExprList* firstel = 0;
@@ -2560,7 +2561,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
         BufferNext();
         Expr* expr = 0;
 
-        if (tstream.GetType() == TOK_identifier &&
+        if (is_call && tstream.GetType() == TOK_identifier &&
             tstream.GetNextType() == ':')
         {
             int line = tstream.GetLineNumber();
@@ -2569,7 +2570,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
             Match(':');            
             Expr* valexpr = DoExpression();
             
-            PIKA_NEWNODE(KeywordExpr, expr, (sexpr, valexpr));
+            PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
             expr->line = line;
             
             if (!has_kwarg)
@@ -2586,7 +2587,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool keywordArg)
         
         ExprList* nxtel = 0;
         
-        PIKA_NEWNODE(ExprList, nxtel, (expr));
+        PIKA_NEWNODE(ExprList, nxtel, (state, expr));
         
         if (!firstel)
             firstel = nxtel;
@@ -2638,7 +2639,7 @@ Expr* Parser::DoFunctionExpression()
     size_t end = tstream.prev.endOffset;
     
     Expr* expr = 0;    
-    PIKA_NEWNODE(FunExpr, expr, (params, body, beg, end, id));
+    PIKA_NEWNODE(FunExpr, expr, (state, params, body, beg, end, id));
     expr->line = line;
     
     return expr;
@@ -2658,7 +2659,7 @@ Expr* Parser::DoArrayExpression()
     
     Match(']');
     
-    PIKA_NEWNODE(ArrayExpr, expr, (elems));
+    PIKA_NEWNODE(ArrayExpr, expr, (state, elems));
     expr->line = line;
     
     return expr;
@@ -2677,7 +2678,7 @@ Expr* Parser::DoDictionaryExpression()
     
     Match('}');
     
-    PIKA_NEWNODE(DictionaryExpr, expr, (fields));
+    PIKA_NEWNODE(DictionaryExpr, expr, (state, fields));
     expr->line = line;
     
     return expr;
@@ -2706,7 +2707,7 @@ FieldList* Parser::DoDictionaryExpressionFields()
             Stmt* body = DoFunctionBody();
             size_t end = tstream.prev.endOffset;
             
-            PIKA_NEWNODE(FunExpr, value, (params, body, beg, end, id));
+            PIKA_NEWNODE(FunExpr, value, (state, params, body, beg, end, id));
             
             value->line = line;
         }
@@ -2766,11 +2767,11 @@ FieldList* Parser::DoDictionaryExpressionFields()
             
             if (getfirst)
             {
-                PIKA_NEWNODE(PropExpr, value, (name, firstexpr, secondexpr));
+                PIKA_NEWNODE(PropExpr, value, (state, name, firstexpr, secondexpr));
             }
             else
             {
-                PIKA_NEWNODE(PropExpr, value, (name, secondexpr, firstexpr));
+                PIKA_NEWNODE(PropExpr, value, (state, name, secondexpr, firstexpr));
             }
             
             value->line = name->line;
@@ -2802,7 +2803,7 @@ FieldList* Parser::DoDictionaryExpressionFields()
         }
         
         FieldList* nxt = 0;
-        PIKA_NEWNODE(FieldList, nxt, (name, value));
+        PIKA_NEWNODE(FieldList, nxt, (state, name, value));
         
         if (fields)
         {
@@ -2874,7 +2875,7 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
             state->SyntaxError(tstream.GetLineNumber(), "Expected default value for parameter '%s'.", id->name);
         }
         
-        PIKA_NEWNODE(ParamDecl, currParam, (id, rest_param, kw_param, def_expr));
+        PIKA_NEWNODE(ParamDecl, currParam, (state, id, rest_param, kw_param, def_expr));
         currParam->line = id->line;
         
         if (!params)

@@ -17,7 +17,6 @@ do {                                     \
     {                                    \
         p = new (__v) T args;            \
         state->nodes += p;               \
-        p->state = state;                \
     }                                    \
     else                                 \
     {                                    \
@@ -248,7 +247,7 @@ struct CompileState
 /** Base class for all AST tree nodes. */
 struct TreeNode
 {
-    TreeNode() : state(0), line(0), astnext(0) {}
+    TreeNode(CompileState* s) : state(s), line(0), astnext(0) {}
     
     virtual ~TreeNode() {}
     
@@ -261,12 +260,12 @@ struct TreeNode
 };
 
 
-// Program /////////////////////////////////////////////////////////////////////////////////////////
-
+/** Root node when parsing a script. */
 struct Program : TreeNode
 {
-    Program(Stmt *stmts, size_t beg, size_t end)
-            : index(0),
+    Program(CompileState* s, Stmt *stmts, size_t beg, size_t end)
+            : TreeNode(s),
+            index(0),
             def(0),
             stmts(stmts),
             symtab(0),
@@ -278,40 +277,39 @@ struct Program : TreeNode
     virtual void   CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
     
-    u2           index;     // Index of def in state->literals
-    Def*         def;       // Script's function body.
-    Stmt*        stmts;     // Script's body as AST
-    SymbolTable* symtab;    // Symbol table
-    size_t       scriptBeg;
-    size_t       scriptEnd;
+    u2           index;     //!< Literal index of the __main function Def.
+    Def*         def;       //!< Script's function body.
+    Stmt*        stmts;     //!< Script's body as AST.
+    SymbolTable* symtab;    //!< Symbol table.
+    size_t       scriptBeg; //!< Beginning offset in source code.
+    size_t       scriptEnd; //!< Ending offset in source code.
 };
 
+/** Root node when parsing a function. */
 struct FunctionProg : Program
 {
-    FunctionProg(Stmt* stmts, size_t beg, size_t end, ParamDecl* a)
-            : Program(stmts, beg, end), args(a)
+    FunctionProg(CompileState* s, Stmt* stmts, size_t beg, size_t end, ParamDecl* a)
+            : Program(s, stmts, beg, end), args(a)
     {}
     
     virtual ~FunctionProg() {}
     
     virtual void CalculateResources(SymbolTable* st);
     
-    ParamDecl* args;
+    ParamDecl* args; //!< Parameters including variable and keyword arguments.
 };
 
-// Id //////////////////////////////////////////////////////////////////////////////////////
-
+/** An valid pika identifier. */
 struct Id : TreeNode
 {
-    Id(char* name);
+    Id(CompileState* s, char* name);
     virtual ~Id();
     
     char* name;
     Id*   next;
 };
 
-// Decl /////////////////////////////////////////////////////////////////////////////////////
-
+/** An declaration node. */
 struct Decl : TreeNode
 {
     enum Kind
@@ -324,22 +322,22 @@ struct Decl : TreeNode
         DECL_class,
     };
     
-    Decl(Kind kind)
-            : kind(kind)
+    Decl(CompileState* s, Kind kind)
+            : TreeNode(s),
+            kind(kind)
     {}
     
     virtual ~Decl()
     {}
     
-    Kind kind;
+    Kind kind; //!< The Decl::Kind we are.
 };
 
-// DeclarationTarget ///////////////////////////////////////////////////////////////////////////////
-
+/** An declaration target with a storage kind and symbol. */
 struct DeclarationTarget : Decl
 {
-    DeclarationTarget(Decl::Kind k, StorageKind sk)
-            : Decl(k),
+    DeclarationTarget(CompileState* s, Decl::Kind k, StorageKind sk)
+            : Decl(s, k),
             storage(sk),
             with(false),
             symbol(0),
@@ -353,17 +351,16 @@ struct DeclarationTarget : Decl
     virtual Instr*      GenerateCodeSet();
     
     
-    StorageKind storage;
-    bool        with;
-    Symbol*     symbol;
-    u2          nameindex;
+    StorageKind storage;   //!< Type of storage for our Symbol.
+    bool        with;      //!< Symbol should be a member.
+    Symbol*     symbol;    //!< Our Symbol.
+    u2          nameindex; //!< Literal index of our Symbol.
 };
 
-// NamedTarget /////////////////////////////////////////////////////////////////////////////////////
-
+/** A DeclarationTarget that has a ientifier, dot.expr or index[expr] name. */
 struct NamedTarget : DeclarationTarget
 {
-    NamedTarget(NameNode* n, Decl::Kind k, StorageKind sk) : DeclarationTarget(k, sk), already_decl(false), name(n) {}
+    NamedTarget(CompileState* s, NameNode* n, Decl::Kind k, StorageKind sk) : DeclarationTarget(s, k, sk), already_decl(false), name(n) {}
     
     virtual void        CalculateResources(SymbolTable* st);
     virtual const char* GetIdentifierName();
@@ -374,34 +371,32 @@ struct NamedTarget : DeclarationTarget
     NameNode*   name;
 };
 
-// FunctionDecl ////////////////////////////////////////////////////////////////////////////////////
-
+/** A function declaration. */
 struct FunctionDecl : DeclarationTarget
 {
-    FunctionDecl(NameNode*, ParamDecl*, Stmt*, size_t, size_t, StorageKind);
+    FunctionDecl(CompileState* s, NameNode*, ParamDecl*, Stmt*, size_t, size_t, StorageKind);
     virtual ~FunctionDecl();
     
     virtual void        CalculateResources(SymbolTable* st);
     virtual Instr*      GenerateCode();
     virtual const char* GetIdentifierName();
     
-    Def*    def;
-    u2              index;
-    ParamDecl*      args;
-    Stmt*           body;
-    SymbolTable*    symtab;
-    NameNode*       name;
-    bool            varArgs;
-    bool            kwArgs;
-    size_t          scriptBeg;
-    size_t          scriptEnd;
+    Def*         def;       //!< The function definition.
+    u2           index;     //!< The literal index of the function definition.
+    ParamDecl*   args;      //!< Parameters including variable and keyword arguments.
+    Stmt*        body;      //!< The function's body.
+    SymbolTable* symtab;    //!< Symbols for the function's body.
+    NameNode*    name;      //!< Functions name.
+    bool         varArgs;   //!< Function has variable argument.
+    bool         kwArgs;    //!< Function has keyword argument.
+    size_t       scriptBeg; //!< Beginning position in the source code.
+    size_t       scriptEnd; //!< End position in the source code.
 };
 
-// ParamDecl ///////////////////////////////////////////////////////////////////////////////////////
-
+/** Function parameter declaration node. */
 struct ParamDecl : Decl
 {
-    ParamDecl(Id* name, bool vargs, bool kw, Expr* val);
+    ParamDecl(CompileState* s, Id* name, bool vargs, bool kw, Expr* val);
     
     void            CalculateDefaultResources(SymbolTable* st);
     virtual void    CalculateResources(SymbolTable* st);
@@ -410,20 +405,19 @@ struct ParamDecl : Decl
     bool            HasVarArgs();
     bool            HasKeywordArgs();
     
-    Expr*       val;
-    Symbol*     symbol;
-    Id*         name;
-    bool        has_rest; // Parameter was proceeded by ':'
-    bool        has_kwargs; // Parameter was proceeded by '::'
-    ParamDecl*  next;
+    Expr*       val;        //!< Default valid or null. ie (..., param = value, ...)
+    Symbol*     symbol;     //!< Parameter's local variable Symbol.
+    Id*         name;       //!< Parameter name.
+    bool        has_rest;   //!< Parameter is variable argument.
+    bool        has_kwargs; //!< Parameter is keyword argument.
+    ParamDecl*  next;       //!< Next parameter.
 };
 
-// VarDecl /////////////////////////////////////////////////////////////////////////////////////////
-// global <id> [ = <expr> ]
+/** Global variable declaration node. */
 struct VarDecl : Decl
 {
-    VarDecl(Id* name)
-            : Decl(Decl::DECL_variable),
+    VarDecl(CompileState* s, Id* name)
+            : Decl(s, Decl::DECL_variable),
             nameIndex(0),
             symbol(0),
             name(name),
@@ -433,39 +427,46 @@ struct VarDecl : Decl
     virtual void    CalculateResources(SymbolTable* st);
     virtual Instr*  GenerateCode();
     
-    u2          nameIndex;
-    Symbol*     symbol;
-    Id*         name;
-    VarDecl*    next;
+    u2       nameIndex; //!< Literal pool index of our name.
+    Symbol*  symbol;    //!< Symbol of the variable.
+    Id*      name;      //!< Identifier of the variable.
+    VarDecl* next;      //!< Next VarDecl or null. 
 };
 
-// LocalDecl ///////////////////////////////////////////////////////////////////////////////////////
-// local <id> [ = <expr> ]
+/** Local variable declaration node. */
 struct LocalDecl : VarDecl
 {
-    LocalDecl(Id* name) : VarDecl(name), newLocal(false) {}
+    LocalDecl(CompileState* s, Id* name) : VarDecl(s, name), newLocal(false) {}
     
     virtual void CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
-    bool newLocal;
+    
+    bool newLocal; //!< True if this variable has not been declared in this scope.
 };
 
-// MemberDeclaration ///////////////////////////////////////////////////////////////////////////////
-// member <id> [ = <expr> ]
+/** Instance variable declaration node. */
 struct MemberDeclaration : VarDecl
 {
-    MemberDeclaration(Id* name) : VarDecl(name) {}
+    MemberDeclaration(CompileState* s, Id* name) : VarDecl(s, name) {}
     virtual ~MemberDeclaration() {}
     
     virtual void CalculateResources(SymbolTable* st);
 };
 
-// VariableTarget //////////////////////////////////////////////////////////////////////////////////
-
+/** A variable declaration with assignment. This only applies to declarations that
+  * have a StorageKind, 
+  * <pre>
+  * i.e. 
+  * local var1, var2, ..., varN = exp1, exp2, ..., expN
+  * global var1, var2, ..., varN = exp1, exp2, ..., expN
+  * member var1, var2, ..., varN = exp1, exp2, ..., expN
+  * </pre>
+  * Variable assignments without a storage kind are handled by AssignmentStmt.
+  */
 struct VariableTarget : DeclarationTarget
 {
-    VariableTarget(VarDecl* decls, ExprList* exprs, StorageKind sk)
-            : DeclarationTarget(Decl::DECL_variable, sk),
+    VariableTarget(CompileState* s, VarDecl* decls, ExprList* exprs, StorageKind sk)
+            : DeclarationTarget(s, Decl::DECL_variable, sk),
             curr_decl(0),
             decls(decls),
             exprs(exprs),
@@ -484,12 +485,10 @@ struct VariableTarget : DeclarationTarget
     bool      isCall;
 };
 
-// Stmt ////////////////////////////////////////////////////////////////////////////////////////////
-
+/** Base class for all statement nodes. */
 struct Stmt : TreeNode
 {
-    enum Kind
-    {
+    enum Kind {
         STMT_empty,
         STMT_list,
         STMT_block,
@@ -511,10 +510,9 @@ struct Stmt : TreeNode
         STMT_with,
         STMT_case,
         STMT_assert,
-        STMT_delete,
     };
     
-    Stmt(Kind kind) : newline(false), kind(kind) {}
+    Stmt(CompileState* s, Kind kind) : TreeNode(s), newline(false), kind(kind) {}
     
     virtual bool    IsLoop() const { return false; }
     virtual void    DoStmtResources(SymbolTable* st) = 0;
@@ -530,15 +528,15 @@ struct Stmt : TreeNode
     
     virtual Instr* GenerateCode();
     
-    u1 newline;
-    Kind kind;
+    bool newline; //!< Statement lies on a new line.
+    Kind kind;    //!< Type of statement.
 };
 
 // FinallyStmt ////////////////////////////////////////////////////////////////////////////////
 
 struct FinallyStmt : Stmt
 {
-    FinallyStmt(Stmt* block, Stmt* finalize_block);
+    FinallyStmt(CompileState* s, Stmt* block, Stmt* finalize_block);
     virtual ~FinallyStmt();
     
     virtual void DoStmtResources(SymbolTable* st);
@@ -553,8 +551,8 @@ struct FinallyStmt : Stmt
 
 struct RaiseStmt : Stmt
 {
-    RaiseStmt(Expr* expr)
-            : Stmt(Stmt::STMT_raise),
+    RaiseStmt(CompileState* s, Expr* expr)
+            : Stmt(s, Stmt::STMT_raise),
             reraiseOffset((u2) - 1), expr(expr)
     {}
     
@@ -565,16 +563,16 @@ struct RaiseStmt : Stmt
     Expr* expr;
 };
 
-// TryStmt ////////////////////////////////////////////////////////////////////////////////////
 
 struct CatchIsBlock : TreeNode, TLinked<CatchIsBlock>
 {
-    CatchIsBlock(Id* c, Expr* e, Stmt* b) :
-            catchvar(c),
-            isexpr(e),
-            symbol(0),
-            block(b),
-            symtab(0)
+    CatchIsBlock(CompileState* s, Id* c, Expr* e, Stmt* b) 
+    :   TreeNode(s),
+        catchvar(c),
+        isexpr(e),
+        symbol(0),
+        block(b),
+        symtab(0)
     {}
     
     virtual ~CatchIsBlock();
@@ -589,8 +587,8 @@ struct CatchIsBlock : TreeNode, TLinked<CatchIsBlock>
 
 struct TryStmt : Stmt
 {
-    TryStmt(Stmt* tryBlock, Stmt* catchBlock, Id* caughtVar, CatchIsBlock* cisb, Stmt* elsebody)
-            : Stmt(Stmt::STMT_try),
+    TryStmt(CompileState* s, Stmt* tryBlock, Stmt* catchBlock, Id* caughtVar, CatchIsBlock* cisb, Stmt* elsebody)
+            : Stmt(s, Stmt::STMT_try),
             tryBlock(tryBlock),
             catchBlock(catchBlock),
             caughtVar(caughtVar),
@@ -619,8 +617,8 @@ struct TryStmt : Stmt
 
 struct LabeledStmt : Stmt
 {
-    LabeledStmt(Id* id, Stmt* stmt)
-            : Stmt(Stmt::STMT_labeled),
+    LabeledStmt(CompileState* s, Id* id, Stmt* stmt)
+            : Stmt(s, Stmt::STMT_labeled),
             id(id),
             label(0),
             stmt(stmt)
@@ -638,7 +636,7 @@ struct LabeledStmt : Stmt
 
 struct LoopingStmt : Stmt
 {
-    LoopingStmt(Stmt::Kind k) : Stmt(k), label(0) {}
+    LoopingStmt(CompileState* s, Stmt::Kind k) : Stmt(s, k), label(0) {}
     
     virtual bool IsLoop() const { return true; }
     
@@ -649,8 +647,8 @@ struct LoopingStmt : Stmt
 
 struct BreakStmt : Stmt
 {
-    BreakStmt(Id *id)
-            : Stmt(Stmt::STMT_break),
+    BreakStmt(CompileState* s, Id *id)
+            : Stmt(s, Stmt::STMT_break),
             label(0),
             id(id)
     {}
@@ -666,8 +664,8 @@ struct BreakStmt : Stmt
 
 struct ContinueStmt : Stmt
 {
-    ContinueStmt(Id *id)
-            : Stmt(Stmt::STMT_continue),
+    ContinueStmt(CompileState* s, Id *id)
+            : Stmt(s, Stmt::STMT_continue),
             label(0),
             id(id)
     {}
@@ -748,14 +746,14 @@ struct Expr : TreeNode
         EXPR_kwarg,
     };
     
-    Expr(Kind kind) : kind(kind) {}
+    Expr(CompileState* s, Kind kind) : TreeNode(s), kind(kind) {}
     
     Kind kind;
 };
 
 struct ParenExpr : Expr
 {
-    ParenExpr(Expr* e) : Expr(Expr::EXPR_paren), expr(e) {}
+    ParenExpr(CompileState* s, Expr* e) : Expr(s, Expr::EXPR_paren), expr(e) {}
     virtual ~ParenExpr();
     
     virtual void   CalculateResources(SymbolTable* st);
@@ -768,8 +766,8 @@ struct ParenExpr : Expr
 
 struct PropertyDecl : NamedTarget
 {
-    PropertyDecl(NameNode* name, Expr* get_expr, Expr* set_expr, StorageKind sk)
-            : NamedTarget(name, Decl::DECL_property, sk),
+    PropertyDecl(CompileState* s, NameNode* name, Expr* get_expr, Expr* set_expr, StorageKind sk)
+            : NamedTarget(s, name, Decl::DECL_property, sk),
             name_expr(0),
             getter(get_expr),
             setter(set_expr)
@@ -800,7 +798,7 @@ struct LoadExpr : Expr
         LK_locals,
     };
     
-    LoadExpr(LoadKind k) : Expr(Expr::EXPR_load), loadkind(k) {}
+    LoadExpr(CompileState* s, LoadKind k) : Expr(s, Expr::EXPR_load), loadkind(k) {}
     
     virtual void CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
@@ -812,8 +810,8 @@ struct LoadExpr : Expr
 
 struct CallExpr : Expr
 {
-    CallExpr(Expr *left, ExprList *args)
-            : Expr(Expr::EXPR_call),
+    CallExpr(CompileState* s, Expr *left, ExprList *args)
+            : Expr(s, Expr::EXPR_call),
             left(left),
             args(args), argc(0), kwargc(), retc(1), redirectedcall(0) {}
             
@@ -833,8 +831,8 @@ struct CallExpr : Expr
 
 struct CondExpr : Expr
 {
-    CondExpr(Expr* cond, Expr* a, Expr* b, bool unless = false)
-            : Expr(Expr::EXPR_conditional),
+    CondExpr(CompileState* s, Expr* cond, Expr* a, Expr* b, bool unless = false)
+            : Expr(s, Expr::EXPR_conditional),
             cond(cond),
             exprA(a),
             exprB(b),
@@ -853,7 +851,7 @@ struct CondExpr : Expr
 
 struct NullSelectExpr : Expr
 {
-    NullSelectExpr(Expr* a, Expr* b) : Expr(Expr::EXPR_nullselect), exprA(a), exprB(b) {}
+    NullSelectExpr(CompileState* s, Expr* a, Expr* b) : Expr(s, Expr::EXPR_nullselect), exprA(a), exprB(b) {}
     
     virtual void CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
@@ -866,8 +864,8 @@ struct NullSelectExpr : Expr
 
 struct SliceExpr : Expr
 {
-    SliceExpr(Expr* expr, Expr* from, Expr* to)
-            : Expr(Expr::EXPR_slice),
+    SliceExpr(CompileState* s, Expr* expr, Expr* from, Expr* to)
+            : Expr(s, Expr::EXPR_slice),
             expr(expr),
             from(from),
             to(to),
@@ -889,8 +887,8 @@ struct SliceExpr : Expr
 
 struct StmtList : Stmt
 {
-    StmtList(Stmt *first, Stmt *second)
-            : Stmt(Stmt::STMT_list),
+    StmtList(CompileState* s, Stmt *first, Stmt *second)
+            : Stmt(s, Stmt::STMT_list),
             first(first),
             second(second) {}
             
@@ -910,7 +908,7 @@ struct StmtList : Stmt
 
 struct EmptyStmt : Stmt
 {
-    EmptyStmt() : Stmt(Stmt::STMT_empty) {}
+    EmptyStmt(CompileState* s) : Stmt(s, Stmt::STMT_empty) {}
     
     virtual void DoStmtResources(SymbolTable* st) {}
     Instr* DoStmtCodeGen();
@@ -920,7 +918,7 @@ struct EmptyStmt : Stmt
 
 struct ExprStmt : Stmt
 {
-    ExprStmt(ExprList* expr) : Stmt(Stmt::STMT_expr), exprList(expr), autopop(true) {}
+    ExprStmt(CompileState* s, ExprList* expr) : Stmt(s, Stmt::STMT_expr), exprList(expr), autopop(true) {}
     
     virtual void DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
@@ -933,7 +931,7 @@ struct ExprStmt : Stmt
 
 struct RetStmt : Stmt
 {
-    RetStmt(ExprList* el) : Stmt(Stmt::STMT_return), exprs(el), count(0), isInTry(false) {}
+    RetStmt(CompileState* s, ExprList* el) : Stmt(s, Stmt::STMT_return), exprs(el), count(0), isInTry(false) {}
     
     virtual void    DoStmtResources(SymbolTable* st);
     virtual Instr*  DoStmtCodeGen();
@@ -947,7 +945,7 @@ struct RetStmt : Stmt
 
 struct YieldStmt : Stmt
 {
-    YieldStmt(ExprList* el) : Stmt(Stmt::STMT_yield), exprs(el), count(0) {}
+    YieldStmt(CompileState* s, ExprList* el) : Stmt(s, Stmt::STMT_yield), exprs(el), count(0) {}
     
     virtual void DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
@@ -960,7 +958,7 @@ struct YieldStmt : Stmt
 
 struct LoopStmt : LoopingStmt
 {
-    LoopStmt(Stmt *body) : LoopingStmt(Stmt::STMT_loop), body(body) {}
+    LoopStmt(CompileState* s, Stmt *body) : LoopingStmt(s, Stmt::STMT_loop), body(body) {}
     
     virtual void DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
@@ -972,8 +970,8 @@ struct LoopStmt : LoopingStmt
 
 struct CondLoopStmt : LoopingStmt
 {
-    CondLoopStmt(Expr* cond, Stmt* body, bool repeat, bool until)
-            : LoopingStmt(Stmt::STMT_while),
+    CondLoopStmt(CompileState* s, Expr* cond, Stmt* body, bool repeat, bool until)
+            : LoopingStmt(s, Stmt::STMT_while),
             cond(cond),
             body(body),
             repeat(repeat),
@@ -992,8 +990,8 @@ struct CondLoopStmt : LoopingStmt
 
 struct ForToStmt : LoopingStmt
 {
-    ForToStmt(Id* id, Expr* from, Expr* to, Expr* step, Stmt* body, bool down)
-            : LoopingStmt(Stmt::STMT_for),
+    ForToStmt(CompileState* s, Id* id, Expr* from, Expr* to, Expr* step, Stmt* body, bool down)
+            : LoopingStmt(s, Stmt::STMT_for),
             id(id),
             from(from),
             to(to),
@@ -1022,8 +1020,8 @@ struct ForToStmt : LoopingStmt
 
 struct ForeachStmt : LoopingStmt
 {
-    ForeachStmt(Id* id, Expr* type_expr, Expr* in, Stmt* body)
-            : LoopingStmt(Stmt::STMT_foreach),
+    ForeachStmt(CompileState* s, Id* id, Expr* type_expr, Expr* in, Stmt* body)
+            : LoopingStmt(s, Stmt::STMT_foreach),
             id(id),
             iterVar(0),
             type_expr(type_expr),
@@ -1051,8 +1049,8 @@ struct ForeachStmt : LoopingStmt
 
 struct IfStmt : Stmt
 {
-    IfStmt(Expr* cond, Stmt* then_part, bool unless = false)
-            : Stmt(Stmt::STMT_if),
+    IfStmt(CompileState* s, Expr* cond, Stmt* then_part, bool unless = false)
+            : Stmt(s, Stmt::STMT_if),
             next(0),
             cond(cond),
             then_part(then_part),
@@ -1086,8 +1084,8 @@ struct IfStmt : Stmt
 
 struct ConditionalStmt : Stmt
 {
-    ConditionalStmt(IfStmt* ifpart, Stmt* elsepart)
-            : Stmt(Stmt::STMT_if),
+    ConditionalStmt(CompileState* s, IfStmt* ifpart, Stmt* elsepart)
+            : Stmt(s, Stmt::STMT_if),
             ifPart(ifpart),
             elsePart(elsepart) {}
             
@@ -1107,8 +1105,8 @@ struct ConditionalStmt : Stmt
 
 struct BlockStmt : Stmt
 {
-    BlockStmt(Stmt* stmts)
-            : Stmt(Stmt::STMT_block),
+    BlockStmt(CompileState* s, Stmt* stmts)
+            : Stmt(s, Stmt::STMT_block),
             stmts(stmts),
             symtab(0) {}
             
@@ -1124,7 +1122,7 @@ struct BlockStmt : Stmt
 
 struct DeclStmt : Stmt
 {
-    DeclStmt(Decl *decl);
+    DeclStmt(CompileState* s, Decl *decl);
     
     virtual void DoStmtResources(SymbolTable* st);
     
@@ -1137,8 +1135,8 @@ struct DeclStmt : Stmt
 
 struct UnaryExpr : Expr
 {
-    UnaryExpr(Expr::Kind k, Expr* expr)
-            : Expr(k),
+    UnaryExpr(CompileState* s, Expr::Kind k, Expr* expr)
+            : Expr(s, k),
             expr(expr) {}
             
     virtual void   CalculateResources(SymbolTable* st);
@@ -1168,8 +1166,8 @@ struct UnaryExpr : Expr
 
 struct BinaryExpr : Expr
 {
-    BinaryExpr(Expr::Kind k, Expr* left, Expr* right)
-            : Expr(k),
+    BinaryExpr(CompileState* s, Expr::Kind k, Expr* left, Expr* right)
+            : Expr(s, k),
             left(left),
             right(right)
     {}
@@ -1220,8 +1218,8 @@ struct BinaryExpr : Expr
 
 struct IdExpr : Expr
 {
-    IdExpr(Id* id)
-            : Expr(Expr::EXPR_identifier),
+    IdExpr(CompileState* s, Id* id)
+            : Expr(s, Expr::EXPR_identifier),
             depthindex(0),
             index(0),
             id(id),
@@ -1259,8 +1257,8 @@ struct IdExpr : Expr
 
 struct ConstantExpr : Expr
 {
-    ConstantExpr(Expr::Kind k)
-            : Expr(k),
+    ConstantExpr(CompileState* s, Expr::Kind k)
+            : Expr(s, k),
             index(0) {}
             
     virtual Instr* GenerateCode();
@@ -1272,8 +1270,8 @@ struct ConstantExpr : Expr
 
 struct FunExpr : ConstantExpr
 {
-    FunExpr(ParamDecl* args, Stmt* body, size_t begtxt, size_t endtxt, Id* name = 0)
-    : ConstantExpr(Expr::EXPR_function),
+    FunExpr(CompileState* s, ParamDecl* args, Stmt* body, size_t begtxt, size_t endtxt, Id* name = 0)
+    : ConstantExpr(s, Expr::EXPR_function),
     args(args),
     name(name),
     body(body),
@@ -1298,8 +1296,8 @@ struct FunExpr : ConstantExpr
 
 struct PropExpr : Expr
 {
-    PropExpr(Expr* name, Expr* getfn, Expr* setfn)
-    : Expr(Expr::EXPR_property),
+    PropExpr(CompileState* s, Expr* name, Expr* getfn, Expr* setfn)
+    : Expr(s, Expr::EXPR_property),
     nameexpr(name),
     getter(getfn),
     setter(setfn) {}
@@ -1316,8 +1314,8 @@ struct PropExpr : Expr
 
 struct MemberExpr : ConstantExpr
 {
-    MemberExpr(Id *id)
-            : ConstantExpr(Expr::EXPR_member),
+    MemberExpr(CompileState* s, Id *id)
+            : ConstantExpr(s, Expr::EXPR_member),
             id(id) {}
             
     virtual void CalculateResources(SymbolTable* st);
@@ -1329,8 +1327,8 @@ struct MemberExpr : ConstantExpr
 
 struct StringExpr : ConstantExpr
 {
-    StringExpr(char *string, size_t len)
-            : ConstantExpr(Expr::EXPR_string),
+    StringExpr(CompileState* s, char *string, size_t len)
+            : ConstantExpr(s, Expr::EXPR_string),
             string(string),
             length(len) {}
             
@@ -1345,8 +1343,8 @@ struct StringExpr : ConstantExpr
 
 struct IntegerExpr : ConstantExpr
 {
-    IntegerExpr(pint_t integer)
-            : ConstantExpr(Expr::EXPR_integer),
+    IntegerExpr(CompileState* s, pint_t integer)
+            : ConstantExpr(s, Expr::EXPR_integer),
             integer(integer) {}
             
     virtual void CalculateResources(SymbolTable* st);
@@ -1358,8 +1356,8 @@ struct IntegerExpr : ConstantExpr
 
 struct RealExpr : ConstantExpr
 {
-    RealExpr(preal_t real)
-            : ConstantExpr(Expr::EXPR_real),
+    RealExpr(CompileState* s, preal_t real)
+            : ConstantExpr(s, Expr::EXPR_real),
             real(real) {}
             
     virtual void CalculateResources(SymbolTable* st);
@@ -1376,7 +1374,7 @@ struct RealExpr : ConstantExpr
   */
 struct DotExpr : BinaryExpr
 {
-    DotExpr(Expr*, Expr*);
+    DotExpr(CompileState* s, Expr*, Expr*);
     
     virtual void    CalculateResources(SymbolTable* st);
     
@@ -1394,7 +1392,7 @@ struct DotExpr : BinaryExpr
   */
 struct IndexExpr : DotExpr
 {
-    IndexExpr(Expr* l, Expr* r) : DotExpr(l, r)
+    IndexExpr(CompileState* s, Expr* l, Expr* r) : DotExpr(s, l, r)
     {
     }
     virtual void    CalculateResources(SymbolTable* st);
@@ -1412,8 +1410,8 @@ struct IndexExpr : DotExpr
   */
 struct DotBindExpr : DotExpr
 {
-    DotBindExpr(Expr *l, Expr *r, bool index = false) 
-        : DotExpr(l, r), is_index(index)
+    DotBindExpr(CompileState* s, Expr *l, Expr *r, bool index = false) 
+        : DotExpr(s, l, r), is_index(index)
     { 
         kind = Expr::EXPR_dotbind; 
     }
@@ -1430,9 +1428,9 @@ struct DotBindExpr : DotExpr
 /** A list of (key, value) pairs used as the elements of an object literal. */
 struct FieldList : TreeNode
 {
-    FieldList(Expr* name, Expr* value) : dtarget(0), name(name), value(value), next(0) {}
+    FieldList(CompileState* s, Expr* name, Expr* value) : TreeNode(s), dtarget(0), name(name), value(value), next(0) {}
     
-    FieldList(DeclarationTarget* dt) : dtarget(dt), name(0), value(0), next(0) {}
+    FieldList(CompileState* s, DeclarationTarget* dt) : TreeNode(s), dtarget(dt), name(0), value(0), next(0) {}
     
     virtual void CalculateResources(SymbolTable* st)
     {
@@ -1469,7 +1467,7 @@ struct FieldList : TreeNode
 /** An object or dictionary literal. */
 struct DictionaryExpr : Expr
 {
-    DictionaryExpr(FieldList* fields) : Expr(Expr::EXPR_dictionary), type_expr(0), fields(fields) {}
+    DictionaryExpr(CompileState* s, FieldList* fields) : Expr(s, Expr::EXPR_dictionary), type_expr(0), fields(fields) {}
     
     virtual void    CalculateResources(SymbolTable* st);
     virtual Instr*  GenerateCode();
@@ -1485,7 +1483,7 @@ struct DictionaryExpr : Expr
   */
 struct ArrayExpr : Expr
 {
-    ArrayExpr(ExprList* elements) : Expr(Expr::EXPR_array), numElements(0), elements(elements) {}
+    ArrayExpr(CompileState* s, ExprList* elements) : Expr(s, Expr::EXPR_array), numElements(0), elements(elements) {}
     
     virtual void CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
@@ -1496,7 +1494,7 @@ struct ArrayExpr : Expr
 
 struct KeywordExpr : Expr
 {
-    KeywordExpr(StringExpr* name__, Expr* value__) : Expr(Expr::EXPR_kwarg), name(name__), value(value__) {}
+    KeywordExpr(CompileState* s, StringExpr* name__, Expr* value__) : Expr(s, Expr::EXPR_kwarg), name(name__), value(value__) {}
     virtual ~KeywordExpr() {}
     
     virtual void CalculateResources(SymbolTable* st);
@@ -1509,7 +1507,7 @@ struct KeywordExpr : Expr
 
 struct ExprList : TreeNode
 {
-    ExprList(Expr* e) : expr(e), next(0) {}
+    ExprList(CompileState* s, Expr* e) : TreeNode(s), expr(e), next(0) {}
     
     virtual void CalculateResources(SymbolTable* st);
     
@@ -1559,7 +1557,7 @@ struct AssignmentStmt : Stmt
         CONCAT_ASSIGN_STMT,
     };
     
-    AssignmentStmt(ExprList* l, ExprList* r);
+    AssignmentStmt(CompileState* s, ExprList* l, ExprList* r);
     
     virtual void DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
@@ -1578,7 +1576,7 @@ struct AssignmentStmt : Stmt
 
 struct UsingStmt : Stmt
 {
-    UsingStmt(Expr* e, Stmt* b);
+    UsingStmt(CompileState* s, Expr* e, Stmt* b);
     
     virtual ~UsingStmt();
     
@@ -1595,7 +1593,7 @@ struct UsingStmt : Stmt
 
 struct PkgDecl : NamedTarget
 {
-    PkgDecl(NameNode*, Stmt* body, StorageKind sto);
+    PkgDecl(CompileState* s, NameNode*, Stmt* body, StorageKind sto);
     
     virtual ~PkgDecl();
     virtual void CalculateResources(SymbolTable* st);
@@ -1610,9 +1608,9 @@ struct PkgDecl : NamedTarget
 
 struct NameNode : Expr
 {
-    NameNode(IdExpr* idexpr) : Expr(Expr::EXPR_namenode), idexpr(idexpr), dotexpr(0) {}
+    NameNode(CompileState* s, IdExpr* idexpr) : Expr(s, Expr::EXPR_namenode), idexpr(idexpr), dotexpr(0) {}
     
-    NameNode(DotExpr* dotexpr) : Expr(Expr::EXPR_namenode), idexpr(0), dotexpr(dotexpr) {}
+    NameNode(CompileState* s, DotExpr* dotexpr) : Expr(s, Expr::EXPR_namenode), idexpr(0), dotexpr(dotexpr) {}
     
     virtual ~NameNode() {}
     
@@ -1629,8 +1627,8 @@ struct NameNode : Expr
 
 struct ClassDecl : NamedTarget
 {
-    ClassDecl(NameNode* id, Expr* super, Stmt* stmts, StorageKind sk)
-            : NamedTarget(id, Decl::DECL_class, sk),
+    ClassDecl(CompileState* s, NameNode* id, Expr* super, Stmt* stmts, StorageKind sk)
+            : NamedTarget(s, id, Decl::DECL_class, sk),
             stringid(0),
             super(super),
             stmts(stmts),
