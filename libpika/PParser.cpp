@@ -398,6 +398,61 @@ Stmt* Parser::DoStatement(bool skipExpr)
         stmt->line = line;
     }
     break;
+    case '@':
+    {
+        AnnonationDecl* deco_decl=0;
+        while (tstream.GetType() == '@') {
+            int start_line = tstream.GetLineNumber();
+            tstream.Advance();
+            BufferCurrent();
+            
+            if (tstream.GetLineNumber() != start_line) {
+                state->SyntaxException(Exception::ERROR_syntax, start_line, "annotation must be contained to a single line.");
+            }
+            NameNode* name = DoNameNode(true);
+            BufferCurrent();
+            ExprList* deco_args = 0;
+            if (tstream.GetLineNumber() == start_line) {
+                deco_args = DoExpressionList();
+            }           
+            
+            AnnonationDecl* deco_new = 0;
+            PIKA_NEWNODE(AnnonationDecl, deco_new, (state, name, deco_args));
+            if (!deco_decl)
+            {
+                deco_decl = deco_new;
+            }
+            else
+            {
+                deco_decl->Attach(deco_new);
+            } 
+            DoEndOfStatement();
+        }
+        
+        stmt = DoStatement(false);
+        if (stmt->kind != Stmt::STMT_decl)
+        {
+            state->SyntaxException(Exception::ERROR_syntax, stmt->line, "annotation must be followed by a declaration: class, function, package or property.");
+        }
+        else
+        {
+            Decl* decl = ((DeclStmt*)stmt)->decl;
+            switch (decl->kind)
+            {
+            case Decl::DECL_function:
+            case Decl::DECL_property:
+            case Decl::DECL_package:
+            case Decl::DECL_class: {
+                NamedTarget* target = (NamedTarget*)decl;
+                target->annotations = deco_decl;
+                break;
+            }
+            default:
+                state->SyntaxException(Exception::ERROR_syntax, stmt->line, "annotation must be followed by a declaration: class, function, package or property.");
+            }
+        }
+    }
+    break;
     case TOK_global:
     case TOK_local:
     case TOK_member:

@@ -141,12 +141,7 @@ char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout)
                 case '\\' : ret.Push('\\'); break;     
                 case '{'  : ret.Push('{');  break;
                 case '}'  : ret.Push('}');  break;
-                default: 
-                {
-                ret.Push('\\');
-                ret.Push((char)next);
-                }
-                break;
+                default: continue;
                 };
             }
         }

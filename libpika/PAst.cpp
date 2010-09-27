@@ -375,19 +375,27 @@ const char* NamedTarget::GetIdentifierName()
 void NamedTarget::CalculateResources(SymbolTable* st)
 {
     CreateSymbol(st);
+    
+    if (annotations) annotations->CalculateResources(st);
     name->CalculateResources(st);
+}
+
+void AnnonationDecl::CalculateResources(SymbolTable* st)
+{
+    if (next) next->CalculateResources(st);
+    if (name) name->CalculateResources(st);
+    if (args) args->CalculateResources(st);
 }
 
 FunctionDecl::FunctionDecl(CompileState* s, NameNode* name, ParamDecl* args, Stmt* body,
                            size_t begtxt, size_t endtxt,
                            StorageKind sk)
-        : DeclarationTarget(s, Decl::DECL_function, sk),
+        : NamedTarget(s, name, Decl::DECL_function, sk),
         def(0),
         index(0),
         args(args),
         body(body),
         symtab(0),
-        name(name),
         varArgs(false),
         kwArgs(false),
         scriptBeg(begtxt),
@@ -405,9 +413,8 @@ FunctionDecl::FunctionDecl(CompileState* s, NameNode* name, ParamDecl* args, Stm
 const char* FunctionDecl::GetIdentifierName() { return name->GetName(); }
 
 void FunctionDecl::CalculateResources(SymbolTable* st)
-{
-    CreateSymbol(st);
-    name->CalculateResources(st);
+{    
+    NamedTarget::CalculateResources(st);
     
     Pika_FunctionResourceCalculation(line, st, *state,
                                       args, body,

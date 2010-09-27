@@ -284,9 +284,60 @@ Instr* NamedTarget::GenerateCodeSet()
     return name->GenerateCodeSet();
 }
 
+Instr* AnnonationDecl::GenerateCode()
+{
+    SHOULD_NEVER_HAPPEN();
+    return 0;   
+}
+
+Instr* AnnonationDecl::GenerateCodeWith(Instr* subj)
+{
+    Instr* iname = name->GenerateCode();    
+    Instr* iargs = Instr::Create(OP_nop);
+    Instr* iself = Instr::Create(OP_pushnull);
+    
+    // Start at 1 since we *always* have 1 extra argument, either the next annotation or the declaration.
+    u2 argc = 1; 
+    ExprList* curr_arg = args;
+    while (curr_arg)
+    {
+        ++argc;
+        Instr* icurr_arg = curr_arg->expr->GenerateCode();        
+        iargs->Attach(icurr_arg);
+        curr_arg = curr_arg->next;
+    }
+    
+    Instr* icall = Instr::Create(OP_call);
+    icall->operand   = argc;
+    icall->operandu1 = 0;
+    icall->operandu2 = 1;
+    
+    Instr* last_arg = next ? next->GenerateCodeWith(subj) : subj;
+    
+    
+    iargs->
+    Attach(last_arg)->
+    Attach(iself)->
+    Attach(iname)->
+    Attach(icall);
+    
+    return iargs;
+}
+
 Instr* FunctionDecl::GenerateCode()
 {
-    Instr* iset  = 0;
+    Instr* fun = GenerateFunctionCode();
+    
+    Instr* decor = GenerateAnnotationCode(fun);
+    Instr* set = NamedTarget::GenerateCodeSet();
+    
+    decor->
+    Attach(set);
+    return decor;
+}
+
+Instr* FunctionDecl::GenerateFunctionCode()
+{
     Instr* iinst = 0;
     Instr* idefs = 0;
     
@@ -313,6 +364,7 @@ Instr* FunctionDecl::GenerateCode()
     iinst = Instr::Create(OP_method);
     iinst->operand = numdefs;
     
+    // Generate the self object if its a dot expr
     bool isdotexpr = name->dotexpr ? true : false;
     
     if (isdotexpr)
@@ -337,26 +389,11 @@ Instr* FunctionDecl::GenerateCode()
         idefs->Attach(iinst);
         iinst = idefs;
     }
-    
-    if (isdotexpr)
-    {
-        Instr* iswap = Instr::Create(OP_swap);
-        Instr* irhs  = name->dotexpr->right->GenerateCode();
-        iset = Instr::Create(name->dotexpr->SetOpcode());
         
-        iswap->
-        Attach(irhs)->
-        Attach(iset)
-        ;
-        iset = iswap;
-    }
-    else
-    {
-        iset = name->GenerateCodeSet();
-    }
+    
+    
     ifun->
-    Attach(iinst)->
-    Attach(iset)
+    Attach(iinst)
     ;
     try
     {
@@ -384,6 +421,7 @@ Instr* FunctionDecl::GenerateCode()
             throw;
         }
     }
+       
     return ifun;
 }
 
@@ -1755,6 +1793,13 @@ Instr* DeclarationTarget::GenerateCodeSet()
     return 0;
 }
 
+Instr* NamedTarget::GenerateAnnotationCode(Instr* subj)
+{
+    if (annotations)
+        return annotations->GenerateCodeWith(subj);    
+    return subj;
+}
+
 Instr* NamedTarget::GenerateCodeWith(Instr* body)
 {
     Instr* get = name->GenerateCode();
@@ -1815,10 +1860,13 @@ Instr* PropertyDecl::GeneratePropertyCode()
 
 Instr* PropertyDecl::GenerateCode()
 {
-    Instr* iexpr = GeneratePropertyCode();
-    Instr* iassign = NamedTarget::GenerateCodeSet();    
-    iexpr->Attach(iassign);
-    return iexpr;
+    Instr* prop = GeneratePropertyCode();
+    Instr* decor = GenerateAnnotationCode(prop);
+    Instr* set = NamedTarget::GenerateCodeSet();    
+    
+    decor->
+    Attach(set);
+    return decor;
 }
 
 Instr* AssignmentStmt::DoStmtCodeGen()
@@ -2170,11 +2218,13 @@ Instr* PkgDecl::GenerateCode()
     
     Instr* iassign = NamedTarget::GenerateCodeSet();
     Instr* idup    = Instr::Create(OP_dup);
-        
+    //Instr* decor   = GenerateAnnotationCode();
+    
     ipkgname         ->
     Attach(insideof) ->
     Attach(inew_pkg) ->
     Attach(idup)     ->
+    //Attach(decor)    ->
     Attach(iassign)  ->
     Attach(ipush_pkg)->
     Attach(ibody)    ->
@@ -2220,8 +2270,6 @@ Instr* NameNode::GenerateCodeSet()
 
 Instr* ClassDecl::GenerateCode()
 {
-    //Instr* enterEnv  = Instr::Create(OP_pushpkg);
-    //Instr* exitEnv   = Instr::Create(OP_poppkg);
     Opcode const popcode = OP_poppkg;
     Opcode const pushcode = OP_pushpkg;
     Instr* insideof  = name->GetSelfExpr() ? name->GetSelfExpr()->GenerateCode() : Instr::Create(OP_pushnull);
@@ -2230,6 +2278,7 @@ Instr* ClassDecl::GenerateCode()
     Instr* enterWith = Instr::Create(pushcode);
     Instr* newType   = Instr::Create(OP_subclass);
     Instr* superType = super ? super->GenerateCode() : Instr::Create(OP_pushnull);
+    //Instr* decor     = GenerateAnnotationCode();
     
     PIKA_BLOCKSTART(state, exitWith);
     
@@ -2238,13 +2287,16 @@ Instr* ClassDecl::GenerateCode()
     PIKA_BLOCKEND(state);
     
     Instr* iassign = NamedTarget::GenerateCodeSet();
-    insideof->
-    Attach(typeName)->  // Push the literal contains the typename.
+    
+    insideof         ->
+    Attach(typeName) -> // Push the literal contains the typename.
     Attach(superType)-> // Push the result of the super expression.
-    Attach(newType)->   // Create a new Type from the super and typename given.
-    Attach(iassign)->   // Assign
+    Attach(newType)  -> // Create a new Type from the super and typename given.
+   // Attach(decor)    -> //
+    Attach(iassign)  -> // Assign: We need to do this encase there are any
+                        //         references to it in the class body.
     Attach(enterWith)-> // Enter a with frame using the Type.
-    Attach(doStmts)->   // Execute the class body.
+    Attach(doStmts)  -> // Execute the class body.
     Attach(exitWith);   // Exit the with block.
     
     // Handle any breaks out of the with block.

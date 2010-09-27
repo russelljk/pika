@@ -320,6 +320,7 @@ struct Decl : TreeNode
         DECL_property,
         DECL_package,
         DECL_class,
+        DECL_annotation,
     };
     
     Decl(CompileState* s, Kind kind)
@@ -350,43 +351,57 @@ struct DeclarationTarget : Decl
     virtual void        CreateSymbol(SymbolTable* st);
     virtual Instr*      GenerateCodeSet();
     
-    
     StorageKind storage;   //!< Type of storage for our Symbol.
     bool        with;      //!< Symbol should be a member.
     Symbol*     symbol;    //!< Our Symbol.
     u2          nameindex; //!< Literal index of our Symbol.
 };
 
+struct AnnonationDecl : Decl, TLinked<AnnonationDecl>
+{
+    AnnonationDecl(CompileState* s, NameNode* name, ExprList* args) : Decl(s, Decl::DECL_annotation), TLinked<AnnonationDecl>(),  name(name), args(args) {}
+    virtual ~AnnonationDecl() {}
+    
+    virtual void   CalculateResources(SymbolTable* st);
+    virtual Instr* GenerateCode();
+    virtual Instr* GenerateCodeWith(Instr*);
+    
+    NameNode* name; //!< Identifier or name of the annotation to call.
+    ExprList* args; //!< List of arguments, not including the last which comes from the declaration or a previous annotation.
+};
+
 /** A DeclarationTarget that has a ientifier, dot.expr or index[expr] name. */
 struct NamedTarget : DeclarationTarget
 {
-    NamedTarget(CompileState* s, NameNode* n, Decl::Kind k, StorageKind sk) : DeclarationTarget(s, k, sk), already_decl(false), name(n) {}
+    NamedTarget(CompileState* s, NameNode* n, Decl::Kind k, StorageKind sk) : DeclarationTarget(s, k, sk), annotations(0), already_decl(false), name(n) {}
     
     virtual void        CalculateResources(SymbolTable* st);
     virtual const char* GetIdentifierName();
     virtual Instr*      GenerateCodeSet();
     virtual Instr*      GenerateCodeWith(Instr* body);
+    virtual Instr*      GenerateAnnotationCode(Instr* subj);
     
-    bool        already_decl;
-    NameNode*   name;
+    AnnonationDecl* annotations;
+    bool already_decl;
+    NameNode* name;
 };
 
 /** A function declaration. */
-struct FunctionDecl : DeclarationTarget
+struct FunctionDecl : NamedTarget
 {
     FunctionDecl(CompileState* s, NameNode*, ParamDecl*, Stmt*, size_t, size_t, StorageKind);
     virtual ~FunctionDecl();
     
     virtual void        CalculateResources(SymbolTable* st);
     virtual Instr*      GenerateCode();
+    virtual Instr*      GenerateFunctionCode();
     virtual const char* GetIdentifierName();
     
     Def*         def;       //!< The function definition.
     u2           index;     //!< The literal index of the function definition.
     ParamDecl*   args;      //!< Parameters including variable and keyword arguments.
     Stmt*        body;      //!< The function's body.
-    SymbolTable* symtab;    //!< Symbols for the function's body.
-    NameNode*    name;      //!< Functions name.
+    SymbolTable* symtab;    //!< Symbols for the function's body.    
     bool         varArgs;   //!< Function has variable argument.
     bool         kwArgs;    //!< Function has keyword argument.
     size_t       scriptBeg; //!< Beginning position in the source code.
@@ -532,8 +547,7 @@ struct Stmt : TreeNode
     Kind kind;    //!< Type of statement.
 };
 
-// FinallyStmt ////////////////////////////////////////////////////////////////////////////////
-
+/** Finally statement block. A finally statement wraps other blocks. */
 struct FinallyStmt : Stmt
 {
     FinallyStmt(CompileState* s, Stmt* block, Stmt* finalize_block);
@@ -542,13 +556,12 @@ struct FinallyStmt : Stmt
     virtual void DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
     
-    Stmt* block;
-    SymbolTable* symtab;
-    Stmt* finalize_block;
+    Stmt* block;         //!< The block we are wrapping.
+    SymbolTable* symtab; //!< Block's SymbolTable.
+    Stmt* finalize_block;//!< The block between finally & end.
 };
 
-// RaiseStmt //////////////////////////////////////////////////////////////////////////////////
-
+/** Raise or re-raise statement.  */
 struct RaiseStmt : Stmt
 {
     RaiseStmt(CompileState* s, Expr* expr)
@@ -559,8 +572,8 @@ struct RaiseStmt : Stmt
     virtual void DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
     
-    u2 reraiseOffset;
-    Expr* expr;
+    u2 reraiseOffset; //!< Offset of the catch variable if doing a re-raise.
+    Expr* expr; //!< The expression following the raise statement.
 };
 
 
@@ -568,6 +581,7 @@ struct CatchIsBlock : TreeNode, TLinked<CatchIsBlock>
 {
     CatchIsBlock(CompileState* s, Id* c, Expr* e, Stmt* b) 
     :   TreeNode(s),
+        TLinked<CatchIsBlock>(),
         catchvar(c),
         isexpr(e),
         symbol(0),
