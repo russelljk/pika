@@ -1293,107 +1293,97 @@ int  StdinScriptStream::Peek()  { return std::cin.peek(); }
 bool StdinScriptStream::IsEof() { return std::cin.eof();  }
 
 
-    REPLStream::REPLStream() : pos(0), bufferLength(0), is_eof(false)
-    {
-        Pika_memzero(buffer, sizeof(buffer));
-    }
+REPLStream::REPLStream() : pos(0), bufferLength(0), is_eof(false)
+{
+    Pika_memzero(buffer, sizeof(buffer));
+}
 
-    REPLStream::~REPLStream() {}
-    
-    void REPLStream::NewLoop(const char* pmt)
+REPLStream::~REPLStream() {}
+
+void REPLStream::NewLoop(const char* pmt)
+{
+    if (is_eof) 
+        return;
+    pos = bufferLength = 0;
+    while (GetNewLine(pmt ? pmt : ">>>"))
     {
-        if (is_eof) return;
-        pos = bufferLength = 0;
-        while (GetNewLine(pmt ? pmt : ">>>"))
+        // Line is non-empty
+        if (bufferLength > 0)
         {
-            // Line is non-empty
-            if (bufferLength > 0)
-            {
 #if defined(HAVE_READLINE)            
-                Pika_addhistory(buffer);
-#endif                
-                // return the first character in the line.
-                return;
-            }
-        }        
+            Pika_addhistory(buffer);
+#endif            
+            return;
+        }
     }
-    
-    int REPLStream::Get()
+}
+
+int REPLStream::Get()
+{
+    if (is_eof)
     {
-        if (is_eof)
-        {
-            return EOF;
-        }
-        
-        if (pos < bufferLength)
-        {
-            return buffer[pos++];
-        }
-        else 
-        {            
-            return EOI;
-            // Loop while we get empty lines.
-            //while (GetNewLine())
-//            {
-//                // Line is non-empty
-//                if (bufferLength > 0)
-//                {
-//                    // return the first character in the line.
-//                    return buffer[pos++];
-//                }
-//            }
-        }
         return EOF;
     }
-
-    int REPLStream::Peek()
+    
+    if (pos < bufferLength)
     {
-        if (is_eof)
-        {
-            return EOF;
-        }
-        
-        if (pos < bufferLength)
-        {
-            return buffer[pos];
-        }
+        return buffer[pos++];
+    }
+    else 
+    {            
         return EOI;
     }
-    
-    bool REPLStream::IsEof()
+    return EOF;
+}
+
+int REPLStream::Peek()
+{
+    if (is_eof)
     {
-        return is_eof;
+        return EOF;
     }
     
-    bool REPLStream::IsEoi()
+    if (pos < bufferLength)
     {
-        return !is_eof && pos >= bufferLength;
+        return buffer[pos];
     }
-    
-    bool REPLStream::GetNewLine(const char* pmt)
-    {
-        const char* prompt = pmt ? pmt : ">>>";
-        Pika_memzero(buffer, sizeof(buffer));
+    return EOI;
+}
+
+bool REPLStream::IsEof()
+{
+    return is_eof;
+}
+
+bool REPLStream::IsEoi()
+{
+    return !is_eof && pos >= bufferLength;
+}
+
+bool REPLStream::GetNewLine(const char* pmt)
+{
+    const char* prompt = pmt ? pmt : ">>>";
+    Pika_memzero(buffer, sizeof(buffer));
 #if defined(HAVE_READLINE)
-        const char* res = Pika_readline(prompt);
-        is_eof = (res == NULL);
-        if (!is_eof)
-        {
-            Pika_strcpy(buffer, res);
-            bufferLength = strlen(buffer);
-            pos = 0;
-        }
-#else        
-        std::cout << prompt;
-        std::cout.flush();
-        void* res = std::cin.getline(buffer, REPL_BUFF_SZ);
-        is_eof = (res == NULL);
-        if (!is_eof)
-        {
-            bufferLength = strlen(buffer);
-            pos = 0;
-        }
-#endif        
-        return !is_eof;
+    const char* res = Pika_readline(prompt);
+    is_eof = (res == NULL);
+    if (!is_eof)
+    {
+        Pika_strcpy(buffer, res);
+        bufferLength = strlen(buffer);
+        pos = 0;
     }
+#else        
+    std::cout << prompt;
+    std::cout.flush();
+    void* res = std::cin.getline(buffer, REPL_BUFF_SZ);
+    is_eof = (res == NULL);
+    if (!is_eof)
+    {
+        bufferLength = strlen(buffer);
+        pos = 0;
+    }
+#endif        
+    return !is_eof;
+}
 }// pika

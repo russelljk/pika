@@ -425,10 +425,12 @@ Stmt* Parser::DoStatement(bool skipExpr)
             else
             {
                 deco_decl->Attach(deco_new);
-            } 
+            }
+            if (tstream.GetType() == EOI)
+                break;
             DoEndOfStatement();
         }
-        
+        BufferCurrent();
         stmt = DoStatement(false);
         if (stmt->kind != Stmt::STMT_decl)
         {
@@ -556,8 +558,7 @@ Stmt* Parser::DoClassStatement()
 void Parser::DoBlockBegin(int tok, int prevln, int currln)
 {
     if (Optional(tok))
-        return;
-    
+        return;    
     if (prevln == currln)
     {
         if (!Optional(';'))
@@ -1111,8 +1112,11 @@ Stmt* Parser::DoIfStatement()
     
     Match(TOK_if);
 
+    BufferNext();
     
     cond = DoExpression();
+    
+    BufferCurrent();
     DoBlockBegin(TOK_then, cond->line, tstream.GetLineNumber());
     
     const int first_terms[] = { TOK_end, TOK_elseif, TOK_else, TOK_finally, 0 };
@@ -1128,7 +1132,8 @@ Stmt* Parser::DoIfStatement()
         
         IfStmt* elseifStmt = 0;
         // elseif <expr> then stmt
-        
+
+        BufferCurrent();        
         cond = DoExpression();
         
         DoBlockBegin(TOK_then, cond->line, tstream.GetLineNumber());
@@ -1142,6 +1147,7 @@ Stmt* Parser::DoIfStatement()
     
     if (Optional(TOK_else))
     {
+        BufferCurrent();
         elsePart = DoStatementListBlock(Static_end_terms);
     }
     

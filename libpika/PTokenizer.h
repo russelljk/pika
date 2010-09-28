@@ -81,6 +81,8 @@ struct IScriptStream
     
     /** Returns true if we have reached the end of the stream. */
     virtual bool IsEof() = 0;
+
+    /** Returns true if we have reached the end of the current input line. Used only for REPL. */
     virtual bool IsEoi() { return false; }
 };
 

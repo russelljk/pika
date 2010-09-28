@@ -52,23 +52,23 @@ struct TokenStream
     INLINE int GetNextType() const { return next.tokenType; }
     INLINE int GetPrevType() const { return prev.tokenType; }
     
-    INLINE bool IsEndOfStream() const { return curr.tokenType == EOF || curr.tokenType == EOI; }
-    INLINE bool More()  const { return curr.tokenType == EOI; }
-    void            GetMore();
-    void            GetNextMore();
+    INLINE bool    IsEndOfStream()   const { return curr.tokenType == EOF || curr.tokenType == EOI; }
+    INLINE bool    More()            const { return curr.tokenType == EOI; }
+    void           GetMore();
+    void           GetNextMore();
     INLINE pint_t  GetInteger()      const { return curr.value.integer; }
     INLINE preal_t GetReal()         const { return curr.value.real; }
     INLINE char*   GetString()       const { return curr.value.str; }
     INLINE size_t  GetStringLength() const { return curr.value.len; }
 
-    INLINE int GetLineNumber() const { return curr.line; }
+    INLINE int GetLineNumber()          const { return curr.line; }
     INLINE int GetNextLineNumber()     const { return(next.tokenType == EOF) ? (curr.tokenType == EOF) ? prev.line : curr.line : next.line; }
     INLINE int GetPreviousLineNumber() const { return prev.line; }
     
-    INLINE int GetCol() const { return curr.col; }
+    INLINE int GetCol()     const { return curr.col; }
     INLINE int GetPrevCol() const { return prev.col; }
     INLINE int GetNextCol() const { return(next.tokenType == EOF) ? (curr.tokenType == EOF) ? prev.col : curr.col : next.col; }
-        
+    
     CompileState*  state;
     Tokenizer*     tokenizer;
     std::ifstream* yyin;      //!< File handle for the script. Null if we are parsing a string.

@@ -325,10 +325,25 @@ Id::Id(CompileState* s, char *name) : TreeNode(s), name(name), next(0) {}
 
 Id::~Id() { Pika_free(name); }
 
+void FunctionProg::CalculateResources(SymbolTable* st)
+{
+    symtab = 0;
+    PIKA_NEW(SymbolTable, symtab, (st, ST_function));
+    
+    state->literals = LiteralPool::Create(state->engine);
+    
+    Pika_FunctionResourceCalculation(line, st, *state,
+                                      args, stmts,
+                                      &index,
+                                      &def,
+                                      &symtab,
+                                      "(main)");
+}
+
 void Program::CalculateResources(SymbolTable* st)
 {
     symtab = 0;
-    PIKA_NEW(SymbolTable, symtab, (st, ST_main));
+    PIKA_NEW(SymbolTable, symtab, (st, state->repl_mode ? ST_package : ST_main));
     
     state->literals = LiteralPool::Create(state->engine);
     
@@ -345,21 +360,6 @@ void Program::CalculateResources(SymbolTable* st)
     stmts->CalculateResources(symtab);
     
     def->numLocals = state->localCount; // even though a program defaults to global it might still have lexEnv!
-}
-
-void FunctionProg::CalculateResources(SymbolTable* st)
-{
-    symtab = 0;
-    PIKA_NEW(SymbolTable, symtab, (st, ST_function));
-    
-    state->literals = LiteralPool::Create(state->engine);
-    
-    Pika_FunctionResourceCalculation(line, st, *state,
-                                      args, stmts,
-                                      &index,
-                                      &def,
-                                      &symtab,
-                                      "(main)");
 }
 
 Program::~Program()
