@@ -357,10 +357,10 @@ struct DeclarationTarget : Decl
     u2          nameindex; //!< Literal index of our Symbol.
 };
 
-struct AnnonationDecl : Decl, TLinked<AnnonationDecl>
+struct AnnotationDecl : Decl, TLinked<AnnotationDecl>
 {
-    AnnonationDecl(CompileState* s, NameNode* name, ExprList* args) : Decl(s, Decl::DECL_annotation), TLinked<AnnonationDecl>(),  name(name), args(args) {}
-    virtual ~AnnonationDecl() {}
+    AnnotationDecl(CompileState* s, NameNode* name, ExprList* args) : Decl(s, Decl::DECL_annotation), TLinked<AnnotationDecl>(),  name(name), args(args) {}
+    virtual ~AnnotationDecl() {}
     
     virtual void   CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
@@ -376,12 +376,13 @@ struct NamedTarget : DeclarationTarget
     NamedTarget(CompileState* s, NameNode* n, Decl::Kind k, StorageKind sk) : DeclarationTarget(s, k, sk), annotations(0), already_decl(false), name(n) {}
     
     virtual void        CalculateResources(SymbolTable* st);
+    virtual void        CalculateSymbols(SymbolTable* st);
     virtual const char* GetIdentifierName();
     virtual Instr*      GenerateCodeSet();
     virtual Instr*      GenerateCodeWith(Instr* body);
     virtual Instr*      GenerateAnnotationCode(Instr* subj);
     
-    AnnonationDecl* annotations;
+    AnnotationDecl* annotations;
     bool already_decl;
     NameNode* name;
 };

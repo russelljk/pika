@@ -85,6 +85,7 @@
     
     DECL_OP( OP_unpack,         "unpack",       3, OF_w,        "" )
     
+    DECL_OP( OP_apply,          "apply",        3, OF_bbb,      "" )
     DECL_OP( OP_tailcall,       "tailcall",     3, OF_bb,       "" )
     DECL_OP( OP_call,           "call",         4, OF_bbb,      "" )
     

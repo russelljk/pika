@@ -30,5 +30,11 @@ Enumerator* DummyEnumerator::Create(Engine* eng)
     return e;
 }
 
+Value Enumerator::ToValue()
+{
+    Value v(this);
+    return v;
+}
+
 }// pika
 

@@ -226,7 +226,7 @@ protected:
     void    OpBitBinary  (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpCompBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpArithUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
-    
+ public:   
     /** Finds the super method of the method currently being executed.
       * @note Result is returned on the stack.
       */    
@@ -247,6 +247,9 @@ protected:
       * If successful the Top 2 items on the stack will be replaced by the result:
       *
       * [ result ] < Top
+      *
+      * If number numcalls is incremenented it means you need to call Context::Run 
+      * when OpDotGet is called by a native function.
       */
     void    OpDotGet(int& numcalls, Opcode oc, OpOverride ovr);
     
@@ -267,6 +270,8 @@ protected:
       * [ result ] < Top
       */
     void    OpDotSet(int& numcalls, Opcode oc, OpOverride ovr);    
+protected:
+    
     bool    OpUnpack(u2);    
     bool    OpBind();    
     bool    OpCat(bool sp);    

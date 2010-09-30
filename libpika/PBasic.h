@@ -53,11 +53,30 @@ public:
       * @note   Derived classes must override.
       */
     virtual Type* GetType() const = 0;
+
+    /** Returns this basic object as a Value. Since different derived classes refer
+      * to different tags we rely on this virtual function to return the appropriate
+      * value and tag.
+      */
+    virtual Value ToValue() = 0;
     
     virtual void AddFunction(Function* f);    
     virtual void AddProperty(Property* p); 
+    
+    // GetSlot & GetSlot will get or set a instance variable. It is the equivalent
+    // of a dot read.
+    
     virtual bool GetSlot(const Value& key, Value& result) { return false; }
     virtual bool SetSlot(const Value& key, Value& value, u4 attr = 0) { return false; }
+    
+    // GetAttr and SetAttr are the same as GetSlot & SetSlot except that if the
+    // slot is a property the getter or setter will be called.
+    
+    virtual bool GetAttr(Context* ctx, const Value& key, Value& result);
+    virtual bool SetAttr(Context* ctx, const Value& key, Value& value, u4 attr = 0);
+    
+    // BracketRead & BracketWrite read and write elements. It is the equivalent
+    // of a [] braket read, ie indexing.
     
     virtual bool BracketRead(const Value& key, Value& result) { return false; }
     virtual bool BracketWrite(const Value& key, Value& value, u4 attr = 0) { return false; }

@@ -35,7 +35,7 @@ public:
     virtual void  MarkRefs(Collector* c);
     virtual Type* GetType() const;
     virtual bool  GetSlot(const Value& key, Value& result);
-    
+    virtual Value ToValue();
     virtual bool  CanWrite();
     virtual bool  CanRead();
     

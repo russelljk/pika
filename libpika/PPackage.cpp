@@ -29,6 +29,14 @@ Package::~Package() {}
 
 Package* Package::GetSuper() { return superPackage; }
 
+void Package::SetSuper(Package* super)
+{
+    if (super)
+        WriteBarrier(super);
+    superPackage = super;
+    SetName(name);
+}
+
 bool Package::GetSlot(const Value& key, Value& res)
 {
     if (ThisSuper::GetSlot(key, res))

@@ -22,11 +22,11 @@ namespace pika {
 // LexicalEnv //////////////////////////////////////////////////////////////////////////////////////////
 
 LexicalEnv::LexicalEnv(bool close)
-        :
-        values(0),
+        : values(0),
         length(0),
         allocated(false),
-        mustClose(close) {}
+        mustClose(close)
+{}
         
 LexicalEnv::~LexicalEnv() { Deallocate(); }
 
@@ -110,7 +110,8 @@ Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* p
         lexEnv(0),
         def(funcdef),
         parent(parent_func),
-        location(loc)
+        location(loc),
+        docstring(0)
 {
     ASSERT(engine);
     ASSERT(def);
@@ -122,7 +123,8 @@ Function::Function(const Function* rhs) : ThisSuper(rhs),
         lexEnv(rhs->lexEnv),
         def(rhs->def),
         parent(rhs->parent),
-        location(rhs->location) 
+        location(rhs->location),
+        docstring(0)
 {
 }
 
@@ -158,6 +160,7 @@ void Function::MarkRefs(Collector* c)
     if (lexEnv)   lexEnv->Mark(c);
     if (location) location->Mark(c);
     if (defaults) defaults->Mark(c);
+    if (docstring) docstring->Mark(c);
 }
 
 int Function::DetermineLineNumber(code_t* xpc)
@@ -198,7 +201,7 @@ Object* Function::Clone()
     return fn;
 }
 
-String* Function::GetName()
+String* Function::GetName() const
 { 
     return def ? def->name: engine->emptyString;
 }
@@ -720,6 +723,7 @@ int Function_printLiterals(Context* ctx, Value& self)
     return 0;
 }
 
+/* A native, do nothing function. */
 int null_Function(Context*, Value&) { return 0; }
 
 int Function_call(Context* ctx, Value& self)
@@ -727,8 +731,7 @@ int Function_call(Context* ctx, Value& self)
     Array* args = 0;
     Value selfObj = NULL_VALUE;
     u4 argc = ctx->GetArgCount();
-    switch (argc)
-    {
+    switch (argc) {
     case 2:
         selfObj = ctx->GetArg(0);
         args = ctx->GetArgT<Array>(1); 
@@ -851,6 +854,20 @@ void Function::Constructor(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+String* Function::GetDocumentation()
+{ 
+    if (!docstring)
+        return engine->emptyString;
+    return docstring; 
+}
+
+void Function::SetDocumentation(String* doc)
+{
+    if (doc)
+        WriteBarrier(doc);
+    docstring = doc;
+}
+
 void Function::StaticInitType(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
@@ -865,12 +882,14 @@ void Function::StaticInitType(Engine* eng)
     .RegisterMethod(Function_genAs,         "genAs")
     .RegisterMethod(Function_printLiterals, "printLiterals")
     .RegisterClassMethod(Function_printBytecode,    "printBytecode")
+    .PropertyRW("__doc", 
+                    &Function::GetDocumentation, 0, 
+                    &Function::SetDocumentation, 0)
     .Constant((pint_t)PIKA_MAX_RETC,             "MAX_RET_COUNT")
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
     
-    struct RegisterProperty Function_Properties[] =
-    {
+    struct RegisterProperty Function_Properties[] = {
         { "name",     Function_name,     "getName",     0, 0, true },
         { "parent",   Function_parent,   "getParent",   0, 0, true },
         { "location", Function_location, "getLocation", 0, 0, true },
@@ -889,8 +908,8 @@ void Function::StaticInitType(Engine* eng)
     ;
     
     SlotBinder<BoundFunction>(eng, eng->BoundFunction_Type)
-    .PropertyR("boundFunction",  &BoundFunction::GetBoundFunction,  "getBoundFunction")
-    .PropertyR("boundSelf",      &BoundFunction::GetBoundSelf,      "getBoundSelf")
+    .PropertyR("boundFunction", &BoundFunction::GetBoundFunction, "getBoundFunction")
+    .PropertyR("boundSelf",     &BoundFunction::GetBoundSelf,     "getBoundSelf")
     ;
     
     LocalsObject::StaticInitType(eng);

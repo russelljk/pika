@@ -29,6 +29,9 @@ namespace pika {
         static Dictionary* Create(Engine* eng, Type* type);
         static void Constructor(Engine* eng, Type* type, Value& res);
         static void StaticInitType(Engine*);
+        
+        Table& Elements() { return elements; }
+        const Table& Elements() const { return elements; }
     protected:
         Table elements;
     };

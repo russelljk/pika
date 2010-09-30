@@ -11,7 +11,7 @@
 namespace pika {
 extern void InitSystemLIB(Engine*);
 extern void Initialize_ImportAPI(Engine*);
-
+extern void Init_Annotations(Engine*, Package*);
 #define NUMBER2STRING_BUFF_SIZE 64
 
 String* Engine::NumberToString(Engine* eng, const Value& v)
@@ -894,7 +894,7 @@ void Engine::InitializeWorld()
         Context::StaticInitType(this);
         File::StaticInitType(this);
         ByteArray::StaticInitType(this);
-        
+        Init_Annotations(this, Pkg_World);
         // GCPause /////////////////////////////////////////////////////////////////////////////////
         
         String* GCPause_String = AllocString("GCPause");

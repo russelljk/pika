@@ -27,7 +27,9 @@ class Object;
 /** Instance creation function used by types. */
 typedef void (*Type_NewFn)(Engine*, Type*, Value&);
 
-////////////////////////////////////////////// Object //////////////////////////////////////////////
+/* TODO: Need to add Get/Set methods that will call property methods as needed. 
+ *       Should it go in Basic?
+ */
 
 /** Base class for all propertied and typed objects.
   * Each object has an associated type and a slot-table where instance variables are kept.
@@ -57,7 +59,7 @@ public:
     
     virtual Type* GetType() const;
     virtual void  SetType(Type*);
-    
+    virtual Value ToValue();
     virtual void  AddFunction(Function*);
     virtual void  AddProperty(Property*);
     

@@ -150,7 +150,7 @@ public:
     bool         mustClose;   //!< True if this function's locals are accessed by a child function.
     bool         isVarArg;    //!< Bytecode function that has the rest parameter or Native function that takes a variable number of arguments.
     bool         isKeyword;   //!< Function has keyword argument parameter.
-    bool         isStrict;    //!< Native function must has the correct number of arguments.
+    bool         isStrict;    //!< Function must has the correct number of arguments.
     int          line;        //!< Line in the script this def is declared or -1 for native defs.
 };
 

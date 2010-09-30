@@ -189,13 +189,6 @@ PIKA_OPCODE(OP_pushmember)
     u2 index = GetShortOperand(instr);
     const Value& name = closure->GetLiteral(index);
     
-    if (!self.IsObject())
-    {
-        ReportRuntimeError(Exception::ERROR_runtime,
-                           "Attempt to read member '%s' from self object of type '%s'.",
-                           engine->ToString(this, name)->GetBuffer(),
-                           engine->GetTypenameOf(self)->GetBuffer());
-    }
     Push(self);
     Push(name);
     
@@ -280,13 +273,6 @@ PIKA_OPCODE(OP_setmember)
     u2 index = GetShortOperand(instr);
     const Value& name = closure->GetLiteral(index);
     
-    if (!self.IsObject())
-    {
-        ReportRuntimeError(Exception::ERROR_runtime,
-                           "Attempt to set member '%s' from self object of type '%s'.\n",
-                           engine->ToString(this, name)->GetBuffer(),
-                           engine->GetTypenameOf(self)->GetBuffer());
-    }
     Push( self );
     Push( name );
     

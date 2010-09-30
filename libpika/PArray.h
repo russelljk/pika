@@ -131,7 +131,9 @@ public:
     static size_t   GetMax();
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
-    static void StaticInitType(Engine* eng);    
+    static void StaticInitType(Engine* eng);
+    
+    Buffer<Value>& GetElements() { return elements; }
 protected:
     Buffer<Value> elements;
 };

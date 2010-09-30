@@ -37,6 +37,8 @@ public:
     /** String finalization is handled by the StringTable. */
     virtual bool Finalize();
     
+    virtual Value ToValue();
+    
     /** Returns a StringEnumerator that can enumerate over elements, indices, and empty the string. */
     virtual Enumerator* GetEnumerator(String*);
     

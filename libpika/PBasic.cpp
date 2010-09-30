@@ -11,6 +11,7 @@
 #include "PTable.h"
 #include "PFunction.h"
 #include "PProperty.h"
+#include "PContext.h"
 namespace pika {
 
 PIKA_IMPL(Basic)
@@ -27,6 +28,46 @@ bool Basic::BracketWrite(const char* key, Value& value, u4 attr)
     String* strKey = engine->AllocStringNC(key);
     Value vkey(strKey);
     return BracketWrite(vkey, value, attr);
+}
+
+bool Basic::GetAttr(Context* ctx, const Value& key, Value& result)
+{
+    if (GetSlot(key, result))
+    {
+        if (result.IsProperty())
+        {
+            int calls = 0;
+            ctx->Push(ToValue());
+            ctx->DoPropertyGet(calls, result.val.property);
+            if (calls > 0)
+                ctx->Run();
+            result = ctx->PopTop();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Basic::SetAttr(Context* ctx, const Value& key, Value& value, u4 attr)
+{
+    if (!SetSlot(key, value, attr))
+    {
+        Value result(NULL_VALUE);
+        if (GetSlot(key, result) && result.IsProperty())
+        {
+            int calls = 0;
+            ctx->CheckStackSpace(3);
+            ctx->Push(key);
+            ctx->Push(ToValue());
+            ctx->DoPropertySet(calls, result.val.property);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
 }
     
 Enumerator* Basic::GetEnumerator(String*)

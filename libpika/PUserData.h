@@ -62,7 +62,7 @@ public:
     virtual void    MarkRefs(Collector* c);
     virtual bool    GetSlot(const Value& val, Value& res);
     virtual bool    SetSlot(const Value& key, Value& value, u4 attr = 0);
-    
+    virtual Value   ToValue();
     INLINE UserDataInfo* GetInfo() const    { return this->info; }    
     INLINE size_t        GetSize() const    { return this->info ? (this->info->length + sizeof(UserData)) : (sizeof(UserData)); }    
     INLINE void          SetData(void* p)   { ptr = p; }    

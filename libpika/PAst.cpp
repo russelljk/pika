@@ -372,15 +372,19 @@ const char* NamedTarget::GetIdentifierName()
     return name->GetName();
 }
 
-void NamedTarget::CalculateResources(SymbolTable* st)
+void NamedTarget::CalculateSymbols(SymbolTable* st)
 {
     CreateSymbol(st);
-    
-    if (annotations) annotations->CalculateResources(st);
     name->CalculateResources(st);
 }
 
-void AnnonationDecl::CalculateResources(SymbolTable* st)
+void NamedTarget::CalculateResources(SymbolTable* st)
+{   
+    if (annotations) 
+        annotations->CalculateResources(st);
+}
+
+void AnnotationDecl::CalculateResources(SymbolTable* st)
 {
     if (next) next->CalculateResources(st);
     if (name) name->CalculateResources(st);
@@ -415,6 +419,7 @@ const char* FunctionDecl::GetIdentifierName() { return name->GetName(); }
 void FunctionDecl::CalculateResources(SymbolTable* st)
 {    
     NamedTarget::CalculateResources(st);
+    NamedTarget::CalculateSymbols(st);
     
     Pika_FunctionResourceCalculation(line, st, *state,
                                       args, body,
@@ -1207,6 +1212,8 @@ PropertyDecl::~PropertyDecl() {}
 
 void PropertyDecl::CalculateResources(SymbolTable* st)
 {
+    NamedTarget::CalculateResources(st);
+    
     PIKA_NEWNODE(StringExpr, name_expr, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     name_expr->CalculateResources(st);
@@ -1214,7 +1221,7 @@ void PropertyDecl::CalculateResources(SymbolTable* st)
     if (getter) getter->CalculateResources(st);
     if (setter) setter->CalculateResources(st);
     
-    NamedTarget::CalculateResources(st);
+    NamedTarget::CalculateSymbols(st);
 }
 
 AssignmentStmt::AssignmentStmt(CompileState* s, ExprList* l, ExprList* r)
@@ -1465,6 +1472,7 @@ PkgDecl::~PkgDecl() { Pika_delete(symtab); }
 
 void PkgDecl::CalculateResources(SymbolTable* st)
 {
+    NamedTarget::CalculateResources(st);
     PIKA_NEWNODE(StringExpr, id, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     id->CalculateResources(st);
@@ -1473,7 +1481,7 @@ void PkgDecl::CalculateResources(SymbolTable* st)
     
     body->CalculateResources(symtab);
     
-    NamedTarget::CalculateResources(st);
+    NamedTarget::CalculateSymbols(st);
 }
 
 void NameNode::CalculateResources(SymbolTable* st)
@@ -1518,13 +1526,14 @@ ClassDecl::~ClassDecl()
 
 void ClassDecl::CalculateResources(SymbolTable* st)
 {
+    NamedTarget::CalculateResources(st);
     PIKA_NEWNODE(StringExpr, stringid, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     stringid->CalculateResources(st);
     
     if (super) super->CalculateResources(st);
     
-    NamedTarget::CalculateResources(st);
+    NamedTarget::CalculateSymbols(st);
     
     if (stmts)
     {

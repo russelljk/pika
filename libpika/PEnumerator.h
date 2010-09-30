@@ -35,6 +35,7 @@ public:
     /** Move on to the next value. */
     virtual void Advance() = 0;
 
+    virtual Value ToValue();
 };
 
 /* DummyEnumerator /////////////////////////////////////////////////////////////////////////////////

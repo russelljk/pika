@@ -24,6 +24,12 @@ Property::Property(Engine* eng, String* nm, Function* get, Function* set)
 Property::~Property()
 {}
 
+Value Property::ToValue()
+{
+    Value v(this);
+    return v;
+}
+
 Type* Property::GetType() const { return engine->Property_Type; }
 
 bool Property::GetSlot(const Value& key, Value& result)

@@ -216,6 +216,17 @@ INLINE int OpcodeStackChange(Instr *ir)
         --operand;
         return operand;
     }
+    
+    case OP_apply:
+    {
+        // We don't really know how much space we need. So we need to check the stack
+        // space when the opcode is executed.
+        int retv    = ir->operandu2 ? ir->operandu2 : 1;
+        int operand = ir->operand + (2 * ir->operandu1);
+        operand     = -operand - retv;
+        return operand;
+    }
+        
     case OP_tailcall:
     {
         int operand = ir->operand + (2 * ir->operandu1);
@@ -245,7 +256,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     
     case OP_property:       return -2;
 
-    case OP_subclass:       return -1;
+    case OP_subclass:       return -2;
     
     case OP_array:
     {

@@ -174,7 +174,7 @@ void Type::CreateInstance(Value& res)
 {
     if (IsAbstract())
     {
-        RaiseException("cannot create instance of type %s", GetName()->GetBuffer());
+        RaiseException("cannot create instance of abstract type %s", GetName()->GetBuffer());
     }
     else if (newfn)
     {
@@ -315,7 +315,7 @@ Type* Type::Create(Engine* eng, String* name, Type* base, Type_NewFn fn, Package
     GCPAUSE_NORUN(eng);
     if (base && base->IsFinal())
     {
-        RaiseException("class '%s' cannot be subclassed.", base->GetName()->GetBuffer());
+        RaiseException("class '%s' is final and cannot be subclassed.", base->GetName()->GetBuffer());
     }
     Type* obj;
     GCNEW(eng, Type, obj, (eng, type_, name, base, fn, location));

@@ -857,8 +857,12 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
 {
     int resultArgc = argc;
     
-    // For strict native methods this will raise an exception.
-    if (def->isStrict && nativecall)
+    // For strict methods this will raise an exception.
+    // Strict methods cannot have default values, variable arguments or keyword 
+    // arguments. This restriction against defaults and keyword arguments may
+    // be removed in the future.
+    
+    if (def->isStrict)
     {
         if (argdiff > 0)
         {
@@ -882,9 +886,8 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
                            param_count == 1 ? "argument" : "arguments",
                            argc);
         }
-    }
-    
-    if (argdiff > 0)
+    }    
+    else if (argdiff > 0)
     {
         // Too many arguments.
         // ------------------
@@ -1079,7 +1082,8 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             {
                 GCPAUSE_NORUN(engine);
                 dict = Dictionary::Create(engine, engine->Dictionary_Type);
-                Top().Set(dict);
+                if (!nativecall) 
+                    Top().Set(dict);
             }
             /* Time to deal with the keyword arguments. */             
             Value* args_start = sp - argc;

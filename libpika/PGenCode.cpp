@@ -284,39 +284,42 @@ Instr* NamedTarget::GenerateCodeSet()
     return name->GenerateCodeSet();
 }
 
-Instr* AnnonationDecl::GenerateCode()
+Instr* AnnotationDecl::GenerateCode()
 {
     SHOULD_NEVER_HAPPEN();
     return 0;   
 }
 
-Instr* AnnonationDecl::GenerateCodeWith(Instr* subj)
+Instr* AnnotationDecl::GenerateCodeWith(Instr* subj)
 {
     Instr* iname = name->GenerateCode();    
-    Instr* iargs = Instr::Create(OP_nop);
+    Instr* iargs = next ? next->GenerateCodeWith(subj) : subj;
     Instr* iself = Instr::Create(OP_pushnull);
+    // TODO: Check argc and keyword argc < MAX_ARG_COUNT
     
     // Start at 1 since we *always* have 1 extra argument, either the next annotation or the declaration.
     u2 argc = 1; 
+    u2 kwargc = 0;
     ExprList* curr_arg = args;
     while (curr_arg)
     {
-        ++argc;
-        Instr* icurr_arg = curr_arg->expr->GenerateCode();        
+        Expr* expr = curr_arg->expr;
+        if (expr->kind == Expr::EXPR_kwarg)
+            ++kwargc;
+        else
+            ++argc;
+        Instr* icurr_arg = expr->GenerateCode();        
         iargs->Attach(icurr_arg);
         curr_arg = curr_arg->next;
     }
     
     Instr* icall = Instr::Create(OP_call);
     icall->operand   = argc;
-    icall->operandu1 = 0;
+    icall->operandu1 = kwargc;
     icall->operandu2 = 1;
-    
-    Instr* last_arg = next ? next->GenerateCodeWith(subj) : subj;
-    
+       
     
     iargs->
-    Attach(last_arg)->
     Attach(iself)->
     Attach(iname)->
     Attach(icall);
@@ -328,12 +331,12 @@ Instr* FunctionDecl::GenerateCode()
 {
     Instr* fun = GenerateFunctionCode();
     
-    Instr* decor = GenerateAnnotationCode(fun);
+    Instr* annotations = GenerateAnnotationCode(fun);
     Instr* set = NamedTarget::GenerateCodeSet();
     
-    decor->
+    annotations->
     Attach(set);
-    return decor;
+    return annotations;
 }
 
 Instr* FunctionDecl::GenerateFunctionCode()
@@ -1861,12 +1864,12 @@ Instr* PropertyDecl::GeneratePropertyCode()
 Instr* PropertyDecl::GenerateCode()
 {
     Instr* prop = GeneratePropertyCode();
-    Instr* decor = GenerateAnnotationCode(prop);
+    Instr* annotations = GenerateAnnotationCode(prop);
     Instr* set = NamedTarget::GenerateCodeSet();    
     
-    decor->
+    annotations->
     Attach(set);
-    return decor;
+    return annotations;
 }
 
 Instr* AssignmentStmt::DoStmtCodeGen()
@@ -2218,17 +2221,22 @@ Instr* PkgDecl::GenerateCode()
     
     Instr* iassign = NamedTarget::GenerateCodeSet();
     Instr* idup    = Instr::Create(OP_dup);
-    //Instr* decor   = GenerateAnnotationCode();
+    //Instr* annotations   = GenerateAnnotationCode();
     
     ipkgname         ->
     Attach(insideof) ->
-    Attach(inew_pkg) ->
-    Attach(idup)     ->
-    //Attach(decor)    ->
-    Attach(iassign)  ->
-    Attach(ipush_pkg)->
-    Attach(ibody)    ->
-    Attach(ipop_pkg);
+    Attach(inew_pkg) 
+    ;
+    
+    ipkgname = GenerateAnnotationCode(ipkgname);
+    
+    ipkgname->
+    Attach(idup)     -> // duplicate it     
+    Attach(iassign)  -> // set the variable
+    Attach(ipush_pkg)-> // enter package scope
+    Attach(ibody)    -> // execute body
+    Attach(ipop_pkg)    // exit package scope
+    ;
     
     HandleBlockBreaks(ibody,
                       ipop_pkg,
@@ -2277,8 +2285,8 @@ Instr* ClassDecl::GenerateCode()
     Instr* typeName  = stringid->GenerateCode();
     Instr* enterWith = Instr::Create(pushcode);
     Instr* newType   = Instr::Create(OP_subclass);
-    Instr* superType = super ? super->GenerateCode() : Instr::Create(OP_pushnull);
-    //Instr* decor     = GenerateAnnotationCode();
+    Instr* superType = super ? super->GenerateCode() : Instr::Create(OP_pushnull);    
+    Instr* dup = Instr::Create(OP_dup);
     
     PIKA_BLOCKSTART(state, exitWith);
     
@@ -2291,8 +2299,15 @@ Instr* ClassDecl::GenerateCode()
     insideof         ->
     Attach(typeName) -> // Push the literal contains the typename.
     Attach(superType)-> // Push the result of the super expression.
-    Attach(newType)  -> // Create a new Type from the super and typename given.
-   // Attach(decor)    -> //
+    Attach(newType)     // Create a new Type from the super and typename given.
+   ;
+    // Generate the code for annotations, which will use the Type we create
+    // as a argument.
+    insideof = GenerateAnnotationCode(insideof);
+    
+    
+    insideof         ->
+    Attach(dup)      -> // Need two copies one to assign the variable, the other to set up a pkg scope.
     Attach(iassign)  -> // Assign: We need to do this encase there are any
                         //         references to it in the class body.
     Attach(enterWith)-> // Enter a with frame using the Type.

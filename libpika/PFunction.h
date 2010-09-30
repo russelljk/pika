@@ -36,11 +36,12 @@ public:
     
     void EndCall();
     
-    INLINE bool IsValid() const { return values != 0; }
+    INLINE bool IsValid()     const { return values != 0; }
     INLINE bool IsAllocated() const { return allocated;   }
     
     INLINE size_t Length() const { return length; }
-    INLINE Value& At(size_t idx) { return values[idx]; }
+    
+    INLINE       Value& At(size_t idx)       { return values[idx]; }
     INLINE const Value& At(size_t idx) const { return values[idx]; }
     
     void Allocate();
@@ -71,7 +72,7 @@ public:
     
     INLINE size_t Length() const { return length; }
     
-    INLINE Value& At(size_t idx) { return values[idx]; }
+    INLINE       Value& At(size_t idx)       { return values[idx]; }
     INLINE const Value& At(size_t idx) const { return values[idx]; }
     
     static Defaults* Create(Engine*, Value*, size_t);
@@ -109,7 +110,7 @@ public:
     INLINE Function*    GetParent()         { return parent; }
     INLINE Package*     GetLocation()       { return location; }
     INLINE const Value& GetLiteral(u2 idx)  { return def->literals->Get(idx); }
-    String*             GetName();
+    String*             GetName() const;
     
     INLINE  bool MustClose() const { return def->mustClose; }    
     INLINE  bool IsNative()  const { return !def->GetBytecode() && def->nativecode; }
@@ -133,14 +134,18 @@ public:
       */
     virtual String* GetDotPath();
     
+    String* GetDocumentation();    
+    void SetDocumentation(String* doc);
+    
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
     
-    Defaults*    defaults;    //!< Default values for specified arguments. May be NULL.
-    LexicalEnv*  lexEnv;      //!< Lexical environment for this function. Basically the parent's locals.
-    Def*         def;         //!< Function definition, may be shared with other functions.
-    Function*    parent;      //!< The parent function we are defined inside (for nested functions only).
-    Package*     location;    //!< Package we are declared inside of.
+    Defaults*   defaults;  //!< Default values for specified arguments. May be NULL.
+    LexicalEnv* lexEnv;    //!< Lexical environment for this function. Basically the parent's locals.
+    Def*        def;       //!< Function definition, may be shared with other functions.
+    Function*   parent;    //!< The parent function we are defined inside (for nested functions only).
+    Package*    location;  //!< Package we are declared inside of.
+    String*     docstring; //!< Documentation string.
 };
 
 /** A function callable only by instances of the same type. */
@@ -162,6 +167,7 @@ public:
     
     static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);
     static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type);
+    
     static void Constructor(Engine* eng, Type* obj_type, Value& res);    
 protected:
     Type* classtype; //!< The type we belong to and whose instances may call us.
@@ -187,6 +193,7 @@ public:
     
     static ClassMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);    
     static ClassMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type);
+    
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
 protected:
     Type* classtype; //!< The type we belong to and the self object we are bound to.
@@ -202,17 +209,18 @@ protected:
 public:    
     virtual ~BoundFunction();
     
-    virtual Function*   GetBoundFunction() const { return closure;}
-    virtual Value       GetBoundSelf()     const { return self; }
-    virtual Object*     Clone();
-    virtual void        BeginCall(Context*);
-    virtual void        MarkRefs(Collector*);
+    virtual Function* GetBoundFunction() const { return closure;}
+    virtual Value     GetBoundSelf()     const { return self; }
+    virtual Object*   Clone();
+    virtual void      BeginCall(Context*);
+    virtual void      MarkRefs(Collector*);
     
     static BoundFunction* Create(Engine*, Type*, Function*, Value&);
+    
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
 protected:
-    Function*   closure; //!< The bound function.
-    Value       self;    //!< The bound <code>self</code> object.
+    Function* closure; //!< The bound function.
+    Value     self;    //!< The bound <code>self</code> object.
 };
 
 } // pika

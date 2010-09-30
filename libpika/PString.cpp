@@ -112,6 +112,12 @@ int String::Compare(const String* rhs) const
     return Pika_StringCompare(buffer, length, rhs->buffer, rhs->length);
 }
 
+Value String::ToValue()
+{
+    Value v(this);
+    return v;
+}
+
 String* String::Slice(size_t from, size_t to)
 {
     if (to > length || from > length || from == to)

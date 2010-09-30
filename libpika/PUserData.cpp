@@ -19,6 +19,12 @@ UserData::~UserData() {}
 
 Type* UserData::GetType() const { return type; }
 
+Value UserData::ToValue()
+{
+    Value v(this);
+    return v;
+}
+
 bool UserData::Finalize()
 {
     if (GetInfo() && GetInfo()->finalize) {

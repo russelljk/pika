@@ -112,6 +112,12 @@ void Object::SetType(Type* t)
     WriteBarrier(type = t);
 }
 
+Value Object::ToValue()
+{
+    Value v(this);
+    return v;
+}
+
 bool Object::SetSlot(const Value& key, Value& val, u4 attr)
 {
     if (!CanSetSlot(key))

@@ -400,31 +400,42 @@ Stmt* Parser::DoStatement(bool skipExpr)
     break;
     case '@':
     {
-        AnnonationDecl* deco_decl=0;
-        while (tstream.GetType() == '@') {
+        AnnotationDecl* annotations = 0;
+        while (tstream.GetType() == '@')
+        {
             int start_line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
             
-            if (tstream.GetLineNumber() != start_line) {
+            if (tstream.GetLineNumber() != start_line)
+            {
                 state->SyntaxException(Exception::ERROR_syntax, start_line, "annotation must be contained to a single line.");
             }
             NameNode* name = DoNameNode(true);
             BufferCurrent();
             ExprList* deco_args = 0;
-            if (tstream.GetLineNumber() == start_line) {
-                deco_args = DoExpressionList();
-            }           
-            
-            AnnonationDecl* deco_new = 0;
-            PIKA_NEWNODE(AnnonationDecl, deco_new, (state, name, deco_args));
-            if (!deco_decl)
+            if (tstream.GetLineNumber() == start_line)
             {
-                deco_decl = deco_new;
+                if (Optional('('))
+                {
+                    const int annotation_terms[] = { ')', EOI, 0 };
+                    deco_args = DoOptionalExpressionList(annotation_terms, true); 
+                    Match(')');                    
+                }
+                else
+                {
+                    deco_args = DoExpressionList(true);
+                }
+            }            
+            AnnotationDecl* deco_new = 0;
+            PIKA_NEWNODE(AnnotationDecl, deco_new, (state, name, deco_args));
+            if (!annotations)
+            {
+                annotations = deco_new;
             }
             else
             {
-                deco_decl->Attach(deco_new);
+                annotations->Attach(deco_new);
             }
             if (tstream.GetType() == EOI)
                 break;
@@ -446,7 +457,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
             case Decl::DECL_package:
             case Decl::DECL_class: {
                 NamedTarget* target = (NamedTarget*)decl;
-                target->annotations = deco_decl;
+                target->annotations = annotations;
                 break;
             }
             default:
@@ -2501,7 +2512,17 @@ Expr* Parser::DoStringLiteralExpression()
         while (need_more)
         {
             // Grab the expression in-between the braces. And concat it to what we already have.
-            Expr* rhs = DoNameNode(true);
+            Expr* rhs = 0;
+            if (tstream.GetType() == TOK_self && 
+                tstream.GetNextType() != '.'  &&
+                tstream.GetNextType() != '[')
+            {
+                rhs = DoSelfExpression();
+            }
+            else
+            {
+                rhs = DoNameNode(true);
+            }
             PIKA_NEWNODE(BinaryExpr, expr, (state, BinaryExpr::EXPR_cat, expr, rhs));
             rhs->line = line;
             expr->line = line;

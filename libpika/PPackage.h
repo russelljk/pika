@@ -47,7 +47,7 @@ public:
     virtual bool     SetGlobal(const Value& key, Value& value, u4 attr = 0);
     virtual bool     CanSetGlobal(const Value& key);
     virtual bool     GetSlot(const Value& key, Value& res);
-    
+    virtual void     SetSuper(Package* super);
     void AddNative(RegisterFunction* fns, size_t count);
 protected:
     String*  name;

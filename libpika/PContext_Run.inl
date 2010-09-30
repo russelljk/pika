@@ -203,15 +203,14 @@ void Context::Run()
             {
             
                 /* Creates a new Function.
-                
-                    Format:
-                        OP_method default-argc argc
+                    
+                    Format => opcode [defaults count: u2]
                 */
                 u2 defaultArgc = GetShortOperand(instr);
                 
                 /* Stack:
                         [ ...  ]
-                        [ self ] > self object for the method
+                        [ self ] < self object for the method
                         [ def  ] < function def
                         [ arg0 ] < default args (if any)
                         [ ...  ]
@@ -367,7 +366,7 @@ void Context::Run()
                     {
                         // Super can not be derived from
                         ReportRuntimeError(Exception::ERROR_runtime,
-                                           "class '%s' cannot be subclassed.",
+                                           "class '%s' is final and cannot be subclassed.",
                                            super->GetName()->GetBuffer());
                     }          
                     else
@@ -387,12 +386,11 @@ void Context::Run()
                                        "attempt to extend non-type derived value: %s.",
                                        supername->GetBuffer());
                 }
-                Pop();
+                Pop(2);
                 vpkg.Set(newtype);
-                vname.Set(newtype);
+                
                 /*
-                   [ type   ]
-                   [ type   ]
+                   [ type   ]                  
                    [ < sp > ]
                 */
             }
@@ -1014,7 +1012,7 @@ void Context::Run()
             
             PIKA_OPCODE(OP_newenv)
             {
-                // TODO: Right now a package w/o a dot-name overwrites any previous package.
+                // TODO { Right now a package w/o a dot-name overwrites any previous package. }
                 //
                 // [name:String]
                 // [super:Package] < sp
