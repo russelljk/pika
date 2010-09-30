@@ -468,7 +468,7 @@ Instr* CallExpr::GenerateCode()
 {
     Expr::Kind k = left->kind;
     Instr* ilvalue = 0;
-    Instr* iargs = 0;
+    Instr* iargs = Instr::Create(OP_nop);
     
     if (k == Expr::EXPR_dot)
     {
@@ -507,7 +507,7 @@ Instr* CallExpr::GenerateCode()
     }
     
     ExprList* curr = args;
-        
+    
     while (curr)
     {
         if (curr->expr->kind == Expr::EXPR_kwarg    ||
@@ -518,27 +518,49 @@ Instr* CallExpr::GenerateCode()
         Expr* expr = curr->expr;
         Instr* iexpr = expr->GenerateCode();
         
-        if (iargs)
-            iargs->Attach(iexpr);
-        else
-            iargs = iexpr;
-        
+        iargs->Attach(iexpr);                
         curr = curr->next;
     }
         
     while (curr)
     {       
+        if (curr->expr->kind == Expr::EXPR_apply_va ||
+            curr->expr->kind == Expr::EXPR_apply_kw)
+            break;
         Expr* expr = curr->expr;
         Instr* iexpr = expr->GenerateCode();
         
-        if (iargs)
-            iargs->Attach(iexpr);
-        else
-            iargs = iexpr;
-        
+        iargs->Attach(iexpr);                
         curr = curr->next;
     }
+    
+    if (is_apply) {
+        bool has_va = false;
+        ASSERT(curr);
         
+        if (curr->expr->kind == Expr::EXPR_apply_va) {
+            Instr* iapply = curr->expr->GenerateCode();
+            iargs->Attach(iapply);
+            has_va = true;
+            curr = curr->next;
+        }
+        
+        if (curr && curr->expr->kind == Expr::EXPR_apply_kw) {
+            Instr* ipushnull = Instr::Create(has_va ? OP_nop : OP_pushnull);
+            Instr* iapply = curr->expr->GenerateCode();
+            iargs->
+            Attach(ipushnull)->
+            Attach(iapply)
+            ;
+            curr = curr->next;
+        } else {
+            Instr* ipushnull = Instr::Create(OP_pushnull);
+            iargs->Attach(ipushnull);
+        }
+        
+        ASSERT(!curr);
+    }
+    
     Instr* icall = Instr::Create(is_apply ? OP_apply : OP_call);
     icall->operand   = argc;
     icall->operandu1 = kwargc;

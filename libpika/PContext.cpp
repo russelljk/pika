@@ -853,6 +853,92 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
                        engine->GetTypenameOf(b)->GetBuffer());
 }
 
+bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
+{
+    Value frame = PopTop();
+    Value selfobj = PopTop();
+    Value kw_arg = PopTop();
+    Value var_arg = PopTop();    
+    
+    Array* array = 0;
+    Dictionary* dict = 0;
+    size_t amt = 0;
+    size_t array_size = 0;
+    size_t dict_size = 0;
+    
+    if (!var_arg.IsNull()) {
+        if (engine->Array_Type->IsInstance(var_arg)) {
+            array = static_cast<Array*>(var_arg.val.object);            
+            array_size = array->GetLength();
+            
+            if (array_size > PIKA_MAX_ARGS) {
+                RaiseException(Exception::ERROR_type, "attempt to apply variable argument call with an Array with too many members.");
+            }
+            
+            argc += (u1)array_size;
+            amt += array_size;            
+        } else {
+            RaiseException(Exception::ERROR_type, "attempt to apply invalid variable argument to a function call.");
+        }
+    }
+    
+    if (!kw_arg.IsNull()) {
+        if (engine->Dictionary_Type->IsInstance(kw_arg)) {
+            dict = static_cast<Dictionary*>(kw_arg.val.object);
+            dict_size = dict->Elements().count;
+            
+            if (dict_size > PIKA_MAX_KWARGS) {
+                RaiseException(Exception::ERROR_type, "attempt to apply keyword argument call with a Dictionary with too many members.");
+            }
+            
+            amt += dict_size * 2;
+        } else {
+            RaiseException(Exception::ERROR_type, "attempt to apply invalid keyword argument to a function call.");
+        }
+    }
+    
+    CheckStackSpace(amt + closure->def->stackLimit);
+    
+    Value* old_sp = sp;
+    StackAlloc(amt);
+    
+    Value* start = sp - amt;
+    
+    if (array) {
+        if (kwargc) {
+            Value* copy_from = old_sp - kwargc*2;
+            Value* copy_to = sp;
+            start = copy_from;
+            while (copy_from < old_sp) {
+                *copy_to++ = *copy_from++;
+            }            
+        }
+        
+        Buffer<Value>::Iterator end_iter = array->GetElements().End();
+        for (Buffer<Value>::Iterator iter = array->GetElements().Begin(); iter != end_iter; ++iter) {
+            *start = *iter;
+            start++;
+        }
+    }
+    
+    if (dict) {
+        start += kwargc*2;
+        for (Table::Iterator iter = dict->Elements().GetIterator(); iter; ++iter) {
+            *start++ = iter->key;
+            *start++ = iter->val;
+        }
+    }
+    
+    ASSERT(start == sp);
+        
+    Push(selfobj);
+    Push(frame);
+    
+    kwargc += (u1)dict_size;
+    
+    return SetupCall(argc, retc, kwargc, false);
+}
+
 int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const argc, int const argdiff, bool const nativecall)
 {
     int resultArgc = argc;
@@ -886,7 +972,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
                            param_count == 1 ? "argument" : "arguments",
                            argc);
         }
-    }    
+    }
     else if (argdiff > 0)
     {
         // Too many arguments.

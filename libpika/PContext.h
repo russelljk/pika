@@ -231,7 +231,7 @@ protected:
       * @note Result is returned on the stack.
       */    
     void OpSuper();
-    
+    bool    OpApply(u1 argc, u1 kwc, u1 retc);
     bool    DoPropertyGet(int& numcalls, Property* prop);
     bool    DoPropertySet(int& numcalls, Property* prop);
 

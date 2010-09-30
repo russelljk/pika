@@ -2591,7 +2591,7 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
             BufferCurrent();
             IdExpr* idexpr = DoIdExpression();
             has_apply_va = true;
-            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
+            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, false));
             expr->line = line;
             break;        
         }
@@ -2684,7 +2684,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
             BufferCurrent();
             IdExpr* idexpr = DoIdExpression();
             has_apply_va = true;
-            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
+            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, false));
             expr->line = line;
             break;        
         }
