@@ -841,8 +841,12 @@ void CallExpr::CalculateResources(SymbolTable* st)
         {
             Expr* arg_expr = el->expr;
             arg_expr->CalculateResources(st);
-            
-            if (arg_expr->kind == EXPR_kwarg) {
+            if (arg_expr->kind == Expr::EXPR_apply_va ||
+                arg_expr->kind == Expr::EXPR_apply_kw )
+            {
+                is_apply = true;
+            }
+            else if (arg_expr->kind == EXPR_kwarg) {
                 if (++kwargc > PIKA_MAX_KWARGS)
                     state->SyntaxError(line, "Max number of keyword arguments reached"); 
             }

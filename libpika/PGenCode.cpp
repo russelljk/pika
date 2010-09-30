@@ -510,7 +510,9 @@ Instr* CallExpr::GenerateCode()
         
     while (curr)
     {
-        if (curr->expr->kind == Expr::EXPR_kwarg)
+        if (curr->expr->kind == Expr::EXPR_kwarg    ||
+            curr->expr->kind == Expr::EXPR_apply_va ||
+            curr->expr->kind == Expr::EXPR_apply_kw )
             break;
     
         Expr* expr = curr->expr;
@@ -525,10 +527,7 @@ Instr* CallExpr::GenerateCode()
     }
         
     while (curr)
-    {
-        if (curr->expr->kind != Expr::EXPR_kwarg)
-            ASSERT(false); // somehow a regular argument ended up after a kwarg
-        
+    {       
         Expr* expr = curr->expr;
         Instr* iexpr = expr->GenerateCode();
         
@@ -539,8 +538,8 @@ Instr* CallExpr::GenerateCode()
         
         curr = curr->next;
     }
-    
-    Instr* icall = Instr::Create(OP_call);
+        
+    Instr* icall = Instr::Create(is_apply ? OP_apply : OP_call);
     icall->operand   = argc;
     icall->operandu1 = kwargc;
     icall->operandu2 = retc ? retc : 1;

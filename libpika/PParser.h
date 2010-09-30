@@ -194,13 +194,13 @@ private:
     Expr*           DoRealLiteralExpression();
     Expr*           DoStringLiteralExpression();
     Expr*           DoIntegerLiteralExpression();
-    ExprList*       DoExpressionList(bool is_call=false);
+    ExprList*       DoExpressionList(bool is_call=false, bool can_apply = false);
     LoadExpr*       DoSelfExpression();
     Expr*           DoFunctionExpression();
     
     // These methods take null terminated arrays of terminator characters //////////////////////////
     
-    ExprList*       DoOptionalExpressionList(const int* terms, bool kwargs = false);
+    ExprList*       DoOptionalExpressionList(const int* terms, bool kwargs = false, bool can_apply = false);
     Stmt*           DoStatementList(const int* terms);
     Stmt*           DoStatementListBlock(const int* terms);
     

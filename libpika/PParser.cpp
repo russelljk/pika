@@ -2173,7 +2173,7 @@ Expr* Parser::DoPostfixExpression()
             --------------------------------------------------------------------------------------------           
             */
             Expr*     lhs  = expr;
-            ExprList* args = DoExpressionList(true);
+            ExprList* args = DoExpressionList(true, true);
             
             PIKA_NEWNODE(CallExpr, expr, (state, lhs, args));
             expr->line = lhs->line;
@@ -2253,7 +2253,7 @@ Expr* Parser::DoPostfixExpression()
             BufferNext();
             Match('(');
             const int call_terms[] = { ')', EOI, 0 };
-            ExprList* callargs = DoOptionalExpressionList(call_terms, true);
+            ExprList* callargs = DoOptionalExpressionList(call_terms, true, true);
             int line = tstream.GetLineNumber();
             
             Match(')');
@@ -2571,40 +2571,70 @@ Expr* Parser::DoIntegerLiteralExpression()
     return expr;
 }
 
-ExprList* Parser::DoExpressionList(bool is_call)
+ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
 {
     ExprList* el = 0;
     ExprList* firstel = 0;
     bool has_kwarg = false;
+    bool has_apply_va = false;
+    bool has_apply_kw = false;
     
     do
     {
         Expr* expr = 0;
-        
-        if (is_call && tstream.GetType() == TOK_identifier &&
-            tstream.GetNextType() == ':')
-        {
+        switch (tstream.GetType()) {
+        case ':': {
+            if (has_apply_kw)
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "applied variable argument, :vararg ,must come before an applied keyword argument, ::kwarg.");
             int line = tstream.GetLineNumber();
-            StringExpr* sexpr = DoFieldName();
-            BufferNext();
-            Match(':');            
-            Expr* valexpr = DoExpression();
-            
-            PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
+            tstream.Advance();
+            BufferCurrent();
+            IdExpr* idexpr = DoIdExpression();
+            has_apply_va = true;
+            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
             expr->line = line;
-            
-            if (!has_kwarg)
-                has_kwarg = true;
+            break;        
         }
-        else if (!has_kwarg)
-        {
+        case TOK_coloncolon: {
+            int line = tstream.GetLineNumber();
+            tstream.Advance();
+            BufferCurrent();
+            IdExpr* idexpr = DoIdExpression();
+            has_apply_kw = true;
+            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
+            expr->line = line;
+            break;
+        }
+        case TOK_identifier: {
+            if (tstream.GetNextType() == ':') {
+                if (has_apply_kw || has_apply_va) {
+                    state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "keyword arguments must come before any applied arguments.");
+                }
+                
+                int line = tstream.GetLineNumber();
+                StringExpr* sexpr = DoFieldName();
+                BufferNext();
+                Match(':');            
+                Expr* valexpr = DoExpression();
+            
+                PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
+                expr->line = line;
+            
+                if (!has_kwarg)
+                    has_kwarg = true;                
+                break;
+            }
+            // Fall through if next token is not ':' ...
+            // |
+            // |
+            // V        
+        }
+        default:
+            if (has_kwarg || has_apply_va || has_apply_kw)
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "regular arguments must proceed keyword arguments and applied arguments.");
             expr = DoExpression();
         }
-        else
-        {
-            state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "expected token: 'identifier'. A keyword argument must be the last parameter(s) supplied");
-        }
-        
+                
         ExprList* nxtel = 0;
         
         PIKA_NEWNODE(ExprList, nxtel, (state, expr));
@@ -2632,39 +2662,70 @@ ExprList* Parser::DoExpressionList(bool is_call)
     return firstel;
 }
 
-ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call)
+ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool can_apply)
 {
     ExprList* el = 0;
     ExprList* firstel = 0;
     bool has_kwarg = false;
+    bool has_apply_va = false;
+    bool has_apply_kw = false;
     
     while (!tstream.IsEndOfStream() && IsNotTerm(terms, tstream.GetType()) )
     {
         BufferNext();
         Expr* expr = 0;
 
-        if (is_call && tstream.GetType() == TOK_identifier &&
-            tstream.GetNextType() == ':')
-        {
+        switch (tstream.GetType()) {
+        case ':': {
+            if (has_apply_kw)
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "applied variable argument, :vararg ,must come before an applied keyword argument, ::kwarg.");
             int line = tstream.GetLineNumber();
-            StringExpr* sexpr = DoFieldName();
-            BufferNext();
-            Match(':');            
-            Expr* valexpr = DoExpression();
-            
-            PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
+            tstream.Advance();
+            BufferCurrent();
+            IdExpr* idexpr = DoIdExpression();
+            has_apply_va = true;
+            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
             expr->line = line;
+            break;        
+        }
+        case TOK_coloncolon: {
+            int line = tstream.GetLineNumber();
+            tstream.Advance();
+            BufferCurrent();
+            IdExpr* idexpr = DoIdExpression();
+            has_apply_kw = true;
+            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
+            expr->line = line;
+            break;
+        }
+        case TOK_identifier: {
+            if (tstream.GetNextType() == ':') {
+                if (has_apply_kw || has_apply_va) {
+                    state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "keyword arguments must come before any applied arguments.");
+                }
+                
+                int line = tstream.GetLineNumber();
+                StringExpr* sexpr = DoFieldName();
+                BufferNext();
+                Match(':');            
+                Expr* valexpr = DoExpression();
             
-            if (!has_kwarg)
-                has_kwarg = true;
+                PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
+                expr->line = line;
+            
+                if (!has_kwarg)
+                    has_kwarg = true;                
+                break;
+            }
+            // Fall through if next token is not ':' ...
+            // |
+            // |
+            // V        
         }
-        else if (!has_kwarg)
-        {
+        default:
+            if (has_kwarg || has_apply_va || has_apply_kw)
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "regular arguments must proceed keyword arguments and applied arguments.");
             expr = DoExpression();
-        }
-        else
-        {
-            state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "expected token: 'identifier'. A keyword argument must be the last parameter(s) supplied");
         }
         
         ExprList* nxtel = 0;

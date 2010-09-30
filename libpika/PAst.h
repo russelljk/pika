@@ -759,6 +759,8 @@ struct Expr : TreeNode
         EXPR_paren,    
         EXPR_namenode, 
         EXPR_kwarg,
+        EXPR_apply_va,
+        EXPR_apply_kw,
     };
     
     Expr(CompileState* s, Kind kind) : TreeNode(s), kind(kind) {}
@@ -828,7 +830,7 @@ struct CallExpr : Expr
     CallExpr(CompileState* s, Expr *left, ExprList *args)
             : Expr(s, Expr::EXPR_call),
             left(left),
-            args(args), argc(0), kwargc(), retc(1), redirectedcall(0) {}
+            args(args), argc(0), kwargc(), retc(1), redirectedcall(0), is_apply(0) {}
             
     virtual void CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
@@ -839,6 +841,7 @@ struct CallExpr : Expr
     u2 kwargc;
     u2 retc;
     u1 redirectedcall;
+    u1 is_apply;
 };
 
 
@@ -1266,7 +1269,17 @@ struct IdExpr : Expr
     bool newLocal;
 };
 
-
+struct ApplyArg : Expr {
+    ApplyArg(CompileState* s, IdExpr* id, bool kw = false): Expr(s, kw ? Expr::EXPR_apply_kw : Expr::EXPR_apply_va), vararg(id) {}
+    
+    virtual ~ApplyArg() {}
+    
+    virtual void   CalculateResources(SymbolTable* st) { vararg->CalculateResources(st); }
+    
+    virtual Instr* GenerateCode() { return vararg->GenerateCode(); }
+        
+    IdExpr* vararg;
+};
 
 //////////////////////////////////////////// ConstantExpr //////////////////////////////////////////
 
