@@ -240,7 +240,7 @@ PIKA_OPCODE(OP_setglobal)
         if (this->package->GetGlobal(name, res) && res.tag == TAG_property)
         {
             Push(this->package);
-            if (DoPropertySet(numcalls, res.val.property))
+            if (DoPropertySet(res.val.property))
             {
                 PIKA_NEXT()
             }
@@ -276,7 +276,7 @@ PIKA_OPCODE(OP_setmember)
     Push( self );
     Push( name );
     
-    OpDotSet(numcalls, oc, OVR_set);
+    OpDotSet(oc, OVR_set);
 }
 PIKA_NEXT()
 /*

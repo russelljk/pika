@@ -57,7 +57,13 @@ void Pika_FunctionResourceCalculation(
     {
         args->CalculateDefaultResources(st);
         args->CalculateResources((*symtab));
-        (*def)->numArgs = cs.localCount;
+        ptrdiff_t argcount = cs.localCount;
+        if (args->HasKeywordArgs())
+            --argcount;
+        if (args->HasVarArgs())
+            --argcount;
+        (*def)->numArgs = argcount;
+        ASSERT(argcount >= 0);
         if (cs.localCount > PIKA_MAX_ARGS)
         {
             cs.SyntaxException(Exception::ERROR_syntax, funcline, "max number of argument for function declaration reached %d.", PIKA_MAX_ARGS);    

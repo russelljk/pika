@@ -147,7 +147,7 @@ public:
     size_t count; //!< The number of elements in the table.
     size_t size;  //!< The length of the slots member variable.
     
-    inline size_t NumElements() const { return count; }
+    INLINE size_t Count() const { return count; }
     
     static size_t const MAX_TABLE_SLOTS; //!< Maximum number of slots a table can have.
     static size_t const MAX_TABLE_SIZE;  //!< Maximum number of rows a table can have.

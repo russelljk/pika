@@ -55,11 +55,10 @@ bool Basic::SetAttr(Context* ctx, const Value& key, Value& value, u4 attr)
         Value result(NULL_VALUE);
         if (GetSlot(key, result) && result.IsProperty())
         {
-            int calls = 0;
             ctx->CheckStackSpace(3);
             ctx->Push(key);
             ctx->Push(ToValue());
-            ctx->DoPropertySet(calls, result.val.property);
+            ctx->DoPropertySet(result.val.property);
             return true;
         }
         else

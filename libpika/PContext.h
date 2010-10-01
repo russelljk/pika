@@ -231,14 +231,79 @@ protected:
       * @note Result is returned on the stack.
       */    
     void OpSuper();
-    bool    OpApply(u1 argc, u1 kwc, u1 retc);
-    bool    DoPropertyGet(int& numcalls, Property* prop);
-    bool    DoPropertySet(int& numcalls, Property* prop);
+    
+    /** Applies arguments and keyword arguments to a function call.
+      * Arguments should be pushed onto the stack, followed by keyword argument pairs.
+      * Next an Array or null followed by a Dictionary or null. Lastly the self object and
+      * the function to be called should be pushed onto the stack.
+      *
+      * <pre>
+      *  The stack should look like this before calling.
+      *
+      * [ arg 0 ]
+      * [ ..... ] < regular arguments, 0-argc
+      * [ arg N ]
+      * [ key 0 ]
+      * [ val 0 ]
+      * [ ..... ] < keyword arg pairs, 0-kwargc
+      * [ key N ]
+      * [ val N ]
+      * [ [...] ] < variable argument array or null
+      * [ {...} ] < keyword argument dictionary or null
+      * [ self  ] < self object or null
+      * [ func  ] < function to be called
+      *           < sp
+      * </pre>
+      * @param argc     The number of arguments pushed onto the stack (not counting the Array).
+      * @param kwargc   The number of keyword argument pairs pushed onto the stack (not counting the Dictionary).
+      * @param retc     The expected number of return values.
+      *
+      * @result True if the call should be inlined or Run should be called. False if a native function
+      *         was called.
+      */
+    bool OpApply(u1 argc, u1 kwargc, u1 retc);
+    
+    /** Executes the getter for the given property. If the function is native it 
+      * will be called before the function returns. If it is a bytecode function
+      * numcalls will be incremented and you should call Context::Run.
+      *
+      * <pre>
+      * The stack should look like this:
+      *  [ .... ]
+      *  [ self ] < The self object associated with this property. ie obj.prop
+      *           < sp
+      * </pre>
+      *
+      * @param numcalls [in|out] The number of calls that are inlined.
+      * @param prop     [in] The Property we are calling.
+      *
+      * @result Returns true if the property was successfully setup.
+      */
+    bool DoPropertyGet(int& numcalls, Property* prop);
+    
+    /** Executes the setter for the given property. If the function is native it 
+      * will be called before the function returns. If it is a bytecode function
+      * Context::Run will be called before the function exits.
+      *
+      * <pre>
+      * The stack should look like this:
+      *  [ ....  ]
+      *  [ value ] < The value to pass to the setter.
+      *  [ self  ] < The self object associated with this property. ie obj.prop
+      *            < sp
+      * </pre>
+      *
+      * @param prop [in] The Property we are calling.
+      *
+      * @result Returns true if the property was successfully setup.
+      */
+    bool DoPropertySet(Property* prop);
 
     /** Reads a member variable from an object. Calls any operator overrides or properties
       * as needed. Depending on the object in question, a missing member may
       * cause an exception.
       * @note
+      * <pre>
       * The top of the stack should look like:
       * 
       * [ object   ]
@@ -250,15 +315,16 @@ protected:
       *
       * If number numcalls is incremenented it means you need to call Context::Run 
       * when OpDotGet is called by a native function.
+      * </pre>
       */
-    void    OpDotGet(int& numcalls, Opcode oc, OpOverride ovr);
+    void OpDotGet(int& numcalls, Opcode oc, OpOverride ovr);
     
     /** Sets an object's slot.
       *
-      * @param numcalls [in|out] Reference to the integer that holds the number of inlined calls made.
       * @param oc       [in]     Current opcode.
       * @param ovr      [in]     Override relative to oc.
       * @note 
+      * <pre>
       * The top of the stack should look like:
       * 
       * [ value    ]
@@ -268,15 +334,16 @@ protected:
       * If successful the Top 2 items on the stack will be replaced by the result:
       *
       * [ result ] < Top
+      * </pre>
       */
-    void    OpDotSet(int& numcalls, Opcode oc, OpOverride ovr);    
+    void OpDotSet(Opcode oc, OpOverride ovr);    
 protected:
     
-    bool    OpUnpack(u2);    
-    bool    OpBind();    
-    bool    OpCat(bool sp);    
-    bool    OpIs();    
-    bool    OpHas();    
+    bool OpUnpack(u2);    
+    bool OpBind();    
+    bool OpCat(bool sp);    
+    bool OpIs();    
+    bool OpHas();
     EErrRes OpException(Exception&);
     
     /** Make this Context the active one. */        
@@ -294,11 +361,11 @@ public:
     /** Sets up a generic override method. The arguments should already be pushed onto the stack. Followed by
       * Keyword (name,value) pairs. Finally the object in question should be pushed.
       */
-    bool    SetupOverride(u2 argc, u2 retc, u2 kwargc, bool tailcall, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
+    bool SetupOverride(u2 argc, u2 retc, u2 kwargc, bool tailcall, Basic* obj, OpOverride ovr, bool* res = 0);  // Generic
     
-    bool    SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the right hand side
-    bool    SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the left hand side
-    bool    SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res = 0);      // Unary prefix and postfix
+    bool SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the right hand side
+    bool SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res = 0);        // Object on the left hand side
+    bool SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res = 0);      // Unary prefix and postfix
     
     ScopeIter GetFirstScope() { /* returns a copy */ return scopesBeg; } 
     ScopeIter GetScopeTop()   { /* returns a copy */ return scopesTop; } 
@@ -335,7 +402,7 @@ public:
       * if (context->SetupCall(N, 1, 0, false))
       *      context->Run();
       *  Value returned = context->PopTop();
-      *  </pre>
+      * </pre>
       *
       * @param argc      The number of arguments pushed on the stack
       * @param tailcall  Is the call a tailcall. Should not be used under normal circumstances.
@@ -396,10 +463,10 @@ public:
         this->Push(t);
     }
     
-    INLINE void SafePushNull()           { this->CheckStackSpace(1); this->PushNull(); }    //!< Safely Push a <i>null</i> Value onto the stack.
-    INLINE void SafePushBool(bool b)     { this->CheckStackSpace(1); this->PushBool(b); }   //!< Safely Push a boolean Value onto the stack.
-    INLINE void SafePushTrue()           { this->CheckStackSpace(1); this->PushTrue(); }    //!< Safely Push the boolean Value <i>true</i> onto the stack.
-    INLINE void SafePushFalse()          { this->CheckStackSpace(1); this->PushFalse(); }   //!< Safely Push the boolean Value <i>false</i> onto the stack.
+    INLINE void SafePushNull()       { this->CheckStackSpace(1); this->PushNull();  }   //!< Safely Push a <i>null</i> Value onto the stack.
+    INLINE void SafePushBool(bool b) { this->CheckStackSpace(1); this->PushBool(b); }   //!< Safely Push a boolean Value onto the stack.
+    INLINE void SafePushTrue()       { this->CheckStackSpace(1); this->PushTrue();  }   //!< Safely Push the boolean Value <i>true</i> onto the stack.
+    INLINE void SafePushFalse()      { this->CheckStackSpace(1); this->PushFalse(); }   //!< Safely Push the boolean Value <i>false</i> onto the stack.
     
     INLINE void Pop()       { --sp; }       //!< Pop the top Value off the stack.
     INLINE void Pop(u2 amt) { sp -= amt; }  //!< Pop multiple Values off the top of the stack.

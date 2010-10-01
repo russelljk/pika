@@ -63,9 +63,8 @@ namespace {
         ctx->Push(doc);
         ctx->Push(object);        
         ctx->Push(doc_String);
-
-        int num_calls = 0;
-        ctx->OpDotSet(num_calls, OP_dotset, OVR_set);
+        
+        ctx->OpDotSet(OP_dotset, OVR_set);
         ctx->Push(object);
 		return 1;
 	}

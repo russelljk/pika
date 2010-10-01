@@ -118,7 +118,7 @@ Array* Dictionary::Keys()
 {
     GCPAUSE_NORUN(engine);
     Array* res = Array::Create(engine, engine->Array_Type,0,0);
-    res->SetLength(elements.NumElements());
+    res->SetLength(elements.Count());
     size_t index = 0;
     for (Table::Iterator i = elements.GetIterator(); i; ++i) {
         (*res)[index++] = i->key;
@@ -130,7 +130,7 @@ Array* Dictionary::Values()
 {
     GCPAUSE_NORUN(engine);
     Array* res = Array::Create(engine, engine->Array_Type,0,0);
-    res->SetLength(elements.NumElements());
+    res->SetLength(elements.Count());
     size_t index = 0;
     for (Table::Iterator i = elements.GetIterator(); i; ++i) {
         (*res)[index++] = i->val;

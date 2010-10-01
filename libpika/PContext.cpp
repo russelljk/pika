@@ -410,7 +410,7 @@ void Context::DoSuspend(Value* v, size_t amt)
     
     if (prev)
     {
-        // If someone is expecting the values we produced.
+        // If someone is expecting the yield values ...
         if (prev->closure)
         {
             // Copy all the values produced from our stack to theirs.
@@ -855,44 +855,66 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
 
 bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
 {
+    /* [ arg 0 ]
+       [ ..... ] < regular arguments, 0-argc
+       [ arg N ]
+       [ key 0 ]
+       [ val 0 ]
+       [ ..... ] < keyword arg pairs, 0-kwargc
+       [ key N ]
+       [ val N ]
+       [ [...] ] < variable argument array
+       [ {...} ] < keyword argument dictionary
+       [ self  ] < self object
+       [ func  ] < function to be called
+                 < sp
+     */
     Value frame = PopTop();
     Value selfobj = PopTop();
     Value kw_arg = PopTop();
     Value var_arg = PopTop();    
     
-    Array* array = 0;
-    Dictionary* dict = 0;
     size_t amt = 0;
-    size_t array_size = 0;
-    size_t dict_size = 0;
-    
-    if (!var_arg.IsNull()) {
-        if (engine->Array_Type->IsInstance(var_arg)) {
+    Array* array = 0;
+    if (!var_arg.IsNull())
+    {
+        if (engine->Array_Type->IsInstance(var_arg))
+        {
             array = static_cast<Array*>(var_arg.val.object);            
-            array_size = array->GetLength();
+            size_t array_size = array->GetLength();
             
-            if (array_size > PIKA_MAX_ARGS) {
+            if (array_size > PIKA_MAX_ARGS)
+            {
                 RaiseException(Exception::ERROR_type, "attempt to apply variable argument call with an Array with too many members.");
             }
             
             argc += (u1)array_size;
             amt += array_size;            
-        } else {
+        } 
+        else
+        {
             RaiseException(Exception::ERROR_type, "attempt to apply invalid variable argument to a function call.");
         }
     }
     
-    if (!kw_arg.IsNull()) {
-        if (engine->Dictionary_Type->IsInstance(kw_arg)) {
+    size_t dict_size = 0;
+    Dictionary* dict = 0;
+    if (!kw_arg.IsNull())
+    {
+        if (engine->Dictionary_Type->IsInstance(kw_arg))
+        {
             dict = static_cast<Dictionary*>(kw_arg.val.object);
-            dict_size = dict->Elements().count;
+            dict_size = dict->Elements().Count();
             
-            if (dict_size > PIKA_MAX_KWARGS) {
+            if (dict_size > PIKA_MAX_KWARGS)
+            {
                 RaiseException(Exception::ERROR_type, "attempt to apply keyword argument call with a Dictionary with too many members.");
             }
             
-            amt += dict_size * 2;
-        } else {
+            amt += (dict_size * 2);
+        }
+        else
+        {
             RaiseException(Exception::ERROR_type, "attempt to apply invalid keyword argument to a function call.");
         }
     }
@@ -904,26 +926,32 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
     
     Value* start = sp - amt;
     
-    if (array) {
-        if (kwargc) {
-            Value* copy_from = old_sp - kwargc*2;
+    if (array)
+    {
+        if (kwargc)
+        {
+            Value* copy_from = old_sp - (kwargc * 2);
             Value* copy_to = sp;
             start = copy_from;
-            while (copy_from < old_sp) {
+            while (copy_from < old_sp)
+            {
                 *copy_to++ = *copy_from++;
             }            
         }
         
         Buffer<Value>::Iterator end_iter = array->GetElements().End();
-        for (Buffer<Value>::Iterator iter = array->GetElements().Begin(); iter != end_iter; ++iter) {
+        for (Buffer<Value>::Iterator iter = array->GetElements().Begin(); iter != end_iter; ++iter)
+        {
             *start = *iter;
             start++;
         }
     }
     
-    if (dict) {
+    if (dict)
+    {
         start += kwargc*2;
-        for (Table::Iterator iter = dict->Elements().GetIterator(); iter; ++iter) {
+        for (Table::Iterator iter = dict->Elements().GetIterator(); iter; ++iter)
+        {
             *start++ = iter->key;
             *start++ = iter->val;
         }
@@ -939,15 +967,16 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
     return SetupCall(argc, retc, kwargc, false);
 }
 
-int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const argc, int const argdiff, bool const nativecall)
+int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
+                        u4 const argc, int const argdiff, bool const nativecall)
 {
     int resultArgc = argc;
     
-    // For strict methods this will raise an exception.
-    // Strict methods cannot have default values, variable arguments or keyword 
-    // arguments. This restriction against defaults and keyword arguments may
-    // be removed in the future.
-    
+    /* For strict methods this will raise an exception.
+     * Strict methods cannot have default values, variable arguments or keyword 
+     * arguments. This restriction against defaults and keyword arguments may
+     * be removed in the future.
+     */
     if (def->isStrict)
     {
         if (argdiff > 0)
@@ -987,48 +1016,37 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
         else if (!nativecall)
         {
             GCPAUSE_NORUN(engine);
-            // Bytecode variadic function:
-            // Create the varargs Array. We only do this for byte-code
-            // functions since native functions have direct access to the stack.
-            if (def->isKeyword) {
-                Array *v = Array::Create(engine, 0, argdiff + 2, (GetStackPtr() - argdiff - 2));
-                Pop(argdiff);
-                Top1().Set(v);
-            } else {
-                Array *v = Array::Create(engine, 0, argdiff + 1, (GetStackPtr() - argdiff - 1));
-                Pop(argdiff);
-                Top().Set(v);
-            }
-            resultArgc = param_count;            
+            
+            Array *v = Array::Create(engine, 0, argdiff, (GetStackPtr() - argdiff));
+            Pop(argdiff);
+            Push(v);            
+            resultArgc = param_count;  
+            ++resultArgc;          
         }
         // Otherwise the function is a variadic native function.
         // We just keep the arguments given to us.
     }
     else
     {
-        // Too few arguments.
-        // ------------------
+        /* Too few arguments.
+         * --------------------------------------------------------------------
+         * We want to push null for all arguments unspecified and
+         * without a default argument.
+         *  
+         * Then push the default values for all argument with default
+         * values which were unspecified.
+         *  
+         * Lastly we want to push an empty vector if it is a bytecode
+         * variadic function.
+         */        
+        int  argstart = argc;
+        Defaults* defaults = fun->defaults;
         
-        // We want to push null for all arguments unspecified and
-        // without a default argument.
-        //
-        // Then push the default values for all argument with default
-        // values which were unspecified.
-        //
-        // Lastly we want to push an empty vector if it is a bytecode
-        // variadic function.
-        
-        // Bytecode function with a varags parameter.
-        
-        int const adjustForVarArgs = (def->isVarArg && !nativecall) ? 1 : 0;
-        int  argstart         = argc;
-        Defaults* defaults    = fun->defaults;
-        int const keyword_adj = (def->isKeyword && !nativecall) ? 1 : 0;
         
         if (defaults)
         {
             size_t const numDefaults = defaults->Length();
-            int const numRegularArgs = param_count - (int)numDefaults - adjustForVarArgs - keyword_adj;
+            int const numRegularArgs = param_count - (int)numDefaults;
             
             int const amttopush = numRegularArgs - argstart;
             int const defstart  = Clamp<int>(-amttopush, 0, (int)numDefaults);
@@ -1048,7 +1066,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
         }
         else
         {
-            int const numRegularArgs = param_count - adjustForVarArgs - keyword_adj;
+            int const numRegularArgs = param_count;
             int const amttopush = numRegularArgs - argstart;
             for (int p = 0; p < amttopush; ++p)
             {
@@ -1056,65 +1074,44 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count, u4 const
             }
         }
         
+        resultArgc = param_count;
+                
         // Create an empty variable arguments Array if needed.
-        if (adjustForVarArgs)
+        if (def->isVarArg && !nativecall)
         {
             GCPAUSE_NORUN(engine);            
             Array* v = Array::Create(engine, engine->Array_Type, 0, 0);
             Push(v);
+            ++resultArgc;
         }
-        
-        if (keyword_adj)
-        {
-            this->PushNull();
-        }
-        
-        resultArgc = param_count;
-    }
-    
+    }   
     return resultArgc;
 }
 
-/* TODO: This method, and the one it calls AdjustArgs, need to be rewritten and
- * simplified. 
- * 
- * We have 4 types of callable 'objects' to consider:
- * 1. Native Functions => Function is called.
- * 2. Bytecode Functions => Bytecode scope if prepared.
- * 3. Objects that override opCall => Which becomes a native or bytecode function. 
- * 4. Uncallable object => Exception.
- *   
- * We also have to deal with the following, which are not mutually exclusive:
- * 1. Too many arguments
- * 2. Too few arguments
- * 3. Variable Argument Functions
- * 4. Keyword Argument Functions
- * 5. Default Values
- *   
- */
 bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
 {
-    //  [ ...   ]
-    //  [ arg 0 ]
-    //  [ ...   ]
-    //  [ arg N ] 
-    //  [ kw  0 ]
-    //  [ ...   ]
-    //  [ kw  N ]
-    //  [ self  ]
-    //  [ func  ] < sp
-    
+    /*  
+        [ ...   ]
+        [ arg 0 ]
+        [ ...   ]
+        [ arg N ] 
+        [ kw  0 ]
+        [ ...   ]
+        [ kw  N ]
+        [ self  ]
+        [ func  ] < sp
+    */
     Value frameVar = PopTop();
     Value selfVar  = PopTop();
-    
-    //  [ ...   ]
-    //  [ arg 0 ]
-    //  [ ...   ]
-    //  [ arg N ] 
-    //  [ kw  0 ]
-    //  [ ...   ]
-    //  [ kw  N ]  < sp
-        
+    /*  
+        [ ...   ]
+        [ arg 0 ]
+        [ ...   ]
+        [ arg N ] 
+        [ kw  0 ]
+        [ ...   ]
+        [ kw  N ]  < sp
+    */    
     // frameVar is a derived from type Function.
     if (engine->Function_Type->IsInstance(frameVar))
     {
@@ -1131,13 +1128,13 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             keywords.Resize(kw_total_values);
             Pika_memcpy(keywords.GetAt(0), GetStackPtr()-kw_total_values, kw_total_values*sizeof(Value));
             Pop(kw_total_values);
-        }
-        
-        //  [ ...   ]
-        //  [ arg 0 ]
-        //  [ ...   ]
-        //  [ arg N ] < sp
-            
+        }        
+        /*  
+            [ ...   ]
+            [ arg 0 ]
+            [ ...   ]
+            [ arg N ] < sp
+        */
         // Adjust argc to match the definition's param_count.
         int  param_count = def->numArgs;
         int  argdiff     = (int)argc - param_count;
@@ -1147,18 +1144,15 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         {
             // Incorrect argument count.
             argc = AdjustArgs(fun, def, param_count, argc, argdiff, nativecall);
-        }
-        
-        else if (def->isVarArg && !nativecall && param_count)
+        }        
+        else if (def->isVarArg && !nativecall)
         {
-            // Argument count is over by exactly 1 or 2. 
-            GCPAUSE_NORUN(engine);
-            int amt = (def->isKeyword) ? 2 : 1;
-            
-            // So create a single element array.
-            Value* singlearg = GetStackPtr() - amt;
-            Array* v = Array::Create(engine, 0, amt, singlearg);
-            (sp-amt)->Set(v);
+            // We have the correct amount of arguments, however, we need to add
+            // a empty varag function.
+            GCPAUSE_NORUN(engine);            
+            Array* v = Array::Create(engine, engine->Array_Type, 0, 0);
+            Push(v);
+            ++argc;
         }
         
         Dictionary* dict = 0;
@@ -1168,8 +1162,10 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             {
                 GCPAUSE_NORUN(engine);
                 dict = Dictionary::Create(engine, engine->Dictionary_Type);
-                if (!nativecall) 
-                    Top().Set(dict);
+                if (!nativecall)  {
+                    Push(dict);
+                    ++argc;
+                }
             }
             /* Time to deal with the keyword arguments. */             
             Value* args_start = sp - argc;
@@ -1195,7 +1191,8 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         {
             GCPAUSE_NORUN(engine);
             Dictionary* dict = Dictionary::Create(engine, engine->Dictionary_Type);
-            Top().Set(dict);
+            Push(dict);
+            ++argc;
         }
         
         Value* newsp;
@@ -1256,17 +1253,17 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         acc.SetNull();
         ASSERT(closure);
         ASSERT(package);
-        
-        //  [ ...          ]
-        //  [ argument 0   ] < bsp
-        //  [ ...          ]
-        //  [ argument N   ]
-        //  [ local 0      ]
-        //  [ ...          ]
-        //  [ local N      ]
-        //  [ return value ] < rsp
-        //  [              ] < sp
-        
+        /*
+            [ ...          ]
+            [ argument 0   ] < bsp
+            [ ...          ]
+            [ argument N   ]
+            [ local 0      ]
+            [ ...          ]
+            [ local N      ]
+            [ return value ] < rsp
+            [              ] < sp
+        */
         if (nativecall)
         {
             // Calling a native C function
@@ -1629,7 +1626,7 @@ void Context::ReportRuntimeError(Exception::Kind kind, const char* msg, ...)
     }
 }
 
-void Context::OpDotSet(int& numcalls, Opcode oc, OpOverride ovr)
+void Context::OpDotSet(Opcode oc, OpOverride ovr)
 {
     // [ ...      ]
     // [ value    ]
@@ -1963,7 +1960,7 @@ bool Context::DoPropertyGet(int& numcalls, Property* prop)
     return true;
 }
 
-bool Context::DoPropertySet(int& numcalls, Property* prop)
+bool Context::DoPropertySet(Property* prop)
 {
     if (!prop->CanWrite())
         return false;

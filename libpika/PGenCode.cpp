@@ -2233,7 +2233,7 @@ Instr* PkgDecl::GenerateCode()
     Instr* insideof  = name->GetSelfExpr() ? name->GetSelfExpr()->GenerateCode() : Instr::Create(OP_pushnull);
     Instr* ipkgname  = id->GenerateCode();
     Instr* ipush_pkg = Instr::Create(OP_pushpkg);
-    Instr* inew_pkg  = Instr::Create(OP_newenv);
+    Instr* inew_pkg  = Instr::Create(OP_newpkg);
     Instr* ipop_pkg  = Instr::Create(OP_poppkg);
     
     PIKA_BLOCKSTART(state, ipop_pkg);

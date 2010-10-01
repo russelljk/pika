@@ -136,7 +136,7 @@
     DECL_OP( OP_pushwith,       "pushwith",     1, OF_none,     "" )
     DECL_OP( OP_popwith,        "popwith",      1, OF_none,     "" )
     
-    DECL_OP( OP_newenv,         "newenv",       1, OF_none,     "" )
+    DECL_OP( OP_newpkg,         "newpkg",       1, OF_none,     "" )
     DECL_OP( OP_pushpkg,        "pushenv",      1, OF_none,     "" )
     DECL_OP( OP_poppkg,         "popenv",       1, OF_none,     "" )
 

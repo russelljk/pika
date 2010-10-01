@@ -302,7 +302,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_pushwith:       return -1;
     case OP_popwith:        return  0;
     
-    case OP_newenv:         return -1;
+    case OP_newpkg:         return -1;
     case OP_pushpkg:        return -1;
     case OP_poppkg:         return  0;
 

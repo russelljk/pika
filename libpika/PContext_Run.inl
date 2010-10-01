@@ -173,7 +173,7 @@ void Context::Run()
             
             PIKA_OPCODE(OP_dotset)
             {
-                OpDotSet(numcalls, oc, OVR_set);
+                OpDotSet(oc, OVR_set);
             }
             PIKA_NEXT()
             
@@ -185,7 +185,7 @@ void Context::Run()
             
             PIKA_OPCODE(OP_subset)
             {
-                OpDotSet(numcalls, oc, OVR_setat);
+                OpDotSet(oc, OVR_setat);
             }
             PIKA_NEXT()
             
@@ -1010,7 +1010,7 @@ void Context::Run()
             }
             PIKA_NEXT()
             
-            PIKA_OPCODE(OP_newenv)
+            PIKA_OPCODE(OP_newpkg)
             {
                 // TODO { Right now a package w/o a dot-name overwrites any previous package. }
                 //
