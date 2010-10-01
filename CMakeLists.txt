@@ -77,6 +77,7 @@ SET(CPACK_NSIS_HELP_LINK      "http:\\\\\\\\www.pika-lang.org")
 SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.pika-lang.org")
 SET(CPACK_NSIS_CONTACT        "russell.j.kyle@gmail.com")
 
+
 # -------------------------------------
 # Add the subdirectorys for each target
 # -------------------------------------

@@ -46,6 +46,9 @@ template class PIKA_API Buffer<char>;
 template class PIKA_API Buffer<Module*>;
 template class PIKA_API Buffer<Script*>;
 template class PIKA_API Buffer<Value>;
+#   if defined(PIKA_USE_TABLE_POOL)
+        template class PIKA_API  MemObjPool<Table>;
+#   endif
 #endif
 
 typedef Buffer<char> TStringBuffer;

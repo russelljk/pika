@@ -4,7 +4,7 @@
  */
 #include "Pika.h"
 #include "PParser.h"
-#define PIKA_DEBUG_OUTPUT
+
 #if defined(PIKA_DEBUG_OUTPUT)
 #   include "PProfiler.h"
 #   include <iostream>

@@ -315,7 +315,7 @@ Instr* AnnotationDecl::GenerateCodeWith(Instr* subj)
     
     Instr* icall = Instr::Create(OP_call);
     icall->operand   = argc;
-    icall->operandu1 = kwargc;
+    icall->operandu1 = static_cast<u1>(kwargc);
     icall->operandu2 = 1;
        
     
@@ -563,7 +563,7 @@ Instr* CallExpr::GenerateCode()
     
     Instr* icall = Instr::Create(is_apply ? OP_apply : OP_call);
     icall->operand   = argc;
-    icall->operandu1 = kwargc;
+    icall->operandu1 = static_cast<u1>(kwargc);
     icall->operandu2 = retc ? retc : 1;
     if (iargs)
     {

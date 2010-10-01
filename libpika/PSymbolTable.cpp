@@ -9,17 +9,15 @@
 #include "PMemory.h"
 #include "PPlatform.h"
 
-#define FLAG2FIELD(X, F) ((X & F) ? 1 : 0)
-
 namespace pika {
 
 SymbolTable::SymbolTable(SymbolTable* parent, u4 flags)
     : parent(parent),
-    fMain(FLAG2FIELD(flags, ST_main)),
-    fPackage(FLAG2FIELD(flags, ST_package)),
-    fFunction(FLAG2FIELD(flags, ST_function)),
-    fUsing(FLAG2FIELD(flags, ST_using)),
-    fNoInherit(FLAG2FIELD(flags, ST_noinherit))
+    fMain(PIKA_FLAG2FIELD(flags, ST_main)),
+    fPackage(PIKA_FLAG2FIELD(flags, ST_package)),
+    fFunction(PIKA_FLAG2FIELD(flags, ST_function)),
+    fUsing(PIKA_FLAG2FIELD(flags, ST_using)),
+    fNoInherit(PIKA_FLAG2FIELD(flags, ST_noinherit))
 {
     Pika_memzero(table, sizeof(Symbol*) * HASHSIZE);
     depth = (parent) ? parent->depth : 0;

@@ -327,6 +327,6 @@ typedef u4 code_t; // needs to be 32bit
 #define StrCmpWithSize  strncmp
 #define StrGetChar(X)   (X)
 #endif
-
+#define PIKA_FLAG2FIELD(X, F) ((X & F) ? 1 : 0)
 #define SHOULD_NEVER_HAPPEN() ASSERT(0)
 #endif
