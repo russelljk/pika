@@ -31,8 +31,8 @@ struct PIKA_API ValueComp
     
     bool operator()(const Value& l, const Value& r);
 private:
-    Context* context;       // Context to use for function calls.
-    Value comparison_func;  // Comparison Function
+    Context* context;       //!< Context to use for function calls.
+    Value comparison_func;  //!< Comparison Function
 };
 
 class PIKA_API Array : public Object
@@ -65,20 +65,35 @@ public:
     /** Returns a subset from this array. */
     Array* Slice(pint_t from, pint_t to);
     
-    /** Performs the given function on each element. */
+    /** Performs the given function on each element.
+      * @note The map function takes a single arguments (an element), the return
+      *       value of fn will take the place of the element.
+      * @param fn The map function or functor. 
+      * @result This Array after map is performed.
+      */
     Array* Map(Value fn);
     
-    /** Sort the array with given comparison function. */
+    /** Sort the array with given comparison function. 
+      * @note The comparison function should accept two arguments and return a boolean
+      *       value based on the comparison method used.
+      * @param fn The comparison function or functor. 
+      * @result This Array sorted.
+      */
     Array* Sort(Value fn);
     
-    /** Returns an array where all the elements are filtered through a function. */
-    Array* Filter(Value);
+    /** Returns an array where all the elements are filtered through a function. 
+      * @note The filter function should accept a single arguments and should return
+      *       a Boolean value which determines if the value should be kept or discarded.
+      * @param fn The filter function or functor. 
+      * @result An Array filled with the filtered values.
+      */
+    Array* Filter(Value fn);
     
     /** Fold all the elements of the array from left to right. */
-    Value Fold(const Value&, const Value& fn);    
+    Value Fold(const Value& start_val, const Value& fn);    
     
     /** Fold all the elements of the array from right to left. */
-    Value Foldr(const Value&, const Value& fn);
+    Value Foldr(const Value& start_val, const Value& fn);
 
     /** Appends an array to the end of this array. */
     Array* Append(Array*);
@@ -106,13 +121,19 @@ public:
       */
     void SetLength(ssize_t);
     
-    /** Concat with this array on the right hand side or lhs. */    
+    /** Concat with this array on the right hand side.
+      * @param lhs The left hand side operand of the concat operation.
+      */
     Value CatRhs(Value& lhs);
     
-    /** Concat with this on the left hand side or rhs. */    
+    /** Concat with this on the left hand side. 
+      * @param rhs The right hand side operand of the concat operation.
+      */
     Value CatLhs(Value& rhs);
     
-    /** Reverse the elements in the array. */    
+    /** Reverse the elements in the array. 
+      * @result A pointer to this Array, with the elements reversed.
+      */
     Array* Reverse();
     
     bool    Empty() const;
