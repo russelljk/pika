@@ -4,6 +4,7 @@
  */
 #include "Pika.h"
 #include "PikaSort.h"
+#include <algorithm>
 
 namespace pika {
 

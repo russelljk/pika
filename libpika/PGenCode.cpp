@@ -11,16 +11,24 @@
 
 namespace pika {
 
-// Start a new block at the Instr x.
-
-#define PIKA_BLOCKSTART(cs, x)              \
-    Instr* oldEndOfBlock = cs->endOfBlock;  \
+/** Start generating code for a new block.
+  *
+  * @param cs Pointer to the CompileState
+  * @param x  The first instruction after the end of the new block.
+  *
+  * The end of block is needed to set the range of local variables. The range is
+  * needed for the LocalsObject to behave correctly.
+  */
+#define PIKA_BLOCKSTART(cs, x)                  \
+    Instr* __oldEndOfBlock__ = cs->endOfBlock;  \
     cs->endOfBlock = x
 
-// End a block.
-
-#define PIKA_BLOCKEND(cs)                   \
-    cs->endOfBlock = oldEndOfBlock
+/** Stop generating code for a block.
+  *
+  * @param cs Pointer to the CompileState.
+  */
+#define PIKA_BLOCKEND(cs) \
+    cs->endOfBlock = __oldEndOfBlock__
 
 namespace {
 
@@ -29,15 +37,17 @@ INLINE const char* GetSourceOf(CompileState* cs)
     return cs->parser->tstream.tokenizer->GetBuffer();
 }
 
-// Certain blocks like try blocks, with blocks and package blocks need to cleanup before you exit the block.
-// This function finds all returns, breaks and continues that jump out of the block and inserts an opcode
-// that will handle the cleanup.
-
-void HandleBlockBreaks(
-    Instr*  start,                // start of the block
-    Instr*  end,                  // end of the block
-    Opcode  breakcode,            // opcode to insert
-    bool    handleReturns = true) // true if we need handle returns
+/** Certain blocks like try blocks, using blocks and class/package blocks need to 
+  * cleanup before you exit the block. This function finds all returns, breaks and
+  * continues that jump out of the block and inserts an opcode that will handle 
+  * the cleanup.
+  *
+  *  @param start           First instruction of the block.
+  *  @param end             Last instruction of the block.
+  *  @param breakcode       The Opcode to use to break out of the block.
+  *  @param handleReturns   True if returns should be handled.
+  */
+void HandleBlockBreaks(Instr*  start, Instr*  end, Opcode  breakcode, bool handleReturns = true)
 {
     // handle jumps out of the try block
     
@@ -2208,23 +2218,18 @@ Instr* UsingStmt::DoStmtCodeGen()
     // A <using> statement is always wrapped inside of an finally block.
     // The finally-block will handle any cleanup required even from a return / break / or continue.
     
-    //Instr* iwith = with->GenerateCode();
-    //Instr* ipushwith = Instr::Create(OP_pushwith);
     Instr* ipopwith = Instr::Create(OP_nop);
     
     PIKA_BLOCKSTART(state, ipopwith);
     Instr* iblock = block->GenerateCode();
     PIKA_BLOCKEND(state);
     
-    //iwith->
-    //Attach(ipushwith)->
     iblock->
     Attach(ipopwith);
     
     /*HandleBlockBreaks(iblock,
                       ipopwith,
-                      OP_popwith);*/
-                      
+                      OP_popwith);*/                      
     return iblock;
 }
 

@@ -99,9 +99,7 @@ Script* Script::CreateWithBuffer(Engine* eng, String* buff, String* name, Packag
         
         eng->GetGC()->ForceToGray(script);
         script->Initialize(cs->literals, ctx, entryPoint);
-    } // GC Pause
-    //if (!script->Run(0))
-    //    RaiseException(Exception::ERROR_runtime, "Attempt to run script from buffer.");    
+    } // GC Pause    
     return script;
 }
 
@@ -118,7 +116,7 @@ void Script::MarkRefs(Collector* c)
 
 bool Script::Run(Array* args)
 {
-    if ( running ||    firstRun) return false;
+    if (running || firstRun) return false;
     if (!context || !entryPoint) return false;
     
     {   GCPAUSE(engine); // pause gc

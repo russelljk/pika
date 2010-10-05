@@ -31,28 +31,37 @@ public:
     using Basic::SetSlot;
 #   endif
     
-    static  Package* Create(Engine* eng, String* name, Package* super = 0);
-    static  void     Constructor(Engine* eng, Type* obj_type, Value& res);
-    static  void     StaticInitType(Engine* eng);
+    static Package* Create(Engine* eng, String* name, Package* super = 0);
+    static void Constructor(Engine* eng, Type* obj_type, Value& res);
+    static void StaticInitType(Engine* eng);
     
-    virtual void     Init(Context*);
+    virtual void Init(Context*);
+    
     virtual Package* GetSuper();
-    virtual String*  GetName();
-    virtual String*  GetDotName();
-    virtual String*  ToString();
-    virtual void     SetName(String*);
-    virtual void     MarkRefs(Collector*);
-    virtual Object*  Clone();
-    virtual bool     GetGlobal(const Value& key, Value& res);
-    virtual bool     SetGlobal(const Value& key, Value& value, u4 attr = 0);
-    virtual bool     CanSetGlobal(const Value& key);
-    virtual bool     GetSlot(const Value& key, Value& res);
-    virtual void     SetSuper(Package* super);
+    virtual void SetSuper(Package* super);
+    
+    virtual String* GetName();
+    virtual void SetName(String*);
+    
+    virtual String* GetDotName();
+    
+    virtual String* ToString();
+    
+    virtual void MarkRefs(Collector*);
+    virtual Object* Clone();
+    
+    virtual bool GetGlobal(const Value& key, Value& res);
+    
+    virtual bool SetGlobal(const Value& key, Value& value, u4 attr = 0);
+    virtual bool CanSetGlobal(const Value& key);
+    
+    virtual bool GetSlot(const Value& key, Value& res);
+    
     void AddNative(RegisterFunction* fns, size_t count);
 protected:
-    String*  name;
-    String*  dotName;
-    Package* superPackage;
+    String*  name;         //!< The name of this package.
+    String*  dotName;      //!< The Package's fully qualified name.
+    Package* superPackage; //!< The super package (global scope) for this package.
 };// Package
 
 }// pika

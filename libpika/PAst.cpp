@@ -826,6 +826,13 @@ void ParenExpr::CalculateResources(SymbolTable* st)
     expr->CalculateResources(st);
 }
 
+Expr* ParenExpr::Unwrap()
+{
+    if (expr->kind == Expr::EXPR_paren)
+        return ((ParenExpr*)expr)->Unwrap();
+    return expr;
+}
+
 void CallExpr::CalculateResources(SymbolTable* st)
 {
     if (left)
@@ -1331,14 +1338,18 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st)
     {
         if (num_rhs == 1)
         {
-            if (right->expr->kind == Expr::EXPR_call)
+            Expr* the_expr = right->expr;
+            if (the_expr->kind == Expr::EXPR_paren)
+                the_expr = ((ParenExpr*)the_expr)->Unwrap();
+            
+            if (the_expr->kind == Expr::EXPR_call)
             {
                 if (num_lhs >= PIKA_MAX_RETC)
                 {
                     state->SyntaxError(line, "max number of return values (%d) reached .", PIKA_MAX_RETC);
                 }
                 isCall = true;
-                ((CallExpr*)right->expr)->retc = num_lhs;
+                ((CallExpr*)the_expr)->retc = num_lhs;
             }
             else
             {
@@ -1412,12 +1423,15 @@ void VariableTarget::CalculateResources(SymbolTable* st)
     {
         if (expr_count == 1)
         {
-            if (exprs->expr->kind == Expr::EXPR_call)
+            Expr* the_expr = exprs->expr;
+            if (the_expr->kind == Expr::EXPR_paren)
+                the_expr = ((ParenExpr*)the_expr)->Unwrap();
+            if (the_expr->kind == Expr::EXPR_call)
             {
                 if (decl_count >= PIKA_MAX_RETC)
                     state->SyntaxError(line, "Max number of return values reached");
                 isCall = true;
-                ((CallExpr*)exprs->expr)->retc = decl_count;
+                ((CallExpr*)the_expr)->retc = decl_count;
             }
             else
             {

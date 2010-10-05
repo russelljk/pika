@@ -27,10 +27,6 @@ class Object;
 /** Instance creation function used by types. */
 typedef void (*Type_NewFn)(Engine*, Type*, Value&);
 
-/* TODO: Need to add Get/Set methods that will call property methods as needed. 
- *       Should it go in Basic?
- */
-
 /** Base class for all propertied and typed objects.
   * Each object has an associated type and a slot-table where instance variables are kept.
   */
@@ -65,9 +61,13 @@ public:
     
     virtual bool  SetSlot(const Value& key, Value& value, u4 attr = 0);
     virtual bool  CanSetSlot(const Value& key);
+    
     virtual bool  GetSlot(const Value& key, Value& result);
+    
     virtual bool  HasSlot(const Value& key);
+    
     virtual bool  DeleteSlot(const Value& key);
+    
     virtual bool  BracketRead(const Value& key, Value& result);
     virtual bool  BracketWrite(const Value& key, Value& value, u4 attr = 0);
     

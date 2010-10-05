@@ -775,7 +775,7 @@ struct ParenExpr : Expr
     
     virtual void   CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
-    
+    Expr* Unwrap();
     Expr* expr;
 };
 

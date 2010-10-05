@@ -31,10 +31,10 @@ struct PIKA_API ValueComp
     
     bool operator()(const Value& l, const Value& r);
 private:
-    Context*  context;
+    Context* context;       // Context to use for function calls.
     Value comparison_func;  // Comparison Function
 };
-    
+
 class PIKA_API Array : public Object
 {
     PIKA_DECL(Array, Object)

@@ -70,8 +70,8 @@
 #if defined(PIKA_LABELS_AS_VALUES)
 /* Labels as values extension (GCC only).
  * Removes the overhead of the switch statement dispatch by performing an array index
- * followed by a jump directly to the next opcode. Enabling this will
- * (appears to) always provide a performace increase.
+ * followed by a jump directly to the next opcode. Enabling this usually provides 
+ * a performace increase so its enabled by default if the compiler is GCC.
  */
 #   define PIKA_OPCODE(x)           lbl_##x:
 #   define PIKA_NEXT()                                  \
@@ -94,8 +94,8 @@
 #endif
 /*
  *  This is main workhorse of the interpreter. Opcode dispatch and execution is all handled here.
- *  GCC's labels as values extension is used to dispatch instructions if present. For other
- *  compilers a standard switch based dispatch is used.
+ *  GCC's labels as values extension is used if present. For other compilers a 
+ *  standard switch based dispatch is used.
  *
  *  Any exception raised while executing the script is handled 'in house' if possible.
  *
@@ -1012,11 +1012,26 @@ void Context::Run()
             
             PIKA_OPCODE(OP_newpkg)
             {
-                // TODO { Right now a package w/o a dot-name overwrites any previous package. }
-                //
-                // [name:String]
-                // [super:Package] < sp
-                
+                /* TODO { Right now a package w/o a dot-name overwrites any previous package. 
+                          Meaning below the last foo overwrites the first:
+                          package foo
+                            bar = 3
+                          end
+                          
+                          package foo
+                            bazz = 4
+                          end
+                          
+                          ...This is not a bug, we just need to decide if it's a feature.
+                }
+                *  
+                * 
+                * The stack:
+                * [ ..... ] 
+                * [name:String]
+                * [super:Package]
+                *                < sp
+                */
                 Value    super_pkg = PopTop();
                 Value&   pkg_name  = Top();
                 Package* super     = 0;
@@ -1028,6 +1043,11 @@ void Context::Run()
                                        "Unable to create package: invalid name of type %s given.",                                            
                                        engine->GetTypenameOf(pkg_name)->GetBuffer());
                 }
+                
+                // Here we determine the super package for the new package we are 
+                // creating. If the package was declared with a dot or index 
+                // expression we will use the left-hand operand if its a package. 
+                // Otherwise we use the current package in this scope.
                 
                 super = (engine->Package_Type->IsInstance(super_pkg)) ?
                          super_pkg.val.package :
@@ -1052,10 +1072,18 @@ void Context::Run()
                 }
                 else
                 {
+                    // This only happens if there is no package for this scope.
+                    // TODO { Is this even possible? }
                     ReportRuntimeError(Exception::ERROR_runtime, 
                                        "Unable to create package: invalid super package of type %s specified.",                                            
                                        engine->GetTypenameOf(super_pkg)->GetBuffer());
                 }
+                /*
+                 * The stack:
+                 * [ ..... ]
+                 * [package]
+                 *          < sp
+                 */
             }
             PIKA_NEXT()
             
