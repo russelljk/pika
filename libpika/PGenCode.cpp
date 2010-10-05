@@ -474,13 +474,25 @@ Instr* LocalDecl::GenerateCode()
     return irep;
 }
 
+Instr* HijackExpr::GenerateCode()
+{
+    Instr* ileft = left->GenerateCode();
+    Instr* icall = right->GenerateCodeWith(ileft);
+    return icall;
+}
+
 Instr* CallExpr::GenerateCode()
+{
+    return GenerateCodeWith(0);
+}
+
+Instr* CallExpr::GenerateCodeWith(Instr* hijack)
 {
     Expr::Kind k = left->kind;
     Instr* ilvalue = 0;
     Instr* iargs = Instr::Create(OP_nop);
     
-    if (k == Expr::EXPR_dot)
+    if (!hijack && k == Expr::EXPR_dot)
     {
         DotExpr* de = static_cast<DotExpr*>(left);
         Instr* idup = Instr::Create(OP_dup); // duplicate 'self'
@@ -511,7 +523,7 @@ Instr* CallExpr::GenerateCode()
     else
     {
         ilvalue = left->GenerateCode();
-        Instr* ipushthis = Instr::Create(redirectedcall ? OP_pushself : OP_pushnull);        
+        Instr* ipushthis = hijack ? hijack : Instr::Create(redirectedcall ? OP_pushself : OP_pushnull);        
         ipushthis->Attach(ilvalue);
         ilvalue = ipushthis;
     }

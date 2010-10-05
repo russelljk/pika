@@ -872,6 +872,12 @@ void CallExpr::CalculateResources(SymbolTable* st)
     }
 }
 
+void HijackExpr::CalculateResources(SymbolTable* st)
+{
+    left->CalculateResources(st);
+    right->CalculateResources(st);
+}
+
 void BinaryExpr::CalculateResources(SymbolTable* st)
 {
     left ->CalculateResources(st);

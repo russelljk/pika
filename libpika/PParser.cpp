@@ -2317,6 +2317,29 @@ Expr* Parser::DoPostfixExpression()
         }
         continue;
         //
+        // expr=>call(args)
+        //
+        case TOK_implies:
+        {
+            BufferNext();
+            tstream.Advance();
+            
+            Expr* left = expr;
+            Expr* right = DoPrefixExpression();
+            if (right->kind == Expr::EXPR_paren)
+                right = ((ParenExpr*)right)->Unwrap();
+            if (right->kind != Expr::EXPR_call)
+            {
+                state->SyntaxException(Exception::ERROR_syntax, right->line, "redirect self must be applied to a function call.");
+            }
+            else
+            {
+                PIKA_NEWNODE(HijackExpr, expr, (state, left, (CallExpr*)right));
+                expr->line = left->line;
+            }
+        }
+        continue;
+        //
         // expr ** expr
         //
         case TOK_starstar:

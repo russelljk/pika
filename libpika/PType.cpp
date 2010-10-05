@@ -185,7 +185,7 @@ void Type::CreateInstance(Value& res)
 String* Type::ToString()
 {
     GCPAUSE_NORUN(engine);
-    return String::ConcatSpace(engine->AllocString("Type"), this->GetDotName());
+    return String::ConcatSep(engine->AllocString("Type"), this->GetDotName(), ':');
 }
 
 void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)

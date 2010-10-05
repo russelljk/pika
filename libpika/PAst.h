@@ -761,6 +761,7 @@ struct Expr : TreeNode
         EXPR_kwarg,
         EXPR_apply_va,
         EXPR_apply_kw,
+        EXPR_hijack,
     };
     
     Expr(CompileState* s, Kind kind) : TreeNode(s), kind(kind) {}
@@ -831,10 +832,11 @@ struct CallExpr : Expr
             : Expr(s, Expr::EXPR_call),
             left(left),
             args(args), argc(0), kwargc(), retc(1), redirectedcall(0), is_apply(0) {}
-            
+    
     virtual void CalculateResources(SymbolTable* st);
     virtual Instr* GenerateCode();
-        
+    virtual Instr* GenerateCodeWith(Instr* hijack);
+    
     Expr* left;
     ExprList* args;
     u2 argc;
@@ -844,7 +846,15 @@ struct CallExpr : Expr
     u1 is_apply;
 };
 
-
+struct HijackExpr : Expr {
+    HijackExpr(CompileState* s, Expr* l, CallExpr* c) : Expr(s, Expr::EXPR_hijack), left(l), right(c) {}
+    
+    virtual void CalculateResources(SymbolTable* st);
+    virtual Instr* GenerateCode();
+    
+    Expr* left;
+    CallExpr* right;
+};
 ////////////////////////////////////////////// CondExpr ////////////////////////////////////////////
 
 struct CondExpr : Expr
