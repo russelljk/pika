@@ -217,6 +217,13 @@ INLINE int OpcodeStackChange(Instr *ir)
         return operand;
     }
     
+    case OP_tailapply:
+    {
+        int operand = ir->operand + (2 * ir->operandu1);
+        operand     = -operand - 1;
+        return operand;
+    }
+    
     case OP_apply:
     {
         // We don't really know how much space we need. So we need to check the stack

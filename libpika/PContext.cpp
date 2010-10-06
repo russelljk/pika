@@ -856,7 +856,10 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
                        engine->GetTypenameOf(b)->GetBuffer());
 }
 
-bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
+// TODO { Is there any reason we cannot add OP_tailapply? It seems like a function
+//        apply call would be more likely to be a tail call, since usually you are
+///       turning control over to another function. }
+bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
 {
     /* [  arg 0  ]
        [  .....  ] < regular arguments, 0-argc
@@ -877,7 +880,9 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
     Value kw_arg = PopTop();
     Value var_arg = PopTop();    
     
-    size_t amt = 0;
+    size_t amt = 0; // stack space we need before we start pushing
+    
+    // Check that null or and Array was pushed.
     Array* array = 0;
     if (!var_arg.IsNull())
     {
@@ -900,7 +905,7 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
         }
     }
     
-    size_t dict_size = 0;
+    size_t dict_size = 0; // number of elements in the dictionary.
     Dictionary* dict = 0;
     if (!kw_arg.IsNull())
     {
@@ -914,7 +919,7 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
                 RaiseException(Exception::ERROR_type, "attempt to apply keyword argument call with a Dictionary with too many members.");
             }
             
-            amt += (dict_size * 2);
+            amt += (dict_size * 2); // need to account for both keys and values
         }
         else
         {
@@ -933,15 +938,18 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
     {
         if (kwargc)
         {
+            // Need to copy the keyword arguments up toward the top of the stack,
+            // but leaving enough room for the dictionary's elements.
             Value* copy_from = old_sp - (kwargc * 2);
             Value* copy_to = sp;
             start = copy_from;
             while (copy_from < old_sp)
             {
                 *copy_to++ = *copy_from++;
-            }            
+            }
         }
         
+        // Now copy the Array elements to the start of the space we allocated.
         Buffer<Value>::Iterator end_iter = array->GetElements().End();
         for (Buffer<Value>::Iterator iter = array->GetElements().Begin(); iter != end_iter; ++iter)
         {
@@ -952,22 +960,24 @@ bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
     
     if (dict)
     {
-        start += kwargc*2;
+        start += kwargc * 2; // skip past explicitly specified keyword arguments.
         for (Table::Iterator iter = dict->Elements().GetIterator(); iter; ++iter)
         {
+            // Copy both key and value.
             *start++ = iter->key;
             *start++ = iter->val;
         }
     }
     
+    // No reason this should differ.
     ASSERT(start == sp);
-        
-    Push(selfobj);
-    Push(frame);
     
-    kwargc += (u1)dict_size;
+    Push(selfobj); // Self object
+    Push(frame);   // Function object
     
-    return SetupCall(argc, retc, kwargc, false);
+    kwargc += (u1)dict_size; // Need update after we unload the dictionary. So don't move it!
+    
+    return SetupCall(argc, retc, kwargc, tailcall);
 }
 
 int Context::AdjustArgs(Function* fun, Def* def, int const param_count,

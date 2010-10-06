@@ -17,7 +17,7 @@ namespace pika {
   *
   * TODO { Property should really be an Object, like Function. However, this should
   *        only happen if we restructure the heirarchy to optionally support instance variables. 
-  *        Since properties can not be modified directly there is little reason for
+  *        Since properties cannot be modified directly there is little reason for
   *        them to have a Table of instance variables 99.9% of the time. }
   */
 class PIKA_API Property : public Basic

@@ -261,7 +261,7 @@ protected:
       * @result True if the call should be inlined or Run should be called. False if a native function
       *         was called.
       */
-    bool OpApply(u1 argc, u1 kwargc, u1 retc);
+    bool OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall=false);
     
     /** Executes the getter for the given property. If the function is native it 
       * will be called before the function returns. If it is a bytecode function

@@ -364,7 +364,7 @@ void Context::Run()
                     
                     if (super->IsFinal())
                     {
-                        // Super can not be derived from
+                        // Super cannot be derived from
                         ReportRuntimeError(Exception::ERROR_runtime,
                                            "class '%s' is final and cannot be subclassed.",
                                            super->GetName()->GetBuffer());

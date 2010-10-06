@@ -64,7 +64,8 @@ void HandleBlockBreaks(Instr*  start, Instr*  end, Opcode  breakcode, bool handl
         {
             insert_here = ((oc == BREAK_LOOP) || (oc == CONTINUE_LOOP) ||
                            (oc == OP_ret)     || (oc == OP_retacc)     ||
-                           (oc == OP_retv)    || (oc == OP_tailcall));
+                           (oc == OP_retv)    || (oc == OP_tailcall)   ||
+                           (oc == OP_tailapply));
         }
         else
         {
@@ -988,11 +989,16 @@ static bool MakeTailcall(bool intry, Instr* icurr)
         icurr = icurr->next;
         
     // If its a valid call opcode
-    if (icurr && icurr->opcode == OP_call)
+    if (icurr)
     {
-        // Make it a tail call.
-        icurr->opcode = OP_tailcall;
-        return true;
+        if (icurr->opcode == OP_call) {
+            // Make it a tail call.
+            icurr->opcode = OP_tailcall;
+            return true;
+        } else if (icurr->opcode == OP_apply) {
+            icurr->opcode = OP_tailapply;
+            return true;
+        }
     }
     return false;
 }
