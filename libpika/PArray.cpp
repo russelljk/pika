@@ -4,6 +4,7 @@
  */
 #include "Pika.h"
 #include "PikaSort.h"
+#include "PDictionary.h"
 #include <algorithm>
 
 namespace pika {
@@ -305,6 +306,22 @@ Value Array::Pop()
         RaiseException("Cannot remove elements from an empty array");
     }
     return v;
+}
+
+Value Array::Zip(Array* rhs)
+{
+    Value res(NULL_VALUE);
+    Buffer<Value>& left = this->elements;
+    Buffer<Value>& right = rhs->elements;
+    
+    size_t len = Min(left.GetSize(), right.GetSize());
+    Dictionary* dict = Dictionary::Create(engine, engine->Dictionary_Type);
+    
+    for (size_t i = 0; i < len; ++i) {
+        dict->BracketWrite(left[i], right[i]);
+    }
+    res.Set(dict);
+    return res;
 }
 
 Array::Array(Engine* eng, Type* arrType, size_t length, Value* elems)
@@ -733,6 +750,7 @@ void Array::StaticInitType(Engine* eng)
     .Method(&Array::CatRhs,     "opCat_r")
     .Method(&Array::Slice,      OPSLICE_STR)
     .Method(&Array::ToString,   "toString")
+    .Method(&Array::Zip,        "zip")    
     .StaticMethod(&Array::Cat,  "cat")
     .PropertyRW("length",
                 &Array::GetLength,  "getLength",

@@ -34,19 +34,22 @@ const char* GetContextStateName(Context::EState state)
 int Context_call(Context* ctx, Value& self)
 {
     Context* callee = (Context*)self.val.object;
-    
-    // call the context with the expected number of args
+    /*
+     * call the context with the expected number of args
+     */
     callee->Call(ctx, ctx->GetRetCount());
-    
-    // Calculate the actual number of values pushed onto our stack.
-    // (If the context returned it will match the calling ctx's retCount otherwise it is
-    // the number of values yielded.)
+    /*
+     * Calculate the actual number of values pushed onto our stack.
+     * (If the context returned it will match the calling ctx's retCount otherwise it is
+     * the number of values yielded.)
+     */
     const Value* top = ctx->GetStackPtr() - 1;
     const Value* btm = ctx->GetArgs() + ctx->GetArgCount();
     ptrdiff_t retc = top > btm ? top - btm : 0;
     return retc;
 }
 
+/* TODO { Context.setup should be changed to accept keyword Dictionary. } */
 int Context_Setup(Context* ctx, Value& self)
 {
     Context* callee = (Context*)self.val.object;
@@ -855,19 +858,19 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
 
 bool Context::OpApply(u1 argc, u1 kwargc, u1 retc)
 {
-    /* [ arg 0 ]
-       [ ..... ] < regular arguments, 0-argc
-       [ arg N ]
-       [ key 0 ]
-       [ val 0 ]
-       [ ..... ] < keyword arg pairs, 0-kwargc
-       [ key N ]
-       [ val N ]
-       [ [...] ] < variable argument array
-       [ {...} ] < keyword argument dictionary
-       [ self  ] < self object
-       [ func  ] < function to be called
-                 < sp
+    /* [  arg 0  ]
+       [  .....  ] < regular arguments, 0-argc
+       [  arg N  ]
+       [  key 0  ]
+       [  val 0  ]
+       [  .....  ] < keyword arg pairs, 0-kwargc
+       [  key N  ]
+       [  val N  ]
+       [  [...]  ] < variable argument array
+       [  {...}  ] < keyword argument dictionary
+       [ selfobj ] < self object
+       [ frame   ] < function to be called
+                   < sp
      */
     Value frame = PopTop();
     Value selfobj = PopTop();
@@ -2347,14 +2350,13 @@ void Context::Setup(Context* ctx)
         return;
     }
     
-    //  Our Stack
-    //  ---------
-    //  [ ...      ]
-    //  [ function ]
-    //              < sp
-    //
-    //  The function we are using as an entry-point should be pushed onto the stack.
-        
+    /*  Stack:
+     *  [ ...      ]
+     *  [ function ]
+     *              < sp
+     *
+     *  The function we are using as an entry-point should be pushed onto the stack.
+     */
     if (sp <= bsp)
     {
         RaiseException("Context not initialized. Please pass the function to execute to the context's constructor.");
@@ -2365,7 +2367,11 @@ void Context::Setup(Context* ctx)
     {
         prev = ctx;
         
-        Value fn = PopTop();                
+        Value fn = PopTop();  
+        /*  Stack:
+         *  [ ... ]
+         *         < sp
+         */
         u2 argc = ctx->GetArgCount();
         
         CheckStackSpace(argc + 3);
@@ -2379,10 +2385,19 @@ void Context::Setup(Context* ctx)
             WriteBarrier(v);
             Push(v);
         }
-                
+        
         PushNull();
         Push(fn);      // re-push function
         
+        /*  Stack:
+         *  [ ..... ]
+         *  [ arg 0 ]
+         *  [ ..... ]
+         *  [ arg N ]
+         *  [ null  ]
+         *  [ fn    ]
+         *           < sp
+         */
         if (SetupCall(argc))
         {
             // Put the Context into a suspended state so that any subsequent calls to Context.Call

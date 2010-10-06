@@ -116,6 +116,8 @@ public:
     /** Removes and returns the last element. */
     Value Pop();
     
+    Value Zip(Array* rhs);
+    
     /** Set the new length of the array. 
       * If the new size is larger than the current one the new elements are set to null.
       */
