@@ -170,7 +170,7 @@ private:
     // Expression parsing ------------------------------------------------------
     
     Expr*           DoExpression();
-    
+    Expr*           DoRedirectExpression();
     Expr*           DoNullSelectExpression();
     Expr*           DoConditionalExpression();
     Expr*           DoLogOrExpression();

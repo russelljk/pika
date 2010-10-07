@@ -2013,7 +2013,7 @@ Expr* Parser::DoAddExpression()
 // lhs mod rhs
 Expr* Parser::DoMulExpression()
 {
-    Expr* expr = DoPrefixExpression();
+    Expr* expr = DoRedirectExpression();
     
     while (tstream.GetType() == '*' || tstream.GetType() == '/' || tstream.GetType() == TOK_div ||
            tstream.GetType() == TOK_mod || tstream.GetType() == '%')
@@ -2041,10 +2041,35 @@ Expr* Parser::DoMulExpression()
         BufferNext();        
         tstream.Advance();
         
-        Expr* rhs = DoPrefixExpression();
+        Expr* rhs = DoRedirectExpression();
         
         PIKA_NEWNODE(BinaryExpr, expr, (state, k, lhs, rhs));
         expr->line = lhs->line; // !!! set line number
+    }
+    return expr;
+}
+
+Expr* Parser::DoRedirectExpression()
+{
+    Expr* expr = DoPrefixExpression();
+    
+    while (tstream.GetType() == TOK_implies) {
+        BufferNext();
+        tstream.Advance();
+        
+        Expr* left = expr;
+        Expr* right = DoPrefixExpression();
+        if (right->kind == Expr::EXPR_paren)
+            right = ((ParenExpr*)right)->Unwrap();
+        if (right->kind != Expr::EXPR_call)
+        {
+            state->SyntaxException(Exception::ERROR_syntax, right->line, "redirect self must be applied to a function call.");
+        }
+        else
+        {
+            PIKA_NEWNODE(HijackExpr, expr, (state, left, (CallExpr*)right));
+            expr->line = left->line;
+        }
     }
     return expr;
 }
@@ -2319,26 +2344,26 @@ Expr* Parser::DoPostfixExpression()
         //
         // expr=>call(args)
         //
-        case TOK_implies:
-        {
-            BufferNext();
-            tstream.Advance();
-            
-            Expr* left = expr;
-            Expr* right = DoPrefixExpression();
-            if (right->kind == Expr::EXPR_paren)
-                right = ((ParenExpr*)right)->Unwrap();
-            if (right->kind != Expr::EXPR_call)
-            {
-                state->SyntaxException(Exception::ERROR_syntax, right->line, "redirect self must be applied to a function call.");
-            }
-            else
-            {
-                PIKA_NEWNODE(HijackExpr, expr, (state, left, (CallExpr*)right));
-                expr->line = left->line;
-            }
-        }
-        continue;
+//        case TOK_implies:
+//        {
+//            BufferNext();
+//            tstream.Advance();
+//            
+//            Expr* left = expr;
+//            Expr* right = DoPrefixExpression();
+//            if (right->kind == Expr::EXPR_paren)
+//                right = ((ParenExpr*)right)->Unwrap();
+//            if (right->kind != Expr::EXPR_call)
+//            {
+//                state->SyntaxException(Exception::ERROR_syntax, right->line, "redirect self must be applied to a function call.");
+//            }
+//            else
+//            {
+//                PIKA_NEWNODE(HijackExpr, expr, (state, left, (CallExpr*)right));
+//                expr->line = left->line;
+//            }
+//        }
+//        continue;
         //
         // expr ** expr
         //
