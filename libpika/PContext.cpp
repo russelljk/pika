@@ -1302,46 +1302,10 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
 #endif
             closure->BeginCall(this);
             
-            int numret = def->nativecode(this, self);
-            int expret = retCount;
-            
+            int numret = def->nativecode(this, self);                        
+                        
+            OpReturn(numret);
             --nativeCallDepth;
-            
-            Value* returnPtr = GetStackPtr();
-            
-            ASSERT((returnPtr - numret) > (bsp + argCount));
-            
-            PopCallScope(); // Restore the previous scope
-            
-            if (numret >= expret)
-            {
-                // More than or the same # of return values
-                
-                // Push the last <expret> values that were returned.
-                Value* startPtr = returnPtr - numret;
-                Value* endPtr = startPtr + expret;
-                for (Value* curr = startPtr; curr != endPtr; ++curr)
-                {
-                    Push(*curr);
-                }
-            }
-            else
-            {
-                // Less than expected # of return values
-                
-                // Push all return values given.
-                Value* lastPtr = returnPtr - numret;
-                for (Value* curr = lastPtr; curr < returnPtr; ++curr)
-                {
-                    Push(*curr);
-                }
-                // Pad with nulls.
-                int retdiff = expret - numret;
-                for (int i = 0; i < retdiff; ++i)
-                {
-                    PushNull();
-                }
-            }
             return false;
         }
         else
@@ -2005,7 +1969,68 @@ bool Context::DoPropertySet(Property* prop)
     return true;
 }
 
-bool Context::OpUnpack(u2 expected)
+void Context::OpReturn(u4 retc)
+{
+    u4 const expectedRetc = retCount;
+    
+    if (expectedRetc > 1 && retc == 1)
+    {
+        OpUnpack(expectedRetc);
+        retc = expectedRetc;
+    }
+    
+    Value* top = GetStackPtr();
+                
+    if (env && !env->IsAllocated())
+        env->EndCall(); 
+        
+    PopCallScope();
+
+    if (expectedRetc > retc)
+    {
+        /* Expected number of return values is greater-than the number
+         * Provided.
+         * 
+         * We copy down the specified return values and pad the difference
+         * with nulls.
+         */                     
+        size_t diff = expectedRetc - retc;
+        
+        /* Copy the all return values inorder. */
+        for (Value* curr = (top - retc); curr < top; ++curr)
+        {
+            Push(*curr);
+        }
+        
+        /* Check that we have enough room for the unspecified
+         * return values. 
+         */
+        CheckStackSpace(diff);
+        
+        /* Push null for the rest. */
+        for (size_t i = 0; i < diff; ++ i)
+        {
+            PushNull();
+        }
+    }
+    else
+    {
+        /* Expected number of return values is less-than or equal to the number
+         * Provided.
+         * 
+         * If we expect less return values (N) than given only the last N are
+         * provided.
+         */
+        Value* startPtr = top - retc;
+        Value* endPtr = startPtr + expectedRetc;
+        for (Value* curr = startPtr; curr != endPtr; ++curr)
+        {
+            Push(*curr);
+        }
+    }
+}
+
+bool Context::OpUnpack(u4 expected)
 {
     Value& t = Top();
     

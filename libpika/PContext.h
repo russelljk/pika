@@ -338,8 +338,8 @@ protected:
       */
     void OpDotSet(Opcode oc, OpOverride ovr);    
 protected:
-    
-    bool OpUnpack(u2);    
+    void OpReturn(u4);
+    bool OpUnpack(u4);    
     bool OpBind();    
     bool OpCat(bool sp);    
     bool OpIs();    

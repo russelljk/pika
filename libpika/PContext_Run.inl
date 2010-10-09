@@ -589,38 +589,7 @@ void Context::Run()
             */
             PIKA_OPCODE(OP_ret)
             {
-                Value retvar = Top();
-                int const expected_retc = retCount;
-                
-                if (env && !env->IsAllocated())
-                    env->EndCall();
-                
-                /* Only one return value so we push it and then pad the extra return
-                 * values needed with nulls.
-                 *
-                 * TODO { It might be worthwhile to add a (debug) check on the current scope
-                 *        to ensure that it is a call scope. For a correctly compiled script
-                 *        the current scope should always be a call scope. However, if we
-                 *        add support for pre-compiled scripts things could go very wrong. }
-                 */
-                PopCallScope();
-                
-                Push(retvar);
-                
-                if (expected_retc > 1)
-                {
-                    /* Check that we have enough room for the unspecified
-                     * return values. 
-                     */
-                    CheckStackSpace(expected_retc - 1);
-                    
-                    /* Now pad the needed values with nulls. */
-                    for (int i = 1; i < expected_retc; ++ i)
-                    {
-                        PushNull();
-                    }
-                }
-                
+                OpReturn(1);                
 #   ifndef PIKA_NO_HOOKS
                 /* Call the return Hook if its present. */
                 if (engine->HasHook(HE_return))
@@ -628,63 +597,14 @@ void Context::Run()
                     engine->CallHook(HE_return, (void*)this);
                 }
 #   endif
-                PIKA_RET(1)
+                PIKA_RET(retCount)
             }
             PIKA_NEXT()
             
             PIKA_OPCODE(OP_retv)
             {
                 int retc = GetShortOperand(instr);
-                Value* top  = GetStackPtr();
-                int expectedRetc = retCount;
-                
-                if (env && !env->IsAllocated())
-                    env->EndCall();
-                    
-                PopCallScope();
-                
-                if (expectedRetc > retc)
-                {
-                    /* Expected number of return values is greater-than the number
-                     * Provided.
-                     * 
-                     * We copy down the specified return values and pad the difference
-                     * with nulls.
-                     */                     
-                    size_t diff = expectedRetc - retc;
-                    
-                    /* Copy the all return values inorder. */
-                    for (Value* curr = (top - retc); curr < top; ++curr)
-                    {
-                        Push(*curr);
-                    }
-                    
-                    /* Check that we have enough room for the unspecified
-                     * return values. 
-                     */
-                    CheckStackSpace(diff);
-                    
-                    /* Push null for the rest. */
-                    for (size_t i = 0; i < diff; ++ i)
-                    {
-                        PushNull();
-                    }
-                }
-                else
-                {
-                    /* Expected number of return values is less-than or equal to the number
-                     * Provided.
-                     * 
-                     * If we expect less return values (N) than given only the last N are
-                     * provided.
-                     */
-                    Value* startPtr = top - retc;
-                    Value* endPtr = startPtr + expectedRetc;
-                    for (Value* curr = startPtr; curr != endPtr; ++curr)
-                    {
-                        Push(*curr);
-                    }
-                }
+                OpReturn(retc);
 #   ifndef PIKA_NO_HOOKS
                 /* Call the return Hook if its present. */
                 if (engine->HasHook(HE_return))
@@ -692,7 +612,7 @@ void Context::Run()
                     engine->CallHook(HE_return, (void*)this);
                 }
 #   endif
-                PIKA_RET(expectedRetc)
+                PIKA_RET(retCount)
             }
             PIKA_NEXT()
             
