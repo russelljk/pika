@@ -1,0 +1,25 @@
+(* properties.pika *)
+
+class Person
+  function init(first_name, last_name)
+    self.first_name = first_name
+    self.last_name = last_name
+  end
+    
+  property full_name
+    get: function()
+      return self.first_name...self.last_name
+    end
+        
+    set: function(fname)
+      a = fname.split(' ')
+      self.first_name, self.last_name = a[0], a[1]
+    end
+  end
+end
+
+p = Person.new("Jane", "Doe")
+print p.full_name
+
+p.full_name = "Han Solo"
+print p.full_name

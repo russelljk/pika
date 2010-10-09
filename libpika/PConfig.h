@@ -55,9 +55,6 @@
 /* returns null instead of raising an exception if a slot is missing. */
 /* #define PIKA_ALLOW_MISSING_SLOTS */
 
-/* Disallow using memzero in performance critical areas. */
-/* #define PIKA_NOMEMZERO_FOR_BLOCKS */
-
 /* Check that outer variables are valid. */
 /* #define PIKA_CHECK_LEX_ENV */
 

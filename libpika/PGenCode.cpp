@@ -819,10 +819,11 @@ Instr* TryStmt::DoStmtCodeGen()
     PIKA_BLOCKSTART(state, ifinishtry);
     Instr* itry = tryBlock->GenerateCode();
     PIKA_BLOCKEND(state);
-    
+    Instr* ielse = elseblock ? elseblock->GenerateCode() : Instr::Create(OP_nop);
     ipushtry->
     Attach(itry)->
     Attach(ipoptry)->
+    Attach(ielse)->
     Attach(ifinishtry);
     
     ifinishtry->SetTarget(ijmptarget2);
@@ -923,20 +924,6 @@ Instr* TryStmt::DoStmtCodeGen()
         iassign->operand = symbol->offset;
     }
     
-    // Handle the else block that will executed only if no exception is raised/caught.
-    if (elseblock)
-    {
-        Instr* iejump = Instr::Create(OP_jump);
-        Instr* ielse = elseblock->GenerateCode();
-        
-        ipushtry->Attach(iejump)->
-        Attach(ijmptarget2)->
-        Attach(ielse)->
-        Attach(ijmptarget)
-        ;
-        iejump->SetTarget(ijmptarget);
-    }
-    else
     {
         ipushtry->Attach(ijmptarget2)->Attach( ijmptarget );
     }

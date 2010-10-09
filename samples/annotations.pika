@@ -1,0 +1,69 @@
+(* annotations.pika *)
+
+#==============================================================================
+# Annotations
+#------------------------------------------------------------------------------
+# Annotations can be applied to functions, classes, packages and properties.
+# You specify them with the character @ followed by the name and any, optional,
+# arguments.
+#==============================================================================
+
+@doc "I'm an annotated doc string!"
+function foo()
+end
+
+print "{foo} - {foo.__doc}"
+
+print ''
+
+@attr author:"Foo J Bar", email:"foo.bar@example.com"
+class Widget
+end
+
+print Widget.author
+print Widget.email
+
+#==============================================================================
+# Creating your own Annotations
+#------------------------------------------------------------------------------
+# All annotations must take at least one arguments, the object being annotated.
+# We will refer to it as the subject for here on. Any other arguments must come
+# after the subject. The annotation can take keyword arguments as well, see @attr.
+#==============================================================================
+print ''
+
+function donothing(subj)
+  print 'donothing called with subject "{subj}"'
+  return subj
+end
+
+@donothing
+class FooBar
+end
+
+#------------------------------------------------------------------------------
+# A more complicated example
+#------------------------------------------------------------------------------
+print ''
+
+# resultis: checks that the subject returns the correct type.
+function resultis(subj, type)
+  
+  # See functions.pika if you don't know whats going on here.
+  # Create a function that will take the place of 'subj'
+  
+  function __inner__(:v, ::k) 
+    res = self=>subj(:v, ::k) # call the subj with the current self object and arguments        
+    assert(res is type)       # check that the result is the right type
+    return res                # return the result
+  end
+  return __inner__
+end
+
+@resultis Boolean
+function lessthan?(x, y)
+  return x < y
+end
+
+
+print lessthan?(0, 3)

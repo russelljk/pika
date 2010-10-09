@@ -1,1 +1,3 @@
+(* helloworld.pika *)
+
 print "Hello World!"

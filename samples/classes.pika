@@ -1,16 +1,18 @@
-# create A as a subclas of Object
+(* classes.pika *)
+
+# create A as a subclass of Object
 class A
-    function init(a)
-        self.a = a  # create instance variable a
-    end
+  function init(a)
+    self.a = a  # create instance variable a
+  end
 end
 
 # create B as a subclass of A
 class B : A
-    function init(a, b)
-        super a         # call A.init
-        self.b = b      # create instance variable b
-    end
+  function init(a, b)
+    super a         # call A.init
+    self.b = b      # create instance variable b
+  end
 end
 
 a = A.new("hi")
@@ -21,8 +23,8 @@ print ""
 print b.a
 print b.b
 
-print "a is A:" @@ a is A
-print "a is B:" @@ a is B
+print "a is A:" ... a is A
+print "a is B:" ... a is B
 
-print "b is A:" @@ b is A
-print "b is B:" @@ b is B
+print "b is A:" ... b is A
+print "b is B:" ... b is B

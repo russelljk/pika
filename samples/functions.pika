@@ -1,49 +1,155 @@
-(* Functions *)
+(* functions.pika *)
 
+#==============================================================================
 # Function declaration.
+#==============================================================================
 
-function foo(a, b)
-    say "foo: " @ a @@ b
+# basic no parameters
+function f()
 end
 
+# multiple parameters and a body
+function foo(a, b)
+  c = a + b
+  print "foo:  {a} {b} {c}"
+end
+
+#==============================================================================
 # Call a function.
+#==============================================================================
 
 foo(1, 2)
 
+#------------------------------------------------------------------------------
 # You can omit () if the first argument is on the same line as the function.
+#------------------------------------------------------------------------------
 
 foo 3, 4 # OK: all arguments are on same line
 foo 5,   # OK: because of ,
     6
 
+#==============================================================================
+# Return Values
+#------------------------------------------------------------------------------
+# You return values from a function using a return statement. You can specify
+# multiple return values by separating them with a comma.
+#==============================================================================
 
+function ret_vals(multiple?)
+  if not multiple?
+    return 1
+  else
+    return 1, 2, 3
+  end
+end
+
+x = ret_vals(false)
+print x
+
+x, y, z = ret_vals(true)
+print x, y, z
+
+# -----------------------------------------------------------------------------
 # Functions can be nested. When local variables are accessed a Closure is formed.
+# -----------------------------------------------------------------------------
+
 function outer(a)
-    function inner(b)
-        # Local variables of parent scopes can be accessed by inner scopes including functions.
-        return a + b
-    end
-    # Since functions are 1st class primitives they can passed to and returned from other functions.
-    return inner 
+  function inner(b)    
+    # Local variables of parent scopes can be accessed by
+    # inner scopes including functions.        
+    return a + b
+  end    
+  # Since functions are 1st class primitives they can passed 
+  # to and returned from other functions.
+  return inner 
 end
 
 x = outer(3)
 print x(3)
 
-# Function can also have variable arguments
+#==============================================================================
+# Variable Argument
+#------------------------------------------------------------------------------
+# Function can also have variable arguments by prefixing it with a colon. The
+# variable argument must appear after all regular arguments.
+#==============================================================================
 
-function bar(a, b, ...c)
-    print c
+function bar(a, b, :c)
+  print c
 end
 
 bar(1,2,3,4,5)
 bar(1,3)
 
+#==============================================================================
+# Keyword Argument
+#------------------------------------------------------------------------------
+# Use :: to specify the keyword argument. It must be the last argument and will
+# be a Dictionary of arg:val pairs.
+#==============================================================================
+
+function key_test(:va, ::ka)
+  print 'key_test called with vararg: {va} and keyword arg: {ka}.'
+end
+
+#------------------------------------------------------------------------------
+# Any function call can have keyword arguments specified.
+# Even if the function does not have a keyword argument.
+#------------------------------------------------------------------------------
+
+key_test(1, 2, 3, city:"Austin", state:"TX")
+
+#------------------------------------------------------------------------------
 # You can also set default values for arguments
+#------------------------------------------------------------------------------
+
 function bazz(a = "hello", b = "world!")
-    print a @', '@ b
+  print '{a}, {b}'
 end
 
 bazz()
 bazz('goodbye')
 bazz('hello', 'universe!!')
+
+#------------------------------------------------------------------------------
+# A function's arguments can be applied to another function call
+#------------------------------------------------------------------------------
+
+function apply_test(:va, ::ka)
+  key_test(:va, ::ka)
+end
+
+#------------------------------------------------------------------------------
+# Generally the self object is taken from the value on the left hand side of
+# a dot expression i.e. obj.func(). obj is self when calling func.
+# You can also specify the self object to use when calling a function by 
+# using =>.
+#------------------------------------------------------------------------------
+
+function redirect()
+  print "self is:" ... self
+end
+
+obj = Object.new()
+obj=>redirect()
+
+#==============================================================================
+# Function Expression
+#------------------------------------------------------------------------------
+# Can be used as an expression. May optionally have a name. Body can contain
+# any statement. The only difference between the statement and expression is
+# where they appear and a statement has to have a name.
+#==============================================================================
+
+add = function(a, b) return a + b end
+
+#==============================================================================
+# Lambda Expression: \(arg0, ..., argN) => expression
+#------------------------------------------------------------------------------
+# Used as an expression. Has no name. Can only contain a single expression. No return
+# statement since the result of the expression will be returned. Mainly used
+# for one-liners.
+#==============================================================================
+
+a = [1, 3, 2, 99, 33, -33, 0, 45]
+print a.sort( \(a, b)=> a < b )

@@ -594,9 +594,7 @@ void Context::Run()
                 
                 if (env && !env->IsAllocated())
                     env->EndCall();
-                    
-
-                 
+                
                 /* Only one return value so we push it and then pad the extra return
                  * values needed with nulls.
                  *

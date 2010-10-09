@@ -1,0 +1,106 @@
+(* loops.pika *)
+
+#==============================================================================
+# loop
+#------------------------------------------------------------------------------
+# The most basic kind of loop, an infinite loop.
+#==============================================================================
+
+loop
+  # break exits the innermost loop from where it is declared. labels can be used to break
+  # out of outer loops. See the labeled break and continue examples below
+  break
+end
+
+#==============================================================================
+# while
+#------------------------------------------------------------------------------
+# Loops until a condition is met.
+#==============================================================================
+
+x = 0
+
+while x < 20
+  x += 5
+  print x
+end
+
+#==============================================================================
+# for to
+#------------------------------------------------------------------------------
+# Loop on an range of integer values.
+#==============================================================================
+
+print 'for 0 to 6'
+for i = 0 to 6
+  print i
+end
+
+print 'for 0 to 6 by 3'
+for i = 0 to 6 by 3
+  print i
+end
+
+#==============================================================================
+# for in
+#------------------------------------------------------------------------------
+# Loops on the contents of an object or collection.
+#==============================================================================
+
+dict = { name:'Bob', age:35, sex:'male' }
+for x in dict
+  print x
+end
+
+(* Adding ** 'elements' of ** enumerates the set of elements instead of the default, keys. 
+ * The most common sets include (with the default first):
+ * Dictionary: keys, elements
+ * Array: indices, elements
+ * Object: names, values
+ *) 
+for x in 'elements' of dict
+  print x
+end
+
+#==============================================================================
+# break
+#------------------------------------------------------------------------------
+# Exits the loop immediately.
+#==============================================================================
+
+loop
+  print 'about to break'
+  break
+  print 'never executed'
+end
+
+#==============================================================================
+# continue
+#------------------------------------------------------------------------------
+# Immediately starts the next run through the loop.
+#==============================================================================
+
+for i = 1 to 10
+  if i mod 2 != 0
+    continue
+  end
+  print '{i} is even'
+end
+
+(*=============================================================================
+ * Labels
+ * ____________________________________________________________________________
+ * Below the outer most loop is labeled 'outer' and the inner most is labeled 
+ * 'inner'. The label must come directly before the loop inorder for the label 
+ * to be applied.
+ *=============================================================================*)
+
+outer:
+for i = 4 to 0 by -1
+  inner: for j = 0 to 4       
+    if i == j
+      print 'i==j breaking...'
+      break outer
+    end
+  end
+end

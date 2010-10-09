@@ -1,41 +1,117 @@
-begin
-    function foo()
-        raise Error.new("foo failed")   
-    finally
-        # Functions can have a finalizer    
-        print "finally: exiting foo"
-    end
+(* exceptions.pika *)
 
-    function bar(stringerror)
-        raise "string error" when stringerror
-        raise Error.new("bar failed")
-    finally
-        print "finally: exiting bar"
-    end
-        
-    try
-        print "try #1: foo()"
-        foo()
-    catch e
-        print "caught #1: " @ e.type @@ e
-    # Try/catch blocks can have a finalizer.
-    finally
-        print "finally: exiting handler #1"
-    end
-    
-    try
-        stringerror = true # Change to false to use the second catch block.
-        print "try #2: bar()"
-        bar(stringerror)    
-    catch estr is String
-        print "caught #2a: " @ estr.type @@ estr
-    catch e
-        print "caught #2b: " @ e.type @@ e
-    finally
-        print "finally: exiting handler #2"
-    end
-    
-finally 
-    # begin blocks, loops and other blocks, can have a finalizer.
-    print "finally: exiting begin block"
+#==============================================================================
+# raise
+#------------------------------------------------------------------------------
+# A raise statement is used to raise an exception. The value raised can be any
+# valid value. However only using Error derived exceptions is recommended.
+#==============================================================================
+
+function oops()
+  raise Error.new "oops something went wrong."
 end
+
+#==============================================================================
+# try catch
+#------------------------------------------------------------------------------
+# Try blocks are used when you want to handle the exceptions that might come
+# from a block of code.
+#==============================================================================
+
+try
+  oops()
+catch e
+  print "{e.type} {e}"
+end
+
+#==============================================================================
+# re-raise
+#------------------------------------------------------------------------------
+# Inside a catch block the caught exception can be raised again by using raise
+# without a value.
+#==============================================================================
+
+try
+  try
+    oops()
+  catch e
+    print 'catch #1 {e}.'
+    # raise the exception again.
+    raise
+  end
+catch e
+  print 'catch #2 {e}.'
+end
+
+#==============================================================================
+# finally
+#------------------------------------------------------------------------------
+# Finally blocks will always be executed, even if an exception is raised.
+#==============================================================================
+
+try
+  oops()
+catch e
+  print "{e.type} {e}"
+finally
+  print "finally block was executed."
+end
+
+#------------------------------------------------------------------------------
+# Finally can be used as a finalizer for other types of blocks. If there is
+# no catch block the exception will be re-raised after the finally block is executed.
+#------------------------------------------------------------------------------
+
+# block with a finally statement
+begin
+  print 'begin'
+finally
+  print 'finally'
+end
+
+#------------------------------------------------------------------------------
+# class, function, using, while, for and loop statements can also have a finally block.
+#------------------------------------------------------------------------------
+
+# Function finally block
+function()
+finally
+end
+
+
+
+#==============================================================================
+# catch is
+#------------------------------------------------------------------------------
+# Used to only catch exception of a certain type. 
+#==============================================================================
+
+try
+  oops()
+catch e is String
+  print 'string exception: "{e}" caught'
+catch e is Error
+  print 'Error exception: "{e}" caught'
+catch e
+  print 'Generic catch statement'
+end
+
+#------------------------------------------------------------------------------
+# As you can see above, multiple 'catch is' statements can be used. 
+# Also the catch-all statement must be the last catch block specified.
+#------------------------------------------------------------------------------
+
+#==============================================================================
+# else
+#------------------------------------------------------------------------------
+# Executed immediately after the try block when no exception is raised.
+#==============================================================================
+
+try
+  x = 5
+catch e is String
+  print 'Error caught: {e}'
+else
+  print 'else executed'
+end
+

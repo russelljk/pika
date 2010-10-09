@@ -1,0 +1,25 @@
+(* cond.pika *)
+
+x = true
+if x
+  print 'x is true'
+else
+  print 'x is false'
+end
+
+a, b = 2, 4
+c = 4
+if a == b
+  print 'a == b'
+elseif a == c
+  print 'a == c'
+elseif b == c
+  print 'b == c'
+else
+  print 'a != b and b != c and a != c'
+end
+
+
+# you place the block on the same line as an if or elseif declaration by using the keyword 'then'
+
+if x then x = !x end

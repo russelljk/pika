@@ -1,0 +1,22 @@
+(* unpack.pika *)
+
+#==============================================================================
+# Unpacking values
+#------------------------------------------------------------------------------
+# The right hand value of an assignment will be unpacked when it is the only
+# right hand value and the number of left hand operands is greater than 1.
+#==============================================================================
+
+a = [1, 2, 3, 4]
+
+w, x, y, z = a
+print w, x, y, z
+
+#------------------------------------------------------------------------------
+# For not collection types the same value used for each variable. Below a, b and
+# c are set to 77.
+#------------------------------------------------------------------------------
+
+i = 77
+a, b, c = i
+print a, b, c

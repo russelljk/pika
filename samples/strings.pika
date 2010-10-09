@@ -1,0 +1,61 @@
+(* strings.pika *)
+
+#==============================================================================
+# Strings
+#------------------------------------------------------------------------------
+# String are a collection of bytes. There are immutable. They can span multiple
+# lines. Any byte value 0-255 can be used, which means they can contain nulls
+# and arbitrary binary data.
+#==============================================================================
+
+print "double quote string"
+print 'single  quote string'
+print "i have a 'single' quote"
+print 'I have a "double" quote'
+
+#==============================================================================
+# String Escape Codes
+#------------------------------------------------------------------------------
+#   \a Bell
+#   \b Backspace
+#   \f Formfeed
+#   \n New line
+#   \r Carriage return
+#   \t Tab
+#   \v Vertical Tab
+#   \s Space
+#   \\ Forward slash
+#   \" Single quote
+#   \' Double quote
+#   \{ Left curly brace
+#   \} Right curly brace
+#   \x and \X Hexadecimal byte
+#   A slash followed by digits is an ASCII decimal character
+#   A slash followed by any other character means skip the character in question.
+#==============================================================================
+
+#==============================================================================
+# String Concatentation
+#------------------------------------------------------------------------------
+# To concat two strings use .. 
+# To concat two strings with a space inbetween use ...
+#==============================================================================
+
+print "hello".."world"     # => "helloworld"
+print "hello"..."world"   # => "hello world"
+
+#==============================================================================
+# Interpolating variables
+#------------------------------------------------------------------------------
+# You can interpolate a variable into a string by enclosing it in curly braces 
+# {}. You can specifiy a variable, dot.expression and index[expression]. The end 
+# result is the same as concatenation but often you can type self and the 
+# resulting code is clearer. You can interpolate with but single and double quote 
+# string.
+#==============================================================================
+x = 5
+print "x is {x}"
+
+obj = Object.new()
+obj.value = 77
+print  "obj.value is {obj.value}"

@@ -1,0 +1,46 @@
+(* packages.pika *)
+
+#==============================================================================
+# Packages
+#------------------------------------------------------------------------------
+# Packages are a fairly simple concept. They basically provide a seperate namespace
+# for all variables inside of them. 
+# By default variables are global inside of packages. Otherwise they will not
+# be accessible outside the package.
+#==============================================================================
+
+package A
+  x = 'hi from A'
+end
+
+print A.x
+
+#------------------------------------------------------------------------------
+# Each package has a super package whose variables are also accessible.
+#------------------------------------------------------------------------------
+
+package X
+  foo = "foo"
+  package Y
+    bar = "bar"
+    # access foo from påackage X
+    foobar = foo..bar 
+  end
+end
+
+print X.Y.foobar
+
+#------------------------------------------------------------------------------
+# A script is also a package. To access the current package use the __package
+# variable.
+#------------------------------------------------------------------------------
+
+print __package
+print __package.A
+
+#------------------------------------------------------------------------------
+# The super package is stored in the __parent property. You can only access from
+# the package directly.
+#------------------------------------------------------------------------------
+
+print __package.__parent
