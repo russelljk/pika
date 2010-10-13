@@ -32,8 +32,18 @@ foo 5,   # OK: because of ,
 # Return Values
 #------------------------------------------------------------------------------
 # You return values from a function using a return statement. You can specify
-# multiple return values by separating them with a comma.
+# multiple return values by separating them with a comma. If no return statement
+# is present either the last expression evaluated or null will be returned.
 #==============================================================================
+
+# Returns null by default
+function no_ret()
+end
+
+# Result of a + b is returned implicitly.
+functiona adder(a,b)
+  a + b
+end
 
 function ret_vals(multiple?)
   if not multiple?
@@ -70,8 +80,9 @@ print x(3)
 #==============================================================================
 # Variable Argument
 #------------------------------------------------------------------------------
-# Function can also have variable arguments by prefixing it with a colon. The
-# variable argument must appear after all regular arguments.
+# The variable argument is an Array filled with unspecified positional arguments 
+# at the time the function was called. The variable argument must appear after
+# all regular arguments.
 #==============================================================================
 
 function bar(a, b, :c)
@@ -112,7 +123,7 @@ bazz('goodbye')
 bazz('hello', 'universe!!')
 
 #------------------------------------------------------------------------------
-# A function's arguments can be applied to another function call
+# A function's arguments can easily be applied to another function call.
 #------------------------------------------------------------------------------
 
 function apply_test(:va, ::ka)
@@ -121,9 +132,10 @@ end
 
 #------------------------------------------------------------------------------
 # Generally the self object is taken from the value on the left hand side of
-# a dot expression i.e. obj.func(). obj is self when calling func.
+# a dot expression. For example in the expression, obj.func(), self will be set
+# to obj when calling func.
 # You can also specify the self object to use when calling a function by 
-# using =>.
+# using =>. The left-hand operand will be used as self when the function is called
 #------------------------------------------------------------------------------
 
 function redirect()
@@ -136,19 +148,31 @@ obj=>redirect()
 #==============================================================================
 # Function Expression
 #------------------------------------------------------------------------------
-# Can be used as an expression. May optionally have a name. Body can contain
-# any statement. The only difference between the statement and expression is
-# where they appear and a statement has to have a name.
+# Can be used as an expression. 
+# May optionally have a name. 
+# Body can contain any statement.
+# The only difference between the statement and expression is where they appear 
+# and a statement has to have a name.
 #==============================================================================
 
+# setting a variable to the function expression
 add = function(a, b) return a + b end
+
+# passing a named-function expression to a function call.
+Object.addMethod(
+    function stuff()
+    end
+  )
 
 #==============================================================================
 # Lambda Expression: \(arg0, ..., argN) => expression
 #------------------------------------------------------------------------------
-# Used as an expression. Has no name. Can only contain a single expression. No return
-# statement since the result of the expression will be returned. Mainly used
-# for one-liners.
+# Used as an expression. 
+# Has no name. 
+# Can only contain a single expression. 
+# No return statement since the result of the expression will be returned. 
+# Mainly used for one-liners.
+# Conditional expressions must be used instead of if-statement.
 #==============================================================================
 
 a = [1, 3, 2, 99, 33, -33, 0, 45]

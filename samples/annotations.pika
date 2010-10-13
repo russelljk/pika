@@ -8,6 +8,10 @@
 # arguments.
 #==============================================================================
 
+@strict
+function bar()
+end
+
 @doc "I'm an annotated doc string!"
 function foo()
 end

@@ -143,7 +143,8 @@ public:
     
     static int StaticHook(Context* ctx, Value& self);
     static int Hook(Context* ctx, Value& self);    
-    
+    static int BoundHook(Context* ctx, Value& self);        
+    static int StaticBoundHook(Context* ctx, Value& self);
     virtual String* GetDotPath();
     virtual Object* Clone();
     virtual void    MarkRefs(Collector* c);
@@ -153,6 +154,20 @@ public:
     NativeDef* ndef;
     ClassInfo* info;
 };
+
+struct PIKA_API BoundHookedFunction : HookedFunction
+{
+    PIKA_DECL(BoundHookedFunction, HookedFunction)
+public:
+    BoundHookedFunction(HookedFunction* hk, Value& self) : HookedFunction(hk), selfobj(self) {}
+    explicit BoundHookedFunction(const BoundHookedFunction*);
+    virtual ~BoundHookedFunction() {}
+    virtual Object* Clone();
+    virtual void MarkRefs(Collector* c);
+    virtual void BeginCall(Context* ctx);
+    Value selfobj;
+};
+
 /** Binds Functions,Properties and Variables to an Object.
   * requirements:
   *

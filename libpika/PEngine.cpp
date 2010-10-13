@@ -613,6 +613,7 @@ bool Engine::ToBoolean(Context* ctx, const Value& v)
             {
                 RaiseException(Exception::ERROR_runtime, "conversion operator %s failed.", toBoolean_String->GetBuffer());
             }
+            return res.val.index != 0;
         }
         return v.val.index != 0;
     }

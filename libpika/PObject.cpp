@@ -405,7 +405,7 @@ int Object_toString(Context* ctx, Value& self)
     ctx->Push(rep);
     return 1;
 }
-
+// TODO { rawDotRead should return 2 values, a boolean and the slot value }
 int Object_rawDotRead(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
@@ -426,6 +426,31 @@ int Object_rawDotWrite(Context* ctx, Value& self)
     Value   val  = ctx->GetArg(2);
     Value   res(NULL_VALUE);
     if (obj->SetSlot(name, val))
+    {
+    }
+    return 0;
+}
+
+int Object_rawBracketRead(Context* ctx, Value& self)
+{
+    Object* obj = ctx->GetObjectArg(0);
+    Value   name = ctx->GetArg(1);
+    Value   res(NULL_VALUE);
+    if (obj->BracketRead(name, res))
+    {
+        ctx->Push(res);
+        return 1;
+    }
+    return 0;
+}
+
+int Object_rawBracketWrite(Context* ctx, Value& self)
+{
+    Object* obj = ctx->GetObjectArg(0);
+    Value   name = ctx->GetArg(1);
+    Value   val  = ctx->GetArg(2);
+    Value   res(NULL_VALUE);
+    if (obj->BracketWrite(name, val))
     {
     }
     return 0;
@@ -513,6 +538,8 @@ void Object::StaticInitType(Engine* eng)
     {
         { "rawDotRead",  Object_rawDotRead,  2, DEF_STRICT },
         { "rawDotWrite", Object_rawDotWrite, 3, DEF_STRICT },
+        { "rawBracketRead",  Object_rawBracketRead,  2, DEF_STRICT },
+        { "rawBracketWrite", Object_rawBracketWrite, 3, DEF_STRICT },
     };
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));

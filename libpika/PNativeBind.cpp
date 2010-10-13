@@ -65,7 +65,8 @@ void HookedFunction::MarkRefs(Collector* c)
 
 Function* HookedFunction::BindWith(Value& withobj)
 {
-    Function* c = (Function*)Clone();
+    Function* c = 0;
+    GCNEW(engine, BoundHookedFunction, c, (this, withobj));
     return c;
 }
 
@@ -99,11 +100,34 @@ int HookedFunction::Hook(Context* ctx, Value& self)
     return bm->GetRetCount();
 }
 
+BoundHookedFunction::BoundHookedFunction(const BoundHookedFunction* f) : ThisSuper(f), selfobj(f->selfobj) {}
+
+Object* BoundHookedFunction::Clone()
+{
+    BoundHookedFunction* bf = 0;    
+    GCNEW(engine, BoundHookedFunction, bf, (this));        
+    return bf;
+}
+
 int HookedFunction::StaticHook(Context* ctx, Value& self)
 {
     HookedFunction* bm = static_cast<HookedFunction*>(ctx->GetFunction());
     bm->Invoke(0, ctx);
     return bm->GetRetCount();
+}
+
+PIKA_IMPL(BoundHookedFunction)
+
+void BoundHookedFunction::MarkRefs(Collector* c)
+{
+    ThisSuper::MarkRefs(c);
+    MarkValue(c, selfobj);
+}
+
+void BoundHookedFunction::BeginCall(Context* ctx)
+{
+    ctx->SetSelf(selfobj);
+    Function::BeginCall(ctx);
 }
 
 }// pika
