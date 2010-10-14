@@ -1233,6 +1233,17 @@ void DeclarationTarget::CreateSymbol(SymbolTable* st)
 
 PropertyDecl::~PropertyDecl() {}
 
+void PropertyDecl::UpdateFunctionName(Expr* e)
+{
+    if (e->kind == Expr::EXPR_function)
+    {
+        FunExpr* fe = (FunExpr*)e;
+        if (!fe->name) {
+           PIKA_NEWNODE(Id, fe->name, (state, strdup("(prop-accessor)")));
+        }
+    }
+}
+
 void PropertyDecl::CalculateResources(SymbolTable* st)
 {
     NamedTarget::CalculateResources(st);
@@ -1240,10 +1251,16 @@ void PropertyDecl::CalculateResources(SymbolTable* st)
     PIKA_NEWNODE(StringExpr, name_expr, (state, Pika_strdup(name->GetName()), strlen(name->GetName())));
     
     name_expr->CalculateResources(st);
+        
+    if (getter) {
+        UpdateFunctionName(getter);
+        getter->CalculateResources(st);
+    }
     
-    if (getter) getter->CalculateResources(st);
-    if (setter) setter->CalculateResources(st);
-    
+    if (setter) {
+        UpdateFunctionName(setter);
+        setter->CalculateResources(st);
+    }    
     NamedTarget::CalculateSymbols(st);
 }
 

@@ -794,7 +794,7 @@ struct PropertyDecl : NamedTarget
     virtual ~PropertyDecl();
     
     virtual void CalculateResources(SymbolTable* st);
-    
+    void UpdateFunctionName(Expr*);
     
     virtual Instr* GenerateCode();
     virtual Instr* GeneratePropertyCode();

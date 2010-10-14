@@ -340,6 +340,18 @@ bool Type::SetGlobal(const Value& key, Value& val, u4 attr)
     return SetSlot(key, val, attr);
 }
 
+bool Type::CanSetSlot(const Value& key)
+{
+    Table::ESlotState ss = members ? members->CanSet(key) : Table::SS_nil;
+    switch (ss)
+    {
+    case Table::SS_yes: return true;
+    case Table::SS_no:  return false;
+    case Table::SS_nil: return (type && !type->CanSetField(key)) ? false : true;
+    };
+    return true;
+}
+
 void Type::AddSubtype(Type* subtype)
 {
     GCPAUSE_NORUN(engine);
@@ -554,14 +566,15 @@ void Type::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     SlotBinder<Type>(eng, eng->Type_Type)
-    .PropertyR("base",     &Type::GetBase,  "getBase")
+    .PropertyR("base", &Type::GetBase,  "getBase")
     .PropertyR("name", &Type::GetName,  "getName")
+    .Alias("__base", "base")
+    .Alias("__name", "name")
     .PropertyR("location", &Type::GetLocation, "getLocation")
     .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes")
     .Method(&Type::IsSubtype, "isSubType")
     .Method(&Type::AddMethod, "addMethod")
     .Method(&Type::AddClassMethod, "addClassMethod")
-    .Method(&Type::SetAllocator, "setAllocator")
     ;
     
     static RegisterFunction TypeFunctions[] =

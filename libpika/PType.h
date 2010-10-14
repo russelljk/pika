@@ -39,7 +39,7 @@ public:
     virtual bool IsInstance(Basic*);
     virtual bool IsInstance(Value&);
     virtual Enumerator* GetEnumerator(String*);
-    
+    virtual bool CanSetSlot(const Value& key);
     virtual bool GetGlobal(const Value& key, Value& result);
     virtual bool SetGlobal(const Value& key, Value& val, u4 attr = 0);
 

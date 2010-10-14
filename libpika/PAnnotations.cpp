@@ -12,14 +12,13 @@
 namespace pika {
 namespace {
 	/**
-
-
+        getter => [function] creates property read-only
+        setter => [function] creates property write-only
 	  	close: [function] mustClose = true
 	  	close 'full' ->  sets scope for all parent functions
 		meta: [class] type.type = metatype
         bindto: =>BoundFunction
-  	*/
-	
+  	*/	
 	int Annotation_abstract(Context* ctx, Value&)
 	{
         Type* type = ctx->GetArgT<Type>(0);
@@ -112,7 +111,25 @@ namespace {
         ctx->Push(func);
 		return 1;
 	}
-            
+    
+    int Annotation_getter(Context* ctx, Value&)
+    {
+        GCPAUSE(ctx->GetEngine());
+        Function* func = ctx->GetArgT<Function>(0);
+        Property* p = Property::CreateRead(ctx->GetEngine(), func->GetName(), func);
+        ctx->Push(p);
+        return 1;
+    }
+    
+    int Annotation_setter(Context* ctx, Value&)
+    {
+        GCPAUSE(ctx->GetEngine());
+        Function* func = ctx->GetArgT<Function>(0);
+        Property* p = Property::CreateWrite(ctx->GetEngine(), func->GetName(), func);
+        ctx->Push(p);
+        return 1;
+    }
+    
     /*
     Problems {
         + Returned value is a Context not a Function.
@@ -144,6 +161,8 @@ void Init_Annotations(Engine* engine, Package* world)
         {"final",    Annotation_final,    1, DEF_STRICT },
         {"scope",    Annotation_scope,    2, DEF_STRICT },
         {"strict",   Annotation_strict,   1, DEF_STRICT },
+        {"getter",   Annotation_getter,   1, DEF_STRICT },
+        {"setter",   Annotation_setter,   1, DEF_STRICT },
     };
     
     world->EnterFunctions(annotations, countof(annotations));
