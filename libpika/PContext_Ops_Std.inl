@@ -239,29 +239,16 @@ PIKA_OPCODE(OP_setglobal)
         Value res(NULL_VALUE);
         if (this->package->GetGlobal(name, res) && res.tag == TAG_property)
         {
-            if (this->package->IsDerivedFrom(Type::StaticGetClass()))
+            Push(this->package);
+            if (DoPropertySet(res.val.property))
             {
-                // This is a class body so we will allow properties without dot.names
-                // to be overwritten. A new type should not be encumbered with
-                // restrictions on what properties,methods and variable names it
-                // can use.
-                this->package->SetGlobal(name, val, Slot::ATTR_forcewrite);
-                Pop(); // <<< val
                 PIKA_NEXT()
             }
             else
             {
-                Push(this->package);
-                if (DoPropertySet(res.val.property))
-                {
-                    PIKA_NEXT()
-                }
-                else
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "Attempt to set read-only property '%s'.",
-                                       engine->ToString(this, name)->GetBuffer());
-                }
+                ReportRuntimeError(Exception::ERROR_runtime,
+                                   "Attempt to set read-only property '%s'.",
+                                   engine->ToString(this, name)->GetBuffer());
             }
         }
         else

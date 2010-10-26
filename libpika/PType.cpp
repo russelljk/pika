@@ -337,7 +337,7 @@ bool Type::GetGlobal(const Value& key, Value& result)
 
 bool Type::SetGlobal(const Value& key, Value& val, u4 attr)
 {
-    return SetSlot(key, val, attr);
+    return Package::SetGlobal(key, val, attr);
 }
 
 bool Type::CanSetSlot(const Value& key)
