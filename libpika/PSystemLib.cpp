@@ -6,6 +6,7 @@
 #include "PNativeBind.h"
 #include "PPlatform.h"
 #include "PRandom.h"
+#include "PDate.h"
 
 #include <cmath>
 #include <cfloat>
@@ -478,6 +479,8 @@ int os_lib_load(Context* ctx, Value&)
     .Register    ( os_fileNameOf,            "fileNameOf")
     .Constant    (eng->Paths(),              "paths")
     ;
+    
+    Date::StaticInitType(os_Package, eng);
     
     eng->PutImport(os_String, os_Package);
     ctx->Push(os_Package);
