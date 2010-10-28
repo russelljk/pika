@@ -27,21 +27,26 @@ void Pika_addhistory(const char* ln)
 #endif
 }
 
+/* Compare two strings that may have null characters embedded. */
 int Pika_StringCompare(const char* a, size_t lena, const char* b, size_t lenb)
 {
     const char* stra = a;
     const char* strb = b;
     int res  = 0;
-    size_t len  = 0;
+    size_t len = 0;
     
-    while ((res = StrCmp(stra, strb)) == 0)
-    {
-        len += strlen(stra);
-        
-        if (len == lena)
-            return 0;
-            
-        stra = a + len + 1;
+    while ((res = strcoll(stra, strb)) == 0) {
+        len += strlen(stra);        
+        if (len == lena) {
+            if (len == lenb) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else if (len == lenb) {
+            return 1;
+        }
+        stra = a + len + 1; 
         strb = b + len + 1;
         len++;
     }
