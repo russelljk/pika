@@ -25,12 +25,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 #endif
 
-/*
-TODO: Add GCPAUSE_NORUN to all methods that allocate >1 gcobject.
-TODO: Add method that returns indices of all matches (or an Array of match objects)
-TODO: Add an enumerator.
-*/
-
 #define NUM_MATCHES  128
 #define ERR_BUF_SZ   1024
 
