@@ -158,7 +158,7 @@ Engine::Engine()
         indices_String(0), Enumerator_String(0), Property_String(0), userdata_String(0), Array_String(0), true_String(0),
         false_String(0), message_String(0), dot_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
         Value_Type(0), Basic_Type(0), Object_Type(0), PathManager_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
-        NativeMethod_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
+        NativeMethod_Type(0), Generator_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
         LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
         ArithmeticError_Type(0), OverflowError_Type(0), UnderflowError_Type(0), DivideByZeroError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
         Enumerator_Type(0), Property_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0),
@@ -838,6 +838,7 @@ void Engine::CreateRoots()
     AddToRoots(ClassMethod_Type);
     AddToRoots(NativeFunction_Type);
     AddToRoots(NativeMethod_Type);
+    AddToRoots(Generator_Type);
     AddToRoots(String_Type);
     AddToRoots(Null_Type);
     AddToRoots(Boolean_Type);

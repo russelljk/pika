@@ -55,6 +55,11 @@ Def::~Def()
     Pika_delete(bytecode);
 }
 
+void Def::SetGenerator()
+{
+    isGenerator = true;
+}
+
 void Def::MarkRefs(Collector* c)
 {
     if (parent)     parent->Mark(c);

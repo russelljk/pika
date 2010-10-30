@@ -29,6 +29,7 @@ class Value;
 class Context;
 struct UserDataInfo;
 class Dictionary;
+class Generator;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       ScopeKind                                               //
@@ -54,6 +55,7 @@ struct ScopeInfo
     Dictionary*  kwargs;
     LexicalEnv*  env;          //!< lexical environment (variables reachable outside this scope).
     Function*    closure;      //!< Function closure.
+    Generator*   generator;    //!< The generator or null.
     Package*     package;      //!< Package (global scope).
     Value        self;         //!< Self object.
     code_t*      pc;           //!< Instruction pointer.
@@ -165,6 +167,7 @@ protected:
     Value*         esp;             //!< Extreme stack pointer. Last allocated stack position.
     Value          self;            //!< Specified self object for the current scope.
     Function*      closure;         //!< Specified function for the current scope.
+    Generator*     generator;       //!< Generator for the current scope.
     Package*       package;         //!< Specified package for the current scope.
     LexicalEnv*    env;             //!< Lexical environment for the current scope.
     Dictionary*    kwargs;
@@ -515,7 +518,7 @@ public:
     /** Return a pointer to just beyond the top element of the stack. */
     
     INLINE Value* GetStackPtr() { return sp; }
-    
+    INLINE Value* GetBasePtr() { return bsp; }    
     /** Return the size of the entire stack all the way to the stack pointer. */
     INLINE size_t GetStackSize() const { return sp - stack; }
     
@@ -688,6 +691,8 @@ public:
     
     void Yield(Context*);
     void Resume(Context*);
+    static Generator* Create(Engine* eng, Type* type, Function* function);
+    static void StaticInitType(Engine* eng);
 protected:
     size_t FindLastCallScope(Context*, ScopeIter);
     

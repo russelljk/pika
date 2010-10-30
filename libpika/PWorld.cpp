@@ -882,6 +882,7 @@ void Engine::InitializeWorld()
         Function::StaticInitType(this);
         String::StaticInitType(this);
         PathManager::StaticInitType(this);
+        Generator::StaticInitType(this);
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
         

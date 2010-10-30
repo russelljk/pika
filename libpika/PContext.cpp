@@ -44,9 +44,14 @@ void Generator::MarkRefs(Collector* c)
     }
 }
 
+// TODO: What about WriteBarriers. It would be easier to move this object to gray
+// since their are so many values.
+
 void Generator::Yield(Context* ctx)
 {
-    // What about inlined calls? we need to decrement it?
+    // Instead of a performing a multitude of WriteBarriers we will just move
+    // this object to the gray list.
+    engine->GetGC()->MoveToGray(this);
     
     // Have the context push this scope
     ctx->PushCallScope();
@@ -73,6 +78,16 @@ void Generator::Yield(Context* ctx)
     // Now transition into the caller's sope.
     ctx->scopes.Pop(amt);    
     ctx->PushCallScope();
+    
+    // Move lexical environment over to our stack.
+    function->lexEnv->Set(stack.GetAt(0), stack.GetSize());
+}
+
+Generator* Generator::Create(Engine* eng, Type* type, Function* function)
+{
+    Generator* gen = 0;
+    GCNEW(eng, Generator, gen, (eng, type, function));
+    return gen;
 }
 
 void Generator::Resume(Context* ctx)
@@ -86,6 +101,11 @@ void Generator::Resume(Context* ctx)
         ctx->scopes.Push(scopes[i]);
     }    
     ctx->PopCallScope();
+    
+    // Restore the lexical environment.
+    Value* bsp = ctx->GetBasePtr();
+    Value* sp = ctx->GetStackPtr();
+    function->lexEnv->Set(bsp, sp - bsp);
 }
 
 size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
@@ -98,6 +118,14 @@ size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
         iter--;
     }
     return ctx->scopes.IndexOf(iter);
+}
+
+void Generator::StaticInitType(Engine* eng)
+{
+    Package* Pkg_World = eng->GetWorld();
+    String* Generator_String = eng->AllocString("Generator");
+    eng->Generator_Type = Type::Create(eng, Generator_String, eng->Object_Type, Generator::Constructor, Pkg_World);
+    Pkg_World->SetSlot(Generator_String, eng->Generator_Type);
 }
 
 namespace {
@@ -238,6 +266,7 @@ void ScopeInfo::DoMark(Collector* c)
     if (package) package->Mark(c);
     if (env)     env->Mark(c);
     if (kwargs)  kwargs->Mark(c);
+    if (generator) generator->Mark(c);
     MarkValue(c, self);
 }
 
@@ -265,7 +294,7 @@ PIKA_IMPL(Context)
 PIKA_FORCE_INLINE void Context::PushCallScope()
 {
     ScopeInfo& currA = *scopesTop;
-
+    
     currA.kwargs = kwargs;
     currA.env = env;
     currA.pc = pc;
@@ -273,6 +302,7 @@ PIKA_FORCE_INLINE void Context::PushCallScope()
     currA.stackTop = sp - stack;
     currA.stackBase = bsp - stack;
     currA.closure = closure;
+    currA.generator = generator;
     currA.argCount = argCount;
     currA.retCount = retCount;
     currA.numTailCalls = numTailCalls;
@@ -288,9 +318,10 @@ void Context::PushWithScope()
     
     // We only care about the self and kind fields but we want to null
     // anything the gc may want to mark.
-    currA.env = 0;
-    currA.closure = 0;
-    currA.package = 0;
+    currA.env       = 0;
+    currA.closure   = 0;
+    currA.generator = 0;
+    currA.package   = 0;
     currA.self = self;       // all we care about.
     currA.kind = SCOPE_with;
     
@@ -314,6 +345,7 @@ PIKA_FORCE_INLINE void Context::PopCallScope()
     bsp = stack + currA.stackBase;
     self = currA.self;
     closure = currA.closure;
+    generator = currA.generator;
     argCount = currA.argCount;
     retCount = currA.retCount;
     numTailCalls = currA.numTailCalls;
@@ -350,8 +382,9 @@ void Context::PushPackageScope()
 {
     ScopeInfo& currA = *scopesTop;
     
-    currA.env     = 0;
-    currA.closure = 0;
+    currA.env       = 0;
+    currA.closure   = 0;
+    currA.generator = 0;    
     currA.package = package; // all we care about.
     currA.kind    = SCOPE_package;
     currA.self.SetNull();
@@ -388,6 +421,7 @@ Context::Context(Engine* eng, Type* obj_type)
       bsp(0),
       esp(0),
       closure(0),
+      generator(0),
       package(0),
       env(0),
       kwargs(0),
@@ -2612,10 +2646,11 @@ void Context::MarkRefs(Collector* c)
     
     // Mark current scope.
     
-    if (env)     env->Mark(c);
-    if (closure) closure->Mark(c);
-    if (package) package->Mark(c);
-    if (kwargs)  kwargs->Mark(c);
+    if (env)       env->Mark(c);
+    if (closure)   closure->Mark(c);
+    if (generator) generator->Mark(c);
+    if (package)   package->Mark(c);
+    if (kwargs)    kwargs->Mark(c);
 
     MarkValue(c, acc);
     MarkValue(c,  self);

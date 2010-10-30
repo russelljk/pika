@@ -91,6 +91,7 @@ class PIKA_API Def : public GCObject
             isVarArg(false),
             isKeyword(false),
             isStrict(false),
+            isGenerator(false),
             line(-1) {}
     
     Def(String* declname, Nativecode_t fn, u2 argc, 
@@ -108,6 +109,7 @@ class PIKA_API Def : public GCObject
             isVarArg(varargs),
             isKeyword(kwas),
             isStrict(strict),
+            isGenerator(false),
             line(-1) {}
 public:
     virtual ~Def();
@@ -127,7 +129,7 @@ public:
     void AddLocalVar(Engine*, const char*, ELocalVarType lvt = LVT_variable);
     void SetLocalRange(size_t local, size_t start, size_t end);
     void SetSource(Engine* eng, const char* buff, size_t len);
-    
+    void SetGenerator();
     String*          name;        //!< Declared name.
     String*          source;      //!< Source code.
     Def*             parent;      //!< Parent function.
@@ -151,6 +153,7 @@ public:
     bool         isVarArg;    //!< Bytecode function that has the rest parameter or Native function that takes a variable number of arguments.
     bool         isKeyword;   //!< Function has keyword argument parameter.
     bool         isStrict;    //!< Function must has the correct number of arguments.
+    bool         isGenerator; //!< Function has yield statement.
     int          line;        //!< Line in the script this def is declared or -1 for native defs.
 };
 

@@ -282,6 +282,7 @@ public:
     Type*                   BoundFunction_Type;
     Type*                   NativeFunction_Type;
     Type*                   NativeMethod_Type;
+    Type*               Generator_Type;
     Type*               Array_Type;
     Type*               Context_Type;
     Type*               Package_Type;
