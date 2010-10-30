@@ -17,6 +17,89 @@
 #include "PDictionary.h"
 
 namespace pika {
+PIKA_IMPL(Generator)
+
+Generator::Generator(Engine* eng, Type* typ, Function* fn) : 
+    ThisSuper(eng, typ),
+    function(fn)
+{}
+
+Generator::~Generator() {}
+
+void Generator::MarkRefs(Collector* c)
+{
+    ThisSuper::MarkRefs(c);        
+    if (function)
+        function->Mark(c);            
+    MarkValues(c, stack.BeginPointer(),
+                  stack.EndPointer());
+    for (ScopeIter s = scopes.Begin(); s != scopes.End(); ++s)
+    {
+        s->DoMark(c);
+    }
+    
+    for (HandlerIter h = handlers.Begin(); h != handlers.End(); ++h)
+    {
+        h->DoMark(c);
+    }
+}
+
+void Generator::Yield(Context* ctx)
+{
+    // What about inlined calls? we need to decrement it?
+    
+    // Have the context push this scope
+    ctx->PushCallScope();
+    
+    // Get our ScopeInfo.
+    ScopeIter callscope = ctx->GetScopeTop() - 1;
+    
+    // The scope id is needed for exception handlers.
+    size_t const scopeid = ctx->scopes.IndexOf(callscope);
+    
+    // copy stack
+    size_t const stack_size = callscope->stackTop - callscope->stackBase;
+    stack.Resize(stack_size);
+    Pika_memcpy(stack.GetAt(0), ctx->stack + callscope->stackBase, sizeof(Value) * stack_size);
+    
+    // copy handlers
+    
+    // copy all scopes up to the current then pop'em off the context's scope-stack.
+    size_t idx = FindLastCallScope(ctx, callscope);
+    size_t amt = scopeid - idx;
+    scopes.Resize(amt);
+    Pika_memcpy(scopes.GetAt(0), ctx->scopes.GetAt(idx), amt * sizeof(ScopeInfo));
+    
+    // Now transition into the caller's sope.
+    ctx->scopes.Pop(amt);    
+    ctx->PushCallScope();
+}
+
+void Generator::Resume(Context* ctx)
+{
+    size_t base = ctx->sp - ctx->stack;
+    ctx->StackAlloc( stack.GetSize() );
+    Pika_memcpy(ctx->stack + base, stack.GetAt(0), stack.GetSize() * sizeof(Value));
+    
+    for (size_t i = 0; i < scopes.GetSize(); ++i)
+    {
+        ctx->scopes.Push(scopes[i]);
+    }    
+    ctx->PopCallScope();
+}
+
+size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
+{
+    // Not every scope is a call scope.
+    // We need to go back and find the caller.    
+    iter--;
+    while (iter->kind != SCOPE_call)
+    {
+        iter--;
+    }
+    return ctx->scopes.IndexOf(iter);
+}
+
 namespace {
 
 const char* GetContextStateName(Context::EState state)

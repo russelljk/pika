@@ -29,6 +29,7 @@ class Value;
 class Context;
 struct UserDataInfo;
 class Dictionary;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       ScopeKind                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +76,7 @@ struct ExceptionBlock
     
     Package* package; //!< Current package when entering the block.
     Value    self;    //!< Self object when entering the block.
-    size_t   scope;   //!< Index to the ScopeStack of the current ScopeInfo.
+    size_t   scope;   //!< Used to identify the scope.
     size_t   catchpc; //!< Offset of the catch or finally block
     size_t   sp;      //!< Stack pointer so that we can cleanup.
 };
@@ -90,11 +91,11 @@ template class PIKA_API Buffer<ScopeInfo>;
 template class PIKA_API Buffer<ScopeInfo>::Iterator;
 #endif
 
-typedef Buffer<size_t>          AddressStack;
-typedef Buffer<ScopeInfo>       ScopeStack;
-typedef ScopeStack::Iterator    ScopeIter;
-typedef Buffer<ExceptionBlock>  ExceptionStack;
-
+typedef Buffer<size_t>           AddressStack;
+typedef Buffer<ScopeInfo>        ScopeStack;
+typedef ScopeStack::Iterator     ScopeIter;
+typedef Buffer<ExceptionBlock>   ExceptionStack;
+typedef ExceptionStack::Iterator HandlerIter;
 class ContextEnum;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +111,7 @@ class PIKA_API Context : public Object
     PIKA_DECL(Context, Object)
 protected:
     friend class ContextEnum;
+    friend class Generator;
     
     Context(Engine*, Type*);
 public:
@@ -126,9 +128,9 @@ public:
         SUSPENDED, //!< Context has yielded control to another Context.
         RUNNING,   //!< Context is running.
         DEAD,      //!< Context has finished running and exited cleanly.
-        UNUSED,   //!< Context has not been initialized or exited abruptly.
+        UNUSED,    //!< Context has not been initialized or exited abruptly.
     };
-        
+    
     enum EErrRes
     {
         ER_throw,    //!< Context should re-throw the exception. Usually because there is a C++ barrier between the exception and the handler.
@@ -672,6 +674,27 @@ struct PIKA_API SafeValue
     }
     
     Context* context;
+};
+
+class PIKA_API Generator : public Object
+{
+    PIKA_DECL(Generator, Object)
+public:
+    Generator(Engine* eng, Type* typ, Function* fn);
+    
+    virtual ~Generator();
+    
+    virtual void MarkRefs(Collector*);
+    
+    void Yield(Context*);
+    void Resume(Context*);
+protected:
+    size_t FindLastCallScope(Context*, ScopeIter);
+    
+    Function*      function;
+    ExceptionStack handlers;
+    ScopeStack     scopes;
+    Buffer<Value>  stack;
 };
 
 }// pika

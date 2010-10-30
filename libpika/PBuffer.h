@@ -337,6 +337,22 @@ public:
         }
     }
     
+    void Pop(size_t amt)
+    {
+        size_t currentSize = GetSize();
+        
+        if (currentSize > amt)
+        {
+            size_t newSize = currentSize - amt;
+            DestructRange(newSize, size);
+            size = newSize;
+        }
+        else
+        {
+            Resize(0);
+        }
+    }
+    
     /** Removes any unused space so that the size and capacity match. */
     void ShrinkWrap()
     {
@@ -577,35 +593,35 @@ public:
         return elements[i];
     }
     
-    T*                      GetAt(size_t idx)       { return elements + idx; }
-    const T*                GetAt(size_t idx) const { return elements + idx; }
+    INLINE T*            GetAt(size_t idx)       { return elements + idx; }
+    INLINE const T*      GetAt(size_t idx) const { return elements + idx; }
     
-    INLINE       T&         Back()       { return elements[size - 1]; }
-    INLINE const T&         Back() const { return elements[size - 1]; }
+    INLINE       T&      Back()       { return elements[size - 1]; }
+    INLINE const T&      Back() const { return elements[size - 1]; }
     
-    INLINE       T&         Front()       { return *Begin(); }
-    INLINE const T&         Front() const { return *Begin(); }
+    INLINE       T&      Front()       { return *Begin(); }
+    INLINE const T&      Front() const { return *Begin(); }
     
-    INLINE Iterator         At(size_t sz) { return Iterator(elements + sz); }
+    INLINE Iterator      At(size_t sz) { return Iterator(elements + sz); }
     
-    INLINE Iterator         Begin() { return Iterator(elements); }
-    INLINE Iterator         End()   { return Iterator(elements + size); }
-    INLINE ConstIterator    BeginConst() { return ConstIterator(elements); }
-    INLINE ConstIterator    EndConst()   { return ConstIterator(elements + size); }
+    INLINE Iterator      Begin() { return Iterator(elements); }
+    INLINE Iterator      End()   { return Iterator(elements + size); }
+    INLINE ConstIterator BeginConst() { return ConstIterator(elements); }
+    INLINE ConstIterator EndConst()   { return ConstIterator(elements + size); }
         
-    INLINE Indexer          iBegin() { return Indexer(0, this); }
-    INLINE Indexer          iEnd()   { return Indexer(size, this); }
+    INLINE Indexer       iBegin() { return Indexer(0, this); }
+    INLINE Indexer       iEnd()   { return Indexer(size, this); }
     
-    INLINE T*               PointerAt(size_t sz) { return elements + sz; }
+    INLINE T*            PointerAt(size_t sz) { return elements + sz; }
     
-    INLINE T*               BeginPointer()       { return elements; }
-    INLINE const T*         BeginPointer() const { return elements; }
+    INLINE T*            BeginPointer()       { return elements; }
+    INLINE const T*      BeginPointer() const { return elements; }
     
-    INLINE T*               EndPointer()       { return elements + size; }
-    INLINE const T*         EndPointer() const { return elements + size; }
+    INLINE T*            EndPointer()       { return elements + size; }
+    INLINE const T*      EndPointer() const { return elements + size; }
     
-    INLINE ConstIterator    Begin() const { return ConstIterator(elements); }
-    INLINE ConstIterator    End()   const { return ConstIterator(elements + size); }
+    INLINE ConstIterator Begin() const { return ConstIterator(elements); }
+    INLINE ConstIterator End()   const { return ConstIterator(elements + size); }
 };
 
 }// pika
