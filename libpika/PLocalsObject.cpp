@@ -193,7 +193,7 @@ int LocalsObject_getParent(Context* ctx, Value& self)
         ctx->Push(t->GetSuper());   
         return 1;
     }    
-    RaiseException("attempt to call LocalsObject.getParent with incorrect type.");
+    RaiseException("Attempt to call LocalsObject.getParent with incorrect type.");
     return 0;    
 }
 

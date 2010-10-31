@@ -113,6 +113,10 @@
     DECL_OP( OP_ret,            "ret",          1, OF_none,     "" )
     DECL_OP( OP_retv,           "retv",         3, OF_w,        "" )
     
+    DECL_OP( OP_gennull,        "gennull",      1, OF_none,     "" )
+    DECL_OP( OP_gen,            "gen",          1, OF_none,     "" )
+    DECL_OP( OP_genv,           "genv",         3, OF_w,        "" )
+
     DECL_OP( OP_yieldnull,      "yieldnull",    1, OF_none,     "" )
     DECL_OP( OP_yield,          "yield",        1, OF_none,     "" )
     DECL_OP( OP_yieldv,         "yieldv",       3, OF_w,        "" )

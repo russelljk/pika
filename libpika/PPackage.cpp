@@ -155,7 +155,7 @@ void Package::Init(Context* ctx)
         
         if (!super->IsDerivedFrom(Package::StaticGetClass()))
         {
-            RaiseException(Exception::ERROR_type, "attempt to initialize package: super must be a package");
+            RaiseException(Exception::ERROR_type, "Attempt to initialize package: super must be a package");
         }
         superPackage = (Package*)super;
         WriteBarrier(superPackage);

@@ -42,7 +42,7 @@ void Proxy::Init(Context* ctx)
             WriteBarrier(property);
         }
         else {
-            RaiseException("attempt to get property %s from object of type %s.", engine->ToString(ctx, name), engine->GetTypenameOf(object));
+            RaiseException("Attempt to get property %s from object of type %s.", engine->ToString(ctx, name), engine->GetTypenameOf(object));
         }
     }
 }

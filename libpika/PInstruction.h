@@ -139,6 +139,11 @@ struct Instr
     };
 };
 
+// We need to know how much stack space each operand produces so that we can limit
+// reallocations. Also keep pointers and references from being invalided when we do
+// realloc. It also saves cycles because we do not have to constantly check every time
+// a push is performed.
+
 INLINE int OpcodeStackChange(Instr *ir)
 {
     switch (ir->opcode)
@@ -281,10 +286,14 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_forto:          return -3;
     
     case OP_retacc:         return  1;
-    case OP_ret:            return  0;
-    case OP_retv:           return  0; // TODO:
-    
-    case OP_yieldnull:      return  0;
+    case OP_ret:            return  0; // XXX: ret, retv, gen, genv
+    case OP_retv:           return  0; // There is no real need to specify these since
+                                       //   1. The values are already on the stack
+    case OP_gennull:        return  1; //   2. If unpack is used we have no way of knowing 
+    case OP_gen:            return  0; //      how many values will be used.
+    case OP_genv:           return  0; //
+                                       // Instead we make sure that CheckStackSpace or
+    case OP_yieldnull:      return  0; // StackAlloc is called.
     case OP_yield:          return -1;
     case OP_yieldv:
     {

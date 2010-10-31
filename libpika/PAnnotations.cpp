@@ -94,7 +94,7 @@ namespace {
         else {
             Type* type = obj->GetType();
             const char* type_str = type->GetName()->GetBuffer();
-            RaiseException(Exception::ERROR_type, "attempt to set scope on object of type %s: expecting a Function or Package.", type_str);
+            RaiseException(Exception::ERROR_type, "Attempt to set scope on object of type %s: expecting a Function or Package.", type_str);
         }
         ctx->Push(obj);
 		return 1;
@@ -105,7 +105,7 @@ namespace {
         Function* func = ctx->GetArgT<Function>(0);        
         Def* def = func->GetDef();
         if (def->isVarArg || def->isKeyword || func->defaults != 0)
-            RaiseException("attempt to make function %s strict: functions with default values, variable arguments or keyword arguments cannot be strict.\n", func->GetName()->GetBuffer());
+            RaiseException("Attempt to make function %s strict: functions with default values, variable arguments or keyword arguments cannot be strict.\n", func->GetName()->GetBuffer());
         else
             def->isStrict = true;
         ctx->Push(func);

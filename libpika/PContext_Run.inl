@@ -383,7 +383,7 @@ void Context::Run()
                     // We cannot extend a non-type object.
                     String* supername = engine->GetTypenameOf(vbase);
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "attempt to extend non-type derived value: %s.",
+                                       "Attempt to extend non-type derived value: %s.",
                                        supername->GetBuffer());
                 }
                 Pop(2);
@@ -455,7 +455,7 @@ void Context::Run()
                 
                 if (!(vobj.IsObject() && obj))
                 {
-                    RaiseException("attempt to create object literal failed.");
+                    RaiseException("Attempt to create object literal failed.");
                 }
                 
                 /* Loop through each {key,val} pair and add it to the new
@@ -612,6 +612,28 @@ void Context::Run()
                     engine->CallHook(HE_return, (void*)this);
                 }
 #   endif
+                PIKA_RET(retCount)
+            }
+            PIKA_NEXT()
+            
+            PIKA_OPCODE(OP_gennull)
+            PushNull();
+            /*
+                Fall Through
+                |
+                V
+            */
+            PIKA_OPCODE(OP_gen)
+            {
+                OpYield(1);                
+                PIKA_RET(retCount)
+            }
+            PIKA_NEXT()
+            
+            PIKA_OPCODE(OP_genv)
+            {
+                int retc = GetShortOperand(instr);
+                OpYield(retc);
                 PIKA_RET(retCount)
             }
             PIKA_NEXT()

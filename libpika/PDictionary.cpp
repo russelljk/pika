@@ -157,7 +157,7 @@ namespace {
         Array* vals = dict->Values();
         if (!keys || !vals)
         {
-            RaiseException("attempt to unzip Dictionary failed.");
+            RaiseException("Attempt to unzip Dictionary failed.");
         }
         ctx->Push(keys);
         ctx->Push(vals);

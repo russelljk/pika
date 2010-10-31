@@ -344,6 +344,9 @@ protected:
     void OpDotSet(Opcode oc, OpOverride ovr);    
 protected:
     void OpReturn(u4);
+    void OpYield(u4);
+    void CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const* top);
+
     bool OpUnpack(u4);    
     bool OpBind();    
     bool OpCat(bool sp);    
@@ -679,6 +682,12 @@ struct PIKA_API SafeValue
     Context* context;
 };
 
+enum GenState {
+    GS_clean,
+    GS_yielded,
+    GS_resumed,
+};
+    
 class PIKA_API Generator : public Object
 {
     PIKA_DECL(Generator, Object)
@@ -686,16 +695,20 @@ public:
     Generator(Engine* eng, Type* typ, Function* fn);
     
     virtual ~Generator();
-    
+    virtual void Init(Context*);
     virtual void MarkRefs(Collector*);
     
+    bool IsYielded();
     void Yield(Context*);
     void Resume(Context*);
+    
+    static void Constructor(Engine* eng, Type* type, Value& res);
     static Generator* Create(Engine* eng, Type* type, Function* function);
     static void StaticInitType(Engine* eng);
 protected:
     size_t FindLastCallScope(Context*, ScopeIter);
     
+    GenState       state;
     Function*      function;
     ExceptionStack handlers;
     ScopeStack     scopes;

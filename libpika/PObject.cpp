@@ -97,7 +97,7 @@ Type* Object::GetType() const
 { 
     if (!type)
     {
-        RaiseException(Exception::ERROR_type, "attempt to access type of object failed.\n");
+        RaiseException(Exception::ERROR_type, "Attempt to access type of object failed.\n");
     }
     return type;
 }

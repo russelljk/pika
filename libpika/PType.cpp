@@ -545,7 +545,7 @@ void Type::Init(Context* ctx)
     if (argc >= 3)
     {
         if (baseType)
-            RaiseException("attempt to initialize already initialized Type named: %s\n",name ? name->GetBuffer() : "<anonymous>");
+            RaiseException("Attempt to initialize already initialized Type named: %s\n",name ? name->GetBuffer() : "<anonymous>");
         baseType = ctx->GetArgT<Type>(2);
         WriteBarrier(baseType);
         if (!newfn)

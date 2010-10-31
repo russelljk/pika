@@ -126,7 +126,7 @@ String* Debugger::GetInstruction()
 void Debugger::SetCallback(pint_t he, Nullable<Function*> fn)
 {
     if (he < 0 || he >= HE_max)
-        RaiseException("attempt to set invalid debugger callback.");
+        RaiseException("Attempt to set invalid debugger callback.");
     
     callbacks[he] = fn;
     if (he == HE_instruction && !fn)

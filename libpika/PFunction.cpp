@@ -774,7 +774,7 @@ int Function_name(Context* ctx, Value& self)
         ctx->Push(t->GetName());   
         return 1;
     }    
-    RaiseException("attempt to call Function.getName with incorrect type.");
+    RaiseException("Attempt to call Function.getName with incorrect type.");
     return 0;    
 }
 
@@ -792,7 +792,7 @@ int Function_parent(Context* ctx, Value& self)
         ctx->Push(t->GetSuper());   
         return 1;
     }    
-    RaiseException("attempt to call Function.getParent with incorrect type.");
+    RaiseException("Attempt to call Function.getParent with incorrect type.");
     return 0;    
 }
 
@@ -810,7 +810,7 @@ int Function_location(Context* ctx, Value& self)
         ctx->Push(t->GetLocation());   
         return 1;
     }    
-    RaiseException("attempt to call Function.getLocation with incorrect type.");
+    RaiseException("Attempt to call Function.getLocation with incorrect type.");
     return 0;    
 }
 

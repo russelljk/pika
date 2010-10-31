@@ -21,10 +21,18 @@ PIKA_IMPL(Generator)
 
 Generator::Generator(Engine* eng, Type* typ, Function* fn) : 
     ThisSuper(eng, typ),
+    state(GS_clean),
     function(fn)
 {}
 
 Generator::~Generator() {}
+
+void Generator::Init(Context* ctx)
+{
+    Function* f = ctx->GetArgT<Function>(0);
+    WriteBarrier(f);
+    this->function = f;
+}
 
 void Generator::MarkRefs(Collector* c)
 {
@@ -44,11 +52,16 @@ void Generator::MarkRefs(Collector* c)
     }
 }
 
-// TODO: What about WriteBarriers. It would be easier to move this object to gray
-// since their are so many values.
+bool Generator::IsYielded()
+{
+    return state == GS_yielded;
+}
 
 void Generator::Yield(Context* ctx)
 {
+    if (state == GS_yielded)
+        RaiseException("Attempt to yield a generator already yielded.");
+    
     // Instead of a performing a multitude of WriteBarriers we will just move
     // this object to the gray list.
     engine->GetGC()->MoveToGray(this);
@@ -67,20 +80,30 @@ void Generator::Yield(Context* ctx)
     stack.Resize(stack_size);
     Pika_memcpy(stack.GetAt(0), ctx->stack + callscope->stackBase, sizeof(Value) * stack_size);
     
-    // copy handlers
+    // TODO: Copy Exception Handlers
     
-    // copy all scopes up to the current then pop'em off the context's scope-stack.
+    // Copy all scopes up to the current then pop'em off the context's scope-stack.
+    // XXX: Make sure that the original stack is not destroyed since
+    //      the values have not been returned.
+
     size_t idx = FindLastCallScope(ctx, callscope);
     size_t amt = scopeid - idx;
     scopes.Resize(amt);
     Pika_memcpy(scopes.GetAt(0), ctx->scopes.GetAt(idx), amt * sizeof(ScopeInfo));
     
     // Now transition into the caller's sope.
-    ctx->scopes.Pop(amt);    
-    ctx->PushCallScope();
+    ctx->scopes.Pop(amt);
+    ctx->PopCallScope();
     
     // Move lexical environment over to our stack.
     function->lexEnv->Set(stack.GetAt(0), stack.GetSize());
+    state = GS_yielded;
+}
+
+void Generator::Constructor(Engine* eng, Type* type, Value& res)
+{
+    Generator* g = Create(eng, type, eng->null_Function);
+    res.Set(g);
 }
 
 Generator* Generator::Create(Engine* eng, Type* type, Function* function)
@@ -92,20 +115,31 @@ Generator* Generator::Create(Engine* eng, Type* type, Function* function)
 
 void Generator::Resume(Context* ctx)
 {
+    if (state != GS_yielded)
+        RaiseException("Attempt to call generator that is not yieled.");
+        
+    // Need to push before copying the stack.
+    ctx->PushCallScope();
+    
+    // Now
     size_t base = ctx->sp - ctx->stack;
     ctx->StackAlloc( stack.GetSize() );
-    Pika_memcpy(ctx->stack + base, stack.GetAt(0), stack.GetSize() * sizeof(Value));
+    
+    Pika_memcpy( ctx->stack + base,
+                 stack.GetAt(0),
+                 stack.GetSize() * sizeof(Value) );
     
     for (size_t i = 0; i < scopes.GetSize(); ++i)
     {
         ctx->scopes.Push(scopes[i]);
     }    
-    ctx->PopCallScope();
     
     // Restore the lexical environment.
     Value* bsp = ctx->GetBasePtr();
     Value* sp = ctx->GetStackPtr();
     function->lexEnv->Set(bsp, sp - bsp);
+    
+    state = GS_resumed;
 }
 
 size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
@@ -1010,7 +1044,7 @@ bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
             
             if (array_size > PIKA_MAX_ARGS)
             {
-                RaiseException(Exception::ERROR_type, "attempt to apply variable argument call with an Array with too many members.");
+                RaiseException(Exception::ERROR_type, "Attempt to apply variable argument call with an Array with too many members.");
             }
             
             argc += (u1)array_size;
@@ -1018,7 +1052,7 @@ bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
         } 
         else
         {
-            RaiseException(Exception::ERROR_type, "attempt to apply invalid variable argument to a function call.");
+            RaiseException(Exception::ERROR_type, "Attempt to apply invalid variable argument to a function call.");
         }
     }
     
@@ -1033,14 +1067,14 @@ bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
             
             if (dict_size > PIKA_MAX_KWARGS)
             {
-                RaiseException(Exception::ERROR_type, "attempt to apply keyword argument call with a Dictionary with too many members.");
+                RaiseException(Exception::ERROR_type, "Attempt to apply keyword argument call with a Dictionary with too many members.");
             }
             
             amt += (dict_size * 2); // need to account for both keys and values
         }
         else
         {
-            RaiseException(Exception::ERROR_type, "attempt to apply invalid keyword argument to a function call.");
+            RaiseException(Exception::ERROR_type, "Attempt to apply invalid keyword argument to a function call.");
         }
     }
     
@@ -1453,7 +1487,14 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
                 engine->CallHook(HE_call, (void*)this);
             }
 #endif
-            return true;
+            if (def->isGenerator) {
+                generator = Generator::Create(engine, engine->Generator_Type, closure);
+                Push(generator);
+                OpYield(1);
+                return false;
+            } else {
+                return true;
+            }
         }
     }
     else
@@ -1461,8 +1502,17 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         // object or userdata that may contain a call override method.
         if (frameVar.tag >= TAG_basic)
         {
-            Push(frameVar);
-            return SetupOverride(argc, retc, kwargc, tailcall, frameVar.val.basic, OVR_call);
+            if (frameVar.IsDerivedFrom(Generator::StaticGetClass()))
+            {
+                Generator* gen = static_cast<Generator*>(frameVar.val.object);
+                gen->Resume(this);
+                return true;
+            }
+            else
+            {
+                Push(frameVar);
+                return SetupOverride(argc, retc, kwargc, tailcall, frameVar.val.basic, OVR_call);
+            }
         }
         else
         {
@@ -2096,13 +2146,34 @@ void Context::OpReturn(u4 retc)
         retc = expectedRetc;
     }
     
-    Value* top = GetStackPtr();
+    Value* const top = GetStackPtr();
                 
     if (env && !env->IsAllocated())
         env->EndCall(); 
         
     PopCallScope();
 
+    CopyReturnValues(expectedRetc, retc, top);
+}
+
+void Context::OpYield(u4 yldc)
+{
+    u4 const expectedRetc = retCount;
+    
+    if (expectedRetc > 1 &&  yldc == 1)
+    {
+        OpUnpack(expectedRetc);
+         yldc = expectedRetc;
+    }
+    size_t pos = sp - stack;
+    generator->Yield(this);
+    
+    Value* const top = stack + pos;    
+    CopyReturnValues(expectedRetc, yldc, top);
+}
+
+void Context::CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const* top)
+{
     if (expectedRetc > retc)
     {
         /* Expected number of return values is greater-than the number
@@ -2114,7 +2185,7 @@ void Context::OpReturn(u4 retc)
         size_t diff = expectedRetc - retc;
         
         /* Copy the all return values inorder. */
-        for (Value* curr = (top - retc); curr < top; ++curr)
+        for (Value const* curr = (top - retc); curr < top; ++curr)
         {
             Push(*curr);
         }
@@ -2138,9 +2209,9 @@ void Context::OpReturn(u4 retc)
          * If we expect less return values (N) than given only the last N are
          * provided.
          */
-        Value* startPtr = top - retc;
-        Value* endPtr = startPtr + expectedRetc;
-        for (Value* curr = startPtr; curr != endPtr; ++curr)
+        Value const* startPtr = top - retc;
+        Value const* endPtr = startPtr + expectedRetc;
+        for (Value const* curr = startPtr; curr != endPtr; ++curr)
         {
             Push(*curr);
         }
