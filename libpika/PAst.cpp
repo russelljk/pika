@@ -699,11 +699,15 @@ void ExprStmt::DoStmtResources(SymbolTable* st)
     }
 }
 
-void RetStmt::DoStmtResources(SymbolTable* st)
+void CtrlStmt::DoStmtResources(SymbolTable* st)
 {
     count = 0;
     ExprList* curr = exprs;
     isInTry = state->trystate.inTry;
+    if (kind == Stmt::STMT_generate)
+    {
+        state->currDef->SetGenerator();
+    }
     while (curr)
     {
         ++count;
@@ -713,24 +717,6 @@ void RetStmt::DoStmtResources(SymbolTable* st)
         {
             state->SyntaxException(Exception::ERROR_syntax, line,
                                    "max number of return values exceeded (max = %d).",
-                                   PIKA_MAX_RETC);
-        }
-    }
-}
-
-void YieldStmt::DoStmtResources(SymbolTable* st)
-{
-    count = 0;
-    ExprList* curr = exprs;
-    while (curr)
-    {
-        ++count;
-        curr->expr->CalculateResources(st);
-        curr = curr->next;
-        if (count >= PIKA_MAX_RETC)
-        {
-            state->SyntaxException(Exception::ERROR_syntax, line,
-                                   "max number of yield values exceeded (max = %d).",
                                    PIKA_MAX_RETC);
         }
     }

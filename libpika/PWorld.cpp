@@ -7,6 +7,7 @@
 #include "PLocalsObject.h"
 #include "PByteArray.h"
 #include "PFile.h"
+#include "PGenerator.h"
 
 namespace pika {
 extern void InitSystemLIB(Engine*);

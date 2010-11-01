@@ -153,7 +153,8 @@ private:
     Stmt*           DoReturnStatement();
     Stmt*           DoRaiseStatement();
     Stmt*           DoYieldStatement();
-        
+    Stmt*           DoGenerateStatement();
+    
     Stmt*           DoBreakStatement();
     Stmt*           DoContinueStatement();
     Stmt*           DoOptionalJumpStatement(Stmt*);

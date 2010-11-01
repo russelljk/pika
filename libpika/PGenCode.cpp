@@ -990,11 +990,11 @@ static bool MakeTailcall(bool intry, Instr* icurr)
     return false;
 }
 
-Instr* RetStmt::DoStmtCodeGen()
+Instr* CtrlStmt::DoStmtCodeGen()
 {
     if (!exprs || count == 0)
     {
-        Instr* iretnull = Instr::Create(OP_retacc);
+        Instr* iretnull = Instr::Create(GetNullOp());
         return iretnull;
     }
     
@@ -1017,56 +1017,21 @@ Instr* RetStmt::DoStmtCodeGen()
     {
         ASSERT(iexpr);
         
-        if (MakeTailcall(isInTry, last))
-            return iexpr;
-            
-        Instr* iret  = Instr::Create(OP_ret);
+        if (kind == Stmt::STMT_return)
+        {
+            if (MakeTailcall(isInTry, last))
+                return iexpr;
+        }
+        
+        Instr* iret  = Instr::Create(GetOneOp());
         iexpr->Attach(iret);
         return iexpr;
     }
     else
     {
-        Instr* iret  = Instr::Create(OP_retv);
+        Instr* iret  = Instr::Create(GetVarOp());
         iret->operand = count;
         iexpr->Attach(iret);
-        return iexpr;
-    }
-}
-
-Instr* YieldStmt::DoStmtCodeGen()
-{
-    if (!exprs || count == 0)
-    {
-        Instr* iyieldnull = Instr::Create(OP_yieldnull);
-        return iyieldnull;
-    }
-    
-    Instr* iexpr = 0;
-    Instr* last  = 0;
-    for (ExprList* curr = exprs; curr != 0; curr = curr->next)
-    {
-        ASSERT(curr->expr);
-        
-        Instr* inext = curr->expr->GenerateCode();
-        if (!iexpr)
-            iexpr = inext;
-        else
-            iexpr->Attach(inext);
-            
-        last = iexpr;
-    }
-    
-    if (count == 1)
-    {
-        Instr* iyield  = Instr::Create(OP_yield);
-        iexpr->Attach(iyield);
-        return iexpr;
-    }
-    else
-    {
-        Instr* iyield  = Instr::Create(OP_yieldv);
-        iyield->operand = count;
-        iexpr->Attach(iyield);
         return iexpr;
     }
 }

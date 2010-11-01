@@ -69,8 +69,7 @@ struct          ContinueStmt;
 struct          StmtList;
 struct          EmptyStmt;
 struct          ExprStmt;
-struct          RetStmt;
-struct          YieldStmt;
+struct          CtrlStmt;
 struct          IfStmt;
 struct          ConditionalStmt;
 struct          BlockStmt;
@@ -520,6 +519,7 @@ struct Stmt : TreeNode
         STMT_break,
         STMT_continue,
         STMT_yield,
+        STMT_generate,
         STMT_try,
         STMT_raise,
         STMT_finallyblock,
@@ -955,31 +955,44 @@ struct ExprStmt : Stmt
     bool autopop;
 };
 
-////////////////////////////////////////////// RetStmt /////////////////////////////////////////////
+////////////////////////////////////////////// CtrlStmt /////////////////////////////////////////////
 
-struct RetStmt : Stmt
+struct CtrlStmt : Stmt
 {
-    RetStmt(CompileState* s, ExprList* el) : Stmt(s, Stmt::STMT_return), exprs(el), count(0), isInTry(false) {}
+    CtrlStmt(CompileState* s, ExprList* el, Stmt::Kind kd) : Stmt(s, kd), exprs(el), count(0), isInTry(false) {}
     
     virtual void    DoStmtResources(SymbolTable* st);
     virtual Instr*  DoStmtCodeGen();
     
+    INLINE Opcode GetNullOp() {
+        switch (kind) {
+            case Stmt::STMT_return:   return OP_retacc;
+            case Stmt::STMT_yield:    return OP_yieldnull;
+            case Stmt::STMT_generate: return OP_gennull;
+            default: return OP_retacc;
+        }
+    }
+    
+    INLINE Opcode GetOneOp() {
+        switch (kind) {
+            case Stmt::STMT_return:   return OP_ret;
+            case Stmt::STMT_yield:    return OP_yield;
+            case Stmt::STMT_generate: return OP_gen;
+            default: return OP_ret;
+        }
+    }
+    
+    INLINE Opcode GetVarOp() {
+        switch (kind) {
+            case Stmt::STMT_return:   return OP_retv;
+            case Stmt::STMT_yield:    return OP_yieldv;
+            case Stmt::STMT_generate: return OP_genv;
+            default: return OP_retv;
+        }
+    }
     ExprList* exprs;
     size_t    count;
     bool isInTry;
-};
-
-///////////////////////////////////////////// YieldStmt ////////////////////////////////////////////
-
-struct YieldStmt : Stmt
-{
-    YieldStmt(CompileState* s, ExprList* el) : Stmt(s, Stmt::STMT_yield), exprs(el), count(0) {}
-    
-    virtual void DoStmtResources(SymbolTable* st);
-    virtual Instr* DoStmtCodeGen();
-    
-    ExprList* exprs;
-    size_t    count;
 };
 
 ////////////////////////////////////////////// LoopStmt ////////////////////////////////////////////

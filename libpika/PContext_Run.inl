@@ -12,6 +12,7 @@
 
 #define PIKA_RET(V)                                                                 \
     --numcalls;                                                                     \
+    if (generator) generator->Return();                                             \
     if (closure == 0 || (pc == 0 && !closure->IsNative()))                          \
     {                                                                               \
         --numRuns;                                                                  \

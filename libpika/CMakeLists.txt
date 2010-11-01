@@ -87,8 +87,8 @@ check_function_exists (strtok_s HAVE_STRTOK_S)
 # -------------------------------------------------------------------------
 
 set (pika_LIB_VERSION_MAJOR "0")
-set (pika_LIB_VERSION_MINOR "10")
-set (pika_LIB_VERSION_PATCH "5")
+set (pika_LIB_VERSION_MINOR "11")
+set (pika_LIB_VERSION_PATCH "0")
 
 set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
 set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
@@ -103,8 +103,9 @@ configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/cmake-pika_config.h.in"
 
 #---------------------- Target Files --------------------------------
 
-set (pika_LIB_SRCS PAnnotations.cpp PArray.cpp PAst.cpp PBasic.cpp PByteArray.cpp PClassInfo.cpp PCollector.cpp PCompiler.cpp PContext.cpp PDate.cpp PDictionary.cpp PDebugger.cpp PDef.cpp PEngine.cpp PEnumerator.cpp PError.cpp PFile.cpp PFunction.cpp PGenCode.cpp PHooks.cpp Pika.cpp PImport.cpp PLiteralPool.cpp PLocalsObject.cpp PMemory.cpp PMemPool.cpp PModule.cpp PNativeBind.cpp PNativeMethod.cpp PObject.cpp POpcode.cpp PPackage.cpp PParser.cpp PPlatform.cpp PPathManager.cpp PProperty.cpp PProxy.cpp PRandom.cpp PScript.cpp PString.cpp PStringTable.cpp PSymbolTable.cpp PSystemLib.cpp PTable.cpp PTokenizer.cpp PType.cpp PUserData.cpp PValue.cpp PValueEnumerator.cpp PWorld.cpp)
-set (pika_LIB_HEADERS pika_config.h PArray.h PAst.h PBasic.h PBuffer.h PByteArray.h PByteOrder.h PClassInfo.h PCollector.h PCompiler.h PConfig.h PConfig_Borland.h PConfig_GCC.h PConfig_VisualStudio.h PContext.h PContext_Ops.inl PContext_Ops_Arith.inl PContext_Ops_Call.inl PContext_Ops_Std.inl PContext_Run.inl PDate.h PDictionary.h PDebugger.h PDef.h PEngine.h PEnumerator.h PError.h PFile.h PFunction.h PHooks.h Pika.h PikaSort.h PInstruction.h PLineInfo.h PLiteralPool.h PLocalsObject.h PMemory.h PMemPool.h PModule.h PNativeBind.h PNativeConstMethodDecls.h PNativeMethod.h PNativeMethodDecls.h PNativeStaticMethodDecls.h PObject.h PObjectEnumerator.h POpcodeDef.inl POpcode.h PPackage.h PParser.h PPlatform.h PPathManager.h PProfiler.h PProperty.h PProxy.h PRandom.h PScript.h PString.h PStringTable.h PSymbolTable.h PTable.h PTokenDef.inl PTokenDef.h PTokenizer.h PType.h PUserData.h PUtil.h PValue.h PValueEnumerator.h)
+set (pika_LIB_SRCS PAnnotations.cpp PArray.cpp PAst.cpp PBasic.cpp PByteArray.cpp PClassInfo.cpp PCollector.cpp PCompiler.cpp PContext.cpp PDate.cpp PDictionary.cpp PDebugger.cpp PDef.cpp PEngine.cpp PEnumerator.cpp PError.cpp PFile.cpp PFunction.cpp PGenCode.cpp PGenerator.cpp PHooks.cpp Pika.cpp PImport.cpp PLiteralPool.cpp PLocalsObject.cpp PMemory.cpp PMemPool.cpp PModule.cpp PNativeBind.cpp PNativeMethod.cpp PObject.cpp POpcode.cpp PPackage.cpp PParser.cpp PPlatform.cpp PPathManager.cpp PProperty.cpp PProxy.cpp PRandom.cpp PScript.cpp PString.cpp PStringTable.cpp PSymbolTable.cpp PSystemLib.cpp PTable.cpp PTokenizer.cpp PType.cpp PUserData.cpp PValue.cpp PValueEnumerator.cpp PWorld.cpp)
+
+set (pika_LIB_HEADERS pika_config.h PArray.h PAst.h PBasic.h PBuffer.h PByteArray.h PByteOrder.h PClassInfo.h PCollector.h PCompiler.h PConfig.h PConfig_Borland.h PConfig_GCC.h PConfig_VisualStudio.h PContext.h PContext_Ops.inl PContext_Ops_Arith.inl PContext_Ops_Call.inl PContext_Ops_Std.inl PContext_Run.inl PDate.h PDictionary.h PDebugger.h PDef.h PEngine.h PEnumerator.h PError.h PFile.h PFunction.h PGenerator.h PHooks.h Pika.h PikaSort.h PInstruction.h PLineInfo.h PLiteralPool.h PLocalsObject.h PMemory.h PMemPool.h PModule.h PNativeBind.h PNativeConstMethodDecls.h PNativeMethod.h PNativeMethodDecls.h PNativeStaticMethodDecls.h PObject.h PObjectEnumerator.h POpcodeDef.inl POpcode.h PPackage.h PParser.h PPlatform.h PPathManager.h PProfiler.h PProperty.h PProxy.h PRandom.h PScript.h PString.h PStringTable.h PSymbolTable.h PTable.h PTokenDef.inl PTokenDef.h PTokenizer.h PType.h PUserData.h PUtil.h PValue.h PValueEnumerator.h)
 
 #------------------------------------------------------------------
 # Convert header list into comma seperated list. "a b c" -> "a;b;c"

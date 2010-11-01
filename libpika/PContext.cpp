@@ -15,152 +15,9 @@
 #include "PNativeBind.h"
 #include "PContext_Ops.inl"
 #include "PDictionary.h"
+#include "PGenerator.h"
 
 namespace pika {
-PIKA_IMPL(Generator)
-
-Generator::Generator(Engine* eng, Type* typ, Function* fn) : 
-    ThisSuper(eng, typ),
-    state(GS_clean),
-    function(fn)
-{}
-
-Generator::~Generator() {}
-
-void Generator::Init(Context* ctx)
-{
-    Function* f = ctx->GetArgT<Function>(0);
-    WriteBarrier(f);
-    this->function = f;
-}
-
-void Generator::MarkRefs(Collector* c)
-{
-    ThisSuper::MarkRefs(c);        
-    if (function)
-        function->Mark(c);            
-    MarkValues(c, stack.BeginPointer(),
-                  stack.EndPointer());
-    for (ScopeIter s = scopes.Begin(); s != scopes.End(); ++s)
-    {
-        s->DoMark(c);
-    }
-    
-    for (HandlerIter h = handlers.Begin(); h != handlers.End(); ++h)
-    {
-        h->DoMark(c);
-    }
-}
-
-bool Generator::IsYielded()
-{
-    return state == GS_yielded;
-}
-
-void Generator::Yield(Context* ctx)
-{
-    if (state == GS_yielded)
-        RaiseException("Attempt to yield a generator already yielded.");
-    
-    // Instead of a performing a multitude of WriteBarriers we will just move
-    // this object to the gray list.
-    engine->GetGC()->MoveToGray(this);
-    
-    // Have the context push this scope
-    ctx->PushCallScope();
-    
-    // Get our ScopeInfo.
-    ScopeIter callscope = ctx->GetScopeTop() - 1;
-    
-    // The scope id is needed for exception handlers.
-    size_t const scopeid = ctx->scopes.IndexOf(callscope);
-    
-    // copy stack
-    size_t const stack_size = callscope->stackTop - callscope->stackBase;
-    stack.Resize(stack_size);
-    Pika_memcpy(stack.GetAt(0), ctx->stack + callscope->stackBase, sizeof(Value) * stack_size);
-    
-    // TODO: Copy Exception Handlers
-    
-    // Copy all scopes up to the current then pop'em off the context's scope-stack.
-    // XXX: Make sure that the original stack is not destroyed since
-    //      the values have not been returned.
-
-    size_t idx = FindLastCallScope(ctx, callscope);
-    size_t amt = scopeid - idx;
-    scopes.Resize(amt);
-    Pika_memcpy(scopes.GetAt(0), ctx->scopes.GetAt(idx), amt * sizeof(ScopeInfo));
-    
-    // Now transition into the caller's sope.
-    ctx->scopes.Pop(amt);
-    ctx->PopCallScope();
-    
-    // Move lexical environment over to our stack.
-    function->lexEnv->Set(stack.GetAt(0), stack.GetSize());
-    state = GS_yielded;
-}
-
-void Generator::Constructor(Engine* eng, Type* type, Value& res)
-{
-    Generator* g = Create(eng, type, eng->null_Function);
-    res.Set(g);
-}
-
-Generator* Generator::Create(Engine* eng, Type* type, Function* function)
-{
-    Generator* gen = 0;
-    GCNEW(eng, Generator, gen, (eng, type, function));
-    return gen;
-}
-
-void Generator::Resume(Context* ctx)
-{
-    if (state != GS_yielded)
-        RaiseException("Attempt to call generator that is not yieled.");
-        
-    // Need to push before copying the stack.
-    ctx->PushCallScope();
-    
-    // Now
-    size_t base = ctx->sp - ctx->stack;
-    ctx->StackAlloc( stack.GetSize() );
-    
-    Pika_memcpy( ctx->stack + base,
-                 stack.GetAt(0),
-                 stack.GetSize() * sizeof(Value) );
-    
-    for (size_t i = 0; i < scopes.GetSize(); ++i)
-    {
-        ctx->scopes.Push(scopes[i]);
-    }    
-    
-    // Restore the lexical environment.
-    Value* bsp = ctx->GetBasePtr();
-    Value* sp = ctx->GetStackPtr();
-    function->lexEnv->Set(bsp, sp - bsp);
-    
-    state = GS_resumed;
-}
-
-size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
-{
-    // Not every scope is a call scope.
-    // We need to go back and find the caller.    
-    iter--;
-    while (iter->kind != SCOPE_call)
-    {
-        iter--;
-    }
-    return ctx->scopes.IndexOf(iter);
-}
-
-void Generator::StaticInitType(Engine* eng)
-{
-    Package* Pkg_World = eng->GetWorld();
-    String* Generator_String = eng->AllocString("Generator");
-    eng->Generator_Type = Type::Create(eng, Generator_String, eng->Object_Type, Generator::Constructor, Pkg_World);
-    Pkg_World->SetSlot(Generator_String, eng->Generator_Type);
-}
 
 namespace {
 
@@ -215,7 +72,7 @@ int Context_Setup(Context* ctx, Value& self)
     return 0;
 }
 
-}//namespace
+}// namespace
 
 void Context::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
@@ -1504,8 +1361,12 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         {
             if (frameVar.IsDerivedFrom(Generator::StaticGetClass()))
             {
+                if (argc != 0 || kwargc != 0) {
+                    ReportRuntimeError(Exception::ERROR_runtime,
+                        "Cannot resume a generator by calling it with arguments or keyword arguments.");
+                }
                 Generator* gen = static_cast<Generator*>(frameVar.val.object);
-                gen->Resume(this);
+                gen->Resume(this, retc ? retc : 1);                        
                 return true;
             }
             else
@@ -2166,6 +2027,7 @@ void Context::OpYield(u4 yldc)
          yldc = expectedRetc;
     }
     size_t pos = sp - stack;
+    sp -= yldc;
     generator->Yield(this);
     
     Value* const top = stack + pos;    
