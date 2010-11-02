@@ -1057,32 +1057,26 @@ struct ForToStmt : LoopingStmt
     SymbolTable* symtab;
 };
 
-//////////////////////////////////////////// ForeachStmt ///////////////////////////////////////////
-
 struct ForeachStmt : LoopingStmt
 {
     ForeachStmt(CompileState* s, Id* id, Expr* type_expr, Expr* in, Stmt* body)
             : LoopingStmt(s, Stmt::STMT_foreach),
             id(id),
-            iterVar(0),
             type_expr(type_expr),
             in(in),
             body(body),
-            idexpr(0),
-            enum_offset(0),
             symtab(0) {}
     
     virtual ~ForeachStmt();
     
     virtual void   DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
+
     Id*          id;
-    VarDecl*     iterVar;
     Expr*        type_expr;   // The set name that will be enumerated.
     Expr*        in;          // The subject.
     Stmt*        body;        // Loop body.
-    IdExpr*      idexpr;      // Expression for the loop variable.
-    size_t       enum_offset; // Local var offset for the enumerator object.
+    Symbol*      symbol;
     SymbolTable* symtab;
 };
 

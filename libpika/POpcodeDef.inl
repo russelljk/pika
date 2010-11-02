@@ -120,11 +120,11 @@
     DECL_OP( OP_yieldnull,      "yieldnull",    1, OF_none,     "" )
     DECL_OP( OP_yield,          "yield",        1, OF_none,     "" )
     DECL_OP( OP_yieldv,         "yieldv",       3, OF_w,        "" )
+
+    DECL_OP( OP_itercall,       "iterate",      3, OF_w,        "" )
     
     DECL_OP( OP_foreach,        "foreach",      3, OF_w,        "" )
-    DECL_OP( OP_enumisvalid,    "enumisvalid",  3, OF_w,        "" )
-    DECL_OP( OP_enumadvance,    "enumadvance",  3, OF_w,        "" )
-    
+        
     DECL_OP( OP_same,           "same",         1, OF_none,     "" )
     DECL_OP( OP_notsame,        "notsame",      1, OF_none,     "" )
     DECL_OP( OP_is,             "is",           1, OF_none,     "" )

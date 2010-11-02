@@ -182,7 +182,7 @@ bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res)
 
 PIKA_IMPL(Context)
 
-PIKA_FORCE_INLINE void Context::PushCallScope()
+void Context::PushCallScope()
 {
     ScopeInfo& currA = *scopesTop;
     
@@ -220,7 +220,7 @@ void Context::PushWithScope()
         GrowScopeStack();
 }
 
-PIKA_FORCE_INLINE void Context::PopCallScope()
+void Context::PopCallScope()
 {
     if (scopesTop == scopesBeg)
         ReportRuntimeError(Exception::ERROR_system, "Scope stack underflow.");

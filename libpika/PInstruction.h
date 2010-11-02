@@ -300,10 +300,9 @@ INLINE int OpcodeStackChange(Instr *ir)
         int operand = ir->operand;
         return -operand;
     }
-    case OP_foreach:        return -1;
-    case OP_enumisvalid:    return  1;
-    case OP_enumadvance:    return  1;
-    
+    case OP_itercall:       return  1;
+    case OP_foreach:        return -2;
+        
     case OP_same:           return -1;
     case OP_notsame:        return -1;
     case OP_is:             return -1;

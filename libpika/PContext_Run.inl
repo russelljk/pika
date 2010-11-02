@@ -703,90 +703,105 @@ void Context::Run()
             }
             PIKA_NEXT()
             
+            PIKA_OPCODE(OP_itercall)
+            {
+                u2 loop_idx = GetShortOperand(instr);
+                u2 iter_idx = loop_idx + 1;
+                Value iter = GetLocal(iter_idx);
+                Value res(NULL_VALUE);
+                bool success = false;
+                
+                if (iter.IsDerivedFrom(Generator::StaticGetClass()))
+                {
+                    Generator* g = static_cast<Generator*>(iter.val.object);
+                    if (g->ToBoolean())
+                    {
+                        g->Resume(this, 1);
+                        this->Run();
+                        success = g->ToBoolean();
+                        res = PopTop();
+                    }
+                }
+                else if (iter.tag == TAG_enumerator)
+                {
+                    Enumerator* e = iter.val.enumerator;
+                    if (e->IsValid())
+                    {
+                        e->GetCurrent(res);
+                        e->Advance();
+                        success = true;
+                    } 
+                }
+                else 
+                {
+                    ReportRuntimeError(Exception::ERROR_runtime,
+                                       "foreach requires an enumerable object but object of type %s was provided",
+                                       engine->GetTypenameOf(iter)->GetBuffer());
+                }
+                GetLocal(loop_idx) = res;
+                PushBool(success);
+            }
+            PIKA_NEXT()
+            
             PIKA_OPCODE(OP_foreach)
             {
                 GCPAUSE(engine);
                 
                 u2 index = GetShortOperand(instr);
-                Value& enumlocal = GetLocal(index);
+                Value field = PopTop();
+                Value object = PopTop();
+                Value result(NULL_VALUE);
                 
-                Value& enumType = PopTop();
-                
-                if (!enumType.IsString())
+                if (!field.IsString())
                 {
                     ReportRuntimeError(Exception::ERROR_type,
-                                       "invalid foreach enumerator type %s.",
-                                       engine->GetTypenameOf(enumType)->GetBuffer());
+                                       "Invalid for each set type %s.",
+                                       engine->GetTypenameOf(field)->GetBuffer());
                 }
                 
-                Enumerator* e = 0;
-                Value& t = PopTop();
-                
-                if (t.IsEnumerator())
+                // If this is a Basic derived object.
+                if (object.tag >= TAG_basic)
                 {
-                    e = t.val.enumerator;
-                }
-                else if (t.tag >= TAG_basic)
-                {
-                    Basic* c = t.val.basic;
-                    e = c->GetEnumerator(enumType.val.str);
-                }
-                else
-                {
-                    e = ValueEnumerator::Create(engine, t, enumType.val.str);
-                }
-                if (!e)
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "could not create enumerator for type %s",
-                                       engine->GetTypenameOf(t)->GetBuffer());
-                }
-                e->Rewind();
-                enumlocal.Set(e);
-                bool res = e->IsValid();
-                PushBool(res);
-            }
-            PIKA_NEXT()
-            
-            PIKA_OPCODE(OP_enumisvalid)
-            {
-                u2 index = GetShortOperand(instr);
-                Value& t = GetLocal(index);
-                
-                if (t.tag == TAG_enumerator)
-                {
-                    Enumerator* e = t.val.enumerator;
-                    e->Advance();
-                    bool res = e->IsValid();
-                    PushBool(res);
-                }
-                else
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "invalid enumerator: %s.",
-                                       engine->ToString(this, t)->GetBuffer());
-                }
-            }
-            PIKA_NEXT()
-            
-            PIKA_OPCODE(OP_enumadvance)
-            {
-                u2 index = GetShortOperand(instr);
-                Value& t = GetLocal(index);
-                
-                if (t.tag == TAG_enumerator)
-                {
-                    Enumerator* e = t.val.enumerator;
-                    Value curr(NULL_VALUE);                    
-                    e->GetCurrent(curr);
-                    Push(curr);
-                }
-                else
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "invalid enumerator: %s.",
-                                       engine->ToString(this, t)->GetBuffer());
-                }
+                    // Find out if the field exists.
+                    Object* subj = object.val.object;
+                    if (subj->GetSlot(field, result))
+                    {
+                        // If its a generator function
+                        if (result.IsDerivedFrom(Function::StaticGetClass()) &&
+                            result.val.function->GetDef()->isGenerator)
+                        {
+                            // Push object and function
+                            Push(object);
+                            Push(result);
+                            
+                            if (SetupCall(0))
+                            {
+                                // This should not happen. If it does the generator function
+                                // was marked incorrectly by some external module.
+                                ReportRuntimeError(Exception::ERROR_runtime, "generator could not be properly setup.");
+                            }
+                            
+                            result = PopTop();
+                        }
+                        else 
+                        {
+                            ReportRuntimeError(Exception::ERROR_type,
+                                       "For each set kind must be a function generator.");
+                        }
+                    } 
+                    else
+                    {
+                        Enumerator* e = subj->GetEnumerator(field.val.str);
+                        e->Rewind();
+                        result.Set(e);
+                    }                
+                } 
+                else {
+                     Enumerator* e = ValueEnumerator::Create(engine, object, field.val.str);
+                     e->Rewind();
+                     result.Set(e);
+                }                
+                GetLocal(index+1) = result; 
             }
             PIKA_NEXT()
             

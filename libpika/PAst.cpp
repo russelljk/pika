@@ -754,17 +754,9 @@ ForeachStmt::~ForeachStmt()
 void ForeachStmt::DoStmtResources(SymbolTable* st)
 {
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
-    PIKA_NEWNODE(LocalDecl, iterVar, (state, id));
-    iterVar->line = id->line;
-    PIKA_NEWNODE(IdExpr, idexpr, (state, id));
     
-    
-    idexpr->line = iterVar->name->line;
-    enum_offset = state->NextLocalOffset("");
-    
-    type_expr->CalculateResources(symtab);
-    iterVar->CalculateResources(symtab);
-    idexpr->CalculateResources(symtab);
+    symbol = state->CreateLocalPlus(symtab, id->name, 1);    
+    type_expr->CalculateResources(symtab);        
     in->CalculateResources(symtab);
     body->CalculateResources(symtab);
 }

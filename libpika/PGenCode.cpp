@@ -1179,43 +1179,40 @@ Instr* ForeachStmt::DoStmtCodeGen()
 {
     Instr* ijmpTarget = Instr::Create(JMP_TARGET);
     PIKA_BLOCKSTART(state, ijmpTarget);
+        
+    Instr* iin       = in->GenerateCode();
+    Instr* ibody     = body->GenerateCode();
+    Instr* ikind     = type_expr->GenerateCode();
+    Instr* idotget   = Instr::Create(OP_foreach);
+    Instr* ijmpfalse = Instr::Create(OP_jumpiffalse);
+    Instr* ijmpback  = Instr::Create(OP_jump);
     
-    Instr* ivar       = iterVar->GenerateCode();
-    Instr* iin        = in->GenerateCode();
-    Instr* ibody      = body->GenerateCode();
-    Instr* itype      = type_expr->GenerateCode();
-    Instr* inewenum   = Instr::Create(OP_foreach);
-    Instr* ienumvalid = Instr::Create(OP_enumisvalid);
-    Instr* ijmpfalse  = Instr::Create(OP_jumpiffalse);
-    Instr* ienumadv   = Instr::Create(OP_enumadvance);
-    Instr* iset       = idexpr->GenerateCodeSet();
-    Instr* ijmpback   = Instr::Create(OP_jumpiftrue);
+    Instr* iopiter   = Instr::Create(OP_itercall); // TODO
+    //Instr* isetlocal = Instr::Create(OP_setlocal);
     
     PIKA_BLOCKEND(state);
     
-    ivar->
-    Attach(iin)->
-    Attach(itype)->
-    Attach(inewenum)->      // create a new enumerator
-    Attach(ijmpfalse)->
-    Attach(ienumadv)->      // getcurrent
-    Attach(iset)->
-    Attach(ibody)->
-    Attach(ienumvalid)->
-    Attach(ijmpback)->
-    Attach(ijmpTarget);
+    iin->
+    Attach( ikind )->
+    Attach( idotget )->      // iin.ikind 
+    //Attach( isetlocal )->         
+    Attach( iopiter )->
+    Attach( ijmpfalse )->
+    Attach( ibody )->    
+    Attach( ijmpback )->
+    Attach( ijmpTarget )
+    ;
     
     ibody->DoLoopPatch(ijmpTarget,
-                       ienumvalid,
+                       iopiter,
                        this->label);
-                       
-    ijmpback->SetTarget(ienumadv);
+                      
+    ijmpback->SetTarget(iopiter);
     ijmpfalse->SetTarget(ijmpTarget);
-    
-    inewenum->operand = enum_offset;
-    ienumvalid->operand = enum_offset;
-    ienumadv->operand = enum_offset;
-    return ivar;
+    iopiter->operand = symbol->offset;
+    //isetlocal->operand = symbol->offset + 1;
+    idotget->operand = symbol->offset;
+    return iin;
 }
 
 Instr* CondLoopStmt::DoStmtCodeGen()
