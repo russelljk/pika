@@ -38,9 +38,9 @@ public:
     pint_t GetWDay() { return the_time.tm_wday; }
     pint_t GetYDay() { return the_time.tm_yday; }
     bool   GetIsDst() { return the_time.tm_isdst != 0; }
-    pint_t GetGmtOff() { return the_time.tm_gmtoff; }
+    
     time_t MkTime();
-    pint_t Diff(Date* rhs);
+    preal_t Diff(Date* rhs);
     static void Constructor(Engine* eng, Type* type, Value& res);
     static void StaticInitType(Package* pkg, Engine* eng);
 protected:

@@ -1217,7 +1217,7 @@ void PropertyDecl::UpdateFunctionName(Expr* e)
     {
         FunExpr* fe = (FunExpr*)e;
         if (!fe->name) {
-           PIKA_NEWNODE(Id, fe->name, (state, strdup("(prop-accessor)")));
+           PIKA_NEWNODE(Id, fe->name, (state, Pika_strdup("(prop-accessor)")));
         }
     }
 }

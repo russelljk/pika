@@ -103,11 +103,6 @@ void Date::SetIsDst(bool x)
     the_time.tm_isdst = x;
 }
 
-void Date::SetGmtOff(pint_t x)
-{
-    the_time.tm_gmtoff = x;
-}
-
 void Date::Constructor(Engine* eng, Type* type, Value& res)
 {
     Date* d = 0;
@@ -125,11 +120,11 @@ time_t Date::MkTime()
     return res;
 }
 
-pint_t Date::Diff(Date* rhs)
+preal_t Date::Diff(Date* rhs)
 {   
     time_t tl = this->MkTime();
     time_t tr = rhs->MkTime();
-    time_t res = difftime(tl, tr);
+    preal_t res = difftime(tl, tr);
     return res;
 }
 
@@ -178,9 +173,6 @@ void Date::StaticInitType(Package* pkg, Engine* eng)
     .PropertyRW("isdst",
             &Date::GetIsDst,    0,
             &Date::SetIsDst,    0)
-    .PropertyRW("gmtoff",
-            &Date::GetGmtOff,   0,
-            &Date::SetGmtOff,   0)
     .Register(Date_mktime,      "mktime", 0, false, true)
     .Method(&Date::LocalTime,   "localtime")
     .Method(&Date::GmTime,      "gmtime")

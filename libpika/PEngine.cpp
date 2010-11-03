@@ -467,7 +467,7 @@ Script* Engine::Compile(String* name, Context* parent)
     try
     {        
         std::ifstream yyin;
-        yyin.open(name->GetBuffer());
+        yyin.open(name->GetBuffer(), std::ios_base::binary | std::ios_base::in);
         if (!yyin)        
             return 0;
         
