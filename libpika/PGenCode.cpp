@@ -2345,7 +2345,7 @@ Instr* ClassDecl::GenerateCode()
                       doStmts,
                       exitWith,
                       popcode,
-                      false);
+                      true);
                       
     return insideof;
 }

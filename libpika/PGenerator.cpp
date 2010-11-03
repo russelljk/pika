@@ -184,15 +184,18 @@ Generator* Generator::Create(Engine* eng, Type* type, Function* function)
     return gen;
 }
 
-void Generator::Resume(Context* ctx, u4 retc)
+void Generator::Resume(Context* ctx, u4 retc, bool tailcall)
 {
     if (state != GS_yielded) {
         RaiseException("Attempt to call generator that is not yieled.");
     }
     // Need to push before copying the stack.
-    
-    ctx->PushCallScope();
-    
+    if (!tailcall)
+        ctx->PushCallScope();
+    else
+    {
+        ctx->sp = ctx->bsp;
+    }
     // Copy the scopes. Generally there is a single scope, however, 
     // other language constructs have their own scopes.
     

@@ -45,7 +45,7 @@ public:
       * @param ctx The Context to resume with.
       * @param retc The exception number of return or yield values.
       */
-    void Resume(Context* ctx, u4 retc);
+    void Resume(Context* ctx, u4 retc, bool tailcall=false);
     
     /** Tell the Generator that it is finished. */
     void Return();
