@@ -334,6 +334,10 @@ int main(int argc, char* argv[])
                 }
             }
         }
+        catch (Exception& e)
+        {
+            std::cerr << "Uncaught " << Exception::Static_Error_Formats[e.kind] << ": " << e.GetMessage() << std::endl;
+        }
         catch (...)
         {
             std::cerr << "Uncaught exception. Exiting pika ..." << std::endl;

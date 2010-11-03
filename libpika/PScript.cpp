@@ -119,6 +119,11 @@ bool Script::Run(Array* args)
     if (running || firstRun) return false;
     if (!context || !entryPoint) return false;
     
+    if (entryPoint->def->isGenerator)
+    {
+        RaiseException("Script's __main function cannot be a generator.");
+    }
+    
     {   GCPAUSE(engine); // pause gc
         const char* args_str = "__arguments";
         if (args)
@@ -138,15 +143,15 @@ bool Script::Run(Array* args)
     
     context->PushNull();
     context->Push(entryPoint);
-    context->SetupCall(0);
-#if defined(PIKA_DEBUG_OUTPUT)
-    Timer t;
-    t.Start();
-#endif
-    running = true;
     
-    context->Run();
-    
+    if (context->SetupCall(0)) {
+#   if defined(PIKA_DEBUG_OUTPUT)
+        Timer t;
+        t.Start();
+#   endif
+        running = true;    
+        context->Run();
+    }
     running = false;
 #if defined(PIKA_DEBUG_OUTPUT)
     t.End();

@@ -48,7 +48,7 @@ const char* ScriptException::GetMessage() const
         if (res.IsString())
             return res.val.str->GetBuffer();
     }
-    return 0;
+    return "";
 }
 
 }// pika
