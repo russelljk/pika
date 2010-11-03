@@ -150,6 +150,7 @@ void Generator::Yield(Context* ctx)
         Pika_memcpy( handlers.GetAt(0),
                      ctx->handlers.GetAt(start_handler), 
                      sizeof(ExceptionBlock) * num_handlers );
+        ctx->handlers.Pop(num_handlers);
     }
     
     // Copy all scopes up to the current then pop'em off the context's scope-stack.
@@ -241,13 +242,14 @@ void Generator::Resume(Context* ctx, u4 retc)
 
 size_t Generator::FindBaseHandler(Context* ctx, size_t scopeid)
 {
-    size_t curr = handlers.GetSize();
+    size_t curr = ctx->handlers.GetSize();
     size_t amt = 0;
-    while (curr && handlers[curr].scope == scopeid)
+    
+    while (curr > 0 && ctx->handlers[--curr].scope == scopeid)
     {
         ++amt;
-        curr--;
     }
+    
     return amt;
 }
 
