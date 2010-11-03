@@ -5,7 +5,7 @@
 #include "Pika.h"
 #include "PAst.h"
 #include "PSymbolTable.h"
-
+#include "PInstruction.h"
 namespace pika {
 
 namespace {
@@ -90,11 +90,6 @@ void Pika_FunctionResourceCalculation(
 
 }//anonymous namespace
 
-void TreeNodeList::operator+=(TreeNode* t)
-{
-    *last = t;
-    last = &t->astnext;
-}
 
 CompileState::CompileState(Engine* eng)
         : literals(0),
@@ -112,18 +107,28 @@ CompileState::CompileState(Engine* eng)
     trystate.inCatch = false;
     trystate.inTry = false;
     trystate.catchVarOffset = (u2)(-1);
+    nodes.SetCapacity(128);
+    instructions.SetCapacity(128);
 }
 
 CompileState::~CompileState()
 {
-    TreeNode* t = nodes.first;
-    
-    while (t)
+    for (Buffer<TreeNode*>::Iterator iter = nodes.Begin(); iter != nodes.End(); ++iter)
     {
-        TreeNode* next = t->astnext;
-        Pika_delete(t);
-        t = next;
+        TreeNode* i = *iter;
+        Pika_delete(i);
     }
+    
+    for (Buffer<Instr*>::Iterator iter = instructions.Begin(); iter != instructions.End(); ++iter)
+    {
+        Instr* i = *iter;
+        Pika_delete(i);
+    }
+}
+
+void CompileState::AddNode(TreeNode* n)
+{
+    nodes.Push(n);
 }
 
 int CompileState::GetLocalOffset() const
@@ -154,6 +159,13 @@ int CompileState::NextLocalOffset(const char* name, ELocalVarType lvt)
 void CompileState::SetLineInfo(u2 line)
 {
     currentLine = line;
+}
+
+Instr* CompileState::CreateOp(Opcode oc)
+{
+    Instr* r = Instr::Create(oc);
+    instructions.Push(r);
+    return r;
 }
 
 bool CompileState::UpdateLineInfo(int line)

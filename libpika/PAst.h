@@ -16,7 +16,7 @@ do {                                     \
     if (__v)                             \
     {                                    \
         p = new (__v) T args;            \
-        state->nodes += p;               \
+        state->AddNode(p);               \
     }                                    \
     else                                 \
     {                                    \
@@ -99,8 +99,6 @@ struct          ArrayExpr;
 struct      FieldList;
 struct      ExprList;
 
-
-
 /** Programmer specified storage modifier. */
 enum StorageKind
 {
@@ -108,20 +106,6 @@ enum StorageKind
     STO_local,  //!< Local variable.
     STO_global, //!< Global variable.
     STO_member, //!< Object member variable.
-};
-
-/** Linked list of TreeNodes */
-class TreeNodeList
-{
-public:
-    TreeNodeList()
-            : first(0),
-            last(&first) {}
-            
-    void operator+=(TreeNode* t);
-    
-    TreeNode* first;
-    TreeNode** last;
 };
 
 /** Shared state for used by the Tokenizer, Parser and AST. Keeps track of locals, 
@@ -222,13 +206,17 @@ struct CompileState
     
     void SetParser(Parser* p) { parser = p; }
     
+    void AddNode(TreeNode*);
+    Instr* CreateOp(Opcode oc);
+    
     struct TryState
     {
         bool inTry;
         bool inCatch;               //!< Are we in a catch block.
         u2   catchVarOffset;        //!< Location of the caught exception (used to re-raise a caught exception).
     }               trystate;    
-    TreeNodeList    nodes;          //!< All the nodes we know about.
+    Buffer<TreeNode*> nodes;          //!< All the nodes we know about.
+    Buffer<Instr*>  instructions;
     LiteralPool*    literals;       //!< Literals used in this program. Shared by all child functions.
     Table           literalLookup;
     Engine*         engine;
@@ -246,7 +234,7 @@ struct CompileState
 /** Base class for all AST tree nodes. */
 struct TreeNode
 {
-    TreeNode(CompileState* s) : state(s), line(0), astnext(0) {}
+    TreeNode(CompileState* s) : state(s), line(0) {}
     
     virtual ~TreeNode() {}
     
@@ -255,7 +243,6 @@ struct TreeNode
     
     CompileState* state;    //!< Our CompileState
     int           line;     //!< Line number in the source script.
-    TreeNode*     astnext;  //!< Next node in the linked list.
 };
 
 

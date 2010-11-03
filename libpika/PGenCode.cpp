@@ -42,12 +42,13 @@ INLINE const char* GetSourceOf(CompileState* cs)
   * continues that jump out of the block and inserts an opcode that will handle 
   * the cleanup.
   *
+  *  @param state           The CompileState
   *  @param start           First instruction of the block.
   *  @param end             Last instruction of the block.
   *  @param breakcode       The Opcode to use to break out of the block.
   *  @param handleReturns   True if returns should be handled.
   */
-void HandleBlockBreaks(Instr*  start, Instr*  end, Opcode  breakcode, bool handleReturns = true)
+void HandleBlockBreaks(CompileState* state, Instr*  start, Instr*  end, Opcode  breakcode, bool handleReturns = true)
 {
     // handle jumps out of the try block
     
@@ -74,7 +75,7 @@ void HandleBlockBreaks(Instr*  start, Instr*  end, Opcode  breakcode, bool handl
         
         if (insert_here)
         {
-            Instr* ipoptryBeforeJmp = Instr::Create(breakcode);
+            Instr* ipoptryBeforeJmp = state->CreateOp(breakcode);
             Instr* iprev = curr->prev;
             
             curr->prev = ipoptryBeforeJmp;
@@ -99,7 +100,7 @@ void CompileFunction(int line, CompileState* state, Stmt* body, Def* def)
         Def* old = state->currDef;
         
         // Generate code for function body.
-        Instr* iretnull = Instr::Create(OP_retacc);
+        Instr* iretnull = state->CreateOp(OP_retacc);
         PIKA_BLOCKSTART(state, iretnull);
         
         ibody = body->GenerateCode();
@@ -153,15 +154,15 @@ void CompileFunction(int line, CompileState* state, Stmt* body, Def* def)
         
         // Cleanup.
         
-        Pika_delete(ibody);
+        //Pika_delete(ibody);
         ibody = 0;
         state->currDef = old;
     }
     catch(...) 
     {
         // Cleanup in case of exception.
-        if (ibody)
-            Pika_delete(ibody);
+       // if (ibody)
+         //   Pika_delete(ibody);
         ibody = 0;
         throw; // re-throw the exception.
     }
@@ -171,7 +172,7 @@ void CompileFunction(int line, CompileState* state, Stmt* body, Def* def)
  * certain boolean value. This is used for both the "and" and "or" boolean
  * operators.
  */
-Instr* GenerateShortCircuitOp(Expr* exprA, Expr* exprB, bool isand)
+Instr* GenerateShortCircuitOp(CompileState* state, Expr* exprA, Expr* exprB, bool isand)
 {
     if (exprA->kind == Expr::EXPR_load)
     {
@@ -184,10 +185,10 @@ Instr* GenerateShortCircuitOp(Expr* exprA, Expr* exprB, bool isand)
     }
     Instr* ia    = exprA->GenerateCode();
     Instr* ib    = exprB->GenerateCode();
-    Instr* idup  = Instr::Create(OP_dup);
-    Instr* icond = Instr::Create(isand ? OP_jumpiffalse : OP_jumpiftrue);
-    Instr* itgt  = Instr::Create(JMP_TARGET);
-    Instr* ipop  = Instr::Create(OP_pop);
+    Instr* idup  = state->CreateOp(OP_dup);
+    Instr* icond = state->CreateOp(isand ? OP_jumpiffalse : OP_jumpiftrue);
+    Instr* itgt  = state->CreateOp(JMP_TARGET);
+    Instr* ipop  = state->CreateOp(OP_pop);
     
     ia->
     Attach(idup)->
@@ -201,7 +202,7 @@ Instr* GenerateShortCircuitOp(Expr* exprA, Expr* exprB, bool isand)
     return ia;
 }
 
-void FinallyBlockBreaks(Instr* start, Instr* end, Instr* target)
+void FinallyBlockBreaks(CompileState* state, Instr* start, Instr* end, Instr* target)
 {
     for (Instr* curr = start; curr && (curr != end); curr = curr->next)
     {
@@ -215,8 +216,8 @@ void FinallyBlockBreaks(Instr* start, Instr* end, Instr* target)
         case BREAK_LOOP:
         case CONTINUE_LOOP:
         {
-            Instr* icallfinally = Instr::Create(OP_callfinally);
-            Instr* ipopfinally  = Instr::Create(OP_pophandler);
+            Instr* icallfinally = state->CreateOp(OP_callfinally);
+            Instr* ipopfinally  = state->CreateOp(OP_pophandler);
             
             icallfinally->next = ipopfinally;
             ipopfinally->prev  = icallfinally;
@@ -299,7 +300,7 @@ Instr* TreeNode::GenerateCode()
 
 Instr* EmptyStmt::DoStmtCodeGen()
 {
-    Instr* inop = Instr::Create(OP_nop);
+    Instr* inop = state->CreateOp(OP_nop);
     return inop;
 }
 
@@ -329,7 +330,7 @@ Instr* AnnotationDecl::GenerateCodeWith(Instr* subj)
 {
     Instr* iname = name->GenerateCode();    
     Instr* iargs = next ? next->GenerateCodeWith(subj) : subj;
-    Instr* iself = Instr::Create(OP_pushnull);
+    Instr* iself = state->CreateOp(OP_pushnull);
     // TODO: Check argc and keyword argc < MAX_ARG_COUNT
     
     // Start at 1 since we *always* have 1 extra argument, either the next annotation or the declaration.
@@ -348,7 +349,7 @@ Instr* AnnotationDecl::GenerateCodeWith(Instr* subj)
         curr_arg = curr_arg->next;
     }
     
-    Instr* icall = Instr::Create(OP_call);
+    Instr* icall = state->CreateOp(OP_call);
     icall->operand   = argc;
     icall->operandu1 = static_cast<u1>(kwargc);
     icall->operandu2 = 1;
@@ -396,10 +397,10 @@ Instr* FunctionDecl::GenerateFunctionCode()
     }
     
     // push the function
-    Instr* ifun = Instr::Create(OP_pushliteral);
+    Instr* ifun = state->CreateOp(OP_pushliteral);
     ifun->operand = index;
     
-    iinst = Instr::Create(OP_method);
+    iinst = state->CreateOp(OP_method);
     iinst->operand = numdefs;
     
     // Generate the self object if its a dot expr
@@ -408,7 +409,7 @@ Instr* FunctionDecl::GenerateFunctionCode()
     if (isdotexpr)
     {
         Instr* iprep = name->dotexpr->left->GenerateCode(); // self
-        Instr* idup = Instr::Create(OP_dup);
+        Instr* idup = state->CreateOp(OP_dup);
         iprep->Attach(idup);
         iprep->Attach(ifun);
         
@@ -416,7 +417,7 @@ Instr* FunctionDecl::GenerateFunctionCode()
     }
     else
     {
-        Instr* ipushnull = Instr::Create(OP_pushnull);
+        Instr* ipushnull = state->CreateOp(OP_pushnull);
         
         ipushnull->Attach(ifun);
         ifun = ipushnull;
@@ -455,7 +456,7 @@ Instr* FunctionDecl::GenerateFunctionCode()
         else
         {
             // rethrow
-            Pika_delete(ifun);
+            //Pika_delete(ifun);
             throw;
         }
     }
@@ -465,7 +466,7 @@ Instr* FunctionDecl::GenerateFunctionCode()
 
 Instr* VarDecl::GenerateCode()
 {
-    return Instr::Create(OP_nop);
+    return state->CreateOp(OP_nop);
 }
 
 Instr* LocalDecl::GenerateCode()
@@ -474,14 +475,14 @@ Instr* LocalDecl::GenerateCode()
     
     if (!newLocal)
     {
-        irep = Instr::Create(OP_nop);
+        irep = state->CreateOp(OP_nop);
     }
     else
     {
         ASSERT(!symbol->isGlobal && !symbol->isWith);
         
-        Instr* ipushnull = Instr::Create(OP_pushnull);
-        Instr* iset      = Instr::Create(OP_setlocal);
+        Instr* ipushnull = state->CreateOp(OP_pushnull);
+        Instr* iset      = state->CreateOp(OP_setlocal);
         
         iset->operand   = symbol->offset;
         iset->operandu1 = 1;
@@ -515,19 +516,19 @@ Instr* CallExpr::GenerateCodeWith(Instr* hijack)
 {
     Expr::Kind k = left->kind;
     Instr* ilvalue = 0;
-    Instr* iargs = Instr::Create(OP_nop);
+    Instr* iargs = state->CreateOp(OP_nop);
     
     if (!hijack && k == Expr::EXPR_dot)
     {
         DotExpr* de = static_cast<DotExpr*>(left);
-        Instr* idup = Instr::Create(OP_dup); // duplicate 'self'
-        Instr* idotget = Instr::Create(de->GetOpcode());
+        Instr* idup = state->CreateOp(OP_dup); // duplicate 'self'
+        Instr* idotget = state->CreateOp(de->GetOpcode());
         Instr* dotleft = de->left->GenerateCode();
         Instr* dotright = de->right->GenerateCode();
         
         if (redirectedcall)
         {
-            Instr* ipushthis = Instr::Create(OP_pushself);
+            Instr* ipushthis = state->CreateOp(OP_pushself);
             ipushthis->
             Attach(dotleft)->
             Attach(dotright)->
@@ -548,7 +549,7 @@ Instr* CallExpr::GenerateCodeWith(Instr* hijack)
     else
     {
         ilvalue = left->GenerateCode();
-        Instr* ipushthis = hijack ? hijack : Instr::Create(redirectedcall ? OP_pushself : OP_pushnull);        
+        Instr* ipushthis = hijack ? hijack : state->CreateOp(redirectedcall ? OP_pushself : OP_pushnull);        
         ipushthis->Attach(ilvalue);
         ilvalue = ipushthis;
     }
@@ -593,7 +594,7 @@ Instr* CallExpr::GenerateCodeWith(Instr* hijack)
         }
         
         if (curr && curr->expr->kind == Expr::EXPR_apply_kw) {
-            Instr* ipushnull = Instr::Create(has_va ? OP_nop : OP_pushnull);
+            Instr* ipushnull = state->CreateOp(has_va ? OP_nop : OP_pushnull);
             Instr* iapply = curr->expr->GenerateCode();
             iargs->
             Attach(ipushnull)->
@@ -601,14 +602,14 @@ Instr* CallExpr::GenerateCodeWith(Instr* hijack)
             ;
             curr = curr->next;
         } else {
-            Instr* ipushnull = Instr::Create(OP_pushnull);
+            Instr* ipushnull = state->CreateOp(OP_pushnull);
             iargs->Attach(ipushnull);
         }
         
         ASSERT(!curr);
     }
     
-    Instr* icall = Instr::Create(is_apply ? OP_apply : OP_call);
+    Instr* icall = state->CreateOp(is_apply ? OP_apply : OP_call);
     icall->operand   = argc;
     icall->operandu1 = static_cast<u1>(kwargc);
     icall->operandu2 = retc ? retc : 1;
@@ -627,16 +628,16 @@ Instr* BinaryExpr::GenerateCode()
 {
     if (kind == EXPR_and)
     {
-        return GenerateShortCircuitOp(left, right, true);
+        return GenerateShortCircuitOp(state, left, right, true);
     }
     else if (kind == EXPR_or)
     {
-        return GenerateShortCircuitOp(left, right, false);
+        return GenerateShortCircuitOp(state, left, right, false);
     }
     else
     {
         Opcode op = GetOpcode();
-        Instr* iop = Instr::Create(op);
+        Instr* iop = state->CreateOp(op);
         Instr* ileft = left->GenerateCode();
         Instr* iright = right->GenerateCode();
         
@@ -651,14 +652,14 @@ Instr* UnaryExpr::GenerateCode()
 {
     Opcode op    = GetOpcode();
     Instr* iexpr = expr->GenerateCode();
-    Instr* iop   = Instr::Create(op);
+    Instr* iop   = state->CreateOp(op);
     
     if (kind == EXPR_preincr || kind == EXPR_postincr || 
         kind == EXPR_predecr || kind == EXPR_postdecr)
     {
         Expr::Kind k = expr->kind;
         Expr* exprres = expr;
-        Instr* idup = Instr::Create(OP_dup);
+        Instr* idup = state->CreateOp(OP_dup);
         
         if (kind == EXPR_preincr || kind == EXPR_predecr)
         {
@@ -741,7 +742,7 @@ Instr* IdExpr::GenerateCode()
         oc = OP_pushglobal;
     }
     
-    irep = Instr::Create(oc);
+    irep = state->CreateOp(oc);
     irep->operand = index;
     irep->operandu1 = depthindex;
     return irep;
@@ -803,7 +804,7 @@ Instr* IdExpr::GenerateCodeSet()
 
 Instr* ConstantExpr::GenerateCode()
 {
-    Instr* iloadc = Instr::Create(OP_pushliteral);
+    Instr* iloadc = state->CreateOp(OP_pushliteral);
     
     if (index < PIKA_NUM_SPECIALIZED_OPCODES)
     {
@@ -835,15 +836,15 @@ Instr* TryStmt::DoStmtCodeGen()
      *  |   [ else block  ? ]
      *  '-> [ JMP_TARGET    ]  
      */
-    Instr* ipushtry   = Instr::Create(OP_pushtry);
-    Instr* ipoptry    = Instr::Create(OP_pophandler);
-    Instr* ifinishtry = Instr::Create(OP_jump);
-    Instr* ijmptarget = Instr::Create(JMP_TARGET);
-    Instr* ijmptarget2 = Instr::Create(JMP_TARGET);
+    Instr* ipushtry   = state->CreateOp(OP_pushtry);
+    Instr* ipoptry    = state->CreateOp(OP_pophandler);
+    Instr* ifinishtry = state->CreateOp(OP_jump);
+    Instr* ijmptarget = state->CreateOp(JMP_TARGET);
+    Instr* ijmptarget2 = state->CreateOp(JMP_TARGET);
     PIKA_BLOCKSTART(state, ifinishtry);
     Instr* itry = tryBlock->GenerateCode();
     PIKA_BLOCKEND(state);
-    Instr* ielse = elseblock ? elseblock->GenerateCode() : Instr::Create(OP_nop);
+    Instr* ielse = elseblock ? elseblock->GenerateCode() : state->CreateOp(OP_nop);
     ipushtry->
     Attach(itry)->
     Attach(ipoptry)->
@@ -867,19 +868,19 @@ Instr* TryStmt::DoStmtCodeGen()
         CatchIsBlock* curr = catchis;
         while (curr)
         {
-            Instr* icatchtarget = Instr::Create(JMP_TARGET);
+            Instr* icatchtarget = state->CreateOp(JMP_TARGET);
             PIKA_BLOCKSTART(state, icatchtarget);
             
-            Instr* idup        = Instr::Create(OP_dup);
-            Instr* ijump       = Instr::Create(OP_jump);
-            Instr* ijumpf      = Instr::Create(OP_jumpiffalse);
-            Instr* iopis       = Instr::Create(OP_is);
+            Instr* idup        = state->CreateOp(OP_dup);
+            Instr* ijump       = state->CreateOp(OP_jump);
+            Instr* ijumpf      = state->CreateOp(OP_jumpiffalse);
+            Instr* iopis       = state->CreateOp(OP_is);
             Instr* icatch      = curr->block->GenerateCode();
             Instr* iis         = curr->isexpr->GenerateCode();
-            Instr* iassign     = Instr::Create(OP_setlocal); // set catch var
+            Instr* iassign     = state->CreateOp(OP_setlocal); // set catch var
             iassign->operandu1 = 1;
             iassign->target    = ijmptarget;
-            Instr* ireraise    = (curr->next) ? Instr::Create(OP_nop) : Instr::Create(OP_raise);
+            Instr* ireraise    = (curr->next) ? state->CreateOp(OP_nop) : state->CreateOp(OP_raise);
             
             PIKA_BLOCKEND(state);
             
@@ -915,7 +916,7 @@ Instr* TryStmt::DoStmtCodeGen()
             
             curr = curr->next;
             
-            HandleBlockBreaks(idup, ijump, OP_pop);
+            HandleBlockBreaks(state, idup, ijump, OP_pop);
         }
     }
     
@@ -927,7 +928,7 @@ Instr* TryStmt::DoStmtCodeGen()
         Instr* icatch = catchBlock->GenerateCode();
         
         // Set the catch variable.
-        Instr* iassign     = Instr::Create(OP_setlocal);
+        Instr* iassign     = state->CreateOp(OP_setlocal);
         iassign->operandu1 = 1;          // Tell the compiler that we know our range.
         iassign->target    = ijmptarget; // Set the last instruction of the block.
         
@@ -952,7 +953,7 @@ Instr* TryStmt::DoStmtCodeGen()
         ipushtry->Attach(ijmptarget2)->Attach( ijmptarget );
     }
     
-    HandleBlockBreaks(ipushtry, ipoptry, OP_pophandler);
+    HandleBlockBreaks(state, ipushtry, ipoptry, OP_pophandler);
     
     return ipushtry;
 }
@@ -960,12 +961,12 @@ Instr* TryStmt::DoStmtCodeGen()
 Instr* RaiseStmt::DoStmtCodeGen()
 {
     Instr* iexpr  = 0;
-    Instr* ithrow = Instr::Create(OP_raise);
+    Instr* ithrow = state->CreateOp(OP_raise);
     
     if (!expr)
     {
         // no expression given so we reraise the current exception.
-        iexpr = Instr::Create(OP_pushlocal);
+        iexpr = state->CreateOp(OP_pushlocal);
         iexpr->operand = reraiseOffset;
     }
     else
@@ -1018,7 +1019,7 @@ Instr* CtrlStmt::DoStmtCodeGen()
 {
     if (!exprs || count == 0)
     {
-        Instr* iretnull = Instr::Create(GetNullOp());
+        Instr* iretnull = state->CreateOp(GetNullOp());
         return iretnull;
     }
     
@@ -1047,13 +1048,13 @@ Instr* CtrlStmt::DoStmtCodeGen()
                 return iexpr;
         }
         
-        Instr* iret  = Instr::Create(GetOneOp());
+        Instr* iret  = state->CreateOp(GetOneOp());
         iexpr->Attach(iret);
         return iexpr;
     }
     else
     {
-        Instr* iret  = Instr::Create(GetVarOp());
+        Instr* iret  = state->CreateOp(GetVarOp());
         iret->operand = count;
         iexpr->Attach(iret);
         return iexpr;
@@ -1071,7 +1072,7 @@ Instr* ExprStmt::DoStmtCodeGen()
         Instr* iexpr = expr->GenerateCode();
         if (autopop)
         {
-            Instr* ipop  = Instr::Create(OP_acc);
+            Instr* ipop  = state->CreateOp(OP_acc);
             iexpr->Attach(ipop);
         }
         if (ifirst)
@@ -1094,7 +1095,7 @@ Instr* DeclStmt::DoStmtCodeGen()
 
 Instr* BlockStmt::DoStmtCodeGen()
 {
-    Instr* iend = Instr::Create(JMP_TARGET);
+    Instr* iend = state->CreateOp(JMP_TARGET);
     
     PIKA_BLOCKSTART(state, iend);
     
@@ -1109,9 +1110,9 @@ Instr* BlockStmt::DoStmtCodeGen()
 Instr* IfStmt::DoStmtCodeGen()
 {
     Instr* icond      = cond->GenerateCode();
-    Instr* ijmpFalse  = (is_unless) ? Instr::Create(OP_jumpiftrue) : Instr::Create(OP_jumpiffalse) ;
+    Instr* ijmpFalse  = (is_unless) ? state->CreateOp(OP_jumpiftrue) : state->CreateOp(OP_jumpiffalse) ;
     Instr* ithen      = then_part->GenerateCode();
-    Instr* ijmpTarget = Instr::Create(JMP_TARGET);
+    Instr* ijmpTarget = state->CreateOp(JMP_TARGET);
     
     icond->Attach(ijmpFalse);
     ijmpFalse->Attach(ithen);
@@ -1125,8 +1126,8 @@ Instr* IfStmt::DoStmtCodeGen()
 Instr* LoopStmt::DoStmtCodeGen()
 {
     Instr* ibody      = body->GenerateCode();
-    Instr* ijmpTarget = Instr::Create(JMP_TARGET);
-    Instr* ijmpBack   = Instr::Create(OP_jump);
+    Instr* ijmpTarget = state->CreateOp(JMP_TARGET);
+    Instr* ijmpBack   = state->CreateOp(OP_jump);
     
     ibody->
     Attach(ijmpBack)->
@@ -1141,23 +1142,23 @@ Instr* LoopStmt::DoStmtCodeGen()
 
 Instr* ForToStmt::DoStmtCodeGen()
 {
-    Instr* ijmpTarget = Instr::Create(JMP_TARGET);
+    Instr* ijmpTarget = state->CreateOp(JMP_TARGET);
     PIKA_BLOCKSTART(state, ijmpTarget);
     
     Instr* ifrom      = from->GenerateCode();
     Instr* ito        = to->GenerateCode();
     Instr* istep      = step->GenerateCode();
-    Instr* iforto     = Instr::Create(OP_forto);
+    Instr* iforto     = state->CreateOp(OP_forto);
     Instr* ibody      = body->GenerateCode();
-    Instr* ijmp       = Instr::Create(OP_jump);
-    Instr* ijmpFalse  = Instr::Create(OP_jumpiffalse);
-    Instr* ipushlvar1 = Instr::Create(OP_pushlocal);
-    Instr* ipushlvar2 = Instr::Create(OP_pushlocal);
-    Instr* ipushto    = Instr::Create(OP_pushlocal);
-    Instr* ipushstep  = Instr::Create(OP_pushlocal);
-    Instr* iless      = Instr::Create(down ? OP_gt : OP_lt);
-    Instr* iadd       = Instr::Create(OP_add);
-    Instr* iset       = Instr::Create(OP_setlocal);
+    Instr* ijmp       = state->CreateOp(OP_jump);
+    Instr* ijmpFalse  = state->CreateOp(OP_jumpiffalse);
+    Instr* ipushlvar1 = state->CreateOp(OP_pushlocal);
+    Instr* ipushlvar2 = state->CreateOp(OP_pushlocal);
+    Instr* ipushto    = state->CreateOp(OP_pushlocal);
+    Instr* ipushstep  = state->CreateOp(OP_pushlocal);
+    Instr* iless      = state->CreateOp(down ? OP_gt : OP_lt);
+    Instr* iadd       = state->CreateOp(OP_add);
+    Instr* iset       = state->CreateOp(OP_setlocal);
     
     PIKA_BLOCKEND(state);
     
@@ -1201,18 +1202,18 @@ Instr* ForToStmt::DoStmtCodeGen()
 
 Instr* ForeachStmt::DoStmtCodeGen()
 {
-    Instr* ijmpTarget = Instr::Create(JMP_TARGET);
+    Instr* ijmpTarget = state->CreateOp(JMP_TARGET);
     PIKA_BLOCKSTART(state, ijmpTarget);
         
     Instr* iin       = in->GenerateCode();
     Instr* ibody     = body->GenerateCode();
     Instr* ikind     = type_expr->GenerateCode();
-    Instr* idotget   = Instr::Create(OP_foreach);
-    Instr* ijmpfalse = Instr::Create(OP_jumpiffalse);
-    Instr* ijmpback  = Instr::Create(OP_jump);
+    Instr* idotget   = state->CreateOp(OP_foreach);
+    Instr* ijmpfalse = state->CreateOp(OP_jumpiffalse);
+    Instr* ijmpback  = state->CreateOp(OP_jump);
     
-    Instr* iopiter   = Instr::Create(OP_itercall); // TODO
-    //Instr* isetlocal = Instr::Create(OP_setlocal);
+    Instr* iopiter   = state->CreateOp(OP_itercall); // TODO
+    //Instr* isetlocal = state->CreateOp(OP_setlocal);
     
     PIKA_BLOCKEND(state);
     
@@ -1243,9 +1244,9 @@ Instr* CondLoopStmt::DoStmtCodeGen()
 {
     Instr* icond    = cond->GenerateCode();
     Instr* ibody    = body->GenerateCode();
-    Instr* ijmpCond = (until) ? Instr::Create(OP_jumpiftrue) : Instr::Create(OP_jumpiffalse);
-    Instr* itarget  = Instr::Create(JMP_TARGET);
-    Instr* ijmpBack = Instr::Create(OP_jump);
+    Instr* ijmpCond = (until) ? state->CreateOp(OP_jumpiftrue) : state->CreateOp(OP_jumpiffalse);
+    Instr* itarget  = state->CreateOp(JMP_TARGET);
+    Instr* ijmpBack = state->CreateOp(OP_jump);
     
     if (repeat)
     {
@@ -1295,7 +1296,7 @@ Instr* ConditionalStmt::DoStmtCodeGen()
 {
     bool bElse = elsePart != 0;
     
-    Instr*  itarget  = Instr::Create(JMP_TARGET);
+    Instr*  itarget  = state->CreateOp(JMP_TARGET);
     Instr*  istart   = 0;
     IfStmt* currIf   = ifPart;
     Instr*  iprev    = 0;
@@ -1306,9 +1307,9 @@ Instr* ConditionalStmt::DoStmtCodeGen()
         Instr* icond = currIf->cond->GenerateCode();
         icond->line = currIf->cond->line;
         
-        Instr* ijmpfalse = (currIf->is_unless) ? Instr::Create(OP_jumpiftrue) : Instr::Create(OP_jumpiffalse) ;
+        Instr* ijmpfalse = (currIf->is_unless) ? state->CreateOp(OP_jumpiftrue) : state->CreateOp(OP_jumpiffalse) ;
         Instr* ithen     = currIf->then_part->GenerateCode();
-        Instr* ijmp      = (bElse || currIf->next) ? Instr::Create(OP_jump) : 0;
+        Instr* ijmp      = (bElse || currIf->next) ? state->CreateOp(OP_jump) : 0;
         
         if (iprev)
         {
@@ -1364,15 +1365,15 @@ Instr* LoadExpr::GenerateCode()
 {
     switch (loadkind)
     {
-    case LK_super:      return Instr::Create(OP_super);
-    case LK_self:       return Instr::Create(OP_pushself);
-    case LK_null:       return Instr::Create(OP_pushnull);
-    case LK_true:       return Instr::Create(OP_pushtrue);
-    case LK_false:      return Instr::Create(OP_pushfalse);
-    case LK_locals:     return Instr::Create(OP_locals);
+    case LK_super:      return state->CreateOp(OP_super);
+    case LK_self:       return state->CreateOp(OP_pushself);
+    case LK_null:       return state->CreateOp(OP_pushnull);
+    case LK_true:       return state->CreateOp(OP_pushtrue);
+    case LK_false:      return state->CreateOp(OP_pushfalse);
+    case LK_locals:     return state->CreateOp(OP_locals);
 
     }
-    return Instr::Create(OP_nop);
+    return state->CreateOp(OP_nop);
 }
 
 Instr* DotExpr::GenerateCode()
@@ -1384,13 +1385,13 @@ Instr* DotExpr::GenerateCode()
         // a OP_pushself and OP_pushliteral
         
         MemberExpr* m = (MemberExpr*)right;
-        Instr* igetmember = Instr::Create(OP_pushmember);
+        Instr* igetmember = state->CreateOp(OP_pushmember);
         igetmember->operand = m->index;
         return igetmember;
     }
     else
     {
-        Instr* iop    = Instr::Create(OP_dotget);
+        Instr* iop    = state->CreateOp(OP_dotget);
         Instr* ileft  = left->GenerateCode();
         Instr* iright = right->GenerateCode();
         
@@ -1411,13 +1412,13 @@ Instr* DotExpr::GenerateCodeSet()
         // a OP_pushself and OP_pushliteral
         
         MemberExpr* m = (MemberExpr*)right;
-        Instr* isetmember = Instr::Create(OP_setmember);
+        Instr* isetmember = state->CreateOp(OP_setmember);
         isetmember->operand = m->index;
         return isetmember;
     }
     else
     {
-        Instr* iop = Instr::Create(OP_dotset);
+        Instr* iop = state->CreateOp(OP_dotset);
         Instr* ileft = left->GenerateCode();
         Instr* iright = right->GenerateCode();
         
@@ -1430,7 +1431,7 @@ Instr* DotExpr::GenerateCodeSet()
 
 Instr* IndexExpr::GenerateCode()
 { 
-    Instr* iop    = Instr::Create(OP_subget);
+    Instr* iop    = state->CreateOp(OP_subget);
     Instr* ileft  = left->GenerateCode();
     Instr* iright = right->GenerateCode();
     
@@ -1443,7 +1444,7 @@ Instr* IndexExpr::GenerateCode()
 
 Instr* IndexExpr::GenerateCodeSet()
 { 
-        Instr* iop = Instr::Create(OP_subset);
+        Instr* iop = state->CreateOp(OP_subset);
         Instr* ileft = left->GenerateCode();
         Instr* iright = right->GenerateCode();
         
@@ -1455,12 +1456,12 @@ Instr* IndexExpr::GenerateCodeSet()
 
 Instr* DotBindExpr::GenerateCode()
 {
-    Instr* iop    = Instr::Create(GetOpcode()); // TODO: OP_subget
+    Instr* iop    = state->CreateOp(GetOpcode()); // TODO: OP_subget
     Instr* ileft  = left->GenerateCode();
-    Instr* idup   = Instr::Create(OP_dup);
+    Instr* idup   = state->CreateOp(OP_dup);
     Instr* iright = right->GenerateCode();
-    Instr* ibind  = Instr::Create(OP_bind);
-    Instr* iswap  = Instr::Create(OP_swap);
+    Instr* ibind  = state->CreateOp(OP_bind);
+    Instr* iswap  = state->CreateOp(OP_swap);
     
     ileft->
     Attach(idup)->
@@ -1474,12 +1475,12 @@ Instr* DotBindExpr::GenerateCode()
 
 Instr* DotBindExpr::GenerateCodeSet()
 {
-    Instr* iop    = Instr::Create(SetOpcode()); // TODO: OP_subset
+    Instr* iop    = state->CreateOp(SetOpcode()); // TODO: OP_subset
     Instr* ileft  = left->GenerateCode();
-    Instr* idup   = Instr::Create(OP_dup);
+    Instr* idup   = state->CreateOp(OP_dup);
     Instr* iright = right->GenerateCode();
-    Instr* ibind  = Instr::Create(OP_bind);
-    Instr* iswap  = Instr::Create(OP_swap);
+    Instr* ibind  = state->CreateOp(OP_bind);
+    Instr* iswap  = state->CreateOp(OP_swap);
     
     ileft->
     Attach(idup)->
@@ -1493,11 +1494,11 @@ Instr* DotBindExpr::GenerateCodeSet()
 
 Instr* PropExpr::GenerateCode()
 {
-    Instr* iprop = Instr::Create(OP_property);
+    Instr* iprop = state->CreateOp(OP_property);
     
-    Instr* iname   = (nameexpr) ? nameexpr->GenerateCode() : Instr::Create(OP_pushnull);
-    Instr* igetter = (getter)   ? getter->GenerateCode()   : Instr::Create(OP_pushnull);
-    Instr* isetter = (setter)   ? setter->GenerateCode()   : Instr::Create(OP_pushnull);
+    Instr* iname   = (nameexpr) ? nameexpr->GenerateCode() : state->CreateOp(OP_pushnull);
+    Instr* igetter = (getter)   ? getter->GenerateCode()   : state->CreateOp(OP_pushnull);
+    Instr* isetter = (setter)   ? setter->GenerateCode()   : state->CreateOp(OP_pushnull);
     
     iname->line   = (nameexpr) ? nameexpr->line : line;
     isetter->line = (setter)   ? setter->line    : line;
@@ -1519,7 +1520,7 @@ Instr* PropExpr::GenerateCode()
         // This ensures that LineInfo order is preserved, expressions are evaluated inorder and
         // OP_property recieves its name | getter | setter in the correct order.
         //
-        Instr* iswap = Instr::Create(OP_swap);
+        Instr* iswap = state->CreateOp(OP_swap);
         iname->Attach(isetter);
         isetter->Attach(igetter);
         igetter->Attach(iswap);
@@ -1546,7 +1547,7 @@ Instr* FunExpr::GenerateCode()
         arg = arg->next;
     }
     
-    Instr* iinst = Instr::Create(OP_method);
+    Instr* iinst = state->CreateOp(OP_method);
     iinst->operand = numdefs;
     
     if (idefs)
@@ -1557,7 +1558,7 @@ Instr* FunExpr::GenerateCode()
     
     Instr* ifun = ConstantExpr::GenerateCode(); // push the function
     ifun->Attach(iinst);
-    Instr* ipushnull = Instr::Create(OP_pushnull);
+    Instr* ipushnull = state->CreateOp(OP_pushnull);
     ipushnull->Attach(ifun);
     ifun = ipushnull;
     try
@@ -1579,7 +1580,7 @@ Instr* FunExpr::GenerateCode()
         }
         else
         {
-            Pika_delete(ifun);
+            //Pika_delete(ifun);
             throw;
         }
     }
@@ -1588,26 +1589,26 @@ Instr* FunExpr::GenerateCode()
 
 Instr* BreakStmt::DoStmtCodeGen()
 {
-    Instr* ir = Instr::Create(BREAK_LOOP);
+    Instr* ir = state->CreateOp(BREAK_LOOP);
     ir->symbol = label;
     return ir;
 }
 
 Instr* ContinueStmt::DoStmtCodeGen()
 {
-    Instr* ir = Instr::Create(CONTINUE_LOOP);
+    Instr* ir = state->CreateOp(CONTINUE_LOOP);
     ir->symbol = label;
     return ir;
 }
 
 Instr* DictionaryExpr::GenerateCode()
 {
-    Instr*     inewObj = Instr::Create(OP_objectliteral);
+    Instr*     inewObj = state->CreateOp(OP_objectliteral);
     FieldList* curr    = fields;
     Instr*     icurr   = 0;
     Instr*     ifirst  = 0;
     u2         count   = 0;
-    Instr*     itype   = type_expr ? type_expr->GenerateCode() : Instr::Create(OP_pushnull);
+    Instr*     itype   = type_expr ? type_expr->GenerateCode() : state->CreateOp(OP_pushnull);
     itype->Attach(inewObj);
     
     while (curr)
@@ -1618,7 +1619,7 @@ Instr* DictionaryExpr::GenerateCode()
             continue;
         }
         Instr* ival  = curr->value->GenerateCode();
-        Instr* iprop = (curr->name) ? curr->name->GenerateCode() : Instr::Create(OP_pushnull);
+        Instr* iprop = (curr->name) ? curr->name->GenerateCode() : state->CreateOp(OP_pushnull);
         
         ival->Attach(iprop);
         
@@ -1649,7 +1650,7 @@ Instr* DictionaryExpr::GenerateCode()
 Instr* ArrayExpr::GenerateCode()
 {
     Instr* ibeg      = 0;
-    Instr* inewArray = Instr::Create(OP_array);
+    Instr* inewArray = state->CreateOp(OP_array);
     ExprList*    curr      = elements;
     u2           count     = 0;
     
@@ -1700,9 +1701,9 @@ Instr* CondExpr::GenerateCode()
     Instr* icond      = cond->GenerateCode();
     Instr* ia         = exprA->GenerateCode();
     Instr* ib         = exprB->GenerateCode();
-    Instr* ijmpfalse  = Instr::Create(unless ? OP_jumpiftrue : OP_jumpiffalse);
-    Instr* ijmp       = Instr::Create(OP_jump);
-    Instr* ijmptarget = Instr::Create(JMP_TARGET);
+    Instr* ijmpfalse  = state->CreateOp(unless ? OP_jumpiftrue : OP_jumpiffalse);
+    Instr* ijmp       = state->CreateOp(OP_jump);
+    Instr* ijmptarget = state->CreateOp(JMP_TARGET);
     
     icond->
     Attach(ijmpfalse)->
@@ -1737,12 +1738,12 @@ Instr* NullSelectExpr::GenerateCode()
      */
     Instr* ia         = exprA->GenerateCode();
     Instr* ib         = exprB->GenerateCode();
-    Instr* idup       = Instr::Create(OP_dup);
-    Instr* ijmpfalse  = Instr::Create(OP_jumpiffalse);
-    Instr* ijmptarget = Instr::Create(JMP_TARGET);
-    Instr* ipop       = Instr::Create(OP_pop);
-    Instr* ipushnull  = Instr::Create(OP_pushnull);
-    Instr* ieq        = Instr::Create(OP_eq);
+    Instr* idup       = state->CreateOp(OP_dup);
+    Instr* ijmpfalse  = state->CreateOp(OP_jumpiffalse);
+    Instr* ijmptarget = state->CreateOp(JMP_TARGET);
+    Instr* ipop       = state->CreateOp(OP_pop);
+    Instr* ipushnull  = state->CreateOp(OP_pushnull);
+    Instr* ieq        = state->CreateOp(OP_eq);
     
     ia->
     Attach(idup)->
@@ -1776,10 +1777,10 @@ Instr* SliceExpr::GenerateCode()
     Instr* iexpr   = expr->GenerateCode();
     Instr* ifrom   = from->GenerateCode();
     Instr* ito     = to->GenerateCode();
-    Instr* icall   = Instr::Create(OP_call);
-    Instr* idup    = Instr::Create(OP_dup); // duplicate iexpr
+    Instr* icall   = state->CreateOp(OP_call);
+    Instr* idup    = state->CreateOp(OP_dup); // duplicate iexpr
     Instr* islice  = slicefun->GenerateCode();
-    Instr* idotget = Instr::Create(OP_dotget);
+    Instr* idotget = state->CreateOp(OP_dotget);
     
     ifrom->
     Attach(ito)->
@@ -1797,19 +1798,19 @@ Instr* DeclarationTarget::GenerateCodeSet()
 {
     if (with)
     {
-        Instr* isetMember = Instr::Create(OP_setmember); // member
+        Instr* isetMember = state->CreateOp(OP_setmember); // member
         isetMember->operand = nameindex;
         return isetMember;        
     }
     else if (symbol->isGlobal)
     {
-        Instr* isetGlobal = Instr::Create(OP_setglobal); // global
+        Instr* isetGlobal = state->CreateOp(OP_setglobal); // global
         isetGlobal->operand = nameindex;
         return isetGlobal;
     }
     else
     {
-        Instr* isetLocal = Instr::Create(OP_setlocal); // local
+        Instr* isetLocal = state->CreateOp(OP_setlocal); // local
         isetLocal->operand = symbol->offset;
         isetLocal->operandu1 = 1;
         isetLocal->target = state->endOfBlock;
@@ -1828,15 +1829,16 @@ Instr* NamedTarget::GenerateAnnotationCode(Instr* subj)
 Instr* NamedTarget::GenerateCodeWith(Instr* body)
 {
     Instr* get = name->GenerateCode();
-    Instr* enterWith = Instr::Create(OP_pushwith);
-    Instr* exitWith  = Instr::Create(OP_popwith);
+    Instr* enterWith = state->CreateOp(OP_pushwith);
+    Instr* exitWith  = state->CreateOp(OP_popwith);
     
     get->
     Attach(enterWith)->
     Attach(body)->
     Attach(exitWith);
     
-    HandleBlockBreaks(body,
+    HandleBlockBreaks(state,
+                      body,
                       exitWith,
                       OP_popwith,
                       true);
@@ -1845,11 +1847,11 @@ Instr* NamedTarget::GenerateCodeWith(Instr* body)
 
 Instr* PropertyDecl::GeneratePropertyCode()
 {
-    Instr* iprop = Instr::Create(OP_property);
+    Instr* iprop = state->CreateOp(OP_property);
     
-    Instr* iname   = (name_expr) ? name_expr->GenerateCode() : Instr::Create(OP_pushnull);
-    Instr* igetter = (getter)    ? getter->GenerateCode()    : Instr::Create(OP_pushnull);
-    Instr* isetter = (setter)    ? setter->GenerateCode()    : Instr::Create(OP_pushnull);
+    Instr* iname   = (name_expr) ? name_expr->GenerateCode() : state->CreateOp(OP_pushnull);
+    Instr* igetter = (getter)    ? getter->GenerateCode()    : state->CreateOp(OP_pushnull);
+    Instr* isetter = (setter)    ? setter->GenerateCode()    : state->CreateOp(OP_pushnull);
     
     iname->line   = (name_expr) ? name_expr->line : line;
     isetter->line = (setter)    ? setter->line    : line;
@@ -1872,7 +1874,7 @@ Instr* PropertyDecl::GeneratePropertyCode()
          * This ensures that LineInfo order is preserved, expressions are evaluated inorder and
          * OP_property recieves its name | getter | setter in the correct order.
          */
-        Instr* iswap = Instr::Create(OP_swap);
+        Instr* iswap = state->CreateOp(OP_swap);
         iname->
         Attach(isetter)->
         Attach(igetter)->
@@ -1896,7 +1898,7 @@ Instr* PropertyDecl::GenerateCode()
 
 Instr* AssignmentStmt::DoStmtCodeGen()
 {
-    Instr*    assgn = Instr::Create(OP_nop);
+    Instr*    assgn = state->CreateOp(OP_nop);
     ExprList* curr  = right;
     if (isUnpack && !isCall)
     {
@@ -1908,7 +1910,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
          * left hand operands.
          */
         Instr* iright    = right->expr->GenerateCode();
-        Instr* iunpack   = Instr::Create(OP_unpack);
+        Instr* iunpack   = state->CreateOp(OP_unpack);
         iunpack->operand = unpackCount;
         
         assgn->Attach(iright)->Attach(iunpack);
@@ -1926,7 +1928,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             {
                 Instr* irep  = curr->expr->GenerateCode();
                 Instr* ilrep = lcurr->expr->GenerateCode();
-                Instr* iop   = Instr::Create(oc);
+                Instr* iop   = state->CreateOp(oc);
                 
                 assgn->Attach(ilrep);
                 ilrep->Attach(irep);
@@ -1964,7 +1966,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             {
                 IdExpr* ide  = (IdExpr*)curr->expr;
                 Instr*  iget = ide->GenerateCode();
-                Instr*  iop  = Instr::Create(oc);
+                Instr*  iop  = state->CreateOp(oc);
                 Instr*  irep = ide->GenerateCodeSet();
                 
                 iget->
@@ -1978,7 +1980,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             {
                 DotExpr* ide  = (DotExpr*)curr->expr;
                 Instr*   iget = ide->GenerateCode();
-                Instr*   iop  = Instr::Create(oc);
+                Instr*   iop  = state->CreateOp(oc);
                 Instr*   irep = ide->GenerateCodeSet();
                 
                 iget->Attach(iop)->Attach(irep);
@@ -1986,7 +1988,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             }
             else if (k == Expr::EXPR_load)
             {
-                Instr* ipop = Instr::Create(OP_pop);
+                Instr* ipop = state->CreateOp(OP_pop);
                 assgn->Attach(ipop);
             }
             else
@@ -2015,7 +2017,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             }
             else if (k == Expr::EXPR_load)
             {
-                Instr* ipop = Instr::Create(OP_pop);
+                Instr* ipop = state->CreateOp(OP_pop);
                 assgn->Attach(ipop);
             }
             else
@@ -2077,14 +2079,14 @@ Instr* FinallyStmt::DoStmtCodeGen()
      *      raise
      * finished:
      */
-    Instr* ibegin     = Instr::Create(OP_nop);
-    Instr* iblock     = block ? block->GenerateCode() : Instr::Create(OP_nop);
-    Instr* iretfinally = Instr::Create(OP_retfinally);
+    Instr* ibegin     = state->CreateOp(OP_nop);
+    Instr* iblock     = block ? block->GenerateCode() : state->CreateOp(OP_nop);
+    Instr* iretfinally = state->CreateOp(OP_retfinally);
     
     PIKA_BLOCKSTART(state, iretfinally);
     // START BLOCK----------------------------------------------------------------------------------
     
-    Instr* ifinalize_block = finalize_block ? finalize_block->GenerateCode() : Instr::Create(OP_nop);
+    Instr* ifinalize_block = finalize_block ? finalize_block->GenerateCode() : state->CreateOp(OP_nop);
     
     if (block->kind == Stmt::STMT_with)
     {
@@ -2092,7 +2094,7 @@ Instr* FinallyStmt::DoStmtCodeGen()
         ientry->Attach(ibegin);
         ibegin = ientry;
         
-        Instr* ipopwith = Instr::Create(OP_popwith);
+        Instr* ipopwith = state->CreateOp(OP_popwith);
         ipopwith->Attach(ifinalize_block);
         ifinalize_block = ipopwith;
     }
@@ -2100,13 +2102,13 @@ Instr* FinallyStmt::DoStmtCodeGen()
     // END BLOCK------------------------------------------------------------------------------------
     PIKA_BLOCKEND(state);
     
-    Instr* ipushfinally   = Instr::Create(OP_pushfinally);
-    Instr* ipopfinally    = Instr::Create(OP_pophandler);
-    Instr* icallfinally   = Instr::Create(OP_callfinally);
-    Instr* ijmptoend     = Instr::Create(OP_jump);
-    Instr* ifinished     = Instr::Create(JMP_TARGET);
-    Instr* invoke_finally = Instr::Create(OP_callfinally);
-    Instr* reraise       = Instr::Create(OP_raise);
+    Instr* ipushfinally   = state->CreateOp(OP_pushfinally);
+    Instr* ipopfinally    = state->CreateOp(OP_pophandler);
+    Instr* icallfinally   = state->CreateOp(OP_callfinally);
+    Instr* ijmptoend     = state->CreateOp(OP_jump);
+    Instr* ifinished     = state->CreateOp(JMP_TARGET);
+    Instr* invoke_finally = state->CreateOp(OP_callfinally);
+    Instr* reraise       = state->CreateOp(OP_raise);
     
     ibegin->
     Attach(ipushfinally)->
@@ -2125,7 +2127,8 @@ Instr* FinallyStmt::DoStmtCodeGen()
     icallfinally->SetTarget(ifinalize_block);
     ijmptoend->SetTarget(ifinished);
     
-    FinallyBlockBreaks(ibegin,          // Start of the block.
+    FinallyBlockBreaks(state,
+                       ibegin,          // Start of the block.
                        ifinalize_block,  // End of the block.
                        ifinalize_block); // Target for OP_callfinally, the beginning of the finally block.
 
@@ -2161,13 +2164,13 @@ INLINE VarDecl* ReverseDeclarations(VarDecl** l)
 
 Instr* VariableTarget::GenerateCode()
 {
-    Instr* assgn = Instr::Create(OP_nop);
+    Instr* assgn = state->CreateOp(OP_nop);
     ExprList* curr = exprs;
     
     if (isUnpack && !isCall)
     {
         Instr* iright = curr->expr->GenerateCode();
-        Instr* iunpack = Instr::Create(OP_unpack);
+        Instr* iunpack = state->CreateOp(OP_unpack);
         iunpack->operand = unpackCount;
         
         assgn->Attach(iright)->Attach(iunpack);
@@ -2203,7 +2206,7 @@ Instr* VariableTarget::GenerateCode()
 Instr* UsingStmt::DoHeader()
 {
     Instr* iwith = with->GenerateCode();
-    Instr* ipushwith = Instr::Create(OP_pushwith);
+    Instr* ipushwith = state->CreateOp(OP_pushwith);
     iwith->
     Attach(ipushwith);
     return iwith;
@@ -2214,7 +2217,7 @@ Instr* UsingStmt::DoStmtCodeGen()
     // A <using> statement is always wrapped inside of an finally block.
     // The finally-block will handle any cleanup required even from a return / break / or continue.
     
-    Instr* ipopwith = Instr::Create(OP_nop);
+    Instr* ipopwith = state->CreateOp(OP_nop);
     
     PIKA_BLOCKSTART(state, ipopwith);
     Instr* iblock = block->GenerateCode();
@@ -2223,7 +2226,7 @@ Instr* UsingStmt::DoStmtCodeGen()
     iblock->
     Attach(ipopwith);
     
-    /*HandleBlockBreaks(iblock,
+    /*HandleBlockBreaks(state,iblock,
                       ipopwith,
                       OP_popwith);*/                      
     return iblock;
@@ -2231,18 +2234,18 @@ Instr* UsingStmt::DoStmtCodeGen()
 
 Instr* PkgDecl::GenerateCode()
 {
-    Instr* insideof  = name->GetSelfExpr() ? name->GetSelfExpr()->GenerateCode() : Instr::Create(OP_pushnull);
+    Instr* insideof  = name->GetSelfExpr() ? name->GetSelfExpr()->GenerateCode() : state->CreateOp(OP_pushnull);
     Instr* ipkgname  = id->GenerateCode();
-    Instr* ipush_pkg = Instr::Create(OP_pushpkg);
-    Instr* inew_pkg  = Instr::Create(OP_newpkg);
-    Instr* ipop_pkg  = Instr::Create(OP_poppkg);
+    Instr* ipush_pkg = state->CreateOp(OP_pushpkg);
+    Instr* inew_pkg  = state->CreateOp(OP_newpkg);
+    Instr* ipop_pkg  = state->CreateOp(OP_poppkg);
     
     PIKA_BLOCKSTART(state, ipop_pkg);
     Instr* ibody = body->GenerateCode();
     PIKA_BLOCKEND(state);
     
     Instr* iassign = NamedTarget::GenerateCodeSet();
-    Instr* idup    = Instr::Create(OP_dup);
+    Instr* idup    = state->CreateOp(OP_dup);
     //Instr* annotations   = GenerateAnnotationCode();
     
     ipkgname         ->
@@ -2260,7 +2263,8 @@ Instr* PkgDecl::GenerateCode()
     Attach(ipop_pkg)    // exit package scope
     ;
     
-    HandleBlockBreaks(ibody,
+    HandleBlockBreaks(state,
+                      ibody,
                       ipop_pkg,
                       OP_poppkg,
                       true);
@@ -2302,13 +2306,13 @@ Instr* ClassDecl::GenerateCode()
 {
     Opcode const popcode = OP_poppkg;
     Opcode const pushcode = OP_pushpkg;
-    Instr* insideof  = name->GetSelfExpr() ? name->GetSelfExpr()->GenerateCode() : Instr::Create(OP_pushnull);
-    Instr* exitWith  = Instr::Create(popcode);
+    Instr* insideof  = name->GetSelfExpr() ? name->GetSelfExpr()->GenerateCode() : state->CreateOp(OP_pushnull);
+    Instr* exitWith  = state->CreateOp(popcode);
     Instr* typeName  = stringid->GenerateCode();
-    Instr* enterWith = Instr::Create(pushcode);
-    Instr* newType   = Instr::Create(OP_subclass);
-    Instr* superType = super ? super->GenerateCode() : Instr::Create(OP_pushnull);    
-    Instr* dup = Instr::Create(OP_dup);
+    Instr* enterWith = state->CreateOp(pushcode);
+    Instr* newType   = state->CreateOp(OP_subclass);
+    Instr* superType = super ? super->GenerateCode() : state->CreateOp(OP_pushnull);    
+    Instr* dup = state->CreateOp(OP_dup);
     
     PIKA_BLOCKSTART(state, exitWith);
     
@@ -2337,7 +2341,8 @@ Instr* ClassDecl::GenerateCode()
     Attach(exitWith);   // Exit the with block.
     
     // Handle any breaks out of the with block.
-    HandleBlockBreaks(doStmts,
+    HandleBlockBreaks(state,
+                      doStmts,
                       exitWith,
                       popcode,
                       false);

@@ -51,7 +51,7 @@ case op:                                                                        
                 }                                                                                    \
                                                                                                      \
                                                                                                      \
-                Pika_delete(prev);Pika_delete(curr);                                                 \
+                /*Pika_delete(prev);Pika_delete(curr);*/                                             \
                 curr = prevprev;                                                                     \
                                                                                                      \
             }                                                                                        \
@@ -145,7 +145,7 @@ void DoConstantFold(Instr* ir, LiteralPool* lp)
             }
 
             curr->Unattach();
-            Pika_delete(curr);
+            //Pika_delete(curr);
             curr = prev;
         }
         else if (curr->opcode == OP_neg && prevIsConst && !curr->label)
@@ -157,14 +157,14 @@ void DoConstantFold(Instr* ir, LiteralPool* lp)
             {
                 prev->operand = lp->Add(-res.val.integer);
                 curr->Unattach();
-                Pika_delete(curr);
+                //Pika_delete(curr);
                 curr = prev;
             }
             else if (res.tag == TAG_real)
             {
                 prev->operand = lp->Add(-res.val.real);
                 curr->Unattach();
-                Pika_delete(curr);
+                //Pika_delete(curr);
                 curr = prev;
             }
         }

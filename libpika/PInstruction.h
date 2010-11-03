@@ -26,7 +26,7 @@ struct Instr
             label(false),
             target(0) {}
             
-    ~Instr() { Pika_delete(next); }
+    ~Instr() {}
     
     // patches break and continue jump targets which are optional matched by the symbol
     // given.
