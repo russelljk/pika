@@ -141,18 +141,6 @@ void Generator::Yield(Context* ctx)
     
     if (ctx->env)
         ctx->env->Set(stack.GetAt(0), stack.GetSize());
-        
-    // Copy Exception Handlers
-    
-    size_t num_handlers = FindBaseHandler(ctx, scopeid);
-    if (num_handlers) {
-        size_t start_handler = ctx->handlers.GetSize() - num_handlers;
-        handlers.Resize(num_handlers);
-        Pika_memcpy( handlers.GetAt(0),
-                     ctx->handlers.GetAt(start_handler), 
-                     sizeof(ExceptionBlock) * num_handlers );
-        ctx->handlers.Pop(num_handlers);
-    }
     
     // Copy all scopes up to the current then pop'em off the context's scope-stack.
     // XXX: In the future make sure that the original stack is not destroyed since
@@ -162,6 +150,18 @@ void Generator::Yield(Context* ctx)
     size_t amt = scopeid - idx;
     scopes.Resize(amt);
     Pika_memcpy(scopes.GetAt(0), ctx->scopes.GetAt(idx + 1), amt * sizeof(ScopeInfo));
+    
+    // Copy Exception Handlers
+    
+    size_t num_handlers = FindBaseHandler(ctx, idx+1);
+    if (num_handlers) {
+        size_t start_handler = ctx->handlers.GetSize() - num_handlers;
+        handlers.Resize(num_handlers);
+        Pika_memcpy( handlers.GetAt(0),
+                     ctx->handlers.GetAt(start_handler), 
+                     sizeof(ExceptionBlock) * num_handlers );
+        ctx->handlers.Pop(num_handlers);
+    }
     
     // Now transition into the caller's sope.
     
@@ -214,7 +214,7 @@ void Generator::Resume(Context* ctx, u4 retc)
         ctx->handlers.Resize(j + handlers.GetSize());
         for (size_t i = 0; i < handlers.GetSize(); ++i, ++j)
         {
-            ASSERT(handlers[i].scope >= scopetop);
+            ASSERT(scopetop >= handlers[i].scope);
             // Find the scopeid relative to the scopesTop index at yield time.
             ptrdiff_t offset = handlers[i].scope - scopetop;
             handlers[i].scope = scopeid + offset;
@@ -249,7 +249,7 @@ size_t Generator::FindBaseHandler(Context* ctx, size_t scopeid)
     size_t curr = ctx->handlers.GetSize();
     size_t amt = 0;
     
-    while (curr > 0 && ctx->handlers[--curr].scope == scopeid)
+    while (curr > 0 && ctx->handlers[--curr].scope >= scopeid)
     {
         ++amt;
     }
