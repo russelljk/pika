@@ -265,6 +265,30 @@ void WarnNonLocalJumps(CompileState* state, Instr* start, Instr* end, int line)
     }
 }
 #endif
+
+void ErrorYieldInFinally(CompileState* state, Instr* start, Instr* end, int line)
+{
+    for (Instr* curr = start; curr && (curr != end); curr = curr->next)
+    {
+        Opcode oc = curr->opcode;
+        
+        if (curr->line > line)
+        {
+            line = curr->line;
+        }
+        switch (oc)
+        {
+        case OP_gennull:
+        case OP_gen:
+        case OP_genv:
+        {
+            state->SyntaxError(line, "Cannot yield inside a finally block.");
+        }
+        default: continue;
+        }
+    }
+}
+
 }// anonymous namespace
 
 Instr* TreeNode::GenerateCode()
@@ -2104,6 +2128,11 @@ Instr* FinallyStmt::DoStmtCodeGen()
     FinallyBlockBreaks(ibegin,          // Start of the block.
                        ifinalize_block,  // End of the block.
                        ifinalize_block); // Target for OP_callfinally, the beginning of the finally block.
+
+    ErrorYieldInFinally(state,
+                    ifinalize_block,
+                    iretfinally,
+                    line);
 #if defined(ENABLE_SYNTAX_WARNINGS)                      
     WarnNonLocalJumps(state,
                       ifinalize_block,
