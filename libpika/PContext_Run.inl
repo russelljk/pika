@@ -12,7 +12,7 @@
 
 #define PIKA_RET(V)                                                                 \
     --numcalls;                                                                     \
-    if (generator) generator->Return();                                             \
+                                                \
     if (closure == 0 || (pc == 0 && !closure->IsNative()))                          \
     {                                                                               \
         --numRuns;                                                                  \
@@ -590,6 +590,8 @@ void Context::Run()
             */
             PIKA_OPCODE(OP_ret)
             {
+                if (generator)
+                    generator->Return(); 
                 OpReturn(1);                
 #   ifndef PIKA_NO_HOOKS
                 /* Call the return Hook if its present. */
@@ -605,6 +607,8 @@ void Context::Run()
             PIKA_OPCODE(OP_retv)
             {
                 int retc = GetShortOperand(instr);
+                if (generator)
+                    generator->Return(); 
                 OpReturn(retc);
 #   ifndef PIKA_NO_HOOKS
                 /* Call the return Hook if its present. */
@@ -917,30 +921,7 @@ void Context::Run()
                         
             PIKA_OPCODE(OP_pushwith)
             {
-                // TODO: If OnUse raises an exception what about OnDispose.
-                
-                Value& v = Top();
-                PushWithScope();
-                self = v;                
-                Pop();
-                
-                if (v.tag >= TAG_basic)
-                {
-                    Value res(NULL_VALUE);
-                    if (v.val.basic->GetSlot(engine->OpUse_String, res))
-                    {
-                        Push(v);
-                        Push(res);
-                        
-                        if (SetupCall(0))
-                        {
-                            Run();
-                        }
-                        Value& res = PopTop(); // result & exitwith string
-                        if (!res.IsNull())
-                            self = res;
-                    }
-                }
+                OpUsing();
             }
             PIKA_NEXT()
             

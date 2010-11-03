@@ -56,6 +56,8 @@ public:
 protected:
     size_t FindLastCallScope(Context*, ScopeIter);
     size_t FindBaseHandler(Context* ctx, size_t scopeid);
+    
+    size_t         scopetop;
     GenState       state;
     Function*      function;
     ExceptionStack handlers;

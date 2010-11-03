@@ -62,6 +62,7 @@ PIKA_IMPL(Generator)
 
 Generator::Generator(Engine* eng, Type* typ, Function* fn) : 
     ThisSuper(eng, typ),
+    scopetop(0),
     state(GS_clean),
     function(fn)
 {}
@@ -129,7 +130,7 @@ void Generator::Yield(Context* ctx)
     // The scope id is needed for exception handlers.
     
     size_t const scopeid = ctx->scopes.IndexOf(callscope);
-    
+    scopetop = scopeid;
     // Copy stack
     
     size_t const stack_size = callscope->stackTop - callscope->stackBase - 1;
@@ -213,7 +214,10 @@ void Generator::Resume(Context* ctx, u4 retc)
         ctx->handlers.Resize(j + handlers.GetSize());
         for (size_t i = 0; i < handlers.GetSize(); ++i, ++j)
         {
-            handlers[i].scope = scopeid;
+            ASSERT(handlers[i].scope >= scopetop);
+            // Find the scopeid relative to the scopesTop index at yield time.
+            ptrdiff_t offset = handlers[i].scope - scopetop;
+            handlers[i].scope = scopeid + offset;
             ctx->handlers[j] = handlers[i];
         }
     }

@@ -231,6 +231,7 @@ protected:
     void    OpBitBinary  (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpCompBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpArithUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
+    void    OpUsing();
  public:   
     /** Finds the super method of the method currently being executed.
       * @note Result is returned on the stack.

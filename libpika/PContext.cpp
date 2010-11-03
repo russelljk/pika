@@ -1263,7 +1263,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         
         // Initialize all local (non-parameter) variables to null.
         for (Value* p = newsp; p < sp; ++p) { p->SetNull(); }
-
+        generator = 0;
         kwargs    = dict;
         bsp       = argv;
         self      = selfVar;
@@ -1345,9 +1345,11 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             }
 #endif
             if (def->isGenerator) {
+                Generator* old_gen = generator;
                 generator = Generator::Create(engine, engine->Generator_Type, closure);
                 Push(generator);
                 OpYield(1);
+                generator = old_gen;
                 return false;
             } else {
                 return true;
@@ -1575,7 +1577,33 @@ void Context::OpSuper()
         ReportRuntimeError(Exception::ERROR_type, "could not find super of %s \"%s\".", type, methname ? methname->GetBuffer() : 0);
     }
 }
-
+void Context::OpUsing()
+{
+    // TODO: If OnUse raises an exception what about OnDispose.
+    
+    Value& v = Top();
+    PushWithScope();
+    self = v;                
+    Pop();
+    
+    if (v.tag >= TAG_basic)
+    {
+        Value res(NULL_VALUE);
+        if (v.val.basic->GetSlot(engine->OpUse_String, res))
+        {
+            Push(v);
+            Push(res);
+            
+            if (SetupCall(0))
+            {
+                Run();
+            }
+            Value& res = PopTop(); // result & exitwith string
+            if (!res.IsNull())
+                self = res;
+        }
+    }
+}
 void Context::Activate()   { engine->ChangeContext(this); }
 
 void Context::Deactivate() { engine->ChangeContext(0); }
