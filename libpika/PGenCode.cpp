@@ -1826,25 +1826,6 @@ Instr* NamedTarget::GenerateAnnotationCode(Instr* subj)
     return subj;
 }
 
-Instr* NamedTarget::GenerateCodeWith(Instr* body)
-{
-    Instr* get = name->GenerateCode();
-    Instr* enterWith = state->CreateOp(OP_pushwith);
-    Instr* exitWith  = state->CreateOp(OP_popwith);
-    
-    get->
-    Attach(enterWith)->
-    Attach(body)->
-    Attach(exitWith);
-    
-    HandleBlockBreaks(state,
-                      body,
-                      exitWith,
-                      OP_popwith,
-                      true);
-    return get;
-}
-
 Instr* PropertyDecl::GeneratePropertyCode()
 {
     Instr* iprop = state->CreateOp(OP_property);

@@ -364,8 +364,7 @@ struct NamedTarget : DeclarationTarget
     virtual void        CalculateResources(SymbolTable* st);
     virtual void        CalculateSymbols(SymbolTable* st);
     virtual const char* GetIdentifierName();
-    virtual Instr*      GenerateCodeSet();
-    virtual Instr*      GenerateCodeWith(Instr* body);
+    virtual Instr*      GenerateCodeSet();    
     virtual Instr*      GenerateAnnotationCode(Instr* subj);
     
     AnnotationDecl* annotations;

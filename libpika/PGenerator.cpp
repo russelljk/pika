@@ -189,17 +189,30 @@ void Generator::Resume(Context* ctx, u4 retc, bool tailcall)
     if (state != GS_yielded) {
         RaiseException("Attempt to call generator that is not yieled.");
     }
-    // Need to push before copying the stack.
-    if (!tailcall)
-        ctx->PushCallScope();
-    else
+    
+    // First we need to deal with the current call.
+    
+    if (tailcall)
     {
+        // If we are resumed via a tail call.
+        // We need to rewind the stack before we can restore ours.
         ctx->sp = ctx->bsp;
     }
-    // Copy the scopes. Generally there is a single scope, however, 
-    // other language constructs have their own scopes.
+    else
+    {
+        // Else its a normal function call.
+        // Save the current scope.
+        ctx->PushCallScope();
+    }
     
-    size_t base = ctx->sp - ctx->stack;
+    // Save the size of the stack. This is where our bsp will start.
+    
+    size_t const base = ctx->sp - ctx->stack;
+        
+    // Copy the scopes. 
+    // Generally there is a single scope, however, the yield could have happened
+    // inside a class, package or using statement.
+    
     for (size_t i = 0; i < scopes.GetSize(); ++i)
     {
         (*ctx->scopesTop) = scopes[i];
@@ -207,19 +220,29 @@ void Generator::Resume(Context* ctx, u4 retc, bool tailcall)
             ctx->GrowScopeStack();
     }
     
+    // Now restore our scope.
+    
     ctx->PopCallScope();
     
-    // Copy handlers.
+    // Copy exceptions handlers.
     
-    if (handlers.GetSize()) {
+    if (handlers.GetSize())
+    {
+    
         size_t const scopeid = ctx->scopes.IndexOf(ctx->scopesTop);
         size_t j = ctx->handlers.GetSize();
         ctx->handlers.Resize(j + handlers.GetSize());
         for (size_t i = 0; i < handlers.GetSize(); ++i, ++j)
         {
             ASSERT(scopetop >= handlers[i].scope);
+            
             // Find the scopeid relative to the scopesTop index at yield time.
+            // This is important because additional handlers might have been
+            // added between the time we yielded and now. 
+            // offset will be <= 0
             ptrdiff_t offset = handlers[i].scope - scopetop;
+            
+            // Set the scope id and add (subtract actually) the offset.
             handlers[i].scope = scopeid + offset;
             ctx->handlers[j] = handlers[i];
         }
@@ -232,17 +255,21 @@ void Generator::Resume(Context* ctx, u4 retc, bool tailcall)
     
     ctx->StackAlloc( stack.GetSize() );
     
+    // Copy all arguments, locals and temporary values on the stack.
     Pika_memcpy( ctx->bsp,
                  stack.GetAt(0),
                  stack.GetSize() * sizeof(Value) );
     
+    
     // Restore the lexical environment.
-    
-    Value* bsp = ctx->GetBasePtr();
-    Value*  sp = ctx->GetStackPtr();
-    
+        
     if (ctx->env)
-        ctx->env->Set(bsp, sp - bsp);
+    {
+        LexicalEnv* env = ctx->env;        
+        Value* bsp = ctx->GetBasePtr();        
+        env->Set(bsp, env->Length());
+    }
+    
     ctx->retCount = retc;
     state = GS_resumed;
 }
