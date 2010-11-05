@@ -3255,6 +3255,10 @@ Context::EErrRes Context::OpException(Exception& e)
             {
                 env->EndCall();
             }
+            if (generator)
+            {
+                generator->Return();
+            }
             PopScope();
             
             // Close every frame up-to but not including the frame
@@ -3269,12 +3273,18 @@ Context::EErrRes Context::OpException(Exception& e)
                     
                     if (scopes[a].pc == 0)
                     {
+                        // Native function.
                         --numRuns;
                         return ER_throw;
                     }
                     else if (scopes[a].env)
                     {
+                    
                         scopes[a].env->EndCall();
+                    }
+                    if (scopes[a].generator)
+                    {
+                        scopes[a].generator->Return();
                     }
                 }
                 // Unwind.
