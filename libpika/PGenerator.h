@@ -23,6 +23,7 @@ class PIKA_API Generator : public Object
     PIKA_DECL(Generator, Object)
 public:
     Generator(Engine* eng, Type* typ, Function* fn);
+    Generator(Generator* rhs);
     
     virtual ~Generator();
     virtual void Init(Context*);
@@ -30,6 +31,8 @@ public:
     INLINE GenState GetState() { return state; }
     virtual void MarkRefs(Collector*);
     virtual Enumerator* GetEnumerator(String* kind);
+    
+    virtual Object* Clone();
     
     /** Returns true if this Generator is yieled and can be resumed. */
     bool IsYielded();

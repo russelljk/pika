@@ -67,6 +67,33 @@ Generator::Generator(Engine* eng, Type* typ, Function* fn) :
     function(fn)
 {}
 
+Generator::Generator(Generator* rhs) :
+    ThisSuper(rhs),
+    scopetop(rhs->scopetop),
+    state(rhs->state),
+    function(rhs->function),
+    handlers(rhs->handlers),
+    scopes(rhs->scopes),
+    stack(rhs->stack)
+{
+    GCPAUSE_NORUN(engine);
+    for (ScopeIter siter = scopes.Begin(); siter != scopes.End(); ++siter)
+    {
+        if (siter->kind == SCOPE_call)
+        {
+            if (siter->generator == rhs)
+            {
+                siter->generator = this;
+            }
+            if (siter->closure == function && siter->env)
+            {
+                LexicalEnv* oldenv = siter->env;
+                siter->env = LexicalEnv::Create(engine, oldenv);
+            }
+        }
+    }
+}
+
 Generator::~Generator() {}
 
 void Generator::Init(Context* ctx)
@@ -107,6 +134,14 @@ bool Generator::IsYielded()
 void Generator::Return()
 {
     state = GS_finished;
+}
+
+Object* Generator::Clone()
+{
+    Generator* gen = 0;
+    GCNEW(engine, Generator, gen, (this));
+    engine->AddToGC(gen);
+    return gen;
 }
 
 void Generator::Yield(Context* ctx)
@@ -262,10 +297,14 @@ void Generator::Resume(Context* ctx, u4 retc, bool tailcall)
     
     
     // Restore the lexical environment.
-        
+    
     if (ctx->env)
     {
-        LexicalEnv* env = ctx->env;        
+        LexicalEnv* env = ctx->env;
+        if (env->IsAllocated())
+        {
+            RaiseException("Generator's lexical environment should not be heap allocated.");
+        }
         Value* bsp = ctx->GetBasePtr();        
         env->Set(bsp, env->Length());
     }

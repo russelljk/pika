@@ -303,7 +303,7 @@ public:
             SetCapacity(newSize);
             T* eThis = elements;
             T* eA    = a.elements;
-            
+            size = newSize;
             for (size_t i = 0; i < newSize; ++i)
             {
                 *(eThis++) = *(eA++);

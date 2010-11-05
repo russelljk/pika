@@ -27,7 +27,19 @@ LexicalEnv::LexicalEnv(bool close)
         allocated(false),
         mustClose(close)
 {}
-        
+
+LexicalEnv::LexicalEnv(LexicalEnv* rhs)
+        : values(rhs->values),
+        length(rhs->length),
+        allocated(false),
+        mustClose(rhs->mustClose)
+{
+    if (rhs->allocated)
+    {
+        Allocate();
+    }
+}
+
 LexicalEnv::~LexicalEnv() { Deallocate(); }
 
 void LexicalEnv::MarkRefs(Collector* c)
@@ -77,6 +89,14 @@ LexicalEnv* LexicalEnv::Create(Engine* eng, bool close)
     PIKA_NEW(LexicalEnv, ov, (close));
     eng->AddToGC(ov);
     return ov;
+}
+
+LexicalEnv* LexicalEnv::Create(Engine* eng, LexicalEnv* lex)
+{
+    LexicalEnv* env=0;
+    PIKA_NEW(LexicalEnv, env, (lex));
+    eng->AddToGC(env);
+    return env;
 }
 
 Defaults::Defaults(Value* v, size_t l) : length(l) 
