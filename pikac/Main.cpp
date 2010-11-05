@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
         }
         catch (Exception& e)
         {
-            std::cerr << "Uncaught " << Exception::Static_Error_Formats[e.kind] << ": " << e.GetMessage() << std::endl;
+            std::cerr << "Uncaught " << e.GetErrorKind() << ": " << e.GetMessage() << std::endl;
         }
         catch (...)
         {

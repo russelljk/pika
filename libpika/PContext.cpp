@@ -3232,7 +3232,7 @@ Context::EErrRes Context::OpException(Exception& e)
             {
                 Object* error_obj = thrown.val.object;
                 error_obj->SetSlot(engine->message_String, errorStr);
-                error_obj->SetSlot(engine->AllocString("name"), engine->AllocString(Exception::Static_Error_Formats[e.kind]));
+                error_obj->SetSlot(engine->AllocString("name"), engine->AllocString(e.GetErrorKind()));
             }
             else
             {
@@ -3358,7 +3358,7 @@ Context::EErrRes Context::OpException(Exception& e)
                 }
                 else
                 {
-                    std::cerr << Exception::Static_Error_Formats[e.kind] << " -- " << msg << std::endl;
+                    std::cerr << e.GetErrorKind() << " -- " << msg << std::endl;
                 }
             }
             else

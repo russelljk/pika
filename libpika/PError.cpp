@@ -24,6 +24,10 @@ const char* Exception::Static_Error_Formats[MAX_ERROR_KIND] =
 Exception::~Exception() { Pika_delete(msg); }
 
 void Exception::Report() { if (msg) { std::cerr << msg << std::endl; }}
+const char* Exception::GetErrorKind()
+{
+    return Static_Error_Formats[kind];
+}
 
 void RaiseException(Exception::Kind k, const char *msg, ...)
 {

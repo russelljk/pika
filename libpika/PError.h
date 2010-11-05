@@ -48,7 +48,7 @@ public:
     virtual void Report();
     
     virtual const char* GetMessage() const { return msg; }
-
+    virtual const char* GetErrorKind();
     static const char* Static_Error_Formats[MAX_ERROR_KIND];
 protected:
     char* msg;
