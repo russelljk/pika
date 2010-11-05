@@ -1368,7 +1368,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
                         "Cannot resume a generator by calling it with arguments or keyword arguments.");
                 }
                 Generator* gen = static_cast<Generator*>(frameVar.val.object);
-                gen->Resume(this, retc ? retc : 1, tailcall);                        
+                gen->Resume(this, retc ? retc : 1, tailcall);
                 return true;
             }
             else

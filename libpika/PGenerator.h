@@ -28,7 +28,8 @@ public:
     virtual ~Generator();
     virtual void Init(Context*);
     virtual bool ToBoolean();
-    INLINE GenState GetState() { return state; }
+    INLINE GenState  GetState() { return state; }
+    INLINE Function* GetFunction() { return function; }
     virtual void MarkRefs(Collector*);
     virtual Enumerator* GetEnumerator(String* kind);
     

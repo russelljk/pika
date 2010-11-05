@@ -355,6 +355,30 @@ int Generator_state(Context* ctx, Value& self)
     return 1;
 }
 
+int Generator_function(Context* ctx, Value& self)
+{
+    Generator* gen = static_cast<Generator*>(self.val.object);
+    Function* func = gen->GetFunction();
+    if (func)
+        ctx->Push(func);
+    else
+        ctx->PushNull();
+    return 1;
+}
+
+int Generator_next(Context* ctx, Value& self)
+{
+    Generator* gen = static_cast<Generator*>(self.val.object);
+    ctx->PushNull();
+    ctx->Push(gen);
+    u4 retc = ctx->GetRetCount();
+    if (ctx->SetupCall(0, retc))
+    {
+        ctx->Run();
+    }
+    return retc;
+}
+
 }
 
 void Generator::StaticInitType(Engine* eng)
@@ -366,6 +390,7 @@ void Generator::StaticInitType(Engine* eng)
     
     SlotBinder<Generator>(eng, eng->Generator_Type, Pkg_World)
     .Method(&Generator::ToBoolean,  "toBoolean")
+    .Register(Generator_next, "next", 0, false, true)
     .Constant((pint_t)GS_clean,     "CLEAN")
     .Constant((pint_t)GS_yielded,   "YIELDED")
     .Constant((pint_t)GS_resumed,   "RESUMED")
@@ -374,7 +399,8 @@ void Generator::StaticInitType(Engine* eng)
     
     static RegisterProperty Generator_Properties[] =
     {
-        { "state", Generator_state, "getState", 0, 0 }
+        { "state",    Generator_state,    "getState",    0, 0 },
+        { "function", Generator_function, "getFunction", 0, 0 }
     };
     
     eng->Generator_Type->EnterProperties(Generator_Properties, countof(Generator_Properties));
