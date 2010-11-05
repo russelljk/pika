@@ -339,7 +339,7 @@ void CompileState::SyntaxErrorSummary()
     fflush(stderr);
 }
 
-Id::Id(CompileState* s, char *name) : TreeNode(s), name(name), next(0) {}
+Id::Id(CompileState* s, char *name) : TreeNode(s), TLinked<Id>(), name(name) {}
 
 Id::~Id() { Pika_free(name); }
 
@@ -766,8 +766,21 @@ ForeachStmt::~ForeachStmt()
 void ForeachStmt::DoStmtResources(SymbolTable* st)
 {
     PIKA_NEW(SymbolTable, symtab, (st, st->IsWithBlock() ? ST_using : 0));
+        
+    iter_offset = state->NextLocalOffset("");
+    Id* currid = id;
+    do
+    {
+        Symbol* symb = state->CreateLocalPlus(symtab, currid->name, 0);
+        symbols.Push(symb);
+        currid = currid->next;
+        
+    } while (currid);
     
-    symbol = state->CreateLocalPlus(symtab, id->name, 1);    
+    if (symbols.GetSize() > PIKA_MAX_RETC) {
+        state->SyntaxException(Exception::ERROR_syntax, line, "Too many 'for in' loop variables.");
+    }
+    
     type_expr->CalculateResources(symtab);        
     in->CalculateResources(symtab);
     body->CalculateResources(symtab);

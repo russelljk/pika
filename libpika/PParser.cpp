@@ -1285,10 +1285,22 @@ Stmt* Parser::DoForStatement()
         
     Match(TOK_for);
     BufferCurrent();
+    Id* id = 0;
+    size_t num_ids = 0;
+    do
+    {
+        ++num_ids;
+        Id* nid = DoIdentifier();
+        if (!id) {
+            id = nid;
+        }
+        else {
+            id->Attach(nid);
+        }
+    } 
+    while (Optional(','));
     
-    Id* id = DoIdentifier();
     header.id = id;
-
     BufferCurrent();    
     if (tstream.GetType() == TOK_in)
     {
@@ -1296,6 +1308,8 @@ Stmt* Parser::DoForStatement()
     }
     else
     {
+        if (num_ids != 1)
+            state->SyntaxError(tstream.GetLineNumber(), "for to statement can have only 1 loop variable.");
         return DoForToStatement(&header);
     }
     return 0;

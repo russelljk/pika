@@ -709,21 +709,23 @@ void Context::Run()
             
             PIKA_OPCODE(OP_itercall)
             {
-                u2 loop_idx = GetShortOperand(instr);
-                u2 iter_idx = loop_idx + 1;
+                u2 iter_idx = GetShortOperand(instr);
+                u2 loop_idx = iter_idx + 1;
+                u2 num_vars = GetByteOperand(instr);
                 Value iter = GetLocal(iter_idx);
                 Value res(NULL_VALUE);
                 bool success = false;
+                bool has_result = false; // Values are on the stack and need copied and removed.
                 
-                if (iter.IsDerivedFrom(Generator::StaticGetClass()))
+                if (engine->Generator_Type->IsInstance(iter))
                 {
                     Generator* g = static_cast<Generator*>(iter.val.object);
                     if (g->ToBoolean())
                     {
-                        g->Resume(this, 1);
+                        g->Resume(this, num_vars);
                         this->Run();
-                        success = g->ToBoolean();
-                        res = PopTop();
+                        success = g->ToBoolean();  
+                        has_result = true;                      
                     }
                 }
                 else if (iter.tag == TAG_enumerator)
@@ -731,18 +733,28 @@ void Context::Run()
                     Enumerator* e = iter.val.enumerator;
                     if (e->IsValid())
                     {
-                        e->GetCurrent(res);
+                        e->CallNext(this, num_vars);
                         e->Advance();
                         success = true;
-                    } 
+                        has_result = true;
+                    }
                 }
-                else 
+                else
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
                                        "foreach requires an enumerable object but object of type %s was provided",
                                        engine->GetTypenameOf(iter)->GetBuffer());
                 }
-                GetLocal(loop_idx) = res;
+                
+                if (has_result)
+                {
+                    Value* start = GetStackPtr() - (ptrdiff_t)num_vars;
+                    for (size_t i = 0; i < num_vars; ++i)
+                    {
+                        SetLocal(start[i], loop_idx+ i);
+                    }   
+                    Pop(num_vars);
+                }
                 PushBool(success);
             }
             PIKA_NEXT()
@@ -751,9 +763,10 @@ void Context::Run()
             {
                 GCPAUSE(engine);
                 
-                u2 index = GetShortOperand(instr);
-                Value field = PopTop();
+                u2     index = GetShortOperand(instr);                
+                Value  field = PopTop();
                 Value object = PopTop();
+                
                 Value result(NULL_VALUE);
                 
                 if (!field.IsString())
@@ -766,46 +779,55 @@ void Context::Run()
                 // If this is a Basic derived object.
                 if (object.tag >= TAG_basic)
                 {
-                    // Find out if the field exists.
-                    Object* subj = object.val.object;
-                    if (subj->GetSlot(field, result))
+                    if (field.val.str == engine->emptyString && 
+                        engine->Generator_Type->IsInstance(object))
                     {
-                        // If its a generator function
-                        if (result.IsDerivedFrom(Function::StaticGetClass()) &&
-                            result.val.function->GetDef()->isGenerator)
-                        {
-                            // Push object and function
-                            Push(object);
-                            Push(result);
-                            
-                            if (SetupCall(0))
-                            {
-                                // This should not happen. If it does the generator function
-                                // was marked incorrectly by some external module.
-                                ReportRuntimeError(Exception::ERROR_runtime, "generator could not be properly setup.");
-                            }
-                            
-                            result = PopTop();
-                        }
-                        else 
-                        {
-                            ReportRuntimeError(Exception::ERROR_type,
-                                       "For each set kind must be a function generator.");
-                        }
-                    } 
+                        result = object;
+                    }
                     else
                     {
-                        Enumerator* e = subj->GetEnumerator(field.val.str);
-                        e->Rewind();
-                        result.Set(e);
-                    }                
+                        // Find out if the field exists.
+                        Object* subj = object.val.object;
+                        if (subj->GetSlot(field, result))
+                        {
+                            // If its a generator function
+                            if (engine->Function_Type->IsInstance(result) &&
+                                result.val.function->GetDef()->isGenerator)
+                            {
+                                // Push object and function
+                                Push(object);
+                                Push(result);
+                                
+                                if (SetupCall(0))
+                                {
+                                    // This should not happen. If it does the generator function
+                                    // was marked incorrectly by some external module.
+                                    ReportRuntimeError(Exception::ERROR_runtime, "generator could not be properly setup.");
+                                }
+                                
+                                result = PopTop();
+                            }
+                            else 
+                            {
+                                ReportRuntimeError(Exception::ERROR_type,
+                                           "For each set kind must be a function generator.");
+                            }
+                        } 
+                        else
+                        {
+                            Enumerator* e = subj->GetEnumerator(field.val.str);
+                            e->Rewind();
+                            result.Set(e);
+                        }
+                    }        
                 } 
-                else {
+                else
+                {
                      Enumerator* e = ValueEnumerator::Create(engine, object, field.val.str);
                      e->Rewind();
                      result.Set(e);
                 }                
-                GetLocal(index+1) = result; 
+                GetLocal(index) = result; 
             }
             PIKA_NEXT()
             

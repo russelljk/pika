@@ -121,7 +121,7 @@
     DECL_OP( OP_yield,          "yield",        1, OF_none,     "" )
     DECL_OP( OP_yieldv,         "yieldv",       3, OF_w,        "" )
 
-    DECL_OP( OP_itercall,       "iterate",      3, OF_w,        "" )
+    DECL_OP( OP_itercall,       "iterate",      4, OF_bw,       "" )
     
     DECL_OP( OP_foreach,        "foreach",      3, OF_w,        "" )
         

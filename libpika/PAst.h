@@ -286,13 +286,12 @@ struct FunctionProg : Program
 };
 
 /** An valid pika identifier. */
-struct Id : TreeNode
+struct Id : TreeNode, TLinked<Id>
 {
     Id(CompileState* s, char* name);
     virtual ~Id();
     
     char* name;
-    Id*   next;
 };
 
 /** An declaration node. */
@@ -1047,6 +1046,7 @@ struct ForeachStmt : LoopingStmt
 {
     ForeachStmt(CompileState* s, Id* id, Expr* type_expr, Expr* in, Stmt* body)
             : LoopingStmt(s, Stmt::STMT_foreach),
+            iter_offset(0),
             id(id),
             type_expr(type_expr),
             in(in),
@@ -1057,13 +1057,14 @@ struct ForeachStmt : LoopingStmt
     
     virtual void   DoStmtResources(SymbolTable* st);
     virtual Instr* DoStmtCodeGen();
-
-    Id*          id;
-    Expr*        type_expr;   // The set name that will be enumerated.
-    Expr*        in;          // The subject.
-    Stmt*        body;        // Loop body.
-    Symbol*      symbol;
-    SymbolTable* symtab;
+    
+    size_t iter_offset;
+    Id*   id;
+    Expr* type_expr;   // The set name that will be enumerated.
+    Expr* in;          // The subject.
+    Stmt* body;        // Loop body.
+    Buffer<Symbol*> symbols;
+    SymbolTable*    symtab;
 };
 
 /////////////////////////////////////////////// IfStmt /////////////////////////////////////////////

@@ -35,6 +35,8 @@ public:
     /** Move on to the next value. */
     virtual void Advance() = 0;
 
+    virtual void CallNext(Context* ctx, u4 count);
+    
     virtual Value ToValue();
 };
 

@@ -10,6 +10,7 @@
 #include "PEnumerator.h"
 #include "PObject.h"
 #include "PType.h"
+#include "PContext.h"
 
 namespace pika {
 
@@ -20,6 +21,21 @@ Type* Enumerator::GetType() const { return engine->Enumerator_Type; }
 bool Enumerator::GetSlot(const Value& key, Value& result)
 {
     return engine->Enumerator_Type->GetField(key, result);
+}
+
+void Enumerator::CallNext(Context* ctx, u4 count)
+{
+    if (count != 0)
+        count--;        
+    Value res(NULL_VALUE);
+    this->GetCurrent(res);
+    ctx->Push(res);    
+    
+    
+    while (count--)
+    {
+        ctx->PushNull();
+    }
 }
 
 Enumerator* DummyEnumerator::Create(Engine* eng)

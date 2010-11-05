@@ -1208,19 +1208,17 @@ Instr* ForeachStmt::DoStmtCodeGen()
     Instr* iin       = in->GenerateCode();
     Instr* ibody     = body->GenerateCode();
     Instr* ikind     = type_expr->GenerateCode();
-    Instr* idotget   = state->CreateOp(OP_foreach);
+    Instr* iforeach  = state->CreateOp(OP_foreach);
     Instr* ijmpfalse = state->CreateOp(OP_jumpiffalse);
     Instr* ijmpback  = state->CreateOp(OP_jump);
     
     Instr* iopiter   = state->CreateOp(OP_itercall); // TODO
-    //Instr* isetlocal = state->CreateOp(OP_setlocal);
     
     PIKA_BLOCKEND(state);
     
     iin->
     Attach( ikind )->
-    Attach( idotget )->      // iin.ikind 
-    //Attach( isetlocal )->         
+    Attach( iforeach )-> // iin.ikind    
     Attach( iopiter )->
     Attach( ijmpfalse )->
     Attach( ibody )->    
@@ -1231,12 +1229,12 @@ Instr* ForeachStmt::DoStmtCodeGen()
     ibody->DoLoopPatch(ijmpTarget,
                        iopiter,
                        this->label);
-                      
+    
     ijmpback->SetTarget(iopiter);
     ijmpfalse->SetTarget(ijmpTarget);
-    iopiter->operand = symbol->offset;
-    //isetlocal->operand = symbol->offset + 1;
-    idotget->operand = symbol->offset;
+    iopiter->operand = iter_offset;
+    iopiter->operandu1 = (u1)symbols.GetSize();
+    iforeach->operand = iter_offset;
     return iin;
 }
 
