@@ -41,7 +41,7 @@ function no_ret()
 end
 
 # Result of a + b is returned implicitly.
-functiona adder(a,b)
+function adder(a,b)
   a + b
 end
 
