@@ -39,7 +39,7 @@ public:
     
     virtual Value ToValue();
     
-    /** Returns a StringEnumerator that can enumerate over elements, indices, and empty the string. */
+    /** Returns a StringIterator that can iterate this String. */
     virtual Iterator* Iterate(String*);
     
     virtual Type* GetType() const;

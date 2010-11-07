@@ -5,7 +5,6 @@
 #include "PValue.h"
 #include "PString.h"
 #include "PDef.h"
-#include "PEnumerator.h"
 #include "PArray.h"
 #include "PType.h"
 #include "PContext.h"
@@ -396,17 +395,17 @@ bool String::SetSlot(const Value& key, Value& value, u4 attr) { return false; }
 bool String::CanSetSlot(const Value& key) { return false; }
 bool String::DeleteSlot(const Value& key) { return false; }
 
-Iterator* String::Iterate(String* enumtype)
+Iterator* String::Iterate(String* iter_type)
 {
     // "lines" "words" might be useful to have. line world enumerate each substring separated by '\n'. words are chars+numbers,
     //  separated by whitespace.
     
     IterateKind kind = IK_default;
-    if (enumtype == engine->elements_String) {
+    if (iter_type == engine->elements_String) {
         kind = IK_values;
-    } else if (enumtype == engine->indices_String) {
+    } else if (iter_type == engine->indices_String) {
         kind = IK_keys;
-    } else if (enumtype != engine->emptyString) {
+    } else if (iter_type != engine->emptyString) {
         return Iterator::Create(engine, engine->Iterator_Type);
     }
 
@@ -1114,23 +1113,23 @@ public:
     static int iterate(Context* ctx, Value& self)
     {
         String* obj = self.val.str;
-        String* enumtype = 0;
+        String* iter_type = 0;
         u2 argc = ctx->GetArgCount();
         
         if (argc == 1)
         {
-            enumtype = ctx->GetStringArg(0);
+            iter_type = ctx->GetStringArg(0);
         }
         else if (argc == 0)
         {
-            enumtype = ctx->GetEngine()->emptyString;
+            iter_type = ctx->GetEngine()->emptyString;
         }
         else
         {
             ctx->WrongArgCount();
         }
         
-        Iterator* e = obj->Iterate(enumtype);
+        Iterator* e = obj->Iterate(iter_type);
         
         if (e)
         {

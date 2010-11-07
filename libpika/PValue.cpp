@@ -17,11 +17,10 @@ static const char* STypeNames[] =
     /*  5  */ "GCObj",
     /*  6  */ "Def",
     /*  7  */ "String",
-    /*  8  */ "Enumerator",
-    /*  9  */ "Property",
-    /* 10  */ "UserData",
-    /* 11  */ "Object",
-    /* 12  */ "Invalid Tag",
+    /*  8  */ "Property",
+    /*  9  */ "UserData",
+    /* 10  */ "Object",
+    /* 11  */ "Invalid Tag",
 };
 
 PIKA_API const char* GetTypeString(u2 e)

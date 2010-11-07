@@ -1,13 +1,9 @@
 /*
- *  PObjectEnumerator.h
+ *  PObjectIterator.h
  *  See Copyright Notice in Pika.h
  */
-#ifndef POBJECTENUMERATOR_H
-#define POBJECTENUMERATOR_H
-
-#ifndef PIKA_ENUMERATOR_HEADER
-#   include "PEnumerator.h"
-#endif
+#ifndef POBJECTITERATOR_H
+#define POBJECTITERATOR_H
 
 namespace pika {
 
@@ -130,7 +126,7 @@ public:
             }
             else
             {
-                // Key was deleted while we were enumerating, move on to the next one.
+                // Key was deleted while we were iterating, move on to the next one.
                 Advance();
                 if (ToBoolean())
                 {

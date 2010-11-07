@@ -13,7 +13,6 @@
 #include <ctime>
 
 /* Uncomment to include "." and ".." when reading directory entries. */
-/* #define PIKA_READDIR_INCLUDE_SPECIAL_ENTRIES */
 
 #define PIKA_PI         ((preal_t) 3.14159265358979323846264338327950288  )
 #define PIKA_E          ((preal_t) 2.71828182845904523536028747135266250  )
@@ -221,12 +220,14 @@ int os_copyFile(Context* ctx, Value&)
     return 1;
 }
 
-/** Enumerates the files in a given directory. */
-class ReadDir : public Enumerator
+/** Iterators over the files in a given directory. */
+class ReadDir : public Iterator
 {
 public:
-    ReadDir(Engine* eng, String* p)
-            : Enumerator(eng),
+    ReadDir(Engine* eng, Type* readtype, String* p, bool skip=false)
+            : Iterator(eng, readtype),
+            valid(false),
+            skip_hidden(skip),
             current(0),
             path(p),
             dir(0),
@@ -235,6 +236,7 @@ public:
         if (path)
         {
             dir = Pika_OpenDirectory( path->GetBuffer() );
+            valid = Rewind();
         }
     }
     
@@ -246,7 +248,7 @@ public:
     
     virtual void MarkRefs(Collector* c)
     {
-        Enumerator::MarkRefs(c);
+        Iterator::MarkRefs(c);
         if (path)    path->Mark(c);
         if (current) current->Mark(c);
     }
@@ -264,21 +266,25 @@ public:
         return false;
     }
     
-    virtual bool IsValid()
+    virtual bool ToBoolean()
     {
-        return dir != 0 && entry != 0;
+        return valid;
     }
     
-    virtual void GetCurrent(Value& v)
+    virtual int Next(Context* ctx)
     {
-        if ( current )
+        if ( current && dir != 0 && entry != 0 )
         {
-            v.Set( current );
+            ctx->Push( current );
+            Advance();
+            valid = true;
+            return 1;
         }
         else
         {
-            v.SetNull();
+            valid = false;
         }
+        return 0;
     }
     
     virtual void Advance()
@@ -286,12 +292,10 @@ public:
         if (dir)
         {
             if ( (entry = Pika_ReadDirectoryEntry(dir)) )
-            {
-#if !defined(PIKA_READDIR_INCLUDE_SPECIAL_ENTRIES)
-                if (StrCmp(".", entry) == 0 || StrCmp("..", entry) == 0)
+            {                
+                if (skip_hidden && strchr(entry, '.') == entry)
                     return Advance();
-#endif
-                current = engine->AllocString(entry);
+                current = engine->AllocStringNC(entry);
             }
             else
             {
@@ -304,6 +308,8 @@ public:
         }
     }
 private:
+    bool valid;
+    bool skip_hidden;
     String*         current;
     String*         path;
     Pika_Directory* dir;
@@ -313,9 +319,19 @@ private:
 int os_readDir(Context* ctx, Value&)
 {
     Engine*  eng  = ctx->GetEngine();
-    String*  path = ctx->GetStringArg(0);
+    bool skip = false;
+    String*  path = eng->emptyString;
+    switch (ctx->GetArgCount()) {
+    case 2:
+        skip = ctx->GetBoolArg(1);
+    case 1:
+        path = ctx->GetStringArg(0);
+        break;
+    default:
+        ctx->WrongArgCount();
+    }
     ReadDir* dir  = 0;
-    GCNEW(eng, ReadDir, dir, (eng, path));
+    GCNEW(eng, ReadDir, dir, (eng, eng->Iterator_Type, path, skip));
     ctx->Push( dir );
     return 1;
 }

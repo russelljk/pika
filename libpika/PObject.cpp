@@ -7,14 +7,13 @@
 #include "PCollector.h"
 #include "PDef.h"
 #include "PBasic.h"
-#include "PEnumerator.h"
 #include "PObject.h"
 #include "PType.h"
 #include "PFunction.h"
 #include "PEngine.h"
 #include "PContext.h"
 #include "PNativeBind.h"
-#include "PObjectEnumerator.h"
+#include "PObjectIterator.h"
 #include "PProxy.h"
 
 
@@ -354,23 +353,23 @@ int Object_remove(Context* ctx, Value& self)
 int Object_getEnumerator(Context* ctx, Value& self)
 {
     Object* obj = self.val.object;
-    String* enumtype = 0;
+    String* iter_type = 0;
     u2 argc = ctx->GetArgCount();
     
     if (argc == 1)
     {
-        enumtype = ctx->GetStringArg(0);
+        iter_type = ctx->GetStringArg(0);
     }
     else if (argc == 0)
     {
-        enumtype = ctx->GetEngine()->emptyString;
+        iter_type = ctx->GetEngine()->emptyString;
     }
     else
     {
         ctx->WrongArgCount();
     }
     
-    Iterator* e = obj->Iterate(enumtype);
+    Iterator* e = obj->Iterate(iter_type);
     
     if (e)
     {
@@ -459,41 +458,6 @@ int Object_rawBracketWrite(Context* ctx, Value& self)
     return 0;
 }
 
-int Enumerator_rewind(Context* ctx, Value& self)
-{
-    Enumerator* e = self.GetEnumerator();
-    ctx->PushBool(e->Rewind());
-    return 1;
-}
-
-int Enumerator_valid(Context* ctx, Value& self)
-{
-    Enumerator* e = self.GetEnumerator();
-    ctx->PushBool(e->IsValid());
-    return 1;
-}
-
-int Enumerator_getCurrent(Context* ctx, Value& self)
-{
-    Enumerator* e = self.GetEnumerator();
-    Value curr;
-        
-    if (e->IsValid())
-    {
-        e->GetCurrent(curr);
-        ctx->Push(curr);
-        return 1;
-    }
-    return 0;
-}
-
-int Enumerator_advance(Context* ctx, Value& self)
-{
-    Enumerator* e = self.GetEnumerator();
-    e->Advance();
-    return 0;
-}
-
 int Property_toString(Context* ctx, Value& self)
 {
     Engine*   eng    = ctx->GetEngine();
@@ -553,29 +517,9 @@ void Object::StaticInitType(Engine* eng)
     // Type ///////////////////////////////////////////////////////////////////
     
     Type::StaticInitType(eng);
-    
-    // Enumerator /////////////////////////////////////////////////////////////
-    
-    static RegisterFunction enumFunctions[] =
-    {
-        { "rewind" , Enumerator_rewind,  0, 0 },
-        { "valid?",  Enumerator_valid,   0, 0 },
-        { "advance", Enumerator_advance, 0, 0 },
-    };
-    
-    static RegisterProperty enumProperties[] =
-    {
-        { "value", Enumerator_getCurrent, "getValue", 0, 0 },
-    };
-    
-    eng->Enumerator_Type = Type::Create(eng, eng->AllocString("Enumerator"), eng->Basic_Type, 0, Pkg_World);
-    eng->Enumerator_Type->EnterMethods(enumFunctions, countof(enumFunctions));
-    eng->Enumerator_Type->EnterProperties(enumProperties, countof(enumProperties));
-    eng->Enumerator_Type->SetFinal(true);
-    eng->Enumerator_Type->SetAbstract(true);
-    Pkg_World->SetSlot("Enumerator", eng->Enumerator_Type);
-    
+        
     // Property ///////////////////////////////////////////////////////////////
+    
     static RegisterFunction Property_Functions[] =
     {
         { "toString", Property_toString, 0, 0 },

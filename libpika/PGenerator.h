@@ -31,8 +31,7 @@ public:
     INLINE GenState  GetState() { return state; }
     INLINE Function* GetFunction() { return function; }
     virtual void MarkRefs(Collector*);
-    virtual Enumerator* GetEnumerator(String* kind);
-    
+        
     virtual Object* Clone();
     
     /** Returns true if this Generator is yieled and can be resumed. */

@@ -18,7 +18,6 @@
 namespace pika {
 
 class Engine;
-class Enumerator;
 class Type;
 
 struct NamedConstant 
@@ -31,7 +30,7 @@ struct NamedConstant
 #define PIKA_ENUM(C)     { #C, (pint_t)C },
 
 /** A Basic script object that can have an associated type, slot table and 
-  * can be enumerated. By default Basic has none of these but instead provides
+  * can be iterated. By default Basic has none of these but instead provides
   * the interface to access them. 
   */
 class PIKA_API Basic : public GCObject
@@ -84,9 +83,7 @@ public:
     virtual bool CanSetSlot(const Value& key) { return true;  }
     virtual bool HasSlot(const Value& key)    { return false; }
     virtual bool DeleteSlot(const Value& key) { return false; }
-
-    virtual Enumerator* GetEnumerator(class String* enum_kind);
-    
+        
     INLINE Engine* GetEngine() const { return engine; }
 
     /** Perform a write barrier between this and the passed object.

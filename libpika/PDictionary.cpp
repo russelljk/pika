@@ -3,7 +3,7 @@
  *  See Copyright Notice in Pika.h
  */
 #include "Pika.h"
-#include "PObjectEnumerator.h"
+#include "PObjectIterator.h"
 
 namespace pika {
 

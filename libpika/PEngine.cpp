@@ -599,7 +599,6 @@ bool Engine::ToBoolean(Context* ctx, const Value& v)
     case TAG_real:        return Pika_RealToBoolean(v.val.real);
     case TAG_def:         return true;
     case TAG_string:      return v.val.str->GetLength() != 0;
-    case TAG_enumerator:  return v.val.enumerator->IsValid();
     case TAG_property:    return true;    
     case TAG_userdata:    return true;
     case TAG_object:
@@ -722,7 +721,6 @@ String* Engine::ToString(Context* ctx, const Value& v)
     case TAG_def:    return AllocString("<def>");
     case TAG_string: return v.val.str ? v.val.str : emptyString;
     
-    case TAG_enumerator: return AllocString("enumerator");
     case TAG_property:   return String::ConcatSep(Property_String, v.val.property->Name(), ':');
     
     case TAG_userdata:
@@ -927,7 +925,6 @@ String* Engine::GetTypenameOf(Value& v)
     case TAG_integer:    return Integer_Type->GetName();
     case TAG_real:       return Real_Type->GetName();    
     case TAG_string:     return String_Type->GetName();
-    case TAG_enumerator: return Enumerator_Type->GetName();
     case TAG_property:   return Property_Type->GetName();
     case TAG_userdata:
     {

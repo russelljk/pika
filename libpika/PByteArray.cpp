@@ -98,16 +98,16 @@ Object* ByteArray::Clone()
     return b;
 }
 
-Iterator* ByteArray::Iterate(String* enumtype)
+Iterator* ByteArray::Iterate(String* iter_type)
 {
-    if (enumtype == engine->emptyString)
+    if (iter_type == engine->emptyString)
     {
         Iterator* e = 0;
         PIKA_NEW(ByteArrayIterator, e, (engine, engine->Iterator_Type, this));
         engine->AddToGC(e);
         return e;
     }
-    return ThisSuper::Iterate(enumtype);
+    return ThisSuper::Iterate(iter_type);
 }
 
 ByteArray::~ByteArray() {}

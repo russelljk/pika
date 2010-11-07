@@ -8,56 +8,6 @@
 
 namespace pika {
 
-// Enumerates each yielded value for the given Context.
-class GeneratorEnum : public Enumerator
-{
-public:
-    GeneratorEnum(Engine* eng, Context* ctx, Generator* gen)
-        : Enumerator(eng), val(NULL_VALUE), context(ctx), generator(gen)
-    {}
-    
-    virtual ~GeneratorEnum()
-    {}
-    
-    virtual bool Rewind()
-    {
-        val.SetNull();
-        Advance();
-        return IsValid();
-    }
-    
-    virtual bool IsValid()
-    {
-        return generator->ToBoolean();
-    }
-    
-    virtual void GetCurrent(Value& curr)
-    {
-        curr = val;
-    }
-    
-    virtual void Advance()
-    {
-        if (IsValid())
-        {
-            size_t const base = context->GetStackSize();
-            generator->Resume(context, 1);
-            context->Run();
-            val = context->PopTop();
-            size_t amt = context->GetStackSize();
-            if (base < amt)
-            {
-                amt -= base;
-                context->Pop(amt);
-            }
-        }
-    }
-private:
-    Value val;
-    Context* context;
-    Generator* generator;
-};
-
 PIKA_IMPL(Generator)
 
 Generator::Generator(Engine* eng, Type* typ, Function* fn) : 
@@ -337,14 +287,6 @@ size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
         iter--;
     }
     return ctx->scopes.IndexOf(iter);
-}
-
-Enumerator* Generator::GetEnumerator(String*)
-{
-    Context* ctx = engine->GetActiveContextSafe();
-    GeneratorEnum* ge = 0;
-    GCNEW(engine, GeneratorEnum, ge, (engine, ctx, this));
-    return ge;
 }
 
 namespace {

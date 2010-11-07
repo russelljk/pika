@@ -25,7 +25,6 @@ namespace pika
 class String;
 class Def;
 class Context;
-class Enumerator;
 class Object;
 class Type;
 class Package;
@@ -48,7 +47,6 @@ enum ValueTag {
 /*  6  */ TAG_def,
 /*  7  */ TAG_string,
 /*  -  */ TAG_basic = TAG_string,
-/*  8  */ TAG_enumerator,
 /*  9  */ TAG_property,
 /* 10  */ TAG_userdata,
 /* 11  */ TAG_object,
@@ -71,7 +69,6 @@ public:
     INLINE  Value(bool b)           : tag(TAG_boolean)    { val.index = (b) ? 1 : 0; }
     INLINE  Value(size_t i)         : tag(TAG_index)      { val.index = i; }
     INLINE  Value(Def* f)           : tag(TAG_def)        { val.def = f; }
-    INLINE  Value(Enumerator* e)    : tag(TAG_enumerator) { val.enumerator = e; }
     INLINE  Value(Property* p)      : tag(TAG_property)   { val.property = p; }
     INLINE  Value(UserData* u)      : tag(TAG_userdata)   { val.userdata = u; }
     
@@ -82,7 +79,6 @@ public:
     INLINE bool IsCollectible() const { return  tag >= TAG_gcobj; } //!< Is the object collectible.
     INLINE bool IsString()      const { return  tag == TAG_string; }
     INLINE bool IsFunction()    const { return  tag == TAG_def; }
-    INLINE bool IsEnumerator()  const { return  tag == TAG_enumerator; }
     INLINE bool IsProperty()    const { return  tag == TAG_property; }
     INLINE bool IsUserData()    const { return  tag == TAG_userdata; }
     INLINE bool IsObject()      const { return (tag == TAG_object) && val.object; }
@@ -95,7 +91,6 @@ public:
     INLINE Object*     GetObject()     const { return val.object; }
     INLINE String*     GetString()     const { return val.str; }
     INLINE Def*        GetFunction()   const { return val.def; }
-    INLINE Enumerator* GetEnumerator() const { return val.enumerator; }
     INLINE size_t      GetIndex()      const { return val.index; }
     
     void* GetUserData(UserDataInfo* info) const;
@@ -108,7 +103,6 @@ public:
     INLINE void Set(Object* c)     { tag = TAG_object;      val.object     = c; }
     INLINE void Set(String* s)     { tag = TAG_string;      val.str        = s; }
     INLINE void Set(Def* f)        { tag = TAG_def;         val.def        = f; }
-    INLINE void Set(Enumerator* e) { tag = TAG_enumerator;  val.enumerator = e; }
     INLINE void Set(Property* p)   { tag = TAG_property;    val.property   = p; }
     INLINE void Set(UserData* u)   { tag = TAG_userdata;    val.userdata   = u; }
     
@@ -151,7 +145,6 @@ public:
         UserData*   userdata;
         GCObject*   gcobj;
         Function*   function;
-        Enumerator* enumerator;
     }
     val;
     int tag;

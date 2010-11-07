@@ -448,7 +448,6 @@ public:
     INLINE void Push(const Value& v) { *sp++ = v; }
     INLINE void Push(pint_t i)       { (sp++)->Set(i); }       //!< Push the integer onto the stack.
     INLINE void Push(preal_t r)      { (sp++)->Set(r); }       //!< Push the real onto the stack.
-    INLINE void Push(Enumerator* e)  { (sp++)->Set(e); }       //!< Push the Enumerator onto the stack.
     INLINE void Push(UserData* obj)  { (sp++)->Set(obj); }     //!< Push the UserData object onto the stack.
     INLINE void Push(String* str)    { (sp++)->Set(str); }     //!< Push the String onto the stack.
     INLINE void Push(Object* obj)    { (sp++)->Set(obj); }     //!< Push the Object onto the stack.
@@ -586,7 +585,6 @@ public:
     bool        GetBoolArg(u2 arg);     //!< Returns the boolean value of the specified argument.
     String*     GetStringArg(u2 arg);   //!< Returns the string value of the specified argument.
     Object*     GetObjectArg(u2 arg);   //!< Returns the object value of the specified argument.
-    Enumerator* GetEnumArg(u2 arg);     //!< Returns the enumerator value of the specified argument.
     void*       GetUserDataArg(u2 arg, UserDataInfo* info); //!< Returns the userdata value of the specified argument.
     
     /** Returns whether the argument is null.
@@ -610,10 +608,7 @@ public:
       <pre>
       B : convert to boolean
       b : boolean
-  
-      E : enumerator
-      e : enumerator
-  
+      
       I : convert to integer
       i : integer
   

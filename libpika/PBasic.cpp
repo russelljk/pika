@@ -7,7 +7,6 @@
 #include "PCollector.h"
 #include "PBasic.h"
 #include "PEngine.h"
-#include "PEnumerator.h"
 #include "PTable.h"
 #include "PFunction.h"
 #include "PProperty.h"
@@ -67,11 +66,6 @@ bool Basic::SetAttr(Context* ctx, const Value& key, Value& value, u4 attr)
         }
     }
     return true;
-}
-    
-Enumerator* Basic::GetEnumerator(String*)
-{
-    return DummyEnumerator::Create(engine);
 }
 
 void Basic::EnterConstants(Basic* b, NamedConstant* consts, size_t count)

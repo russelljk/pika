@@ -10,8 +10,6 @@
 #include "PString.h"
 #include "PUserData.h"
 #include "PEngine.h"
-#include "PEnumerator.h"
-#include "PValueEnumerator.h"
 #include "PNativeBind.h"
 #include "PContext_Ops.inl"
 #include "PDictionary.h"
@@ -1868,7 +1866,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
     }
     else
     {
-        // Object, Property, Enumerator, String
+        // Object, Property, String
         
         // Call the opGet override method if present.
         Basic* basic = obj.val.basic;
@@ -2741,17 +2739,6 @@ Object* Context::GetObjectArg(u2 arg)
     return v.val.object;
 }
 
-Enumerator* Context::GetEnumArg(u2 arg)
-{
-    Value& v = GetArg(arg);
-    
-    if (v.tag != TAG_enumerator)
-    {
-        ArgumentTagError(arg, (ValueTag)v.tag, TAG_enumerator);
-    }
-    return v.val.enumerator;
-}
-
 void* Context::GetUserDataArg(u2 arg, UserDataInfo* info)
 {
     Value& v = GetArg(arg);
@@ -2885,20 +2872,6 @@ void Context::ParseArgs(const char *args, u2 count, ...)
             }
             const char** strpp = va_arg(va, const char**);
             *strpp = currVar->val.str->GetBuffer();
-        }
-        break;
-        /* ================ Enumerator ================ */
-        case 'E':
-        case 'e':
-        {
-            if (currVar->tag != TAG_enumerator)
-            {
-                u2 argpos = (u2)(currVar - bsp);
-                ArgumentTagError(argpos, (ValueTag)currVar->tag, TAG_enumerator);
-            }
-            
-            Enumerator** enumpp = va_arg(va, Enumerator**);
-            *enumpp = currVar->val.enumerator;
         }
         break;
         /* ================ Integer ================ */
@@ -3054,19 +3027,7 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
             }
         }
         break;
-        
-        /* Enumerator */
-        case 'E':
-        case 'e':
-        {
-            if (currVar->tag != TAG_enumerator)
-            {
-                u2 argpos = (u2)(currVar - bsp);
-                ArgumentTagError(argpos, (ValueTag)currVar->tag, TAG_enumerator);
-            }
-        }
-        break;
-        
+       
         /* Integer */
         case 'I':
         case 'i':

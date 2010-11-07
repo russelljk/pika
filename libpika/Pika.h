@@ -32,9 +32,6 @@ class ClassInfo;
 class Collector;
 class GCObject;
 class       Basic;
-class           Enumerator;
-class               DummyEnumerator;
-class               ValueEnumerator;
 class           Object;
 class               Iterator;
 class               PathManager;
@@ -81,7 +78,6 @@ class Table;
 #include "PTable.h"
 #include "PEngine.h"
 #include "PBasic.h"
-#include "PEnumerator.h"
 #include "PString.h"
 #include "PProperty.h"
 #include "PUserData.h"
@@ -93,7 +89,6 @@ class Table;
 #include "PContext.h"
 #include "PFunction.h"
 #include "PArray.h"
-#include "PValueEnumerator.h"
 #include "PPackage.h"
 #include "PType.h"
 #include "PScript.h"

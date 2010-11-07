@@ -11,7 +11,7 @@
 #include "PArray.h"
 #include "PFunction.h"
 #include "PNativeBind.h"
-#include "PObjectEnumerator.h"
+#include "PObjectIterator.h"
 #include "PParser.h"
 
 
@@ -91,29 +91,29 @@ Object* Type::Clone()
     return obj_type;
 }
 
-Iterator* Type::Iterate(String* enumtype)
+Iterator* Type::Iterate(String* iter_type)
 {
     Engine* eng = GetEngine();
     {
         GCPAUSE_NORUN(eng);
                 
         Type* filter = 0;
-        if (enumtype == eng->AllocStringNC("methods")) {
+        if (iter_type == eng->AllocStringNC("methods")) {
             filter = eng->InstanceMethod_Type;
-        } else if (enumtype == eng->AllocStringNC("classmethods")) {
+        } else if (iter_type == eng->AllocStringNC("classmethods")) {
             filter = eng->ClassMethod_Type;
-        } else if (enumtype == eng->AllocStringNC("properties")) {
+        } else if (iter_type == eng->AllocStringNC("properties")) {
             filter = eng->Property_Type;
         }
         
         if (members && filter)
         {
-            FilteredIterator* filterenum = 0;
-            GCNEW(eng, FilteredIterator, filterenum, (eng, engine->Iterator_Type, IK_default, this, this->members, filter));
-            return filterenum;
+            FilteredIterator* filter_iter = 0;
+            GCNEW(eng, FilteredIterator, filter_iter, (eng, engine->Iterator_Type, IK_default, this, this->members, filter));
+            return filter_iter;
         }
     } // GCPAUSE_NORUN
-    return ThisSuper::Iterate(enumtype);
+    return ThisSuper::Iterate(iter_type);
 }
 
 void Type::MarkRefs(Collector* c)

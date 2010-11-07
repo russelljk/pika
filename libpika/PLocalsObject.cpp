@@ -14,8 +14,7 @@
 #include "PContext.h"
 #include "PNativeBind.h"
 #include "PLocalsObject.h"
-#include "PEnumerator.h"
-#include "PObjectEnumerator.h"
+#include "PObjectIterator.h"
 
 namespace pika {
 extern Iterator* CreateSlotEnumerator(Engine* engine, IterateKind, Object* self, Table* table);

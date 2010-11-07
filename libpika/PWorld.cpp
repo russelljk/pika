@@ -519,38 +519,6 @@ int Global_sprintp(Context* ctx, Value& self)
     return 1;
 }
 
-int Global_range(Context* ctx, Value& self)
-{
-    u2 argc = ctx->GetArgCount();
-    pint_t from = 0;
-    pint_t to = 0;
-    pint_t step = 0;
-    
-    if (argc == 1)
-    {
-        to   = ctx->GetIntArg(0);
-    }
-    else if (argc == 2)
-    {
-        from = ctx->GetIntArg(0);
-        to   = ctx->GetIntArg(1);
-    }
-    else if (argc == 3)
-    {
-        from = ctx->GetIntArg(0);
-        to   = ctx->GetIntArg(1);
-        step = ctx->GetIntArg(2);
-    }
-    else
-    {
-        ctx->WrongArgCount();
-    }
-    
-    Enumerator* e = CreateRangeEnumerator(ctx->GetEngine(), from, to, step);
-    ctx->Push(e);
-    return 1;
-}
-
 int Global_gcRun(Context* ctx, Value&)
 {
     bool full_run = ctx->ArgToBool(0);
@@ -957,7 +925,6 @@ void Engine::InitializeWorld()
             { "print",   Global_Print,   0, DEF_VAR_ARGS },
             { "println", Global_PrintLn, 0, DEF_VAR_ARGS },
             { "say",     Global_PrintLn, 0, DEF_VAR_ARGS },
-            { "range",   Global_range,   0, DEF_VAR_ARGS },
             { "each",    Global_each,    3, DEF_STRICT   },
             { "gcRun",   Global_gcRun,   1, DEF_STRICT   },
             { "assert",  Global_assert,  0, DEF_VAR_ARGS },

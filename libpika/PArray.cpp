@@ -370,15 +370,15 @@ Array::Array(const Array* rhs) :
 {
 }
 
-Iterator* Array::Iterate(String *enumtype)
+Iterator* Array::Iterate(String *iter_type)
 {
     IterateKind kind = IK_default;
-    if (enumtype == engine->elements_String) {
+    if (iter_type == engine->elements_String) {
         kind = IK_values;
-    } else if (enumtype == engine->indices_String) {
+    } else if (iter_type == engine->indices_String) {
         kind = IK_keys;
-    } else if (enumtype != engine->emptyString) {
-        return ThisSuper::Iterate(enumtype);
+    } else if (iter_type != engine->emptyString) {
+        return ThisSuper::Iterate(iter_type);
     }
     
     Iterator* e = 0;
