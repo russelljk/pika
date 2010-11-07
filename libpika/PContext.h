@@ -98,7 +98,7 @@ typedef Buffer<ScopeInfo>        ScopeStack;
 typedef ScopeStack::Iterator     ScopeIter;
 typedef Buffer<ExceptionBlock>   ExceptionStack;
 typedef ExceptionStack::Iterator HandlerIter;
-class ContextEnum;
+class ContextIterator;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        Context                                                //
@@ -112,14 +112,14 @@ class PIKA_API Context : public Object
 {
     PIKA_DECL(Context, Object)
 protected:
-    friend class ContextEnum;
+    friend class ContextIterator;
     friend class Generator;
     
     Context(Engine*, Type*);
 public:
     virtual ~Context();
     
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator*   Iterate(String*);
     virtual Object*     Clone();
     virtual void        MarkRefs(Collector*);
     

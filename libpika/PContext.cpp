@@ -110,45 +110,33 @@ void Context::StaticInitType(Engine* eng)
 }
 
 // Enumerates each yielded value for the given Context.
-class ContextEnum : public Enumerator
+class ContextIterator : public Iterator
 {
 public:
-    ContextEnum(Engine* eng, Context* ctx)
-        : Enumerator(eng), val(NULL_VALUE), context(ctx), prev(ctx->prev)
+    ContextIterator(Engine* eng, Type* ctxtype, Context* ctx)
+        : Iterator(eng, ctxtype), context(ctx)
     {}
     
-    virtual ~ContextEnum()
+    virtual ~ContextIterator()
     {}
-    
-    virtual bool Rewind()
-    {
-        val.SetNull();
-        Advance();
-        return IsValid();
-    }
-    
-    virtual bool IsValid()
+        
+    virtual bool ToBoolean()
     {
         return(context && (context->GetState() == Context::SUSPENDED)) || (context->GetState() == Context::RUNNING);
     }
     
-    virtual void GetCurrent(Value& curr)
+    virtual int Next(Context* caller)
     {
-        curr = val;
-    }
-    
-    virtual void Advance()
-    {
-        if (IsValid())
+        if (context->GetState() == Context::SUSPENDED)
         {
-            context->Call(prev, 1);
-            val = prev->PopTop();
+            u2 const retc = caller->GetRetCount();
+            context->Call(caller, retc);
+            return retc;
         }
-    }
+        return 0;
+    }    
 private:
-    Value val;
     Context* context;
-    Context* prev;
 };
 
 void ScopeInfo::DoMark(Collector* c)
@@ -294,10 +282,14 @@ void Context::PopPackageScope()
     package = currA.package; // popping anything else off will mess with the current interpreter state.
 }
 
-Enumerator* Context::GetEnumerator(String*)
+Iterator* Context::Iterate(String* iterkind)
 {
-    ContextEnum* c;
-    PIKA_NEW(ContextEnum, c, (engine, this));
+    if (iterkind != engine->emptyString)
+    {
+        return ThisSuper::Iterate(iterkind);
+    }
+    ContextIterator* c;
+    PIKA_NEW(ContextIterator, c, (engine, engine->Iterator_Type, this));
     engine->AddToGC(c);
     return c;
 }
