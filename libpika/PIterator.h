@@ -1,4 +1,7 @@
-
+/*
+ *  PIterator.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PITERATOR_HEADER
 #define PITERATOR_HEADER
 

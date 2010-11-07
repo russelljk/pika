@@ -16,48 +16,86 @@
 
 namespace pika {
 
-//////////////////////////////////////////StringEnumerator//////////////////////////////////////////
+//////////////////////////////////////////StringIterator//////////////////////////////////////////
 
-class StringEnumerator : public Enumerator
+class StringIterator : public Iterator
 {
 public:
-    StringEnumerator(Engine* eng, String* str, bool elements = false)
-            : Enumerator(eng),
-            started(false),
-            elements(elements),
+    StringIterator(Engine* eng, Type* itertype, String* str, IterateKind k)
+            : Iterator(eng, itertype),
+            valid(false),
+            kind(k),
             string(str),
-            currentIndex(0) {}
-            
-    virtual ~StringEnumerator() {}
+            currentIndex(0)
+    {
+        valid = Rewind();
+    }
+    
+    virtual ~StringIterator() {}
     
     virtual bool Rewind()
-    {
-        started = true;
+    {        
         currentIndex = 0;
         return string && (currentIndex < string->length);
     }
     
-    virtual bool IsValid()
+    virtual bool ToBoolean()
     {
-        if (!started)
-            return Rewind();
-        return currentIndex < string->length;
+        return valid;
     }
-    
-    virtual void GetCurrent(Value& c)
+
+    INLINE String* GetElement()
     {
-        if (elements)
+        char buff[2];
+        buff[0] = string->buffer[currentIndex];
+        buff[1] = 0;
+        return engine->AllocStringNC(buff);
+    }
+        
+    virtual int Next(Context* ctx)
+    {
+        if (currentIndex < string->length)
         {
-            char buff[2];
-            buff[0] = string->buffer[currentIndex];
-            buff[1] = 0;
-            c = engine->AllocString(buff);
+            
+            int retc = 0;
+            switch (kind) {
+            case IK_values:
+                ctx->Push(GetElement());
+                retc = 1;
+                break;
+            case IK_keys:                
+                ctx->Push((pint_t)currentIndex);
+                retc = 1;
+                break;
+            case IK_both:
+                ctx->Push((pint_t)currentIndex);
+                ctx->Push(GetElement());
+                retc = 2;
+                break;
+            case IK_default:
+            default:
+                if (ctx->GetRetCount() == 2)
+                {
+                    ctx->Push((pint_t)currentIndex);
+                    ctx->Push(GetElement());
+                    retc = 2;
+                }
+                else
+                {
+                    ctx->Push(GetElement());
+                    retc = 1;
+                }
+                break;
+            }
+            currentIndex++;
+            valid = true;
+            return retc;
         }
         else
         {
-            c = (pint_t)currentIndex;
+            valid = false;
         }
-        return;
+        return 0;
     }
     
     virtual void Advance()
@@ -72,8 +110,8 @@ public:
     }
     
 private:
-    bool started;
-    bool elements;
+    bool valid;
+    IterateKind kind;
     String* string;
     size_t currentIndex;
 };
@@ -358,18 +396,24 @@ bool String::SetSlot(const Value& key, Value& value, u4 attr) { return false; }
 bool String::CanSetSlot(const Value& key) { return false; }
 bool String::DeleteSlot(const Value& key) { return false; }
 
-Enumerator* String::GetEnumerator(String* enumtype)
+Iterator* String::Iterate(String* enumtype)
 {
     // "lines" "words" might be useful to have. line world enumerate each substring separated by '\n'. words are chars+numbers,
     //  separated by whitespace.
-    if (enumtype == engine->elements_String || enumtype == engine->indices_String || enumtype == engine->emptyString)
-    {
-        Enumerator* e = 0;
-        PIKA_NEW(StringEnumerator, e, (engine, this, enumtype == engine->elements_String));
-        engine->AddToGC(e);
-        return e;
+    
+    IterateKind kind = IK_default;
+    if (enumtype == engine->elements_String) {
+        kind = IK_values;
+    } else if (enumtype == engine->indices_String) {
+        kind = IK_keys;
+    } else if (enumtype != engine->emptyString) {
+        return Iterator::Create(engine, engine->Iterator_Type);
     }
-    return Basic::GetEnumerator(enumtype);
+
+    Iterator* e = 0;
+    PIKA_NEW(StringIterator, e, (engine, engine->Iterator_Type, this, kind));
+    engine->AddToGC(e);
+    return e;
 }
 
 Value String::ToNumber()
@@ -1066,6 +1110,36 @@ public:
     {
         res.Set(eng->emptyString);
     }
+    
+    static int iterate(Context* ctx, Value& self)
+    {
+        String* obj = self.val.str;
+        String* enumtype = 0;
+        u2 argc = ctx->GetArgCount();
+        
+        if (argc == 1)
+        {
+            enumtype = ctx->GetStringArg(0);
+        }
+        else if (argc == 0)
+        {
+            enumtype = ctx->GetEngine()->emptyString;
+        }
+        else
+        {
+            ctx->WrongArgCount();
+        }
+        
+        Iterator* e = obj->Iterate(enumtype);
+        
+        if (e)
+        {
+            ctx->Push(e);
+            return 1;
+        }
+        return 0;
+    }
+
 };
 
 void String::StaticInitType(Engine* eng)
@@ -1099,6 +1173,7 @@ void String::StaticInitType(Engine* eng)
         { "digit?",         StringApi::is_digit,            0, DEF_STRICT },
         { "ascii?",         StringApi::is_ascii,            0, DEF_STRICT },
         { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT },    
+        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS },    
     };
     
     static RegisterFunction String_ClassMethods[] =

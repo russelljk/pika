@@ -14,7 +14,7 @@ class StringTable;
 class StringApi;
 class StringEnumerator;
 class Array;
-    
+class Iterator;
 /** @brief String is a immutable array of characters.
   * Unlike C strings in Pika strings can contain arbitrary data including null characters.
   * To create a string call Engine::AllocString or one of its variants.
@@ -25,7 +25,7 @@ class PIKA_API String : public Basic
 protected:
     friend class StringTable;
     friend class StringApi;
-    friend class StringEnumerator;
+    friend class StringIterator;
     
     String(Engine*, size_t, const char*);
 public:
@@ -40,7 +40,7 @@ public:
     virtual Value ToValue();
     
     /** Returns a StringEnumerator that can enumerate over elements, indices, and empty the string. */
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator* Iterate(String*);
     
     virtual Type* GetType() const;
     virtual bool  GetSlot(const Value& key, Value& result);

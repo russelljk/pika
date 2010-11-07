@@ -1,4 +1,7 @@
-
+/*
+ *  PIterator.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "Pika.h"
 #include "PIterator.h"
 
@@ -46,7 +49,8 @@ int Iterator_next(Context* ctx, Value& self)
     return iter->Next(ctx);
 }
 
-}
+}// namespace
+
 void Iterator::StaticInitType(Engine* engine)
 {
     GCPAUSE_NORUN(engine);
