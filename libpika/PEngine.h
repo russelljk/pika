@@ -274,6 +274,7 @@ public:
     Type*   Value_Type;
     Type*       Basic_Type;
     Type*           Object_Type;
+    Type*               Iterator_Type;
     Type*               PathManager_Type;
     Type*               Dictionary_Type;
     Type*               Function_Type;

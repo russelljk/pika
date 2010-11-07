@@ -10,43 +10,34 @@
 #endif
 
 namespace pika {
-class ObjectEnumerator : public Enumerator
+
+class ObjectEnumerator : public Iterator
 {
 public:
-    ObjectEnumerator(Engine* eng, bool values, Object* obj, Table& tab)
-            : Enumerator(eng), started(false), bValues(values), owner(obj), table(tab) {
-            res.SetNull();
-            filter.SetNull();
-            if (obj->GetSlot(engine->AllocStringNC("onFilter"), filter)) {
-            }
+
+    
+    ObjectEnumerator(Engine* eng, Type* typ, IterateKind k, Object* obj, Table* tab)
+            : Iterator(eng, typ), kind(k), valid(false), started(false), owner(obj), table(tab)
+    {
+            key.SetNull();
+            val.SetNull();
+            Rewind();
     }
-    
-    virtual ~ObjectEnumerator() {}
-    
-    virtual bool FilterValue(Value& key, Object* obj) {
-        if (filter.IsNull())
-            return true; 
-        else {
-            Context* ctx = engine->GetActiveContextSafe();
-            ctx->Push(key);
-            ctx->Push(obj);
-            ctx->Push(filter);
-            if (ctx->SetupCall(1)) {
-                ctx->Run();
-            }
-            
-            Value& res = ctx->PopTop();
-            return engine->ToBoolean(ctx, res);
-        }
+  
+    virtual bool FilterValue(Value& key, Object* obj)
+    {
+        return true;
     }
     
     virtual bool Rewind()
     {
+        if (!table)
+            return false;
         started = true;
         Slot* curr = 0;
         size_t bin = 0;
-        size_t sz  = table.size; // size of table.slots[]
-        size_t count = table.count; // # of elements in table
+        size_t sz  = table->size; // size of table.slots[]
+        size_t count = table->count; // # of elements in table
         if (owner && sz)
         {
             // Build an array of keys so that any changes made to the slot table
@@ -56,7 +47,7 @@ public:
             size_t s = 0;
             for (bin = 0; bin < sz; ++bin)
             {
-                curr = table.rows[bin];
+                curr = table->rows[bin];
                 
                 while (curr)
                 {
@@ -71,6 +62,7 @@ public:
             if (s < count)
                 slots.Resize(s);
             currSlot = slots.Begin();
+            valid = true;
             MoveCurrent();
             return true;
         }
@@ -81,33 +73,74 @@ public:
         return false;
     }
     
-    virtual bool IsValid()
+    virtual bool ToBoolean()
     {
-        return started && (currSlot < slots.End());
+        return valid;
     }
     
-    virtual void GetCurrent(Value& c)
+    virtual int Next(Context* ctx)
     {
-        c = res;
+        if (started && (currSlot < slots.End()))
+        {
+            valid = true;
+            Advance();
+              
+            switch (kind) {
+            case IK_values:
+            {
+                ctx->Push(val);
+                return 1;
+            }
+            case IK_keys:
+            {
+                ctx->Push(key);
+                return 1;
+            }
+            case IK_both:
+            {
+                ctx->Push(key);
+                ctx->Push(val);
+                return 2;
+            }
+            case IK_default:
+            default:
+            {
+                if (ctx->GetRetCount() == 2)
+                {
+                    ctx->Push(key);
+                    ctx->Push(val);
+                    return 2;
+                }
+                else
+                {
+                    ctx->Push(val);
+                    return 1;
+                }
+            }
+            }
+        }
+        else
+        {
+            valid = false;
+            ctx->PushNull();
+        }
+        return 1;
     }
     
     virtual void MoveCurrent()
     {
-        if (IsValid())
+        if (started && (currSlot < slots.End()))
         {            
-            if (table.Get(*currSlot, res) && FilterValue(res, owner))
+            if (table->Get(*currSlot, val) && FilterValue(val, owner))
             {
-                if (!bValues)
-                {
-                    res = *currSlot;
-                }
+                key = *currSlot;
                 return;
             }
             else
             {
                 // Key was deleted while we were enumerating, move on to the next one.
                 Advance();
-                if (IsValid())
+                if (ToBoolean())
                 {
                     return MoveCurrent();
                 }
@@ -122,7 +155,8 @@ public:
     
     virtual void Advance()
     {
-        res.SetNull();
+        key.SetNull();
+        val.SetNull();
         if (owner)
         {
             if (!started)
@@ -130,11 +164,11 @@ public:
                 return;
             }
             
-            if (!(++currSlot < slots.End()))
-            {
-                currSlot = slots.End();
-            }
             MoveCurrent();
+            if (currSlot < slots.End())
+            {
+                ++currSlot;
+            }
         }
     }
     
@@ -149,16 +183,20 @@ public:
         {
             MarkValue(c, *i);
         }
+        MarkValue(c, key);
+        MarkValue(c, val);
     }
-private:    
+private:
+    IterateKind kind;
+    bool valid;
     bool started;
     bool bValues;
-    Value res;
+    Value key;
+    Value val;
     Object* owner;
     Buffer<Value> slots;
     Buffer<Value>::Iterator currSlot;
-    Value filter;
-    Table& table;
+    Table* table;
 };
 
 }// pika

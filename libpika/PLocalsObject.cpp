@@ -15,9 +15,10 @@
 #include "PNativeBind.h"
 #include "PLocalsObject.h"
 #include "PEnumerator.h"
+#include "PObjectEnumerator.h"
 
 namespace pika {
-extern Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Object* self, Table& table);
+extern Iterator* CreateSlotEnumerator(Engine* engine, IterateKind, Object* self, Table* table);
 
 // LocalObject /////////////////////////////////////////////////////////////////////////////////////
 
@@ -142,10 +143,10 @@ bool LocalsObject::SetSlot(const Value& key, Value& value, u4 attr)
     return Object::SetSlot(key, value, attr);
 }
 
-Enumerator* LocalsObject::GetEnumerator(String* str)
+Iterator* LocalsObject::Iterate(String* str)
 {
-    bool use_values = str == engine->values_String;
-    Enumerator* e = CreateSlotEnumerator(engine, use_values, this, this->indices);
+    IterateKind k = (str == engine->values_String) ? IK_values : IK_default;
+    Iterator* e = CreateSlotEnumerator(engine, k, this, &(this->indices));
     return e;
 }
 

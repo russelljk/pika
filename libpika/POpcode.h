@@ -91,6 +91,8 @@ enum OpOverride
     OVR_getat,
     OVR_setat,
     OVR_init,
+    OVR_next,
+    OVR_iterate,
     /* right hand side overrides */
     OVR_add_r,
     OVR_sub_r,

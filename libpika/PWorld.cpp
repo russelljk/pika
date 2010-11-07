@@ -747,6 +747,8 @@ void Engine::InitializeWorld()
         "opGetAt",
         "opSetAt",
         OPINIT_CSTR,
+        "next",
+        "iterate",
         "opAdd_r",
         "opSub_r",
         "opMul_r",
@@ -884,6 +886,7 @@ void Engine::InitializeWorld()
         String::StaticInitType(this);
         PathManager::StaticInitType(this);
         Generator::StaticInitType(this);
+        Iterator::StaticInitType(this);
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
         

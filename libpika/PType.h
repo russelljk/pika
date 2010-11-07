@@ -38,7 +38,7 @@ public:
     virtual bool IsSubtype(Type*);
     virtual bool IsInstance(Basic*);
     virtual bool IsInstance(Value&);
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator* Iterate(String*);
     virtual bool CanSetSlot(const Value& key);
     virtual bool GetGlobal(const Value& key, Value& result);
     virtual bool SetGlobal(const Value& key, Value& val, u4 attr = 0);

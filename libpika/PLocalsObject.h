@@ -40,7 +40,7 @@ public:
     
     virtual Object* Clone();
     virtual void MarkRefs(Collector* c);
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator* Iterate(String*);
 
     // read or write a local-variable by name.
     virtual bool GetSlot(const Value& key, Value& result);

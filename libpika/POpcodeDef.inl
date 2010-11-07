@@ -124,7 +124,7 @@
     DECL_OP( OP_itercall,       "iterate",      4, OF_bw,       "" )
     
     DECL_OP( OP_foreach,        "foreach",      3, OF_w,        "" )
-        
+    
     DECL_OP( OP_same,           "same",         1, OF_none,     "" )
     DECL_OP( OP_notsame,        "notsame",      1, OF_none,     "" )
     DECL_OP( OP_is,             "is",           1, OF_none,     "" )

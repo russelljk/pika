@@ -35,29 +35,33 @@ void Dictionary::MarkRefs(Collector* c)
     elements.DoMark(c);
 }
 
-Enumerator* Dictionary::GetEnumerator(String* kind)
+Iterator* Dictionary::Iterate(String* kind)
 {
-    bool values=false;
     bool punt = true;
+    IterateKind k = IK_default;
     if (kind == engine->elements_String)
     {
-        values = true;
+        k = IK_values;
         punt = false;
     }
-    else if (kind == engine->keys_String || kind == engine->emptyString)
+    else if (kind == engine->keys_String)
     {
-        values = false;
+        k = IK_keys;
+        punt = false;
+    }
+    else if (kind == engine->emptyString)
+    {
         punt = false;
     }
     
     if (!punt)
     {
         GCPAUSE_NORUN(engine);
-        Enumerator* newEnumerator = 0;
-        GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, values, this, elements));
+        Iterator* newEnumerator = 0;
+        GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, engine->Iterator_Type, k, this, &elements));
         return newEnumerator;
     }    
-    return ThisSuper::GetEnumerator(kind);
+    return ThisSuper::Iterate(kind);
 }
 
 bool Dictionary::BracketRead(const Value& key, Value& res)

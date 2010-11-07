@@ -26,10 +26,10 @@ extern int Global_import(Context*, Value&);
 
 ///////////////////////////////////////// ObjectEnumerator /////////////////////////////////////////
 
-Enumerator* CreateSlotEnumerator(Engine* engine, bool values, Object* self, Table& table)
+Iterator* CreateSlotEnumerator(Engine* engine, IterateKind kind, Object* self, Table* table)
 {
-    Enumerator* newEnumerator = 0;
-    GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, values, self, table));
+    Iterator* newEnumerator = 0;
+    GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, engine->Iterator_Type, kind, self, table));
     return newEnumerator;
 }
 ////////////////////////////////////////////// Object //////////////////////////////////////////////
@@ -197,20 +197,23 @@ Object* Object::Clone()
     return newObject;
 }
 
-Enumerator* Object::GetEnumerator(String* enumType)
+Iterator* Object::Iterate(String* enumType)
 {
-    bool values = false;
+    if (!members)
+    {
+        return Iterator::Create(engine, engine->Iterator_Type);
+    }
     
+    IterateKind k = IK_default;
     if (enumType == engine->values_String)
     {
-        values = true;
+        k = IK_values;
     }
-    else if (!members || (enumType != engine->names_String) &&
-             (enumType != engine->emptyString))
+    else if (enumType == engine->names_String)
     {
-        return Basic::GetEnumerator(enumType);
+        k = IK_keys;
     }
-    Enumerator* newEnumerator = CreateSlotEnumerator(engine, values, this, *(this->members));
+    Iterator* newEnumerator = CreateSlotEnumerator(engine, k, this, this->members);
     return newEnumerator;
 }
 
@@ -367,7 +370,7 @@ int Object_getEnumerator(Context* ctx, Value& self)
         ctx->WrongArgCount();
     }
     
-    Enumerator* e = obj->GetEnumerator(enumtype);
+    Iterator* e = obj->Iterate(enumtype);
     
     if (e)
     {
@@ -528,7 +531,7 @@ void Object::StaticInitType(Engine* eng)
     static RegisterFunction ObjectFunctions[] =
     {
         { "remove",         Object_remove,        0, DEF_VAR_ARGS },
-        { "getEnumerator",  Object_getEnumerator, 0, DEF_VAR_ARGS },
+        { "iterate",        Object_getEnumerator, 0, DEF_VAR_ARGS },
         { "clone",          Object_clone,         0, 0 },
         { OPINIT_CSTR,      Object_init,          0, DEF_VAR_ARGS },
         { "toString",       Object_toString,      0, 0 },

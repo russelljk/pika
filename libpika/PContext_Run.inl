@@ -715,29 +715,17 @@ void Context::Run()
                 Value iter = GetLocal(iter_idx);
                 Value res(NULL_VALUE);
                 bool success = false;
-                bool has_result = false; // Values are on the stack and need copied and removed.
                 
-                if (engine->Generator_Type->IsInstance(iter))
+                if (iter.tag >= TAG_basic && GetOverrideFrom(engine, iter.val.basic, OVR_next, res))
                 {
-                    Generator* g = static_cast<Generator*>(iter.val.object);
-                    if (g->ToBoolean())
+                    this->Push(iter);
+                    this->Push(res);
+                    if (this->SetupCall(0, num_vars))
                     {
-                        g->Resume(this, num_vars);
                         this->Run();
-                        success = g->ToBoolean();  
-                        has_result = true;                      
                     }
-                }
-                else if (iter.tag == TAG_enumerator)
-                {
-                    Enumerator* e = iter.val.enumerator;
-                    if (e->IsValid())
-                    {
-                        e->CallNext(this, num_vars);
-                        e->Advance();
-                        success = true;
-                        has_result = true;
-                    }
+                    
+                    success = engine->ToBoolean(this, iter);
                 }
                 else
                 {
@@ -746,15 +734,13 @@ void Context::Run()
                                        engine->GetTypenameOf(iter)->GetBuffer());
                 }
                 
-                if (has_result)
+                Value* start = GetStackPtr() - (ptrdiff_t)num_vars;
+                for (size_t i = 0; i < num_vars; ++i)
                 {
-                    Value* start = GetStackPtr() - (ptrdiff_t)num_vars;
-                    for (size_t i = 0; i < num_vars; ++i)
-                    {
-                        SetLocal(start[i], loop_idx+ i);
-                    }   
-                    Pop(num_vars);
-                }
+                    SetLocal(start[i], loop_idx+ i);
+                }   
+                Pop(num_vars);
+                
                 PushBool(success);
             }
             PIKA_NEXT()
@@ -813,19 +799,52 @@ void Context::Run()
                                            "For each set kind must be a function generator.");
                             }
                         } 
+                        else if (GetOverrideFrom(engine, object.val.basic, OVR_iterate, result))
+                        {
+                            this->Push(field);
+                            this->Push(object);
+                            this->Push(result);
+                            if (this->SetupCall(1))
+                            {
+                                this->Run();
+                            }
+                    
+                            result = this->PopTop();
+                        }
                         else
                         {
-                            Enumerator* e = subj->GetEnumerator(field.val.str);
-                            e->Rewind();
-                            result.Set(e);
+                            if (field.val.str == engine->emptyString)
+                            {
+                                ReportRuntimeError(Exception::ERROR_runtime,
+                                                   "Cannot find iterator for object of type %s.",
+                                                   engine->GetTypenameOf(object)->GetBuffer());
+                            }
+                            else
+                            {
+                                ReportRuntimeError(Exception::ERROR_runtime, 
+                                                   "Cannot find iterator '%s' for object of type %s.",
+                                                   field.val.str->GetBuffer(), 
+                                                   engine->GetTypenameOf(object)->GetBuffer());    
+                            }
+
                         }
                     }        
-                } 
+                }
                 else
                 {
-                     Enumerator* e = ValueEnumerator::Create(engine, object, field.val.str);
-                     e->Rewind();
-                     result.Set(e);
+                    if (field.val.str == engine->emptyString)
+                    {
+                        ReportRuntimeError(Exception::ERROR_runtime,
+                                           "Cannot find iterator for object of type %s.",
+                                           engine->GetTypenameOf(object)->GetBuffer());
+                    }
+                    else
+                    {
+                        ReportRuntimeError(Exception::ERROR_runtime, 
+                                           "Cannot find iterator '%s' for object of type %s.",
+                                           field.val.str->GetBuffer(), 
+                                           engine->GetTypenameOf(object)->GetBuffer());    
+                    }
                 }                
                 GetLocal(index) = result; 
             }

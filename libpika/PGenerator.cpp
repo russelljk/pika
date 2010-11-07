@@ -139,8 +139,8 @@ void Generator::Return()
 Object* Generator::Clone()
 {
     Generator* gen = 0;
-    GCNEW(engine, Generator, gen, (this));
-    engine->AddToGC(gen);
+    PIKA_NEW(Generator, gen, (this));
+    engine->AddToGCNoRun(gen);
     return gen;
 }
 
@@ -215,7 +215,8 @@ void Generator::Constructor(Engine* eng, Type* type, Value& res)
 Generator* Generator::Create(Engine* eng, Type* type, Function* function)
 {
     Generator* gen = 0;
-    GCNEW(eng, Generator, gen, (eng, type, function));
+    PIKA_NEW(Generator, gen, (eng, type, function));
+    eng->AddToGCNoRun(gen);
     return gen;
 }
 

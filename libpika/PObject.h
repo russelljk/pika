@@ -23,6 +23,7 @@ class Package;
 class Array;
 class Type;
 class Object;
+class Iterator;
 
 /** Instance creation function used by types. */
 typedef void (*Type_NewFn)(Engine*, Type*, Value&);
@@ -77,7 +78,7 @@ public:
     virtual String* ToString();
     virtual void    Init(Context*);
     
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator* Iterate(String*);
     
     /** Add native functions to an object.
       * 
@@ -168,5 +169,7 @@ if ( !self.IsDerivedFrom(TYPE::StaticGetClass()) )                              
 TYPE* OBJ = (TYPE*)self.val.object;
 
 }// pika
+
+#include "PIterator.h"
 
 #endif

@@ -14,12 +14,13 @@
 #include "PObjectEnumerator.h"
 #include "PParser.h"
 
+
 namespace pika {
 // Enumerates only object of a certain type
 struct FilterEnum : ObjectEnumerator
 {
-    FilterEnum(Engine* eng, bool values, Object* obj, Table& tab, Type* ftype)
-            : ObjectEnumerator(eng, values, obj, tab), filterType(ftype)
+    FilterEnum(Engine* eng, Type* typ, IterateKind k, Object* obj, Table* tab, Type* ftype)
+            : ObjectEnumerator(eng, typ, k, obj, tab), filterType(ftype)
     {}
 
     virtual bool FilterValue(Value& val, Object*)
@@ -90,7 +91,7 @@ Object* Type::Clone()
     return obj_type;
 }
 
-Enumerator* Type::GetEnumerator(String* enumtype)
+Iterator* Type::Iterate(String* enumtype)
 {
     Engine* eng = GetEngine();
     {
@@ -112,11 +113,11 @@ Enumerator* Type::GetEnumerator(String* enumtype)
         if (members && filter)
         {
             FilterEnum* filterenum = 0;
-            GCNEW(eng, FilterEnum, filterenum, (eng, true, this, *(this->members), filter));
+            GCNEW(eng, FilterEnum, filterenum, (eng, engine->Iterator_Type, IK_default, this, this->members, filter));
             return filterenum;
         }
     } // GCPAUSE_NORUN
-    return ThisSuper::GetEnumerator(enumtype);
+    return ThisSuper::Iterate(enumtype);
 }
 
 void Type::MarkRefs(Collector* c)

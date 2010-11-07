@@ -20,7 +20,7 @@ namespace pika {
         
         virtual bool BracketRead(const Value& key, Value& res);
         virtual bool BracketWrite(const Value& key, Value& value, u4 attr=0);
-        virtual Enumerator* GetEnumerator(String* kind);
+        virtual Iterator* Iterate(String* kind);
         virtual String* ToString();
         
         Array* Keys();
