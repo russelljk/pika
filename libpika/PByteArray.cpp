@@ -7,14 +7,21 @@
 
 namespace pika {
 
-// ByteArrayEnumerator ////////////////////////////////////////////////////////////////////////////////
+// ByteArrayIterator ////////////////////////////////////////////////////////////////////////////////
 
-class ByteArrayEnumerator : public Enumerator
+class ByteArrayIterator : public Iterator
 {
 public:
-    ByteArrayEnumerator(Engine* eng, ByteArray* byte_array) : Enumerator(eng), pos(0), byte_array(byte_array) {}
+    ByteArrayIterator(Engine* eng, Type* batype, ByteArray* byte_array) : 
+        Iterator(eng, batype),
+        valid(false),
+        pos(0),
+        byte_array(byte_array) 
+    {
+        valid = Rewind();
+    }
     
-    virtual ~ByteArrayEnumerator() {}
+    virtual ~ByteArrayIterator() {}
     
     bool ValidObject() const { return byte_array != 0; }
     
@@ -25,18 +32,25 @@ public:
         if (!ValidObject())
             return false;
         pos = 0;
-        return IsValid();
+        return true;
     }
     
-    virtual bool IsValid() { return !IsAtEnd(); }
+    virtual bool ToBoolean() { return valid; }
     
-    virtual void GetCurrent(Value& v)
+    virtual int Next(Context* ctx)
     {
-        if (ValidObject())
+        if (pos < byte_array->buffer.GetSize())
         {
-            u1 ch = byte_array->buffer[pos];
-            v.Set((pint_t)ch);
+            u1 ch = byte_array->buffer[pos++];
+            ctx->Push((pint_t)ch);
+            valid = true;
+            return 1;
         }
+        else
+        {
+            valid = false;
+        }
+        return 0;
     }
     
     virtual void Advance()
@@ -47,6 +61,7 @@ public:
         }
     }
     
+    bool valid;
     size_t pos;
     ByteArray* byte_array;
 };
@@ -83,16 +98,16 @@ Object* ByteArray::Clone()
     return b;
 }
 
-Enumerator* ByteArray::GetEnumerator(String* enumtype)
+Iterator* ByteArray::Iterate(String* enumtype)
 {
     if (enumtype == engine->emptyString)
     {
-        Enumerator* e = 0;
-        PIKA_NEW(ByteArrayEnumerator, e, (engine, this));
+        Iterator* e = 0;
+        PIKA_NEW(ByteArrayIterator, e, (engine, engine->Iterator_Type, this));
         engine->AddToGC(e);
         return e;
     }
-    return ThisSuper::GetEnumerator(enumtype);
+    return ThisSuper::Iterate(enumtype);
 }
 
 ByteArray::~ByteArray() {}

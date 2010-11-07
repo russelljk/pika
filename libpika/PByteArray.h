@@ -30,12 +30,12 @@ protected:
     ByteArray(Engine*, Type*, u1*, size_t);
     ByteArray(const ByteArray*);
     
-    friend class ByteArrayEnumerator;
+    friend class ByteArrayIterator;
 public:
     virtual ~ByteArray();
     
     virtual Object*     Clone();
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator*   Iterate(String*);
     virtual String*     ToString();
     
     virtual bool   SetSlot(const Value& key, Value& value, u4 attr = 0);
