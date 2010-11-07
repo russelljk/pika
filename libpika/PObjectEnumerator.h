@@ -11,19 +11,19 @@
 
 namespace pika {
 
-class ObjectEnumerator : public Iterator
+class ObjectIterator : public Iterator
 {
 public:
-
-    
-    ObjectEnumerator(Engine* eng, Type* typ, IterateKind k, Object* obj, Table* tab)
+    ObjectIterator(Engine* eng, Type* typ, IterateKind k, Object* obj, Table* tab)
             : Iterator(eng, typ), kind(k), valid(false), started(false), owner(obj), table(tab)
     {
-            key.SetNull();
-            val.SetNull();
-            Rewind();
+        key.SetNull();
+        val.SetNull();
+        Rewind();
     }
-  
+    
+    virtual ~ObjectIterator() {}
+    
     virtual bool FilterValue(Value& key, Object* obj)
     {
         return true;
@@ -87,24 +87,17 @@ public:
               
             switch (kind) {
             case IK_values:
-            {
                 ctx->Push(val);
                 return 1;
-            }
             case IK_keys:
-            {
                 ctx->Push(key);
                 return 1;
-            }
             case IK_both:
-            {
                 ctx->Push(key);
                 ctx->Push(val);
                 return 2;
-            }
             case IK_default:
             default:
-            {
                 if (ctx->GetRetCount() == 2)
                 {
                     ctx->Push(key);
@@ -116,7 +109,6 @@ public:
                     ctx->Push(val);
                     return 1;
                 }
-            }
             }
         }
         else

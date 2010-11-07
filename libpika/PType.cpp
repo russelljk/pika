@@ -17,10 +17,10 @@
 
 namespace pika {
 // Enumerates only object of a certain type
-struct FilterEnum : ObjectEnumerator
+struct FilteredIterator : ObjectIterator
 {
-    FilterEnum(Engine* eng, Type* typ, IterateKind k, Object* obj, Table* tab, Type* ftype)
-            : ObjectEnumerator(eng, typ, k, obj, tab), filterType(ftype)
+    FilteredIterator(Engine* eng, Type* typ, IterateKind k, Object* obj, Table* tab, Type* ftype)
+            : ObjectIterator(eng, typ, k, obj, tab), filterType(ftype)
     {}
 
     virtual bool FilterValue(Value& val, Object*)
@@ -30,7 +30,7 @@ struct FilterEnum : ObjectEnumerator
     
     virtual void MarkRefs(Collector* c)
     {
-        ObjectEnumerator::MarkRefs(c);
+        ObjectIterator::MarkRefs(c);
         if (filterType)
         {
             filterType->Mark(c);
@@ -98,22 +98,18 @@ Iterator* Type::Iterate(String* enumtype)
         GCPAUSE_NORUN(eng);
                 
         Type* filter = 0;
-        if (enumtype == eng->AllocString("methods"))
-        {
+        if (enumtype == eng->AllocStringNC("methods")) {
             filter = eng->InstanceMethod_Type;
-        }
-        else if (enumtype == eng->AllocString("classmethods"))
-        {
+        } else if (enumtype == eng->AllocStringNC("classmethods")) {
             filter = eng->ClassMethod_Type;
-        }
-        else if (enumtype == eng->AllocString("properties"))
-        {
+        } else if (enumtype == eng->AllocStringNC("properties")) {
             filter = eng->Property_Type;
         }
+        
         if (members && filter)
         {
-            FilterEnum* filterenum = 0;
-            GCNEW(eng, FilterEnum, filterenum, (eng, engine->Iterator_Type, IK_default, this, this->members, filter));
+            FilteredIterator* filterenum = 0;
+            GCNEW(eng, FilteredIterator, filterenum, (eng, engine->Iterator_Type, IK_default, this, this->members, filter));
             return filterenum;
         }
     } // GCPAUSE_NORUN

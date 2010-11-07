@@ -24,12 +24,12 @@ namespace pika {
 
 extern int Global_import(Context*, Value&);
 
-///////////////////////////////////////// ObjectEnumerator /////////////////////////////////////////
+///////////////////////////////////////// ObjectIterator /////////////////////////////////////////
 
 Iterator* CreateSlotEnumerator(Engine* engine, IterateKind kind, Object* self, Table* table)
 {
     Iterator* newEnumerator = 0;
-    GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, engine->Iterator_Type, kind, self, table));
+    GCNEW(engine, ObjectIterator, newEnumerator, (engine, engine->Iterator_Type, kind, self, table));
     return newEnumerator;
 }
 ////////////////////////////////////////////// Object //////////////////////////////////////////////

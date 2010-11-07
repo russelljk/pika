@@ -39,7 +39,7 @@ public:
     using Basic::GetSlot;
     using Basic::SetSlot;
 #   endif
-    friend class ObjectEnumerator;
+    friend class ObjectIterator;
 protected:
     INLINE Object(Engine* eng, Type* typeObj) : Basic(eng), type(typeObj), members(0) {}
     

@@ -58,7 +58,7 @@ Iterator* Dictionary::Iterate(String* kind)
     {
         GCPAUSE_NORUN(engine);
         Iterator* newEnumerator = 0;
-        GCNEW(engine, ObjectEnumerator, newEnumerator, (engine, engine->Iterator_Type, k, this, &elements));
+        GCNEW(engine, ObjectIterator, newEnumerator, (engine, engine->Iterator_Type, k, this, &elements));
         return newEnumerator;
     }    
     return ThisSuper::Iterate(kind);

@@ -6,62 +6,84 @@
 #include "PikaSort.h"
 #include "PDictionary.h"
 #include <algorithm>
+#include "PIterator.h"
 
 namespace pika {
 
 PIKA_IMPL(Array)
 
-class ArrayEnumerator : public Enumerator
+class ArrayIterator : public Iterator
 {
 public:
-    ArrayEnumerator(Engine* eng, bool indexes, Array* owner)
-            : Enumerator(eng),
-            started(false),
-            indexes(indexes),
+    ArrayIterator(Engine* eng, Type* itype, IterateKind k, Array* owner)
+            : Iterator(eng, itype ? itype : eng->Iterator_Type),
+            valid(false),
+            kind(k),
             owner(owner),
-            curr(0) {}
+            curr(0) 
+    {
+        valid = Rewind();
+    }
     
-    virtual ~ArrayEnumerator() {}
+    virtual ~ArrayIterator() {}
     
     virtual bool Rewind()
-    {
-        started = true;
+    {        
         curr = 0;
         if (owner && (owner->elements.GetSize() > 0))
             return true;
         return false;
     }
     
-    virtual void Advance()
+    virtual bool ToBoolean()
+    {
+        return valid;
+    }
+    
+    virtual int Next(Context* ctx)
     {
         if (curr < owner->elements.GetSize())
         {
+            int retc = 0;
+            switch (kind) {
+            case IK_values:
+                ctx->Push(owner->elements[curr]);
+                retc = 1;
+                break;
+            case IK_keys:
+                ctx->Push((pint_t)curr);
+                retc = 1;
+                break;
+            case IK_both:
+                ctx->Push((pint_t)curr);
+                ctx->Push(owner->elements[curr]);
+                retc = 2;
+                break;
+            case IK_default:
+            default:
+                if (ctx->GetRetCount() >= 2)
+                {
+                    ctx->Push((pint_t)curr);
+                    ctx->Push(owner->elements[curr]);
+                    retc = 2;
+                }
+                else
+                {
+                    ctx->Push(owner->elements[curr]);
+                    retc = 1;
+                }
+                break;
+            }
             ++curr;
+            valid = true;
+            return retc;
+
         }
-    }
-    
-    virtual bool IsValid()
-    {
-        if (owner)
+        else
         {
-            if (!started)
-                return Rewind();
-                
-            if (curr < owner->elements.GetSize())
-                return true;
+            valid = false;
         }
-        return false;
-    }
-    
-    virtual void GetCurrent(Value& c)
-    {
-        if (curr < owner->elements.GetSize())
-        {
-            if (indexes)
-                c.Set((pint_t)curr);
-            else
-                c = owner->elements[curr];
-        }
+        return 0;
     }
     
     virtual void MarkRefs(Collector* c)
@@ -70,8 +92,8 @@ public:
             owner->Mark(c);
     }
     
-    bool started;
-    bool indexes;
+    bool valid;
+    IterateKind kind;
     Array* owner;
     size_t curr;
 };
@@ -348,18 +370,21 @@ Array::Array(const Array* rhs) :
 {
 }
 
-Enumerator* Array::GetEnumerator(String *enumtype)
+Iterator* Array::Iterate(String *enumtype)
 {
-    if (enumtype == engine->elements_String ||
-        enumtype == engine->indices_String  ||
-        enumtype == engine->emptyString)
-    {
-        Enumerator* e = 0;
-        PIKA_NEW(ArrayEnumerator, e, (engine, (enumtype == engine->indices_String), this));
-        engine->AddToGC(e);
-        return e;
+    IterateKind kind = IK_default;
+    if (enumtype == engine->elements_String) {
+        kind = IK_values;
+    } else if (enumtype == engine->indices_String) {
+        kind = IK_keys;
+    } else if (enumtype != engine->emptyString) {
+        return ThisSuper::Iterate(enumtype);
     }
-    return ThisSuper::GetEnumerator(enumtype);
+    
+    Iterator* e = 0;
+    PIKA_NEW(ArrayIterator, e, (engine, engine->Iterator_Type, kind, this));
+    engine->AddToGC(e);
+    return e;
 }
 
 // Array functions /////////////////////////////////////////////////////////////////////////////////

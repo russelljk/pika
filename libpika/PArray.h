@@ -39,7 +39,7 @@ class PIKA_API Array : public Object
 {
     PIKA_DECL(Array, Object)
 protected:
-    friend class ArrayEnumerator;
+    friend class ArrayIterator;
     
     explicit Array(Engine* eng, Type*, size_t, Value*);
     explicit Array(const Array*);
@@ -53,7 +53,7 @@ public:
     
     virtual void        MarkRefs(Collector*);
     virtual Object*     Clone();
-    virtual Enumerator* GetEnumerator(String*);
+    virtual Iterator*   Iterate(String*);
     virtual void        Init(Context*);
     
     /** Converts the array into a string, formatted as an array literal. */

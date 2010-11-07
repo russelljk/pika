@@ -35,7 +35,9 @@ void Iterator::Constructor(Engine* eng, Type* type, Value& res)
     Iterator* iter = 0;
     PIKA_NEW(Iterator, iter, (eng, type));
     eng->AddToGCNoRun(iter);
+    res.Set(iter);
 }
+
 namespace {
 
 int Iterator_next(Context* ctx, Value& self)
