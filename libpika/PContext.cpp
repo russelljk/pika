@@ -31,7 +31,7 @@ const char* GetContextStateName(Context::EState state)
     }
 }
 
-int Context_call(Context* ctx, Value& self)
+int Context_next(Context* ctx, Value& self)
 {
     Context* callee = (Context*)self.val.object;
     /*
@@ -50,7 +50,7 @@ int Context_call(Context* ctx, Value& self)
 }
 
 /* TODO { Context.setup should be changed to accept keyword Dictionary. } */
-int Context_Setup(Context* ctx, Value& self)
+int Context_setup(Context* ctx, Value& self)
 {
     Context* callee = (Context*)self.val.object;
     
@@ -85,8 +85,8 @@ void Context::StaticInitType(Engine* eng)
     
     static RegisterFunction Context_Methods[] =
     {
-        { "call",  Context_call,  0, DEF_STRICT   },
-        { "setup", Context_Setup, 0, DEF_VAR_ARGS },
+        { "next",  Context_next,  0, DEF_STRICT   },
+        { "setup", Context_setup, 0, DEF_VAR_ARGS },
     };
     
     SlotBinder<Context>(eng, eng->Context_Type)
@@ -2100,7 +2100,7 @@ void Context::CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const
 
 bool Context::OpUnpack(u4 expected)
 {
-    Value& t = Top();
+    Value t = Top();
     
     switch (t.tag)
     {
@@ -2113,9 +2113,11 @@ bool Context::OpUnpack(u4 expected)
         Pop();
         Value* start = GetStackPtr();
         StackAlloc(expected);
-        for (Value* c = start; c < (start + expected); ++c)
+        Value* c = start;
+        *c++ = t;
+        for (;c < (start + expected); ++c)
         {
-            *c = t;
+            c->SetNull();
         }
     }
     break;

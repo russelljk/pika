@@ -8,7 +8,7 @@
 #include "PString.h"
 #include "PFunction.h"
 #include "PType.h"
-    
+
 namespace pika {
 namespace {
 	/**
@@ -18,7 +18,7 @@ namespace {
 	  	close 'full' ->  sets scope for all parent functions
 		meta: [class] type.type = metatype
         bindto: =>BoundFunction
-  	*/	
+  	*/
 	int Annotation_abstract(Context* ctx, Value&)
 	{
         Type* type = ctx->GetArgT<Type>(0);
@@ -112,12 +112,53 @@ namespace {
 		return 1;
 	}
     
+    Package* FunctionGetPackage(Engine* eng, Function* f)
+    {
+        Package* pkg = f->location;
+        if (eng->InstanceMethod_Type->IsInstance(f))
+        {
+            pkg = ((InstanceMethod*)f)->GetClassType();
+        } 
+        else if (eng->ClassMethod_Type->IsInstance(f))
+        {
+            pkg = ((ClassMethod*)f)->GetClassType();
+        }
+        if (!pkg)
+            RaiseException("Cannot find the location of function '%s' needed by the annotation.", f->def->name->GetBuffer());
+        return pkg;
+    }
+    
+    Property* LookupProperty(Engine* eng, Function* f, String* name, Package* pkg)
+    {        
+        if (pkg)
+        {
+            Value p(NULL_VALUE);
+            if (pkg->GetGlobal(name, p) && eng->Property_Type->IsInstance(p))
+            {
+                return p.val.property;
+            }
+        }
+        return 0;
+    }
+    
     int Annotation_getter(Context* ctx, Value&)
     {
         GCPAUSE(ctx->GetEngine());
         Function* func = ctx->GetArgT<Function>(0);
-        Property* p = Property::CreateRead(ctx->GetEngine(), func->GetName(), func);
-        ctx->Push(p);
+        String* name = ctx->GetStringArg(1);
+        Property* p = 0;
+        Package* pkg = FunctionGetPackage(ctx->GetEngine(), func);
+                
+        if (p = LookupProperty(ctx->GetEngine(), func, name, pkg))
+        {
+            p->SetRead(func);
+        }
+        else
+        {
+            p = Property::CreateRead(ctx->GetEngine(), name, func);
+            pkg->AddProperty(p);
+        }
+        ctx->Push(func);
         return 1;
     }
     
@@ -125,30 +166,22 @@ namespace {
     {
         GCPAUSE(ctx->GetEngine());
         Function* func = ctx->GetArgT<Function>(0);
-        Property* p = Property::CreateWrite(ctx->GetEngine(), func->GetName(), func);
-        ctx->Push(p);
+        String* name = ctx->GetStringArg(1);
+        Property* p = 0;
+        Package* pkg = FunctionGetPackage(ctx->GetEngine(), func);
+        if (p = LookupProperty(ctx->GetEngine(), func, name, pkg))
+        {
+            p->SetWriter(func);
+        }
+        else
+        {
+            p = Property::CreateWrite(ctx->GetEngine(), name, func);
+            pkg->AddProperty(p);
+        }
+        ctx->Push(func);
         return 1;
     }
     
-    /*
-    Problems {
-        + Returned value is a Context not a Function.
-        + This could break other Function annotations.
-        + Need to override opCall to it behaves like a function.
-        + Context still needs to be setup. 
-    }
-    int Annotation_coro(Context* ctx, Value&)
-    {
-        Engine* eng = ctx->GetEngine();
-        GCPAUSE(eng);
-        Function* func = ctx->GetObjectArg(0);
-        Context* coro = Context::Create(eng, eng->Context_Type);
-        coro->PushNull();
-        coro->Push(func);
-        
-        ctx->Push(coro);
-    }
-    */
 }// namespace
 
 void Init_Annotations(Engine* engine, Package* world)
@@ -161,8 +194,8 @@ void Init_Annotations(Engine* engine, Package* world)
         {"final",    Annotation_final,    1, DEF_STRICT },
         {"scope",    Annotation_scope,    2, DEF_STRICT },
         {"strict",   Annotation_strict,   1, DEF_STRICT },
-        {"getter",   Annotation_getter,   1, DEF_STRICT },
-        {"setter",   Annotation_setter,   1, DEF_STRICT },
+        {"getter",   Annotation_getter,   2, DEF_STRICT },
+        {"setter",   Annotation_setter,   2, DEF_STRICT },
     };
     
     world->EnterFunctions(annotations, countof(annotations));

@@ -84,7 +84,7 @@
     DECL_OP( OP_bind,           "bind",         1, OF_none ,    "")
     
     DECL_OP( OP_unpack,         "unpack",       3, OF_w,        "" )
-
+    
     DECL_OP( OP_tailapply,      "tailapply",    3, OF_bb,       "" )
     DECL_OP( OP_apply,          "apply",        3, OF_bbb,      "" )
     DECL_OP( OP_tailcall,       "tailcall",     3, OF_bb,       "" )
@@ -116,11 +116,7 @@
     DECL_OP( OP_gennull,        "gennull",      1, OF_none,     "" )
     DECL_OP( OP_gen,            "gen",          1, OF_none,     "" )
     DECL_OP( OP_genv,           "genv",         3, OF_w,        "" )
-
-    DECL_OP( OP_yieldnull,      "yieldnull",    1, OF_none,     "" )
-    DECL_OP( OP_yield,          "yield",        1, OF_none,     "" )
-    DECL_OP( OP_yieldv,         "yieldv",       3, OF_w,        "" )
-
+    
     DECL_OP( OP_itercall,       "iterate",      4, OF_bw,       "" )
     
     DECL_OP( OP_foreach,        "foreach",      3, OF_w,        "" )

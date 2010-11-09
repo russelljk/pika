@@ -293,13 +293,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     case OP_gen:            return  0; //      how many values will be used.
     case OP_genv:           return  0; //
                                        // Instead we make sure that CheckStackSpace or
-    case OP_yieldnull:      return  0; // StackAlloc is called.
-    case OP_yield:          return -1;
-    case OP_yieldv:
-    {
-        int operand = ir->operand;
-        return -operand;
-    }
+                                       // StackAlloc is called.
     case OP_itercall:       return  1;
     case OP_foreach:        return -2;
         

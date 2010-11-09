@@ -493,8 +493,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_loop:          stmt = DoLoopStatement();      break;
     case TOK_for:           stmt = DoForStatement();       break;
     case TOK_return:        stmt = DoReturnStatement();    break;
-    case TOK_coyield:       stmt = DoYieldStatement();     break;
-    case TOK_yield:         stmt = DoGenerateStatement();     break;
+    case TOK_yield:         stmt = DoGenerateStatement();  break;
     case TOK_break:         stmt = DoBreakStatement();     break;
     case TOK_continue:      stmt = DoContinueStatement();  break;
     case TOK_begin:         stmt = DoBlockStatement();     break;
@@ -1438,37 +1437,6 @@ Stmt* Parser::DoReturnStatement()
     }
     
     PIKA_NEWNODE(CtrlStmt, stmt, (state, exprList, Stmt::STMT_return));
-    
-    if (exprList)
-    {
-        stmt->line = exprList->line;
-    }
-    else
-    {
-        stmt->line = line;
-    }
-    
-    stmt = DoOptionalJumpStatement(stmt);
-    
-    DoEndOfStatement();
-    
-    return stmt;
-}
-
-Stmt* Parser::DoYieldStatement()
-{
-    Stmt* stmt = 0;
-    ExprList* exprList = 0;
-    int line = tstream.GetLineNumber();
-    
-    Match(TOK_coyield);
-    
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))
-    {
-        exprList = DoExpressionList();
-    }
-    
-    PIKA_NEWNODE(CtrlStmt, stmt, (state, exprList, Stmt::STMT_yield));
     
     if (exprList)
     {

@@ -31,10 +31,6 @@ struct UserDataInfo;
 class Dictionary;
 class Generator;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//                                       ScopeKind                                               //
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 /** Type of scope. */
 enum ScopeKind
 {
@@ -42,10 +38,6 @@ enum ScopeKind
     SCOPE_with,     //!< using scope
     SCOPE_package,  //!< package or class scope
 };
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//                                       ScopeInfo                                               //
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Information pertaining to a scope. Used by the Context. */
 struct ScopeInfo
@@ -66,10 +58,6 @@ struct ScopeInfo
     u4           numTailCalls; //!< Number of tail calls performed.
     ScopeKind    kind;         //!< Type of scope we are (tell us which fields we are concerned with).
 };
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//                                     ExceptionBlock                                            //
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Information pertaining to an Exception block. */
 struct ExceptionBlock
@@ -100,13 +88,12 @@ typedef Buffer<ExceptionBlock>   ExceptionStack;
 typedef ExceptionStack::Iterator HandlerIter;
 class ContextIterator;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//                                        Context                                                //
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/** A coroutine object.
-  * Unlike the string objects bytes objects can be resized and modified without forcing a new object
-  * to be created.
+/** The Context type implements cooperative threads in Pika. Each Script has its own Context and new ones can
+  * be created programmatically. Since they are cooperative each thread controls is own lifetime. The calling
+  * Context will give execution control over to the Context called. That Context will then run until it suspends
+  * itself or hands control over to another Context. When a Context is suspended the calling Context will pick
+  * up where it left off.
+  *
   */
 class PIKA_API Context : public Object
 {

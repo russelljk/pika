@@ -1702,6 +1702,14 @@ Instr* CondExpr::GenerateCode()
     Instr* ijmpfalse  = state->CreateOp(unless ? OP_jumpiftrue : OP_jumpiffalse);
     Instr* ijmp       = state->CreateOp(OP_jump);
     Instr* ijmptarget = state->CreateOp(JMP_TARGET);
+    /*
+     *    condition
+     *    jump if false -.
+     *    a              |
+     * .- jump           |
+     * |  b    <---------'
+     * '->jump target
+     */
     
     icond->
     Attach(ijmpfalse)->

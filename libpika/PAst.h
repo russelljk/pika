@@ -503,7 +503,6 @@ struct Stmt : TreeNode
         STMT_return,
         STMT_break,
         STMT_continue,
-        STMT_yield,
         STMT_generate,
         STMT_try,
         STMT_raise,
@@ -952,7 +951,6 @@ struct CtrlStmt : Stmt
     INLINE Opcode GetNullOp() {
         switch (kind) {
             case Stmt::STMT_return:   return OP_retacc;
-            case Stmt::STMT_yield:    return OP_yieldnull;
             case Stmt::STMT_generate: return OP_gennull;
             default: return OP_retacc;
         }
@@ -961,7 +959,6 @@ struct CtrlStmt : Stmt
     INLINE Opcode GetOneOp() {
         switch (kind) {
             case Stmt::STMT_return:   return OP_ret;
-            case Stmt::STMT_yield:    return OP_yield;
             case Stmt::STMT_generate: return OP_gen;
             default: return OP_ret;
         }
@@ -970,7 +967,6 @@ struct CtrlStmt : Stmt
     INLINE Opcode GetVarOp() {
         switch (kind) {
             case Stmt::STMT_return:   return OP_retv;
-            case Stmt::STMT_yield:    return OP_yieldv;
             case Stmt::STMT_generate: return OP_genv;
             default: return OP_retv;
         }

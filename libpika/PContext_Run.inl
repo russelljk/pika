@@ -642,71 +642,7 @@ void Context::Run()
                 PIKA_RET(retCount)
             }
             PIKA_NEXT()
-            
-            PIKA_OPCODE(OP_yieldnull)
-            PushNull();
-            /*
-                Fall Through
-                |
-                V
-            */
-            PIKA_OPCODE(OP_yield)
-            {
-                if (!prev)
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "cannot yield from this context: nothing to yield to.");
-                }                
-                
-                if (nativeCallDepth > 0)
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "cannot yield across a native call.");
-                }
-                
-#   ifndef PIKA_NO_HOOKS
-                if (engine->HasHook(HE_yield))
-                {
-                    engine->CallHook(HE_yield, (void*)this);
-                }
-#   endif
-                Pop();
-                callsCount = numcalls;
-                DoSuspend(GetStackPtr(), 1);
-                --numRuns;
-                return;
-            }
-            PIKA_NEXT()
-            PIKA_OPCODE(OP_yieldv)
-            {
-                u2 index = GetShortOperand(instr);
-                
-                if (!prev)
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "cannot yield from this context: nothing to yield to.");
-                }
-                
-                if (nativeCallDepth > 0)
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "cannot yield across a native call.");
-                }
-                
-#   ifndef PIKA_NO_HOOKS
-                if (engine->HasHook(HE_yield))
-                {
-                    engine->CallHook(HE_yield, (void*)this);
-                }
-#   endif
-                Pop(index);
-                callsCount = numcalls;
-                DoSuspend(GetStackPtr(), (ptrdiff_t)index);
-                --numRuns;
-                return;                
-            }
-            PIKA_NEXT()
-            
+                        
             PIKA_OPCODE(OP_itercall)
             {
                 u2 iter_idx = GetShortOperand(instr);
