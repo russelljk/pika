@@ -34,6 +34,7 @@ public:
     virtual bool    Finalize();
     virtual void    AddPath(String* path);
     virtual void    AddEnvPath(String* env);
+    virtual bool    BracketRead(const Value& key, Value& res);
     
     INLINE size_t GetSize() const { return searchPaths.GetSize(); }
     

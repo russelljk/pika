@@ -48,6 +48,22 @@ bool PathManager::IsValidFile(const char* path)
     return Pika_FileExists(path) && !Pika_IsDirectory(path);
 }
 
+bool PathManager::BracketRead(const Value& key, Value& res)
+{
+    if (key.IsInteger()) {
+        pint_t ival = key.val.integer;
+        if (ival >= 0) {
+            size_t idx = static_cast<size_t>(ival);
+            if (idx < searchPaths.GetSize())
+            {
+                res.Set(searchPaths[idx]);
+                return true;
+            }
+        }
+    }
+    return ThisSuper::BracketRead(key, res);
+}
+
 String* PathManager::FindFile(String* file)
 {
     // first determine the maximum length our path string can be
@@ -169,6 +185,8 @@ void PathManager::StaticInitType(Engine* eng)
     .Method(&PathManager::AddPath,      "addPath")
     .Method(&PathManager::AddEnvPath,   "addEnvPath")
     .Method(&PathManager::FindFile,     "findPathOf")
+    .PropertyR("length",
+            &PathManager::GetSize,      "getLength")
     ;
 }
 

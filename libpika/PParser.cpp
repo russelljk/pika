@@ -1713,6 +1713,27 @@ Expr* Parser::DoConditionalExpression()
         
         PIKA_NEWNODE(CondExpr, expr, (state, cond, then, otherwise));
         expr->line = cond->line; // !!! set line number
+    } else if (tstream.GetType() == TOK_if) {
+        int line = tstream.GetLineNumber();
+        
+        if (line > expr->line)
+            return expr;
+        bool unless = false;
+
+        BufferNext();
+        Match(TOK_if);
+        
+        Expr* cond  = DoExpression();
+        
+        BufferNext();
+        Match(TOK_else);
+        
+        Expr* other = DoExpression();
+                    
+        Expr* resExpr = 0;
+        PIKA_NEWNODE(CondExpr, resExpr, (state, cond, expr, other, unless));
+        resExpr->line = expr->line;
+        return resExpr;
     }
     return expr;
 }
@@ -2269,29 +2290,6 @@ Expr* Parser::DoPostfixExpression()
             PIKA_NEWNODE(UnaryExpr, expr, (state, Expr::EXPR_postincr, lhs));
             expr->line = lhs->line;
             return expr;
-        }
-        case TOK_if:
-        {
-            int line = tstream.GetLineNumber();
-            
-            if (line > expr->line)
-                return expr;
-            bool unless = false;
-
-            BufferNext();
-            Match(TOK_if);
-            
-            Expr* cond  = DoExpression();
-            
-            BufferNext();
-            Match(TOK_else);
-            
-            Expr* other = DoExpression();
-                        
-            Expr* resExpr = 0;
-            PIKA_NEWNODE(CondExpr, resExpr, (state, cond, expr, other, unless));
-            resExpr->line = expr->line;
-            return resExpr;
         }
         //
         // Postfix decrement.
