@@ -35,6 +35,9 @@ private:
     Value comparison_func;  //!< Comparison Function
 };
 
+/** A resizable array object. Also used for variable arguments and array literals. 
+  * Most member functions can be used directly by C++ code as well as scripts.
+  */
 class PIKA_API Array : public Object
 {
     PIKA_DECL(Array, Object)

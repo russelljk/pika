@@ -157,7 +157,7 @@ protected:
     Generator*     generator;       //!< Generator for the current scope.
     Package*       package;         //!< Specified package for the current scope.
     LexicalEnv*    env;             //!< Lexical environment for the current scope.
-    Dictionary*    kwargs;
+    Dictionary*    kwargs;          //!< Keyword arguments for the current scope.
     u4             argCount;        //!< Actual number of arguments stored on the stack.
     u4             retCount;        //!< Number of return values expected.
     u4             numTailCalls;    //!< Number of tail-calls since the last return.

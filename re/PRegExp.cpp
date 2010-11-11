@@ -239,7 +239,7 @@ public:
     
     bool IsGlobal() const { return true; }
     
-    Array* Match(String* subj)
+    Array* Match(String* subj, bool obj=false)
     {
         if (!this->pattern) return 0;
         if (!IsGlobal()) return Exec(subj);
@@ -273,8 +273,10 @@ public:
             }
             
             // Create a nonempty match string.
-            String* matchstr = engine->AllocString(subj->GetBuffer() + start + lastIndex, len);
-            Value vs(matchstr);
+            size_t const x0 = start + lastIndex;
+            size_t const x1 = x0 + len;
+            
+            Value vs(obj ? GetMatchObject(x0, x1, subj) : GetMatch(x0, x1, subj));
             res->Push(vs);
             lastIndex += start + len;
         }
@@ -395,6 +397,26 @@ public:
 
 PIKA_IMPL(RegExp)
 
+namespace {
+    int RegExp_match(Context* ctx, Value& self)
+    {
+        GCPAUSE(ctx->GetEngine());
+        RegExp* re = (RegExp*)self.val.object;
+        bool obj = false;
+        String* str = ctx->GetStringArg(0);
+        if (ctx->GetArgCount() == 2)
+        {
+            obj = ctx->GetBoolArg(1);
+        }
+        else if (ctx->GetArgCount() != 1)
+        {
+            ctx->WrongArgCount();
+        }
+        Array* a = re->Match(str, obj);
+        ctx->Push(a);
+        return 1;
+    }
+}
 }// pika
 
 using pika::RegExp;
@@ -408,7 +430,7 @@ PIKA_MODULE(RegExp, eng, re)
     pika::Type* RegExp_Type = pika::Type::Create(eng, RegExp_String, eng->Object_Type, RegExp::Constructor, Pkg_World);
     
     pika::SlotBinder<pika::RegExp>(eng, RegExp_Type)
-    .Method(&RegExp::Match,    "match")
+    .Register(pika::RegExp_match,    "match", 1, true, false)
     .Method(&RegExp::Exec,     "exec")
     .Method(&RegExp::ExecOnce, "execOnce")
     .Method(&RegExp::Test,     "test")

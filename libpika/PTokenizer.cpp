@@ -1310,7 +1310,7 @@ void REPLStream::NewLoop(const char* pmt)
         // Line is non-empty
         if (bufferLength > 0)
         {
-#if defined(HAVE_READLINE)            
+#if !defined(HAVE_READLINE)            
             Pika_addhistory(buffer);
 #endif            
             return;
@@ -1364,7 +1364,7 @@ bool REPLStream::GetNewLine(const char* pmt)
 {
     const char* prompt = pmt ? pmt : ">>>";
     Pika_memzero(buffer, sizeof(buffer));
-#if defined(HAVE_READLINE)
+#if !defined(HAVE_READLINE)
     const char* res = Pika_readline(prompt);
     is_eof = (res == NULL);
     if (!is_eof)

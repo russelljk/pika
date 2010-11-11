@@ -152,11 +152,11 @@ protected:
     /** Adds a subtype. Called by derived types when they are created. */
     void AddSubtype(Type*);
     
-    Type*      baseType; // base or super type
-    Type_NewFn newfn;    // native allocation + construction function
-    bool       final;    // type cannot be used as the base for another type
-    bool       abstract; // type cannot create instances.
-    Array*     subtypes; // all types that are direct descendence of this type
+    Type*      baseType; // The base type or super type.
+    Type_NewFn newfn;    // Native allocation + construction function.
+    bool       final;    // Type cannot be used as the base for another type.
+    bool       abstract; // Type cannot create instances.
+    Array*     subtypes; // All types that are direct descendence of this type.
 };
 
 }// pika

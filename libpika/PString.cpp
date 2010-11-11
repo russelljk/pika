@@ -762,24 +762,40 @@ public:
         ctx->PushTrue();
         return 1;
     }
-    
+
+#define STARTING_POS() \
+        if (ctx->GetArgCount() == 2)\
+        {\
+            start = ctx->GetIntArg(1);\
+            if (start < 0 || ((size_t)start) >= str->GetLength())\
+            {\
+                ctx->Push((pint_t)str->GetLength());\
+            }\
+        }
+
     static int firstOf(Context* ctx, Value& self)
     {
         String* setStr = ctx->GetStringArg(0);
+        pint_t start = 0;
         String* str = self.val.str;
         
-        size_t pos = strcspn(str->GetBuffer(), setStr->GetBuffer());
+        STARTING_POS()
+                
+        size_t pos = strcspn(str->GetBuffer() + start, setStr->GetBuffer());
         
-        ctx->Push((pint_t)pos);
+        ctx->Push((pint_t)pos+start);
         return 1;
     }
     
     static int firstNotOf(Context* ctx, Value& self)
     {
         String* setStr = ctx->GetStringArg(0);
+        pint_t start = 0;
         String* str = self.val.str;
         
-        size_t pos = strspn(str->GetBuffer(), setStr->GetBuffer());
+        STARTING_POS()
+        
+        size_t pos = strspn(str->GetBuffer() + start, setStr->GetBuffer());
         ctx->Push((pint_t)pos);
         return 1;
     }
@@ -1156,8 +1172,8 @@ void String::StaticInitType(Engine* eng)
         { "split",          StringApi::split,               1, 0 },
         { "splitAt",        StringApi::splitAt,             1, 0 },
         { "byteAt",     	StringApi::byteAt,              1, 0 },
-        { "firstOf",        StringApi::firstOf,             2, DEF_VAR_ARGS },
-        { "firstNotOf",     StringApi::firstNotOf,          2, DEF_VAR_ARGS },
+        { "firstOf",        StringApi::firstOf,             1, DEF_VAR_ARGS },
+        { "firstNotOf",     StringApi::firstNotOf,          1, DEF_VAR_ARGS },
         { "lastOf",         StringApi::lastOf,              2, DEF_VAR_ARGS },
         { "lastNotOf",      StringApi::lastNotOf,           2, DEF_VAR_ARGS },
         { "substring",      StringApi::slice,               2, DEF_STRICT },

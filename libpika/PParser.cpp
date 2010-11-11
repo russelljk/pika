@@ -1283,11 +1283,11 @@ Stmt* Parser::DoForStatement()
     header.line = line;
         
     Match(TOK_for);
-    BufferCurrent();
     Id* id = 0;
     size_t num_ids = 0;
     do
     {
+        BufferCurrent();        
         ++num_ids;
         Id* nid = DoIdentifier();
         if (!id) {

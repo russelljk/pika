@@ -735,7 +735,7 @@ void Context::Run()
                                 ReportRuntimeError(Exception::ERROR_type,
                                            "For each set kind must be a function generator.");
                             }
-                        } 
+                        }
                         else if (GetOverrideFrom(engine, object.val.basic, OVR_iterate, result))
                         {
                             this->Push(field);
