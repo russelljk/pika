@@ -69,7 +69,15 @@ class RegExp : public Object
 public:
     PIKA_DECL(RegExp, Object)
     
-    RegExp(Engine* engine, Type* type) : Object(engine, type), pattern(0) {}
+    RegExp(Engine* engine, Type* type) : Object(engine, type),
+        is_multiline(false),
+        is_insensitive(false),
+        is_global(false),
+        is_utf8(true),
+        last_index(0),
+        pattern(0),
+        pattern_string(0)
+    {}
     
     RegExp(const RegExp* rhs) : 
         ThisSuper(rhs),
@@ -100,9 +108,33 @@ public:
     
     virtual void Init(Context* ctx)
     {
-        if (ctx->GetArgCount() != 1)
-            RaiseException("RegExp.init takes exactly one String arguments.");
+        u4 argc = ctx->GetArgCount();
         String* re = ctx->GetStringArg(0);
+        
+        if (argc == 2) {
+            String* opts = ctx->GetStringArg(1);
+            const char* buff = opts->GetBuffer();
+            for (size_t i = 0; i < opts->GetLength(); ++i)
+            {
+                switch (buff[i]) {
+                case 'g':
+                    is_global = true;
+                    break;
+                case 'i':
+                    is_insensitive = true;
+                    break;
+                case 'm':
+                    is_multiline = true;
+                    break;
+                default:
+                    RaiseException("Unknown RegExp.init option encountered in '%s' only combinations of 'g', 'i' and 'm' are allowed.", buff);
+                }
+            }
+        }
+        else if (argc != 1) {
+            ctx->WrongArgCount();
+        }
+
         Compile(re);
     }
     
@@ -123,19 +155,34 @@ public:
         {
             RaiseException(Exception::ERROR_runtime, "Attempt to compile a regular expression containing one or more NUL characters.");
         }
-        int options = PIKA_UTF8 | PIKA_NO_UTF8_CHECK | PIKA_MULTILINE;
+        WriteBarrier(re);
+        pattern_string = re;
+        
+        int options = RE_NO_UTF8_CHECK;
+        
+        if (is_utf8)
+            options |= RE_UTF8;
+
+        if (is_multiline)
+            options |= RE_MULTILINE;
+        
+        if (is_insensitive)
+            options |= RE_INSENSITIVE;
+            
         int errcode = 0;
 
         if (this->pattern)
             FreeAll();
+        
         char errdescr[ERR_BUF_SZ];
-        this->pattern = Pika_regcomp(re->GetBuffer(), options, errdescr, ERR_BUF_SZ, &errcode);
+        this->pattern = Pika_regcomp(pattern_string->GetBuffer(), options, errdescr, ERR_BUF_SZ, &errcode);
         if (!this->pattern)
         {
-            RaiseException("Attempt to compile regular expression from pattern %s failed: %s.", re->GetBuffer(), errdescr);
+            RaiseException("Attempt to compile regular expression from pattern %s failed: %s.", pattern_string->GetBuffer(), errdescr);
         }
     }
     
+    /** Returns the substring subj[start to end]. */
     Value GetMatch(size_t start, size_t end, String* subj)
     {
         Value res(NULL_VALUE);
@@ -148,21 +195,22 @@ public:
         else
         {
             // Create a nonempty match string.
-            String* matchstr = engine->AllocString(subj->GetBuffer() + start, len);
+            String* matchstr = engine->AllocStringNC(subj->GetBuffer() + start, len);
             res.Set(matchstr);
         }
         return res;
     }
-    
-    Value GetMatchObject(size_t start, size_t end, String* subj)
+
+    /** Returns an Object containing the substring of subj and indices start,stop. */    
+    Value GetMatchObject(size_t start, size_t stop, String* subj)
     {
         GCPAUSE_NORUN(engine);
         Object* obj = Object::StaticNew(engine, engine->Object_Type);
         Value res(NULL_VALUE);
-        size_t len = end - start;
+        size_t len = stop - start;
         // If its an empty match.
         obj->SetSlot(engine->AllocStringNC("start"), Value((pint_t)start));
-        obj->SetSlot(engine->AllocStringNC("stop"),  Value((pint_t)end));
+        obj->SetSlot(engine->AllocStringNC("stop"),  Value((pint_t)stop));
         
         if (len == 0)
         {
@@ -179,114 +227,90 @@ public:
         return res;
     }
     
-    Array* Exec(String* subj)
+    virtual String* ToString()
     {
-        if (!this->pattern) return 0;
-        if (!IsGlobal()) return Exec(subj);
-        GCPAUSE_NORUN(engine);
-        Buffer<size_t> matches; // Buffer to store matches.
-        size_t lastIndex = 0;   // Current pos in the string.
-        size_t subjLen = subj->GetLength(); // Total length of the string.
-        Array* res = Array::Create(engine, engine->Array_Type, 0, 0); // Resultant Array object.
-        
-        
-        if (!DoExec(subj->GetBuffer() + lastIndex, subjLen - lastIndex, matches))
-            return res;
-        
-        for (size_t i = 0; i < (matches.GetSize() / 2); ++i)
-        {
-            size_t const start = matches[i*2];
-            size_t const end   = matches[i*2 + 1];
-            Value match = GetMatch(start, end, subj);
-            res->Push(match);
-        }
+        String* res = String::ConcatSep(this->type->GetName(), this->pattern_string ? this->pattern_string : engine->emptyString, ':');
         return res;
     }
     
-    Value ExecOnce(String* subj)
+    Array* Exec(String* subj, bool objs = false)
     {
-        if (!this->pattern) return Value(NULL_VALUE);
-
-        Buffer<size_t> matches;
-        if (DoExec(subj->GetBuffer(), subj->GetLength(), matches))
+        if (!this->pattern)
+            return 0;
+        
+        GCPAUSE_NORUN(engine);
+        Buffer<size_t> matches; // Buffer to store matches.
+        size_t subjLen = subj->GetLength(); // Total length of the string.
+        
+        if (subjLen < last_index)
+            return 0;
+                
+        if (!DoExec(subj->GetBuffer() + last_index, subjLen - last_index, matches))
+            return 0;
+        
+        Array* res = Array::Create(engine, engine->Array_Type, 0, 0); // Resultant Array object.
+        size_t next_last = last_index;
+        for (size_t i = 0; i < (matches.GetSize() / 2); ++i)
         {
-            size_t m = IndexOfLongestMatch(matches);
-            
-            size_t const matchIndex = matches[m];
-            size_t const matchStop = matches[m + 1];
-                        
-            return GetMatch(matchIndex, matchStop, subj);
+            size_t const start = matches[i*2] + last_index;
+            size_t const end   = matches[i*2 + 1] + last_index;
+            if (end > next_last)
+                next_last = end;
+            Value match = GetMatch(start, end, subj);
+            res->Push(match);
         }
-        return Value(NULL_VALUE);
+        if (IsGlobal())
+            last_index = next_last;
+        return res;
     }
     
     bool Test(String* subj)
     {
-        if (!this->pattern) return false;
+        if (!this->pattern)
+            return false;
+        size_t subjLen = subj->GetLength();
+        if (subjLen > last_index)
+            return false;
         
-        Pika_regmatch ovector[NUM_MATCHES];
-        int match = Pika_regexec(this->pattern, subj->GetBuffer(), subj->GetLength(),                              
-                              ovector, NUM_MATCHES, PIKA_NO_UTF8_CHECK);
-        if (match > 0)
+        Buffer<size_t> matches;
+        if (!DoExec(subj->GetBuffer() + last_index, subjLen - last_index, matches))
+            return false;
+        
+        if (matches.GetSize())
         {
+            if (IsGlobal()) {
+                for (size_t i = 0; i < (matches.GetSize() / 2); ++i)
+                {
+                    size_t const end   = matches[i*2 + 1];
+                    if (end > last_index)
+                        last_index = end;
+                }
+            }            
             return true;
-            /*int const matchIndex = ovector[0].start;
-            int const matchLen   = ovector[0].end - ovector[0].start;
-            return matchIndex == 0 && (size_t)matchLen == subj->GetLength();*/
         }
         return false;
     }
     
-    bool IsGlobal() const { return true; }
+    bool IsGlobal() const { return is_global; }
     
-    Array* Match(String* subj, bool obj=false)
+    bool IsMultiline()   const { return is_multiline; }
+    bool IsInsensitive() const { return is_insensitive; }
+    bool IsUtf8()        const { return is_utf8; }
+    String* Pattern() { return pattern_string; }
+    
+    size_t GetLastIndex() { return last_index; }
+    
+    void SetLastIndex(pint_t idx)
     {
-        if (!this->pattern) return 0;
-        if (!IsGlobal()) return Exec(subj);
-        GCPAUSE_NORUN(engine);
-        Buffer<size_t> matches; // Buffer to store matches.
-        size_t lastIndex = 0;   // Current pos in the string.
-        size_t subjLen = subj->GetLength(); // Total length of the string.
-        Array* res = Array::Create(engine, engine->Array_Type, 0, 0); // Resultant Array object.
-        
-        while (DoExec(subj->GetBuffer() + lastIndex, subjLen - lastIndex, matches))
-        {
-            size_t const start = matches[0];
-            size_t const end   = matches[1];
-            size_t const len   = end - start;
-            
-            // If its an empty match.
-            if (len == 0)
-            {
-                Value estr(engine->emptyString);
-                res->Push(estr);
-                if (lastIndex == subjLen)
-                {
-                    break; // Break if we are at the end of the subject string.
-                }
-                else
-                {
-                    // Otherwise goto the next character.
-                    lastIndex++;
-                    continue;
-                }
-            }
-            
-            // Create a nonempty match string.
-            size_t const x0 = start + lastIndex;
-            size_t const x1 = x0 + len;
-            
-            Value vs(obj ? GetMatchObject(x0, x1, subj) : GetMatch(x0, x1, subj));
-            res->Push(vs);
-            lastIndex += start + len;
-        }
-        return res;
+        if (idx < 0)
+            RaiseException("lastIndex cannot be negative");
+        last_index = idx;
     }
-    
+        
     bool DoExec(const char* subj, size_t subjLen, Buffer<size_t>& res)
     {
         Pika_regmatch ovector[NUM_MATCHES];
-        int matchCount = Pika_regexec(this->pattern, subj, subjLen, ovector, NUM_MATCHES, PIKA_NO_UTF8_CHECK);
+        int matchCount = Pika_regexec(this->pattern, subj, subjLen, ovector, NUM_MATCHES, RE_NO_UTF8_CHECK);
         if (matchCount <= 0)
             return false;
         res.Resize((size_t)matchCount * 2);
@@ -303,120 +327,57 @@ public:
         return true;
     }
     
-    String* Replace(String* subj, String* rep)
+    virtual void MarkRefs(Collector* c)
     {
-        if (!this->pattern) return subj;
-        GCPAUSE_NORUN(engine);
-        
-        size_t const subjlen = subj->GetLength();
-        size_t lastIndex = 0;
-        size_t const repSize = rep->GetLength();
-        const char*  repBuf  = rep->GetBuffer();
-        
-        Buffer<char>   buff;
-        Buffer<size_t> matches;
-        
-        while (lastIndex <= subjlen && DoExec(subj->GetBuffer() + lastIndex, subjlen - lastIndex, matches))
-        {
-            size_t const longest    = IndexOfLongestMatch(matches);
-            size_t const matchIndex = matches[longest];
-            size_t const nextIndex  = matches[longest + 1];
-            size_t const matchLen   = nextIndex - matchIndex;
-            size_t const prevStart  = lastIndex;
-            size_t const prevEnd    = lastIndex + matchIndex;
-            bool   const emptyMatch = (matchLen == 0);
-            
-            if (prevEnd >= prevStart)
-            {
-                size_t const sz     = buff.GetSize();
-                size_t const amt    = emptyMatch ? 1 : prevEnd - prevStart;
-                size_t const repamt = repSize;
-                size_t const total  = sz + amt + repamt;
-                
-                if (total > PIKA_STRING_MAX_LEN)
-                {
-                    RaiseException("RegExp.replace: resultant string is too large.");
-                }
-                buff.Resize(total);
-                
-                if (emptyMatch)
-                {
-                    // We matched the empty string
-                    Pika_memcpy(buff.GetAt(sz),  repBuf, repSize);
-                    Pika_memcpy(buff.GetAt(sz + repSize),  subj->GetBuffer() + lastIndex, amt); // Copy the next character
-                    lastIndex++;                                                                // and move past it. 
-                }
-                else
-                {
-                    if (amt)
-                        Pika_memcpy( buff.GetAt(sz),  subj->GetBuffer() + lastIndex, amt);
-                    Pika_memcpy( buff.GetAt(sz + amt),  repBuf, repSize);
-                }
-            }
-            
-            if (lastIndex > subjlen && matchLen == 0)
-            {
-                break;
-            }
-            lastIndex += matchIndex + matchLen;
-        }
-        
-        if (lastIndex == 0) // We had no non-empty matches...
-            return subj;    // so return the entire string.
-        
-        if (lastIndex < subjlen) // We did not consume the entire string...
-        {
-            size_t const sz    = buff.GetSize();
-            size_t const amt   = subjlen - lastIndex;
-            size_t const total = sz + amt;
-            
-            if (total > PIKA_STRING_MAX_LEN)
-            {
-                RaiseException("RegExp.replace: resultant string is too large.");
-            }
-            // so copy the rest from the subject's buffer.
-            buff.Resize(total);
-            Pika_memcpy(buff.GetAt(sz),  subj->GetBuffer() + lastIndex, amt);
-        }
-        
-        if (buff.GetSize())
-        {
-            return engine->AllocString(buff.GetAt(0), buff.GetSize());
-        }
-        return engine->emptyString;
+        ThisSuper::MarkRefs(c);
+        if (pattern_string)
+            pattern_string->Mark(c);
     }
-
+    
     static void Constructor(Engine* eng, Type* obj_type, Value& res)
     {
         RegExp* re = RegExp::StaticNew(eng, obj_type, 0);
         res.Set(re);
     }
-
+        
+    u1 is_multiline;
+    u1 is_insensitive;
+    u1 is_global;
+    u1 is_utf8;
+    size_t last_index;
     Pika_regex* pattern;
+    String* pattern_string;
 };
 
 PIKA_IMPL(RegExp)
 
 namespace {
-    int RegExp_match(Context* ctx, Value& self)
+    int RegExp_exec(Context* ctx, Value& self)
     {
-        GCPAUSE(ctx->GetEngine());
-        RegExp* re = (RegExp*)self.val.object;
-        bool obj = false;
-        String* str = ctx->GetStringArg(0);
+        RegExp* re = static_cast<RegExp*>(self.val.object);
+        String* subj = ctx->GetStringArg(0);
+        bool objs = false;
         if (ctx->GetArgCount() == 2)
         {
-            obj = ctx->GetBoolArg(1);
+            objs = ctx->GetBoolArg(1);
         }
         else if (ctx->GetArgCount() != 1)
         {
             ctx->WrongArgCount();
         }
-        Array* a = re->Match(str, obj);
-        ctx->Push(a);
+        Array* a = re->Exec(subj, objs);
+        if (a)
+        {
+            ctx->Push(a);
+        }
+        else
+        {
+            ctx->PushNull();
+        }
         return 1;
     }
 }
+
 }// pika
 
 using pika::RegExp;
@@ -430,14 +391,18 @@ PIKA_MODULE(RegExp, eng, re)
     pika::Type* RegExp_Type = pika::Type::Create(eng, RegExp_String, eng->Object_Type, RegExp::Constructor, Pkg_World);
     
     pika::SlotBinder<pika::RegExp>(eng, RegExp_Type)
-    .Register(pika::RegExp_match,    "match", 1, true, false)
-    .Method(&RegExp::Exec,     "exec")
-    .Method(&RegExp::ExecOnce, "execOnce")
+    .Register(pika::RegExp_exec, "exec", 1, true, false)
     .Method(&RegExp::Test,     "test")
     .Method(&RegExp::Compile,  "compile")
-    .Method(&RegExp::Replace,  "replace")
     .MethodVA(&RegExp::Init,   "init")
+    .PropertyRW("lastIndex",    &RegExp::GetLastIndex, "getLastIndex", &RegExp::SetLastIndex, "setLastIndex")
+    .PropertyR("global?",       &RegExp::IsGlobal,      0)
+    .PropertyR("multiline?",    &RegExp::IsMultiline,   0)
+    .PropertyR("utf8?",         &RegExp::IsUtf8,        0)
+    .PropertyR("insensitive?",  &RegExp::IsInsensitive, 0)
+    .PropertyR("pattern",       &RegExp::Pattern,       0)
     ;
+    
     //RegExp_Type->EnterMethods(RegExpFunctions, countof(RegExpFunctions));
     re->SetSlot(RegExp_String, RegExp_Type);
     return RegExp_Type;

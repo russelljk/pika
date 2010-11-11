@@ -13,9 +13,10 @@ struct Pika_regmatch
 
 struct Pika_regex;
 
-extern int const PIKA_NO_UTF8_CHECK;
-extern int const PIKA_UTF8;
-extern int const PIKA_MULTILINE;
+extern int const RE_NO_UTF8_CHECK;
+extern int const RE_UTF8;
+extern int const RE_MULTILINE;
+extern int const RE_INSENSITIVE;
 
 /* Compile the regular expression. */
 extern Pika_regex*  Pika_regcomp(const char* pattern, int cflags, char* errmsg, size_t errlen, int* errorcode);

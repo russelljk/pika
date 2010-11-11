@@ -272,6 +272,15 @@ struct SlotBinder
         return *this;
     }
     
+    template<typename AMeth>
+    SlotBinder& Method_VA_KW(AMeth meth, const char* name)
+    {
+        Function* m = HookedFunction::BindVA(engine, meth, name, package, class_info);
+        m->def->isKeyword = true;
+        object->AddFunction(m);
+        return *this;
+    }
+    
     /** Adds a variable argument static method. Should be of the form void MethodName(Context* ctx) {...}.
       *
       * usage:

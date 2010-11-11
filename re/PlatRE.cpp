@@ -14,9 +14,10 @@
 
 #include <pcre.h>
 
-int const PIKA_NO_UTF8_CHECK  = PCRE_NO_UTF8_CHECK;
-int const PIKA_UTF8           = PCRE_UTF8;
-int const PIKA_MULTILINE      = PCRE_MULTILINE;
+int const RE_NO_UTF8_CHECK  = PCRE_NO_UTF8_CHECK;
+int const RE_UTF8           = PCRE_UTF8;
+int const RE_MULTILINE      = PCRE_MULTILINE;
+int const RE_INSENSITIVE    = PCRE_CASELESS;
 
 #define OVECTOR_SIZE (128*3)
 
@@ -69,9 +70,10 @@ int Pika_regexec(const Pika_regex* re, const char* subj, size_t const subjlen, P
 
 #include <regex.h>
 
-int const PIKA_NO_UTF8_CHECK  = 0;
-int const PIKA_UTF8           = 0;
-int const PIKA_MULTILINE      = 0;
+int const RE_NO_UTF8_CHECK  = 0;
+int const RE_UTF8           = 0;
+int const RE_MULTILINE      = 0;
+int const RE_INSENSITIVE    = 0;
 
 Pika_regex* Pika_regnew()
 {
@@ -135,9 +137,9 @@ void Pika_regfree(Pika_regex* preg)
 
 #else
 
-int const PIKA_NO_UTF8_CHECK  = -1;
-int const PIKA_UTF8           = -1;
-int const PIKA_MULTILINE      = -1;
+int const RE_NO_UTF8_CHECK  = -1;
+int const RE_UTF8           = -1;
+int const RE_MULTILINE      = -1;
 
 Pika_regex* Pika_regcomp(const char*, int, char*, size_t, int*) { return 0; }
 
