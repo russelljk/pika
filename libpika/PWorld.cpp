@@ -398,81 +398,6 @@ int Global_PrintLn(Context* ctx, Value& self)
     return 0;
 }
 
-// a simple positional formatter used by sprintp and printp. not general purpose.
-
-#define PIKA_MAX_POS_ARGS 16
-
-String* Pika_sprintp(Context* ctx,    // context
-                     String*  fmt,    // format string
-                     u2       argc,   // argument count + 1
-                     String*  args[]) // arguments, args[0] is ignored
-{
-    Engine* eng = ctx->GetEngine();
-    TStringBuffer& buff = eng->string_buff;
-    
-    if (fmt->GetLength())
-    {
-        buff.Clear();
-        
-        const char* cfmt = fmt->GetBuffer();
-        const char* fmtend = cfmt + fmt->GetLength();
-        
-        while (cfmt < fmtend)
-        {
-            int ch = *cfmt++;
-            if (ch == '\\' && cfmt < fmtend)
-            {
-                ch = *cfmt++;
-                if (ch != '%')
-                    buff.Push('\\');
-                buff.Push(ch);
-                continue;
-            }
-            else if (ch == '%')
-            {
-                unsigned pos = 0;
-                ch = *cfmt;
-                
-                if (!isdigit(ch))
-                    RaiseException("Expected number after %c.", '%');
-                    
-                while (cfmt++ < fmtend && isdigit(ch))
-                {
-                    pos = pos * 10 + (ch - '0');
-                    ch = *cfmt;
-                }
-                
-                if (pos < argc && pos > 0)
-                {
-                    String* posstr = args[pos];
-                    size_t oldsize = buff.GetSize();
-                    buff.Resize(oldsize + posstr->GetLength());
-                    Pika_memcpy(buff.GetAt((int)oldsize), posstr->GetBuffer(), posstr->GetLength());
-                }
-                else
-                {
-                    if (argc > 1)
-                    {
-                        RaiseException("positional argument %u out of range [1-%u].", pos, argc - 1);
-                    }
-                    else
-                    {
-                        RaiseException("positional argument %u used but not specified.", pos);
-                    }
-                }
-                cfmt--;
-            }
-            else
-            {
-                buff.Push(ch);
-            }
-        }
-        buff.Push('\0');
-        return eng->AllocString(buff.GetAt(0), buff.GetSize());
-    }
-    return fmt;
-}
-
 int Global_printp(Context* ctx, Value& self)
 {
     String* strargs[PIKA_MAX_POS_ARGS];
@@ -482,15 +407,18 @@ int Global_printp(Context* ctx, Value& self)
     if (argc > PIKA_MAX_POS_ARGS)
     {
         RaiseException("Too many positional arguments.");
-    }
-    strargs[0] = fmt;
-    
-    for (u2 a = 1 ; a < argc ; ++a)
+    }    
+    if (argc == 1)
     {
-        strargs[a] = ctx->ArgToString(a);
-        ctx->GetArg(a).Set(strargs[ a ]);     // Keep it safe from the gc.
+        printf("%s", fmt->GetBuffer());
+        return 0;
     }
-    String* res = Pika_sprintp(ctx, fmt, argc, strargs);
+    for (u2 a = 1; a < argc; ++a)
+    {
+        strargs[ a-1 ] = ctx->ArgToString( a );
+        ctx->GetArg( a ).Set(strargs[ a-1 ]);     // Keep it safe from the gc.
+    }
+    String* res = String::sprintp(ctx->GetEngine(), fmt, argc, strargs);
     ctx->Push( static_cast<pint_t>( res->GetLength() ) );
     printf("%s", res->GetBuffer());
     return 1;
@@ -506,14 +434,19 @@ int Global_sprintp(Context* ctx, Value& self)
     {
         RaiseException("Too many positional arguments.");
     }
-    strargs[0] = fmt;
     
-    for (u2 a = 1 ; a < argc ; ++a)
+    if (argc == 1)
     {
-        strargs[ a ] = ctx->ArgToString(a);
-        ctx->GetArg(a).Set(strargs[ a ]);     // Keep it safe from the gc.
+        ctx->Push(fmt);
+        return 1;
     }
-    String* res = Pika_sprintp(ctx, fmt, argc, strargs);
+    
+    for (u2 a = 1; a < argc; ++a)
+    {
+        strargs[ a-1 ] = ctx->ArgToString( a );
+        ctx->GetArg( a ).Set(strargs[ a-1 ]);     // Keep it safe from the gc.
+    }
+    String* res = String::sprintp(ctx->GetEngine(), fmt, argc, strargs);
     
     ctx->Push( res );
     return 1;

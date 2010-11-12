@@ -240,52 +240,47 @@ public:
         
         GCPAUSE_NORUN(engine);
         Buffer<size_t> matches; // Buffer to store matches.
-        size_t subjLen = subj->GetLength(); // Total length of the string.
         
-        if (subjLen < last_index)
-            return 0;
-                
-        if (!DoExec(subj->GetBuffer() + last_index, subjLen - last_index, matches))
+        if (!DoExec(subj->GetBuffer(), subj->GetLength(), matches))
             return 0;
         
         Array* res = Array::Create(engine, engine->Array_Type, 0, 0); // Resultant Array object.
-        size_t next_last = last_index;
-        for (size_t i = 0; i < (matches.GetSize() / 2); ++i)
+        
+        for (size_t i = 0; i < matches.GetSize(); i += 2)
         {
-            size_t const start = matches[i*2] + last_index;
-            size_t const end   = matches[i*2 + 1] + last_index;
-            if (end > next_last)
-                next_last = end;
-            Value match = GetMatch(start, end, subj);
+            size_t const start = matches[i];
+            size_t const end   = matches[i + 1];
+            
+            Value match = objs ? GetMatchObject(start, end, subj) : GetMatch(start, end, subj);
             res->Push(match);
         }
-        if (IsGlobal())
-            last_index = next_last;
+        
         return res;
     }
     
+    bool Exec2(String* subj, Buffer<size_t>& matches)
+    {
+        if (!this->pattern)
+            return false;
+                
+        if (!DoExec(subj->GetBuffer(), subj->GetLength(), matches))
+            return false;
+        
+        return true;
+    }
+
     bool Test(String* subj)
     {
         if (!this->pattern)
             return false;
-        size_t subjLen = subj->GetLength();
-        if (subjLen > last_index)
-            return false;
-        
+                
         Buffer<size_t> matches;
-        if (!DoExec(subj->GetBuffer() + last_index, subjLen - last_index, matches))
+        
+        if (!DoExec(subj->GetBuffer(), subj->GetLength(), matches))
             return false;
         
         if (matches.GetSize())
         {
-            if (IsGlobal()) {
-                for (size_t i = 0; i < (matches.GetSize() / 2); ++i)
-                {
-                    size_t const end   = matches[i*2 + 1];
-                    if (end > last_index)
-                        last_index = end;
-                }
-            }            
             return true;
         }
         return false;
@@ -306,26 +301,8 @@ public:
             RaiseException("lastIndex cannot be negative");
         last_index = idx;
     }
-        
-    bool DoExec(const char* subj, size_t subjLen, Buffer<size_t>& res)
-    {
-        Pika_regmatch ovector[NUM_MATCHES];
-        int matchCount = Pika_regexec(this->pattern, subj, subjLen, ovector, NUM_MATCHES, RE_NO_UTF8_CHECK);
-        if (matchCount <= 0)
-            return false;
-        res.Resize((size_t)matchCount * 2);
-        
-        for (int i = 0; i < matchCount; ++i)
-        {
-            size_t start = IntToIndex(ovector[i].start, subjLen);
-            size_t end   = IntToIndex(ovector[i].end,   subjLen);
-            if (end < start)
-                Swap(start, end);
-            res[i*2]     = start;
-            res[i*2 + 1] = end;
-        }
-        return true;
-    }
+    
+    void MoveIndex() { last_index++; }
     
     virtual void MarkRefs(Collector* c)
     {
@@ -338,6 +315,40 @@ public:
     {
         RegExp* re = RegExp::StaticNew(eng, obj_type, 0);
         res.Set(re);
+    }
+    
+protected:        
+    bool DoExec(const char* subj, size_t subjLen, Buffer<size_t>& res)
+    {
+        Pika_regmatch ovector[NUM_MATCHES];
+        
+        if (subjLen < last_index)
+            return false;
+        
+        int matchCount = Pika_regexec(this->pattern, subj + last_index, subjLen - last_index, ovector, NUM_MATCHES, RE_NO_UTF8_CHECK);
+        if (matchCount <= 0)
+            return false;
+        res.Resize((size_t)matchCount * 2);
+
+        size_t next_last = last_index;
+
+        for (int i = 0; i < matchCount; ++i)
+        {
+            size_t start = IntToIndex(ovector[i].start, subjLen) + last_index;
+            size_t end   = IntToIndex(ovector[i].end,   subjLen) + last_index;
+            if (end < start)
+                Swap(start, end);
+            if (end > next_last)
+                next_last = end;
+            res[i*2]     = start;
+            res[i*2 + 1] = end;
+        }
+        
+        if (IsGlobal())
+        {
+            last_index = next_last;
+        }
+        return true;
     }
         
     u1 is_multiline;
@@ -376,6 +387,94 @@ namespace {
         }
         return 1;
     }
+    
+    void BufferAppend(Buffer<char>& buff, const char* source, size_t count)
+    {
+        if (count)
+        {
+            // TODO Check for overflow
+            size_t const last_size=buff.GetSize();
+            buff.Resize(last_size + count);            
+            Pika_memcpy(buff.GetAt(last_size), source, count);
+        }
+    }
+    
+    int String_matchReplace(Context* ctx, Value& self)
+    {
+        Engine* eng = ctx->GetEngine();
+        GCPAUSE_NORUN(eng);
+        
+        String* source = self.val.str;
+        RegExp* re = ctx->GetArgT<RegExp>(0);
+        String* format = ctx->GetStringArg(1);
+        
+        Buffer<char> buff;
+        Buffer<size_t> matches;
+        
+        buff.SetCapacity(source->GetLength());
+        
+        // Tracks the part of the string between valid matches
+        struct BufferBounds
+        {
+            size_t start;
+            size_t stop;
+        }   bounds;
+        bounds.start = 0;
+        bounds.stop = 0;
+        
+        String* pos_args[PIKA_MAX_POS_ARGS];
+        Pika_memzero(pos_args, sizeof(pos_args));
+        
+        size_t last = re->GetLastIndex(); // track the last index so that we don't loop indefinetly.        
+        while (re->Exec2(source, matches))
+        {
+            // Move ahead if the last search didn't.
+            // This will happen when using * in certain situations.
+            if (re->GetLastIndex() == last)
+                re->MoveIndex();
+            last = re->GetLastIndex();
+            
+            u2 pos_count = 0;
+            BufferBounds match_bounds;
+            match_bounds.start = PIKA_STRING_MAX_LEN;
+            match_bounds.stop = 0;
+            ASSERT( (matches.GetSize() % 2) == 0 );
+            
+            for (size_t i = 0; (i < matches.GetSize()) && (pos_count < PIKA_MAX_POS_ARGS); i += 2)
+            {
+                size_t start = matches[ i ];
+                size_t stop = matches[ i + 1 ];
+                
+                match_bounds.start = Min(match_bounds.start, start);
+                match_bounds.stop = Max(match_bounds.stop, stop);
+                // check for last index used bound.stop
+                // create String for this match and set 
+                String* match_str = (re->GetMatch(start, stop, source)).val.str;
+                pos_args[ pos_count++ ] = match_str;
+            }
+            // sprintp Will replace all the match indexes in format with the matches.
+            String* replacement = String::sprintp(eng, format, pos_count, pos_args);
+            
+            // Copy the un-matched characters from the source string.
+            bounds.stop = match_bounds.start;
+            if (bounds.stop > bounds.start && bounds.stop < source->GetLength())
+            {
+                BufferAppend(buff, source->GetBuffer() + bounds.start, bounds.stop - bounds.start);
+            }
+            
+            // Now copy the replacement string.
+            BufferAppend(buff, replacement->GetBuffer(), replacement->GetLength());            
+            bounds.start = bounds.stop = match_bounds.stop; // set up the next loop.
+        }
+        
+        if (bounds.start < source->GetLength())
+        {
+            BufferAppend(buff, source->GetBuffer() + bounds.start, source->GetLength() - bounds.start);
+        }
+        String* resultant = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
+        ctx->Push(resultant);
+        return 1;
+    }
 }
 
 }// pika
@@ -403,6 +502,11 @@ PIKA_MODULE(RegExp, eng, re)
     .PropertyR("pattern",       &RegExp::Pattern,       0)
     ;
     
+    static pika::RegisterFunction String_Methods[] = {
+        {"matchReplace", pika::String_matchReplace, 2, pika::DEF_STRICT}
+    };
+    
+    eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
     //RegExp_Type->EnterMethods(RegExpFunctions, countof(RegExpFunctions));
     re->SetSlot(RegExp_String, RegExp_Type);
     return RegExp_Type;

@@ -9,6 +9,8 @@
 #   include "PBasic.h"
 #endif
 
+#define PIKA_MAX_POS_ARGS 16
+
 namespace pika {
 class StringTable;
 class StringApi;
@@ -53,7 +55,11 @@ public:
     INLINE size_t      GetHashCode() const { return hashcode; }
     INLINE const char* GetBuffer()   const { return buffer;   }
     
+    // a simple positional formatter used by sprintp and printp. not general purpose.
+    static String* sprintp(Engine* eng, String* fmt, u2 argc, String*  args[]);
+    
     // ------------------------------------------------------------------------
+    
     /** Concat two String's together. */
     static String* Concat(String* a, String* b);
 

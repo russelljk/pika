@@ -507,6 +507,76 @@ String* String::Chomp(String* c)
     return engine->emptyString;
 }
 
+String* String::sprintp(Engine*  eng,    // context
+                        String*  fmt,    // format string
+                        u2       argc,   // argument count + 1
+                        String*  args[]) // arguments, args[0] is ignored
+{
+    TStringBuffer& buff = eng->string_buff;
+    
+    if (fmt->GetLength())
+    {
+        buff.Clear();
+        
+        const char* cfmt = fmt->GetBuffer();
+        const char* fmtend = cfmt + fmt->GetLength();
+        
+        while (cfmt < fmtend)
+        {
+            int ch = *cfmt++;
+            if (ch == '\\' && cfmt < fmtend)
+            {
+                ch = *cfmt++;
+                if (ch != '%')
+                    buff.Push('\\');
+                buff.Push(ch);
+                continue;
+            }
+            else if (ch == '%')
+            {
+                unsigned pos = 0;
+                ch = *cfmt;
+                
+                if (!isdigit(ch))
+                    RaiseException("Expected number after %c.", '%');
+                    
+                while (cfmt++ < fmtend && isdigit(ch))
+                {
+                    pos = pos * 10 + (ch - '0');
+                    ch = *cfmt;
+                }
+                
+                if (pos < argc && pos >= 0)
+                {
+                    String* posstr = args[pos];
+                    size_t oldsize = buff.GetSize();
+                    buff.Resize(oldsize + posstr->GetLength());
+                    Pika_memcpy(buff.GetAt((int)oldsize), posstr->GetBuffer(), posstr->GetLength());
+                }
+                else
+                {
+                    if (argc > 1)
+                    {
+                        RaiseException("positional argument %u out of range [0-%u].", pos, argc - 1);
+                    }
+                    else
+                    {
+                        RaiseException("positional argument %u used but not specified.", pos);
+                    }
+                }
+                cfmt--;
+            }
+            else
+            {
+                buff.Push(ch);
+            }
+        }
+        buff.Push('\0');
+        return eng->AllocString(buff.GetAt(0), buff.GetSize()-1);
+    }
+    return fmt;
+}
+
 /////////////////////////////////////////////StringApi//////////////////////////////////////////////
 
 class StringApi
