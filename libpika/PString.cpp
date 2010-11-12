@@ -571,8 +571,8 @@ String* String::sprintp(Engine*  eng,    // context
                 buff.Push(ch);
             }
         }
-        buff.Push('\0');
-        return eng->AllocString(buff.GetAt(0), buff.GetSize()-1);
+        
+        return eng->AllocString(buff.GetAt(0), buff.GetSize());
     }
     return fmt;
 }
