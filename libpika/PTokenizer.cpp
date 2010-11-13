@@ -68,7 +68,6 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_when),
     PIKA_keyword(TOK_bind),
     PIKA_keyword(TOK_to),
-    PIKA_keyword(TOK_downto),
     PIKA_keyword(TOK_by),
     PIKA_keyword(TOK_class),
 };

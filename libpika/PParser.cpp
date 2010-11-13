@@ -1246,16 +1246,9 @@ void Parser::DoForToHeader(ForToHeader* header)
     
     header->from = DoExpression();
     BufferCurrent();
-    
-    if (!Optional(TOK_to))
-    {
-        Match(TOK_downto);
-        header->isdown = true;
-    }
-    else
-    {
-        header->isdown = false;
-    }
+
+    Match(TOK_to);
+    header->isdown = false;
     BufferCurrent();
     
     header->to = DoExpression();
