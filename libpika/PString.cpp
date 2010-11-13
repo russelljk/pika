@@ -572,7 +572,7 @@ String* String::sprintp(Engine*  eng,    // context
             }
         }
         
-        return eng->AllocString(buff.GetAt(0), buff.GetSize());
+        return eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
     }
     return fmt;
 }

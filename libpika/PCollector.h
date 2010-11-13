@@ -163,11 +163,15 @@ public:
       */
     void ChangeContext(GCObject*);
     
-    /** Perform an incremental gc cycle, but only if its time to do so. 
+    /** Perform an incremental gc cycle, but only if it is not suspended. 
       * @note You should never need to call this directly. 
       */
     void Check();
     
+    /** Perform an incremental gc cycle, but only if its time to do so. 
+      */
+    void CheckIf();
+
     /** Add a root object to this collector. */
     void AddAsRoot(GCObject*);
         

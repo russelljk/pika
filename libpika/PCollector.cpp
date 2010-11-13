@@ -236,6 +236,14 @@ void Collector::Check()
     }
 }
 
+void Collector::CheckIf()
+{
+    if ( state != SUSPENDED && (numAllocations == 0) )
+    {
+        IncrementalRun();
+    }    
+}
+
 void Collector::Add(GCObject* c)
 {
     c->Unlink();

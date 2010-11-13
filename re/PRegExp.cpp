@@ -399,15 +399,34 @@ namespace {
         }
     }
     
+    String* CallFormatFunction(Context* ctx, Value& func, u4 argc)
+    {
+        ctx->PushNull();
+        ctx->Push(func);
+        if (ctx->SetupCall(argc))
+            ctx->Run();
+        Value res = ctx->PopTop();
+        if (res.IsString())
+            return res.val.str;
+        else        
+            RaiseException("Formatting function for String.matchReplace must return a string.");
+        return 0;
+    }
+    
+    // replaces matched substrings in the self object.
     int String_matchReplace(Context* ctx, Value& self)
     {
         Engine* eng = ctx->GetEngine();
-        GCPAUSE_NORUN(eng);
-        
+                
         String* source = self.val.str;
         RegExp* re = ctx->GetArgT<RegExp>(0);
-        String* format = ctx->GetStringArg(1);
         
+        Value format_val = ctx->GetArg(1);        
+        String* format = 0;
+        if (format_val.IsString()) {
+            format = format_val.val.str;
+        }
+               
         Buffer<char> buff;
         Buffer<size_t> matches;
         
@@ -451,9 +470,22 @@ namespace {
                 // create String for this match and set 
                 String* match_str = (re->GetMatch(start, stop, source)).val.str;
                 pos_args[ pos_count++ ] = match_str;
+                
+                // We push the string not only for the format function call but
+                // to keep it safe from the GC.
+                
+                ctx->Push(match_str);
             }
+            
             // sprintp Will replace all the match indexes in format with the matches.
-            String* replacement = String::sprintp(eng, format, pos_count, pos_args);
+            
+            String* pos_string = (format) ? format : CallFormatFunction(ctx, format_val, pos_count);            
+            String* replacement = String::sprintp(eng, pos_string, pos_count, pos_args);
+            
+            if (format)
+                ctx->Pop(pos_count);
+            
+            // !!! From here to the end of the while loop there can be no new GC allocations.
             
             // Copy the un-matched characters from the source string.
             bounds.stop = match_bounds.start;
@@ -461,10 +493,10 @@ namespace {
             {
                 BufferAppend(buff, source->GetBuffer() + bounds.start, bounds.stop - bounds.start);
             }
-            
+    
             // Now copy the replacement string.
             BufferAppend(buff, replacement->GetBuffer(), replacement->GetLength());            
-            bounds.start = bounds.stop = match_bounds.stop; // set up the next loop.
+            bounds.start = bounds.stop = match_bounds.stop; // set up the next loop.            
         }
         
         if (bounds.start < source->GetLength())
@@ -473,6 +505,8 @@ namespace {
         }
         String* resultant = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
         ctx->Push(resultant);
+        if (eng->GetActiveContext() == ctx)
+            eng->GetGC()->CheckIf();
         return 1;
     }
 }
