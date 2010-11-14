@@ -331,7 +331,7 @@ void Generator::StaticInitType(Engine* eng)
     eng->Generator_Type = Type::Create(eng, Generator_String, eng->Object_Type, Generator::Constructor, Pkg_World);
     Pkg_World->SetSlot(Generator_String, eng->Generator_Type);
     
-    SlotBinder<Generator>(eng, eng->Generator_Type, Pkg_World)
+    SlotBinder<Generator>(eng, eng->Generator_Type)
     .Method(&Generator::ToBoolean,  "toBoolean")
     .Register(Generator_next, "next", 0, false, true)
     .Constant((pint_t)GS_clean,     "CLEAN")

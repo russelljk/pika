@@ -168,17 +168,18 @@ public:
     Value selfobj;
 };
 
-/** Binds Functions,Properties and Variables to an Object.
+/** Binds Functions,Properties and Variables to an Package/Type.
   * requirements:
   *
   * The type AClass must has the static method StaticGetClass, most commonly obtained by
   * Adding PIKA_DECL and PIKA_IMPL to the class body and source file repspectively.
   *  
-  * The Object or Type must already be created. 
+  * The Package or Type must already be created. 
   *
   * You should also stop the Collector before adding slots since multiple objects may be allocated.
   *
   * usage:
+  * GCPAUSE_NORUN(engine);
   * Package* pkg = engine->GetWorld();
   * Type* Foo_Type = Type::Create(engine, engine->AllocStringNC("Foo"), Foo_Base_Type, Foo::Constructor, pkg);
   * 
@@ -195,9 +196,9 @@ public:
 template<typename AClass>
 struct SlotBinder
 {
-    SlotBinder(Engine* eng, Basic* obj, Package* pkg = 0)
+    SlotBinder(Engine* eng, Package* obj, Package* pkg = 0)
             : class_info(AClass::StaticGetClass()),
-            package(pkg ? pkg : eng->GetWorld()),
+            package(pkg ? pkg : obj),
             engine(eng),
             object(obj)            
     {}
@@ -535,7 +536,7 @@ struct SlotBinder
     ClassInfo* class_info;  //!< ClassInfo, used for type checks when a C++ method is called.
     Package* package;       //!< Package all function are located inside.
     Engine* engine;         //!< Pointer to the Engine.
-    Basic* object;          //!< Object we are binding slots to.
+    Package* object;        //!< Object we are binding slots to.
 };
 
 }// pika

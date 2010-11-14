@@ -295,7 +295,7 @@ void Random::StaticInitType(Package* module, Engine* eng)
     
     module->SetSlot(Random_String, Random_Type, Slot::ATTR_protected);
     
-    SlotBinder<Random>(eng, Random_Type, module)
+    SlotBinder<Random>(eng, Random_Type)
     .MethodVA(&Random::Next,        "opCall")
     .MethodVA(&Random::Next,        "getNext")
     .Method(&Random::NextReal,      "getNextReal")

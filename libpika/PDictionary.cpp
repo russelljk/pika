@@ -152,6 +152,11 @@ Array* Dictionary::Values()
     return res;
 }
 
+bool Dictionary::HasKey(const Value& key)
+{
+    return elements.Exists(key);
+}
+
 namespace {
     int Dictionary_unzip(Context* ctx, Value& self)
     {
@@ -173,9 +178,10 @@ void Dictionary::StaticInitType(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
     eng->Dictionary_Type = Type::Create(eng, eng->AllocString("Dictionary"), eng->Object_Type, Dictionary::Constructor, eng->GetWorld());
-    SlotBinder<Dictionary>(eng, eng->Dictionary_Type, eng->GetWorld())
+    SlotBinder<Dictionary>(eng, eng->Dictionary_Type)
     .Method(&Dictionary::Keys,      "keys")
     .Method(&Dictionary::Values,    "values")
+    .Method(&Dictionary::HasKey,    "hasKey")
     .Register(Dictionary_unzip, "unzip", 0, false, true)
     ;
 }

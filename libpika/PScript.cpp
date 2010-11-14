@@ -245,7 +245,7 @@ void Script::StaticInitType(Engine* eng)
                                     eng->AllocString("Script"),
                                     eng->Package_Type,
                                     Script::Constructor, eng->GetWorld());
-    SlotBinder<Script>(eng, eng->Script_Type, eng->GetWorld())
+    SlotBinder<Script>(eng, eng->Script_Type)
     .Method(&Script::SetImportResult, "export")
     ;
     

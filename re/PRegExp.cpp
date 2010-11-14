@@ -503,6 +503,8 @@ namespace {
         {
             BufferAppend(buff, source->GetBuffer() + bounds.start, source->GetLength() - bounds.start);
         }
+        if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
+            RaiseException("Attempt to create a String too large in String.matchReplace.");
         String* resultant = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
         ctx->Push(resultant);
         if (eng->GetActiveContext() == ctx)

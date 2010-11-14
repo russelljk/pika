@@ -181,7 +181,7 @@ void PathManager::StaticInitType(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
     eng->PathManager_Type = Type::Create(eng, eng->AllocString("PathManager"), eng->Object_Type, PathManager::Constructor, eng->GetWorld());
-    SlotBinder<PathManager>(eng, eng->PathManager_Type, eng->GetWorld())
+    SlotBinder<PathManager>(eng, eng->PathManager_Type, eng->PathManager_Type)
     .Method(&PathManager::AddPath,      "addPath")
     .Method(&PathManager::AddEnvPath,   "addEnvPath")
     .Method(&PathManager::FindFile,     "findPathOf")

@@ -25,7 +25,7 @@ namespace pika {
         
         Array* Keys();
         Array* Values();
-        
+        virtual bool HasKey(const Value& key);
         static Dictionary* Create(Engine* eng, Type* type);
         static void Constructor(Engine* eng, Type* type, Value& res);
         static void StaticInitType(Engine*);

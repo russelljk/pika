@@ -668,7 +668,7 @@ void ByteArray::StaticInitType(Engine* eng)
     String* ByteArray_String = eng->AllocString("ByteArray");
     eng->ByteArray_Type = Type::Create(eng, ByteArray_String, eng->Object_Type, ByteArray::Constructor, Pkg_World);
     
-    SlotBinder<ByteArray>(eng, eng->ByteArray_Type, Pkg_World)
+    SlotBinder<ByteArray>(eng, eng->ByteArray_Type)
     .Method(&ByteArray::Rewind,             "rewind")
     .Method(&ByteArray::Write,              "write")
     .Method(&ByteArray::ReadBoolean,        "readBoolean")

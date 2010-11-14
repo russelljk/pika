@@ -572,6 +572,7 @@ public:
     bool        GetBoolArg(u2 arg);     //!< Returns the boolean value of the specified argument.
     String*     GetStringArg(u2 arg);   //!< Returns the string value of the specified argument.
     Object*     GetObjectArg(u2 arg);   //!< Returns the object value of the specified argument.
+    Property*   GetPropertyArg(u2 arg); //!< Returns the property value of the specified argument.
     void*       GetUserDataArg(u2 arg, UserDataInfo* info); //!< Returns the userdata value of the specified argument.
     
     /** Returns whether the argument is null.

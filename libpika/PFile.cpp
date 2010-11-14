@@ -415,7 +415,7 @@ void File::StaticInitType(Engine* eng)
     File* file_stderr = File::Create(eng, File_Type);
     File* file_stdin  = File::Create(eng, File_Type);
     
-    SlotBinder<File>(eng, File_Type, eng->GetWorld())
+    SlotBinder<File>(eng, File_Type)
     .Method(&File::ToBoolean,   "toBoolean")
     .PropertyRW("usePaths", 
             &File::GetUsePaths, "getUsePaths", 

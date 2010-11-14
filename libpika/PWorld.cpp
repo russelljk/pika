@@ -807,7 +807,7 @@ void Engine::InitializeWorld()
         Type* GCPause_Type = Type::Create(this, GCPause_String, Object_Type, GCPause::onNew, Pkg_World);
         this->Pkg_World->SetSlot(GCPause_String, GCPause_Type);
         
-        SlotBinder<GCPause>(this, GCPause_Type, this->Pkg_World)
+        SlotBinder<GCPause>(this, GCPause_Type)
         .Method(&GCPause::Pause, "onUse")
         .Method(&GCPause::UnPause, "onDispose")
         .PropertyR("paused?", &GCPause::IsPaused, 0);

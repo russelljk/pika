@@ -22,28 +22,43 @@ Proxy::~Proxy()
 
 void Proxy::Init(Context* ctx)
 {
-    ctx->CheckArgCount(2);
-    object = ctx->GetArg(0);
-    name = ctx->GetArg(1);
-    
-    WriteBarrier(object);
-    WriteBarrier(name);
-    
-    if (object.tag >= TAG_basic)
-    {
-        Basic* basic = object.val.basic;
-        Value res;
-        if (!basic->GetSlot(name, res))
+    u4 argc = ctx->GetArgCount();
+    if (argc == 1) {
+        this->property = ctx->GetPropertyArg(0);
+        name.Set(this->property->Name());
+        WriteBarrier(property);
+        WriteBarrier(name);
+        
+        Function* f = property->Writer() ? property->Writer() : property->Reader();
+        if (f) {            
+            object.Set(f->GetLocation());
+            WriteBarrier(object);
+        }        
+    } else if (argc == 2) {
+        object = ctx->GetArg(0);
+        name = ctx->GetArg(1);
+        
+        WriteBarrier(object);
+        WriteBarrier(name);
+        
+        if (object.tag >= TAG_basic)
         {
+            Basic* basic = object.val.basic;
+            Value res;
+            if (!basic->GetSlot(name, res))
+            {
+            }
+            if (res.tag == TAG_property)
+            {
+                this->property = res.val.property;
+                WriteBarrier(property);
+            }
+            else {
+                RaiseException("Attempt to get property %s from object of type %s.", engine->ToString(ctx, name), engine->GetTypenameOf(object));
+            }
         }
-        if (res.tag == TAG_property)
-        {
-            this->property = res.val.property;
-            WriteBarrier(property);
-        }
-        else {
-            RaiseException("Attempt to get property %s from object of type %s.", engine->ToString(ctx, name), engine->GetTypenameOf(object));
-        }
+    } else {
+        ctx->CheckArgCount(2);
     }
 }
 
@@ -158,7 +173,7 @@ void Proxy::StaticInitType(Engine* eng)
     
     eng->Property_Type->SetSlot(Proxy_String, Proxy_Type);
     
-    SlotBinder<Proxy>(eng, Proxy_Type, eng->Property_Type)
+    SlotBinder<Proxy>(eng, Proxy_Type)
     .Method(&Proxy::IsRead, "read?")
     .Method(&Proxy::IsWrite, "write?")
     .Method(&Proxy::IsReadWrite, "readWrite?")

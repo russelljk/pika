@@ -59,7 +59,7 @@ void Iterator::StaticInitType(Engine* engine)
     engine->Iterator_Type = Type::Create(engine, Iterator_String, engine->Object_Type, Iterator::Constructor, Pkg_World);
     engine->Iterator_Type->SetAbstract(true);
     
-    SlotBinder<Iterator>(engine, engine->Iterator_Type, Pkg_World)
+    SlotBinder<Iterator>(engine, engine->Iterator_Type)
     .Method(&Iterator::ToBoolean, "toBoolean")
     .Register(Iterator_next, "next", 0, false, true)
     ;

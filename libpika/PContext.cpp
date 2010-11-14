@@ -2741,6 +2741,17 @@ Object* Context::GetObjectArg(u2 arg)
     return v.val.object;
 }
 
+Property* Context::GetPropertyArg(u2 arg)
+{
+    Value& v = GetArg(arg);
+    
+    if (v.tag != TAG_property)
+    {
+        ArgumentTagError(arg, (ValueTag)v.tag, TAG_property);
+    }
+    return v.val.property;
+}
+
 void* Context::GetUserDataArg(u2 arg, UserDataInfo* info)
 {
     Value& v = GetArg(arg);

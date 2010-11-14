@@ -145,7 +145,7 @@ void Date::StaticInitType(Package* pkg, Engine* eng)
     String* Date_String = eng->AllocString("Date");
     Type* Date_Type = Type::Create(eng, Date_String, eng->Object_Type, Date::Constructor, pkg);
     pkg->SetSlot(Date_String, Date_Type);
-    SlotBinder<Date>(eng, Date_Type, pkg)
+    SlotBinder<Date>(eng, Date_Type)
     .PropertyRW("sec",
             &Date::GetSec,      0,
             &Date::SetSec,      0)
