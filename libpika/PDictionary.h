@@ -25,10 +25,12 @@ namespace pika {
         
         Array* Keys();
         Array* Values();
-        virtual bool HasKey(const Value& key);
+        
+        virtual bool HasSlot(const Value& key);
         static Dictionary* Create(Engine* eng, Type* type);
         static void Constructor(Engine* eng, Type* type, Value& res);
         static void StaticInitType(Engine*);
+        size_t GetLength() const { return elements.Count(); }
         
         Table& Elements() { return elements; }
         const Table& Elements() const { return elements; }

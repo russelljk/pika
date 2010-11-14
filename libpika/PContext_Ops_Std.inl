@@ -160,7 +160,7 @@ PIKA_OPCODE(OP_pushglobal)
             {
                 ReportRuntimeError(Exception::ERROR_runtime,
                                    "Attempt to read global property '%s'.",
-                                   engine->ToString(this, name)->GetBuffer());
+                                   engine->SafeToString(this, name)->GetBuffer());
             }
         }
         else
@@ -175,7 +175,7 @@ PIKA_OPCODE(OP_pushglobal)
 #   else
         ReportRuntimeError(Exception::ERROR_runtime,
                            "Attempt to read global variable '%s'.",
-                           engine->ToString(this, name)->GetBuffer());
+                           engine->SafeToString(this, name)->GetBuffer());
 #   endif
     }
 }
@@ -248,14 +248,14 @@ PIKA_OPCODE(OP_setglobal)
             {
                 ReportRuntimeError(Exception::ERROR_runtime,
                                    "Attempt to set read-only property '%s'.",
-                                   engine->ToString(this, name)->GetBuffer());
+                                   engine->SafeToString(this, name)->GetBuffer());
             }
         }
         else
         {
             ReportRuntimeError(Exception::ERROR_runtime,
                                "Attempt to set variable '%s'.",
-                               engine->ToString(this, name)->GetBuffer());
+                               engine->SafeToString(this, name)->GetBuffer());
         }
     }
     else

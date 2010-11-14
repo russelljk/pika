@@ -1692,7 +1692,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
                 //  Member cannot be written.
                 ReportRuntimeError(Exception::ERROR_runtime,
                                    "Attempt to set [ '%s' ] of '%s'.",
-                                   engine->ToString(this, prop)->GetBuffer(),
+                                   engine->SafeToString(this, prop)->GetBuffer(),
                                    engine->GetTypenameOf(obj)->GetBuffer());
                 return;
             }
@@ -1745,7 +1745,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
                     //  Property is read only
                     ReportRuntimeError(Exception::ERROR_runtime,
                                        "Attempt to set property '%s' of '%s'. Property does not support writing.",
-                                       engine->ToString(this, prop)->GetBuffer(),
+                                       engine->SafeToString(this, prop)->GetBuffer(),
                                        engine->GetTypenameOf(obj)->GetBuffer());
                     return;
                 }
@@ -1755,7 +1755,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
                 //  Member cannot be written.
                 ReportRuntimeError(Exception::ERROR_runtime,
                                    "Attempt to set member '%s' of '%s'.",
-                                   engine->ToString(this, prop)->GetBuffer(),
+                                   engine->SafeToString(this, prop)->GetBuffer(),
                                    engine->GetTypenameOf(obj)->GetBuffer());
                 return;
             }
@@ -1771,7 +1771,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
     {
         ReportRuntimeError(Exception::ERROR_runtime,
                            "Attempt to set member '%s' of '%s'.",
-                           engine->ToString(this, prop)->GetBuffer(),
+                           engine->SafeToString(this, prop)->GetBuffer(),
                            engine->GetTypenameOf(obj)->GetBuffer());
         return;
     }
@@ -1805,7 +1805,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         {
             ReportRuntimeError(Exception::ERROR_runtime,
                                "Attempt to read member '%s' from object of type '%s'.",
-                               engine->ToString(this, prop)->GetBuffer(),
+                               engine->SafeToString(this, prop)->GetBuffer(),
                                engine->GetTypenameOf(obj)->GetBuffer());
             return;
         }
@@ -1857,8 +1857,8 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 
                 ReportRuntimeError(Exception::ERROR_runtime,
                                    "Attempt to read member '%s' of '%s'.",
-                                   engine->ToString(this, prop)->GetBuffer(),
-                                   engine->ToString(this, obj)->GetBuffer());
+                                   engine->SafeToString(this, prop)->GetBuffer(),
+                                   engine->SafeToString(this, obj)->GetBuffer());
                 return;
 #   endif
             }
@@ -1903,8 +1903,8 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 #   else
             ReportRuntimeError(Exception::ERROR_runtime,
                                "Attempt to read missing member '%s' of '%s'.",
-                               engine->ToString(this, prop)->GetBuffer(),
-                               engine->ToString(this, obj)->GetBuffer());
+                               engine->SafeToString(this, prop)->GetBuffer(),
+                               engine->SafeToString(this, obj)->GetBuffer());
 #   endif
             return;
         }
@@ -1950,7 +1950,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
             ReportRuntimeError(Exception::ERROR_runtime,
                                "Attempt to get property '%s' from '%s'. Property does not support reading.",
                                property->Name()->GetBuffer(),
-                               engine->ToString(this, obj)->GetBuffer());
+                               engine->SafeToString(this, obj)->GetBuffer());
             return;
         }
     }

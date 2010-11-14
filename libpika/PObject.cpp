@@ -514,6 +514,10 @@ void Object::StaticInitType(Engine* eng)
     
     Pkg_World->SetSlot("Object", eng->Object_Type);
     
+    SlotBinder<Object>(eng, eng->Object_Type)
+    .Alias("__iterate", "iterate")
+    ;
+    
     // Type ///////////////////////////////////////////////////////////////////
     
     Type::StaticInitType(eng);
@@ -530,6 +534,12 @@ void Object::StaticInitType(Engine* eng)
     eng->Property_Type->SetFinal(true);
     eng->Property_Type->SetAbstract(true);
     Pkg_World->SetSlot("Property", eng->Property_Type);
+    
+    SlotBinder<Property>(eng, eng->Property_Type)
+    .PropertyR("name", &Property::Name, "getName")
+    .PropertyR("reader", &Property::Reader, "getReader")
+    .PropertyR("writer", &Property::Writer, "getWriter")
+    ;
     
     Proxy::StaticInitType(eng);
 }

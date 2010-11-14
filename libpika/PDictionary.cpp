@@ -152,7 +152,7 @@ Array* Dictionary::Values()
     return res;
 }
 
-bool Dictionary::HasKey(const Value& key)
+bool Dictionary::HasSlot(const Value& key)
 {
     return elements.Exists(key);
 }
@@ -177,13 +177,17 @@ namespace {
 void Dictionary::StaticInitType(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
-    eng->Dictionary_Type = Type::Create(eng, eng->AllocString("Dictionary"), eng->Object_Type, Dictionary::Constructor, eng->GetWorld());
+    String* Dictionary_String = eng->AllocString("Dictionary");
+    eng->Dictionary_Type = Type::Create(eng, Dictionary_String, eng->Object_Type, Dictionary::Constructor, eng->GetWorld());
     SlotBinder<Dictionary>(eng, eng->Dictionary_Type)
-    .Method(&Dictionary::Keys,      "keys")
-    .Method(&Dictionary::Values,    "values")
-    .Method(&Dictionary::HasKey,    "hasKey")
+    .Method(&Dictionary::Keys,      "keys!")
+    .Method(&Dictionary::Values,    "values!")
+    .Method(&Dictionary::HasSlot,    "hasKey")
     .Register(Dictionary_unzip, "unzip", 0, false, true)
+    .PropertyR("length", &Dictionary::GetLength, "getLength")
     ;
+    
+    eng->GetWorld()->SetSlot(Dictionary_String, eng->Dictionary_Type);
 }
 
 }// pika

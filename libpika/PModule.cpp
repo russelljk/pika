@@ -120,10 +120,12 @@ void Module::Constructor(Engine* eng, Type* type, Value& res)
 
 void Module::StaticInitType(Engine* eng)
 {
+    String* Module_String = eng->AllocString("Module");
     eng->Module_Type = Type::Create(eng,
-                                    eng->AllocString("Module"),
+                                    Module_String,
                                     eng->Package_Type,
                                     Module::Constructor, eng->GetWorld());
+    eng->GetWorld()->SetSlot(Module_String, eng->Module_Type);
 }
 
 }// pika
