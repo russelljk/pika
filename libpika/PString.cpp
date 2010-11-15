@@ -527,18 +527,18 @@ String* String::sprintp(Engine*  eng,    // context
             if (ch == '\\' && cfmt < fmtend)
             {
                 ch = *cfmt++;
-                if (ch != '%')
+                if (ch != '$')
                     buff.Push('\\');
                 buff.Push(ch);
                 continue;
             }
-            else if (ch == '%')
+            else if (ch == '$')
             {
                 unsigned pos = 0;
                 ch = *cfmt;
                 
                 if (!isdigit(ch))
-                    RaiseException("Expected number after %c.", '%');
+                    RaiseException("Expected number after %c.", '$');
                     
                 while (cfmt++ < fmtend && isdigit(ch))
                 {

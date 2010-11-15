@@ -457,8 +457,7 @@ namespace {
             BufferBounds match_bounds;
             match_bounds.start = PIKA_STRING_MAX_LEN;
             match_bounds.stop = 0;
-            ASSERT( (matches.GetSize() % 2) == 0 );
-            
+                        
             for (size_t i = 0; (i < matches.GetSize()) && (pos_count < PIKA_MAX_POS_ARGS); i += 2)
             {
                 size_t start = matches[ i ];
