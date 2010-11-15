@@ -1495,12 +1495,11 @@ struct FieldList : TreeNode
 /** An object or dictionary literal. */
 struct DictionaryExpr : Expr
 {
-    DictionaryExpr(CompileState* s, FieldList* fields) : Expr(s, Expr::EXPR_dictionary), type_expr(0), fields(fields) {}
+    DictionaryExpr(CompileState* s, FieldList* fields) : Expr(s, Expr::EXPR_dictionary), fields(fields) {}
     
     virtual void    CalculateResources(SymbolTable* st);
     virtual Instr*  GenerateCode();
     
-    Expr*       type_expr;  //!< The specified type of this object.
     FieldList*  fields;     //!< List of members for this object.
 };
 

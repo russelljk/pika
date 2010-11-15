@@ -1038,34 +1038,14 @@ void DictionaryExpr::CalculateResources(SymbolTable* st)
     
     while (curr)
     {
-        /*
-        if (curr->value->kind == Expr::EXPR_function)
-        {
-            FunExpr* fun = (FunExpr*)curr->value;
-            if (curr->name->kind == Expr::EXPR_string)
-            {
-                StringExpr* strexpr = (StringExpr*)curr->name;
-                PIKA_NEWNODE(Id, fun->name, (state, Pika_strdup( strexpr->string )));
-            }
-        }
-        */
         if (curr->name)
         {
             curr->name->CalculateResources(st);
-            if (curr->name->kind == Expr::EXPR_string)
-            {
-                StringExpr* str = (StringExpr*)curr->name;
-                if (str->length == 4 && StrCmp(str->string, "type") == 0)
-                {
-                    type_expr = curr->value;
-                }
-            }
         }
         if (curr->value)
         {
             curr->value->CalculateResources(st);
-        }
-        
+        }        
         curr = curr->next;
     }
 }

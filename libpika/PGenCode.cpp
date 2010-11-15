@@ -1601,21 +1601,14 @@ Instr* ContinueStmt::DoStmtCodeGen()
 
 Instr* DictionaryExpr::GenerateCode()
 {
-    Instr*     inewObj = state->CreateOp(OP_objectliteral);
+    Instr*     inewObj = state->CreateOp(OP_dictionary);
     FieldList* curr    = fields;
     Instr*     icurr   = 0;
     Instr*     ifirst  = 0;
     u2         count   = 0;
-    Instr*     itype   = type_expr ? type_expr->GenerateCode() : state->CreateOp(OP_pushnull);
-    itype->Attach(inewObj);
     
     while (curr)
     {
-        if (curr->value == type_expr)
-        {
-            curr = curr->next;
-            continue;
-        }
         Instr* ival  = curr->value->GenerateCode();
         Instr* iprop = (curr->name) ? curr->name->GenerateCode() : state->CreateOp(OP_pushnull);
         
@@ -1630,19 +1623,19 @@ Instr* DictionaryExpr::GenerateCode()
         if (!ifirst)
         {
             ifirst = ival;
-        }
+        }        
         ++count;
         curr = curr->next;
     }
     
-    if (icurr && icurr != itype)
+    if (icurr && icurr != inewObj)
     {
-        icurr->Attach(itype);
+        icurr->Attach(inewObj);
     }
     
     inewObj->operand = count;
     
-    return ifirst ? ifirst : itype;
+    return ifirst ? ifirst : inewObj;
 }
 
 Instr* ArrayExpr::GenerateCode()

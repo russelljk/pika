@@ -77,6 +77,7 @@ public:
     virtual Object* Clone();
     virtual String* ToString();
     virtual void    Init(Context*);
+    virtual bool    ToBoolean();
     
     virtual Iterator* Iterate(String*);
     

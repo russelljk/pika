@@ -85,8 +85,8 @@ void Context::StaticInitType(Engine* eng)
     
     static RegisterFunction Context_Methods[] =
     {
-        { "next",  Context_next,  0, DEF_STRICT   },
-        { "setup", Context_setup, 0, DEF_VAR_ARGS },
+        { "next",  Context_next,  0, DEF_STRICT,  0 },
+        { "setup", Context_setup, 0, DEF_VAR_ARGS,0 },
     };
     
     SlotBinder<Context>(eng, eng->Context_Type)

@@ -157,6 +157,11 @@ bool Dictionary::HasSlot(const Value& key)
     return elements.Exists(key);
 }
 
+bool Dictionary::ToBoolean()
+{
+    return elements.Count() != 0;
+}
+
 namespace {
     int Dictionary_unzip(Context* ctx, Value& self)
     {
@@ -183,6 +188,7 @@ void Dictionary::StaticInitType(Engine* eng)
     .Method(&Dictionary::Keys,      "keys!")
     .Method(&Dictionary::Values,    "values!")
     .Method(&Dictionary::HasSlot,    "hasKey")
+    .Method(&Dictionary::ToBoolean,  "toBoolean")
     .Register(Dictionary_unzip, "unzip", 0, false, true)
     .PropertyR("length", &Dictionary::GetLength, "getLength")
     ;

@@ -2890,101 +2890,15 @@ FieldList* Parser::DoDictionaryExpressionFields()
         Expr* name = 0;
         Expr* value = 0;
         
-        if (tstream.GetType() == TOK_function)
-        {
-            int line = tstream.GetLineNumber();
-            size_t beg = tstream.curr.begOffset;
-            
-            BufferNext();
-            Match(TOK_function);
-            
-            Id* id = DoIdentifier();
-            ParamDecl* params = DoFunctionParameters();
-            Stmt* body = DoFunctionBody();
-            size_t end = tstream.prev.endOffset;
-            
-            PIKA_NEWNODE(FunExpr, value, (state, params, body, beg, end, id));
-            
-            value->line = line;
-        }
-        else if (tstream.GetType() == TOK_property)
-        {
-            const char* getstr   = "get";
-            const char* setstr   = "set";
-            const char* next     = 0;
-            bool        getfirst = false;
-            
-            BufferNext();
-            Match(TOK_property);
-            
-            name = DoFieldName();
-            
-            BufferCurrent();
-            if (tstream.GetType() != TOK_identifier)
-            {
-                Unexpected(tstream.GetType());
-            }
-            
-            if (DoContextualKeyword(getstr, true))
-            {
-                getfirst = true;
-                next = setstr;
-            }
-            else if (DoContextualKeyword(setstr, true))
-            {
-                getfirst = false;
-                next = getstr;
-            }
-            else
-            {
-                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(),  tstream.GetCol(), "expected identifier '%s' or '%s'.", getstr, setstr);
-            }
-            
-            Match(':');
-
-            BufferCurrent();            
-            Expr* firstexpr = DoExpression();
-            Expr* secondexpr = 0;
-            
-            DoEndOfStatement();
-            
-            BufferCurrent();            
-            if (tstream.GetType() == TOK_identifier)
-            {
-                DoContextualKeyword(next, false);
-                Match(':');
+        name = (tstream.GetType() == TOK_identifier) ?
+                DoFieldName() :
+                DoStringLiteralExpression();
+               
+        Match(':');
+        BufferCurrent();
+        value = DoExpression();
+        BufferCurrent();
                 
-                BufferCurrent();                
-                secondexpr = DoExpression();
-                DoEndOfStatement();
-            }
-            
-            Match(TOK_end);
-            
-            if (getfirst)
-            {
-                PIKA_NEWNODE(PropExpr, value, (state, name, firstexpr, secondexpr));
-            }
-            else
-            {
-                PIKA_NEWNODE(PropExpr, value, (state, name, secondexpr, firstexpr));
-            }
-            
-            value->line = name->line;
-            name = 0;
-        }
-        else
-        {
-            name = (tstream.GetType() == TOK_identifier) ?
-                    DoFieldName() :
-                    DoStringLiteralExpression();
-                   
-            Match(':');
-            BufferCurrent();
-            value = DoExpression();
-            BufferCurrent();
-        }
-        
         BufferCurrent();
         if (!DoCommaOrNewline())
         {

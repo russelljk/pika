@@ -309,6 +309,11 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
     }
 }
 
+bool Object::ToBoolean()
+{
+    return true;
+}
+
 Table& Object::Members(const Table& other)
 {
     if (!members)
@@ -485,7 +490,7 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction GlobalFunctions[] =
     {
-        { "import", Global_import, 0, DEF_VAR_ARGS },
+        { "import", Global_import, 0, DEF_VAR_ARGS, 0 },
     };
     
     Pkg_World->AddNative(GlobalFunctions, countof(GlobalFunctions));
@@ -494,19 +499,19 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction ObjectFunctions[] =
     {
-        { "remove",         Object_remove,        0, DEF_VAR_ARGS },
-        { "iterate",        Object_getEnumerator, 0, DEF_VAR_ARGS },
-        { "clone",          Object_clone,         0, 0 },
-        { OPINIT_CSTR,      Object_init,          0, DEF_VAR_ARGS },
-        { "toString",       Object_toString,      0, 0 },
+        { "remove",         Object_remove,        0, DEF_VAR_ARGS, 0 },
+        { "iterate",        Object_getEnumerator, 0, DEF_VAR_ARGS, 0 },
+        { "clone",          Object_clone,         0, 0,            0 },
+        { OPINIT_CSTR,      Object_init,          0, DEF_VAR_ARGS, 0 },
+        { "toString",       Object_toString,      0, 0,            0 },
     };
     
     static RegisterFunction Object_ClassMethods[] =
     {
-        { "rawDotRead",  Object_rawDotRead,  2, DEF_STRICT },
-        { "rawDotWrite", Object_rawDotWrite, 3, DEF_STRICT },
-        { "rawBracketRead",  Object_rawBracketRead,  2, DEF_STRICT },
-        { "rawBracketWrite", Object_rawBracketWrite, 3, DEF_STRICT },
+        { "rawDotRead",      Object_rawDotRead,      2, DEF_STRICT, 0 },
+        { "rawDotWrite",     Object_rawDotWrite,     3, DEF_STRICT, 0 },
+        { "rawBracketRead",  Object_rawBracketRead,  2, DEF_STRICT, 0 },
+        { "rawBracketWrite", Object_rawBracketWrite, 3, DEF_STRICT, 0 },
     };
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
@@ -516,6 +521,7 @@ void Object::StaticInitType(Engine* eng)
     
     SlotBinder<Object>(eng, eng->Object_Type)
     .Alias("__iterate", "iterate")
+    .Method(&Object::ToBoolean, "toBoolean")
     ;
     
     // Type ///////////////////////////////////////////////////////////////////
@@ -526,7 +532,7 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction Property_Functions[] =
     {
-        { "toString", Property_toString, 0, 0 },
+        { "toString", Property_toString, 0, 0, 0 },
     };
         
     eng->Property_Type = Type::Create(eng, eng->AllocString("Property"), eng->Basic_Type, 0, Pkg_World);

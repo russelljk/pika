@@ -251,12 +251,12 @@ void Script::StaticInitType(Engine* eng)
     
     static RegisterFunction ScriptMethods[] =
     {
-        { "run", Script_run, 0, DEF_VAR_ARGS },
+        { "run", Script_run, 0, DEF_VAR_ARGS, 0 },
     };
     
     static RegisterFunction Script_PUB_Methods[] =
     {
-        { "fromBuffer", Script_createWith, 3, DEF_VAR_ARGS },
+        { "fromBuffer", Script_createWith, 3, DEF_VAR_ARGS, 0 },
     };
     
     eng->Script_Type->EnterMethods(ScriptMethods, countof(ScriptMethods));

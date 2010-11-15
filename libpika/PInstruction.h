@@ -276,7 +276,7 @@ INLINE int OpcodeStackChange(Instr *ir)
         operand = -operand + 1;
         return  operand;
     }
-    case OP_objectliteral:
+    case OP_dictionary:
     {
         int operand = ir->operand * 2;
         operand = -operand;

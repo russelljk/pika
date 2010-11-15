@@ -273,7 +273,7 @@ void Type::EnterMethods(RegisterFunction* fns, size_t count, Package* pkg)
         Def* def = Def::CreateWith(engine, methodName, fns[i].code,
                                    fns[i].argc, fns[i].flags, 0);
                                    
-        Function* closure = InstanceMethod::Create(engine, 0, 0, def, pkg, this);
+        Function* closure = InstanceMethod::Create(engine, 0, 0, def, pkg, this, fns[i].__doc);
         AddFunction(closure);
     }
 }
@@ -576,13 +576,13 @@ void Type::StaticInitType(Engine* eng)
     
     static RegisterFunction TypeFunctions[] =
     {
-        { "new", Type_alloc,  0, DEF_VAR_ARGS },
+        { "new", Type_alloc, 0, DEF_VAR_ARGS, 0 },
     };
     
     static RegisterFunction TypeClassMethods[] =
     {
-        { "create",     Type_create,     4, DEF_STRICT   },
-        { "createWith", Type_createWith, 4, DEF_VAR_ARGS },
+        { "create",     Type_create,     4, DEF_STRICT,   0 },
+        { "createWith", Type_createWith, 4, DEF_VAR_ARGS, 0 },
     };
     
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));

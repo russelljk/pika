@@ -1227,46 +1227,99 @@ public:
 
 };
 
+PIKA_DOC(String_chomp, 
+"/([set])\n"
+"Drops the zero indexed character as long as it is in the string |set|."
+"It stops when the zero indexed character is not in |set| or the string's [length] is 0."
+"If |set| is not specified them all whitespace characters will be removed from"
+"the front of the string."
+);
+
+PIKA_DOC(String_times, 
+"/(rep)\n"
+"Returns the string repeated |rep| times."
+);
+
+PIKA_DOC(String_reverse, 
+"/()\n"
+"Returns the entire string reversed."
+);
+
+PIKA_DOC(String_toString, 
+"/()\n"
+"Returns a reference to this string."
+);
+
+PIKA_DOC(String_is_letter, 
+"/()\n"
+"Returns true if and only if each character in the string is a letter. "
+"If the string is empty false is returned"
+);
+
+PIKA_DOC(String_is_letterOrDigit, 
+"/()\n"
+"Returns true if and only if each character in the string is a letter or a digit. "
+"If the string is empty false is returned"
+);
+
+PIKA_DOC(String_is_digit, 
+"/()\n"
+"Returns true if and only if each character in the string is a digit. "
+"If the string is empty false is returned"
+);
+
+PIKA_DOC(String_is_ascii, 
+"/()\n"
+"Returns true if and only if each character in the string is a valid ascii character. "
+"If the string is empty false is returned"
+);
+
+PIKA_DOC(String_is_whitespace, 
+"/()\n"
+"Returns true if and only if each character in the string is a whitespace character, including newlines. "
+"If the string is empty false is returned"
+);
+
 void String::StaticInitType(Engine* eng)
 {
     static RegisterFunction String_Methods[] =
     {
         // name, function, argc, strict, varargs
-        { "replaceChar",	StringApi::replaceChar,         2, DEF_STRICT },
-        { "toInteger",  	StringApi::toInteger,           0, 0 },
-        { "toReal",     	StringApi::toReal,              0, 0 },
-        { "toNumber",       StringApi::toNumber,            0, 0 },
-        { "toLower",        StringApi::toLower,             0, 0 },
-        { "toUpper",        StringApi::toUpper,             0, 0 },
-        { "charAt",         StringApi::charAt,              1, DEF_STRICT },
-        { "split",          StringApi::split,               1, 0 },
-        { "splitAt",        StringApi::splitAt,             1, 0 },
-        { "byteAt",     	StringApi::byteAt,              1, 0 },
-        { "firstOf",        StringApi::firstOf,             1, DEF_VAR_ARGS },
-        { "firstNotOf",     StringApi::firstNotOf,          1, DEF_VAR_ARGS },
-        { "lastOf",         StringApi::lastOf,              2, DEF_VAR_ARGS },
-        { "lastNotOf",      StringApi::lastNotOf,           2, DEF_VAR_ARGS },
-        { "substring",      StringApi::slice,               2, DEF_STRICT },
-        { OPSLICE_STR,      StringApi::slice,               2, DEF_STRICT },
-        { "chomp",          StringApi::chomp,               1, DEF_VAR_ARGS },
-        { "times",          StringApi::times,               1, DEF_STRICT },
-        { "opMul",          StringApi::times,               1, DEF_STRICT },
-        { "toString",       StringApi::toString,            0, DEF_STRICT },
-        { "reverse",        StringApi::reverse,             0, DEF_STRICT },
-        { "letter?",        StringApi::is_letter,           0, DEF_STRICT },  
-        { "letterOrDigit?", StringApi::is_letterOrDigit,    0, DEF_STRICT },
-        { "digit?",         StringApi::is_digit,            0, DEF_STRICT },
-        { "ascii?",         StringApi::is_ascii,            0, DEF_STRICT },
-        { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT },    
-        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS },    
+        { "replaceChar",	StringApi::replaceChar,         2, DEF_STRICT,   0 },
+        { "toInteger",  	StringApi::toInteger,           0, 0,            0 },
+        { "toReal",     	StringApi::toReal,              0, 0,            0 },
+        { "toNumber",       StringApi::toNumber,            0, 0,            0 },
+        { "toLower",        StringApi::toLower,             0, 0,            0 },
+        { "toUpper",        StringApi::toUpper,             0, 0,            0 },
+        { "charAt",         StringApi::charAt,              1, DEF_STRICT,   0 },
+        { "split",          StringApi::split,               1, 0,            0 },
+        { "splitAt",        StringApi::splitAt,             1, 0,            0 },
+        { "byteAt",     	StringApi::byteAt,              1, 0,            0 },
+        { "firstOf",        StringApi::firstOf,             1, DEF_VAR_ARGS, 0 },
+        { "firstNotOf",     StringApi::firstNotOf,          1, DEF_VAR_ARGS, 0 },
+        { "lastOf",         StringApi::lastOf,              2, DEF_VAR_ARGS, 0 },
+        { "lastNotOf",      StringApi::lastNotOf,           2, DEF_VAR_ARGS, 0 },
+        { "substring",      StringApi::slice,               2, DEF_STRICT,   0 },
+        { OPSLICE_STR,      StringApi::slice,               2, DEF_STRICT,   0 },
+        { "chomp",          StringApi::chomp,               1, DEF_VAR_ARGS, PIKA_GET_DOC(String_chomp) },
+        { "times",          StringApi::times,               1, DEF_STRICT,   PIKA_GET_DOC(String_times)   },
+        { "opMul",          StringApi::times,               1, DEF_STRICT,   PIKA_GET_DOC(String_times)   },
+        { "toString",       StringApi::toString,            0, DEF_STRICT,   PIKA_GET_DOC(String_toString) },
+        { "reverse",        StringApi::reverse,             0, DEF_STRICT,   PIKA_GET_DOC(String_reverse) },
+        { "letter?",        StringApi::is_letter,           0, DEF_STRICT,   PIKA_GET_DOC(String_is_letter) },
+        { "letterOrDigit?", StringApi::is_letterOrDigit,    0, DEF_STRICT,   PIKA_GET_DOC(String_is_letterOrDigit) },
+        { "digit?",         StringApi::is_digit,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_digit) },
+        { "ascii?",         StringApi::is_ascii,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_ascii) },
+        { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT,   PIKA_GET_DOC(String_is_whitespace) },
+        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, 0 },    
     };
     
     static RegisterFunction String_ClassMethods[] =
     {
-        { "cat",        StringApi::concat,      0, DEF_VAR_ARGS },
-        { "catSp",      StringApi::concatSpace, 0, DEF_VAR_ARGS },
-        { "fromByte",   StringApi::fromByte,    1, DEF_STRICT },
-        { NEW_CSTR,     StringApi::init,        1, DEF_STRICT },
+        { "cat",        StringApi::concat,      0, DEF_VAR_ARGS, 0 },
+        { "catSp",      StringApi::concatSpace, 0, DEF_VAR_ARGS, 0 },
+        { "fromByte",   StringApi::fromByte,    1, DEF_STRICT,   0 },
+        { NEW_CSTR,     StringApi::init,        1, DEF_STRICT,   0 },
     };
     eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, StringApi::Constructor, eng->GetWorld());
     

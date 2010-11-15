@@ -31,6 +31,7 @@ namespace pika {
         static void Constructor(Engine* eng, Type* type, Value& res);
         static void StaticInitType(Engine*);
         size_t GetLength() const { return elements.Count(); }
+        virtual bool ToBoolean();
         
         Table& Elements() { return elements; }
         const Table& Elements() const { return elements; }

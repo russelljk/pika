@@ -411,47 +411,22 @@ void Context::Run()
             }
             PIKA_NEXT()
             
-            PIKA_OPCODE(OP_objectliteral)
+            PIKA_OPCODE(OP_dictionary)
             {
                 GCPAUSE(engine);
                 
                 Value vobj(NULL_VALUE);                
-                
-                Type* type_obj = 0;
-                
+                                                
                 u2 elemCount = GetShortOperand(instr);
                 u2 elemDepth = elemCount * 2;
                 
-                Value type_val = PopTop();
+                
                 
                 Value* beg = GetStackPtr() - elemDepth;
                 Value* end = GetStackPtr();
-                
-                /* If the value on top of the stack is a Type we are creating
-                 * an object literal. 
-                 *
-                 * If the value is null we are creating a Dictionary.
-                 *
-                 * For any other value we need to raise an exception.
-                 */
-                if (type_val.IsDerivedFrom(Type::StaticGetClass()))
-                {
-                    type_obj = type_val.val.type;
-                }
-                else if (type_val.IsNull())
-                {
-                    type_obj = engine->Dictionary_Type;
-                }
-                else
-                {
-                    ReportRuntimeError(Exception::ERROR_runtime,
-                                       "invalid type value for object literal.");
-                }
-                
-                /* Some one might have specified the type as a Dictionary manually. */
-                bool is_dict = type_obj->IsSubtype(engine->Dictionary_Type);
+                          
 
-                type_obj->CreateInstance(vobj);
+                engine->Dictionary_Type->CreateInstance(vobj);
                 Object* obj = vobj.val.object;
                 
                 if (!(vobj.IsObject() && obj))
@@ -479,31 +454,9 @@ void Context::Run()
                 {
                     Value* val  = beg;
                     Value* key = beg + 1;
-                    if (is_dict)
-                    {
-                        obj->BracketWrite(*key, *val);
-                    }
-                    else if (key->IsNull())
-                    {
-                        /* If the key is null then this is an inlined
-                         * Property or Function.
-                         */
-                        if (val->IsDerivedFrom(Function::StaticGetClass()))
-                        {
-                            obj->AddFunction(val->val.function);
-                        }
-                        else if (val->IsProperty())
-                        {
-                            obj->AddProperty(val->val.property);
-                        }
-                    }
-                    else
-                    {
-                        obj->SetSlot(*key, *val);
-                    }
+                    obj->BracketWrite(*key, *val);
                     beg += 2;
-                }
-                
+                }                
                 Pop(elemDepth);
                 Push(obj);
             }

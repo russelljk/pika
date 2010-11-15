@@ -538,7 +538,7 @@ PIKA_MODULE(RegExp, eng, re)
     ;
     
     static pika::RegisterFunction String_Methods[] = {
-        {"matchReplace", pika::String_matchReplace, 2, pika::DEF_STRICT}
+        { "matchReplace", pika::String_matchReplace, 2, pika::DEF_STRICT, 0 }
     };
     
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));

@@ -142,6 +142,7 @@ public:
     Array* Reverse();
     
     bool    Empty() const;
+    virtual bool ToBoolean() { return !Empty(); }
     
     Value   GetFront();
     Value   GetBack();

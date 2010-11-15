@@ -315,14 +315,14 @@ void Package::StaticInitType(Engine* eng)
     
     static RegisterFunction Package_methods[] =
     {
-        { "__getGlobal", Package_getGlobal, 1, DEF_STRICT },
-        { "__setGlobal", Package_setGlobal, 2, DEF_STRICT },
-        { "__hasGlobal", Package_hasGlobal, 1, DEF_STRICT },
+        { "__getGlobal", Package_getGlobal, 1, DEF_STRICT, 0 },
+        { "__setGlobal", Package_setGlobal, 2, DEF_STRICT, 0 },
+        { "__hasGlobal", Package_hasGlobal, 1, DEF_STRICT, 0 },
     };
     
     static RegisterFunction Package_classMethods[] =
     {
-        { "__openPath", Package_openPath, 0, DEF_VAR_ARGS },
+        { "__openPath", Package_openPath, 0, DEF_VAR_ARGS, 0 },
     };
     
     static RegisterProperty Pkg_Properties[] =

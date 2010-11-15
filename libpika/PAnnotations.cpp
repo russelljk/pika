@@ -187,15 +187,15 @@ namespace {
 void Init_Annotations(Engine* engine, Package* world)
 {
 	static RegisterFunction annotations[] = {
-        {"abstract", Annotation_abstract, 1, DEF_STRICT },
-        {"attr",     Annotation_attr,     1, DEF_KEYWORD_ARGS | DEF_STRICT },
-        {"bindto",   Annotation_bindto,   2, DEF_STRICT },
-        {"doc",      Annotation_doc,      2, DEF_STRICT },
-        {"final",    Annotation_final,    1, DEF_STRICT },
-        {"scope",    Annotation_scope,    2, DEF_STRICT },
-        {"strict",   Annotation_strict,   1, DEF_STRICT },
-        {"getter",   Annotation_getter,   2, DEF_STRICT },
-        {"setter",   Annotation_setter,   2, DEF_STRICT },
+        {"abstract", Annotation_abstract, 1, DEF_STRICT, 0 },
+        {"attr",     Annotation_attr,     1, DEF_KEYWORD_ARGS | DEF_STRICT, 0 },
+        {"bindto",   Annotation_bindto,   2, DEF_STRICT, 0 },
+        {"doc",      Annotation_doc,      2, DEF_STRICT, 0 },
+        {"final",    Annotation_final,    1, DEF_STRICT, 0 },
+        {"scope",    Annotation_scope,    2, DEF_STRICT, 0 },
+        {"strict",   Annotation_strict,   1, DEF_STRICT, 0 },
+        {"getter",   Annotation_getter,   2, DEF_STRICT, 0 },
+        {"setter",   Annotation_setter,   2, DEF_STRICT, 0 },
     };
     
     world->EnterFunctions(annotations, countof(annotations));

@@ -124,7 +124,7 @@ Defaults* Defaults::Create(Engine* eng, Value* v, size_t l)
 
 PIKA_IMPL(Function)
 
-Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* parent_func)
+Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* parent_func, const char* doc)
         : ThisSuper(eng, p),
         defaults(0),
         lexEnv(0),
@@ -133,6 +133,9 @@ Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* p
         location(loc),
         docstring(0)
 {
+    if (doc) {
+        docstring = eng->AllocStringNC(doc);
+    }
     ASSERT(engine);
     ASSERT(def);
     ASSERT(location);
@@ -144,14 +147,14 @@ Function::Function(const Function* rhs) : ThisSuper(rhs),
         def(rhs->def),
         parent(rhs->parent),
         location(rhs->location),
-        docstring(0)
+        docstring(rhs->docstring)
 {
 }
 
-Function* Function::Create(Engine* eng, Def* def, Package* loc, Function* parent)
+Function* Function::Create(Engine* eng, Def* def, Package* loc, Function* parent, const char* doc)
 {
     Function* cl = 0;
-    PIKA_NEW(Function, cl, (eng, eng->Function_Type, def, loc ? loc : eng->GetWorld(), parent));
+    PIKA_NEW(Function, cl, (eng, eng->Function_Type, def, loc ? loc : eng->GetWorld(), parent, doc));
     eng->AddToGC(cl);
     return cl;
 }
@@ -161,7 +164,7 @@ Function* Function::Create(Engine* eng, RegisterFunction* rf, Package* loc)
     String* funcName = eng->AllocString(rf->name);
     Def* def = Def::CreateWith(eng, funcName, rf->code,
                                rf->argc, rf->flags, 0);    
-    return Create(eng, def, loc, 0);
+    return Create(eng, def, loc, 0, rf->__doc);
 }
 
 Function::~Function() {}
@@ -293,8 +296,9 @@ InstanceMethod::InstanceMethod(Engine*   eng,
                                Function* c,
                                Def*      func_def,
                                Package*  loc,
-                               Type*     tclass)
-: Function(eng, t, func_def, loc, c),
+                               Type*     tclass,
+                               const char* doc)
+: Function(eng, t, func_def, loc, c, doc),
 classtype(tclass)
 {
     ASSERT(classtype);
@@ -310,6 +314,7 @@ classtype(tclass)
 {
     if (f)
     {
+        docstring = f->docstring;
         lexEnv = f->lexEnv;
         defaults = f->defaults;
     }
@@ -331,10 +336,10 @@ InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* f, Typ
 InstanceMethod::~InstanceMethod() {}
 
 InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* c, Def* func_def,
-                                       Package* loc, Type* tclass)
+                                       Package* loc, Type* tclass, const char* doc)
 {
     InstanceMethod* im = 0;
-    GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, c, func_def, loc, tclass));
+    GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, c, func_def, loc, tclass, doc));
     return im;
 }
 

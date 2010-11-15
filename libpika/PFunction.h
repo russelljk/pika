@@ -87,7 +87,7 @@ class PIKA_API Function : public Object
 {
     PIKA_DECL(Function, Object)
 protected:
-    explicit Function(Engine*, Type*, Def*, Package*, Function*);
+    explicit Function(Engine*, Type*, Def*, Package*, Function*, const char* doc=0);
     explicit Function(const Function*);
 public:
     virtual ~Function();
@@ -99,7 +99,7 @@ public:
       * @param parent   [in] Optional parent of the function (for bytecode functions, may be 0.)
       * @see Def::CreateWith, Def::Create
       */
-    static Function*    Create(Engine* eng, Def* def, Package* loc, Function* parent = 0);
+    static Function*    Create(Engine* eng, Def* def, Package* loc, Function* parent = 0, const char* doc=0);
     static Function*    Create(Engine* eng, RegisterFunction* rf, Package* loc);
     virtual void        Init(Context*);
     virtual void        InitWithBody(String* body);
@@ -155,7 +155,7 @@ class PIKA_API InstanceMethod : public Function
 {
     PIKA_DECL(InstanceMethod, Function)
 protected:
-    explicit InstanceMethod(Engine*, Type*, Function*, Def*, Package*, Type*);
+    explicit InstanceMethod(Engine*, Type*, Function*, Def*, Package*, Type*, const char* doc = 0);
     explicit InstanceMethod(Engine*, Type*, Function*, Type*);
     explicit InstanceMethod(const InstanceMethod*);
 public:    
@@ -168,7 +168,7 @@ public:
     virtual Object* Clone();
     
     static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Type* bound_type);
-    static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type);
+    static InstanceMethod* Create(Engine*, Type* obj_type, Function*, Def*, Package*, Type* bound_type, const char* doc = 0);
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res);    
 protected:

@@ -45,12 +45,19 @@ enum DefFlags {
     DEF_KEYWORD_ARGS = PIKA_BITFLAG(2)  //!< Create a keyword argument when called.
 };
 
+#define PIKA_DOC(X, DOC)\
+    static const char* X##_Doc_String = DOC
+
+#define PIKA_GET_DOC(X)\
+    X##_Doc_String
+
 struct RegisterFunction
 {
     const char*  name;    //!< Name of the function.
     Nativecode_t code;    //!< Pointer to the function.
     u2           argc;    //!< Number of arguments expected.   
     u4           flags;   //!< Functions DefFlags, or'ed together.
+    const char*  __doc;
 };
 
 struct RegisterProperty
