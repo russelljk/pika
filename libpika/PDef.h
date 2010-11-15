@@ -99,7 +99,8 @@ class PIKA_API Def : public GCObject
             isKeyword(false),
             isStrict(false),
             isGenerator(false),
-            line(-1) {}
+            line(-1),
+            __native_doc__(0) {}
     
     Def(String* declname, Nativecode_t fn, u2 argc, 
         bool varargs, bool strict, bool kwas, Def* parent_def) : name(declname),
@@ -117,14 +118,15 @@ class PIKA_API Def : public GCObject
             isKeyword(kwas),
             isStrict(strict),
             isGenerator(false),
-            line(-1) {}
+            line(-1),
+            __native_doc__(0) {}
 public:
     virtual ~Def();
     
     virtual void MarkRefs(Collector* c);
     
     static Def* CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, 
-                           u4 flags, Def* parent);
+                           u4 flags, Def* parent, const char* doc=0);
     static Def* Create(Engine* eng);
     
     void           SetBytecode(code_t* bc, u2 len);
@@ -152,7 +154,6 @@ public:
       * function's life time. No further calculations are performed.
       */
     Buffer<LocalVarInfo> localsInfo;    
-    
     Table        kwargs;      //!< Table of (string, int) pairs.
     ptrdiff_t    bytecodePos; //!< Point defined in parent's bytecode.
     LiteralPool* literals;    //!< Literals used in the bytecode.
@@ -162,6 +163,7 @@ public:
     bool         isStrict;    //!< Function must has the correct number of arguments.
     bool         isGenerator; //!< Function has yield statement.
     int          line;        //!< Line in the script this def is declared or -1 for native defs.
+    const char*  __native_doc__;
 };
 
 }// pika

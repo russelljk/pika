@@ -42,10 +42,13 @@ Def* Def::Create(Engine* eng)
     return fn;
 }
 
-Def* Def::CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, u4 flags, Def* parent)
+Def* Def::CreateWith(Engine* eng, String* name, Nativecode_t fn, u2 argc, u4 flags, Def* parent, const char* doc)
 {
     Def* def = 0;
     PIKA_NEW(Def, def, (name, fn, argc, PIKA_FLAG2FIELD(flags, DEF_VAR_ARGS), PIKA_FLAG2FIELD(flags, DEF_STRICT), PIKA_FLAG2FIELD(flags, DEF_KEYWORD_ARGS), parent));
+    if (doc) {
+        def->__native_doc__ = doc;
+    }
     eng->AddToGC(def);
     return def;
 }

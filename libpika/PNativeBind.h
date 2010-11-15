@@ -58,7 +58,8 @@ public:
                                 AMeth       meth,
                                 const char* name,
                                 Package*    package,
-                                ClassInfo*  info)
+                                ClassInfo*  info,
+                                const char* docstr)
     {
         GCPAUSE_NORUN(eng);
 
@@ -66,7 +67,7 @@ public:
         NativeMethodBase* def = MakeMethod(meth);
 
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
-            HookedFunction::Hook, def->GetArgCount(), DEF_STRICT, 0);
+            HookedFunction::Hook, def->GetArgCount(), DEF_STRICT, 0, docstr);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
         return bm;
@@ -77,14 +78,15 @@ public:
     static HookedFunction* StaticBind(Engine*     eng,
                                       AMeth       meth,
                                       const char* name,
-                                      Package*    package)
+                                      Package*    package,
+                                      const char* docstr)
     {
         GCPAUSE_NORUN(eng);
 
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeStaticMethod(meth);        
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
-            HookedFunction::StaticHook, def->GetArgCount(), DEF_STRICT, 0);
+            HookedFunction::StaticHook, def->GetArgCount(), DEF_STRICT, 0, docstr);
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
     }
@@ -94,7 +96,8 @@ public:
     static HookedFunction* StaticBindVA(Engine*     eng,
                                         AMeth       meth,
                                         const char* name,
-                                        Package*    package)
+                                        Package*    package,
+                                        const char* docstr)
     {
         GCPAUSE_NORUN(eng);
 
@@ -102,7 +105,7 @@ public:
         NativeMethodBase* def = MakeStaticMethodVA(meth);
         
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
-            HookedFunction::StaticHook, def->GetArgCount(), DEF_VAR_ARGS, 0);
+            HookedFunction::StaticHook, def->GetArgCount(), DEF_VAR_ARGS, 0, docstr);
 
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
@@ -114,7 +117,8 @@ public:
                                   AMeth       meth,
                                   const char* name,
                                   Package*    package,
-                                  ClassInfo*  info)
+                                  ClassInfo*  info,
+                                  const char* docstr)
     {
         GCPAUSE_NORUN(eng);
 
@@ -122,7 +126,7 @@ public:
         NativeMethodBase* def = MakeFunctionVA(meth);
         
         Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
-            HookedFunction::Hook, def->GetArgCount(), DEF_VAR_ARGS, 0);
+            HookedFunction::Hook, def->GetArgCount(), DEF_VAR_ARGS, 0, docstr);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
         return bm;
@@ -212,9 +216,9 @@ struct SlotBinder
       * @param name Name of the method, does not need to be the same as the C++ method.
       */
     template<typename AMeth>
-    SlotBinder& Method(AMeth meth, const char* name)
+    SlotBinder& Method(AMeth meth, const char* name, const char* docstr = 0)
     {
-        Function* m = HookedFunction::Bind(engine, meth, name, package, class_info);
+        Function* m = HookedFunction::Bind(engine, meth, name, package, class_info, docstr);
         object->AddFunction(m);
         return *this;
     }
@@ -250,9 +254,9 @@ struct SlotBinder
       * @param name Name of the method, does not need to be the same as the C++ method.
       */    
     template<typename AMeth>
-    SlotBinder& StaticMethod(AMeth meth, const char* name)
+    SlotBinder& StaticMethod(AMeth meth, const char* name, const char* docstr = 0)
     {
-        Function* m = HookedFunction::StaticBind(engine, meth, name, package);
+        Function* m = HookedFunction::StaticBind(engine, meth, name, package, docstr);
         object->AddFunction(m);
         return *this;
     }
@@ -266,17 +270,17 @@ struct SlotBinder
       * @param name Name of the method, does not need to be the same as the C++ method.
       */     
     template<typename AMeth>
-    SlotBinder& MethodVA(AMeth meth, const char* name)
+    SlotBinder& MethodVA(AMeth meth, const char* name, const char* docstr = 0)
     {
-        Function* m = HookedFunction::BindVA(engine, meth, name, package, class_info);
+        Function* m = HookedFunction::BindVA(engine, meth, name, package, class_info, docstr);
         object->AddFunction(m);
         return *this;
     }
     
     template<typename AMeth>
-    SlotBinder& Method_VA_KW(AMeth meth, const char* name)
+    SlotBinder& Method_VA_KW(AMeth meth, const char* name, const char* docstr = 0)
     {
-        Function* m = HookedFunction::BindVA(engine, meth, name, package, class_info);
+        Function* m = HookedFunction::BindVA(engine, meth, name, package, class_info, docstr);
         m->def->isKeyword = true;
         object->AddFunction(m);
         return *this;
@@ -292,9 +296,9 @@ struct SlotBinder
       * @param name Name of the method, does not need to be the same as the C++ method.
       */ 
     template<typename AMeth>
-    SlotBinder& StaticMethodVA(AMeth meth, const char* name)
+    SlotBinder& StaticMethodVA(AMeth meth, const char* name, const char* docstr = 0)
     {
-        Function* m = HookedFunction::StaticBindVA(engine, meth, name, package);
+        Function* m = HookedFunction::StaticBindVA(engine, meth, name, package, docstr);
         object->AddFunction(m);
         return *this;
     }
@@ -317,11 +321,13 @@ struct SlotBinder
                            AMethRead   readMeth,
                            const char* readName,    // name of the read function or null
                            AMethWrite  writeMeth,
-                           const char* writeName)   // name of the write function or null
+                           const char* writeName,
+                           const char* getdoc=0,
+                           const char* setdoc=0)   // name of the write function or null
     {
         String*   name = engine->AllocStringNC(propName);
-        Function* rm   = HookedFunction::Bind<AMethRead>(engine,  readMeth,  readName  ? readName  : "", package, class_info);
-        Function* wm   = HookedFunction::Bind<AMethWrite>(engine, writeMeth, writeName ? writeName : "", package, class_info);
+        Function* rm   = HookedFunction::Bind<AMethRead>(engine,  readMeth,  readName  ? readName  : "", package, class_info, getdoc);
+        Function* wm   = HookedFunction::Bind<AMethWrite>(engine, writeMeth, writeName ? writeName : "", package, class_info, setdoc);
         Property* p    = Property::CreateReadWrite(engine, name, rm, wm);
         
         if (readName)
@@ -348,10 +354,11 @@ struct SlotBinder
     template<typename AMethRead>
     SlotBinder& PropertyR(const char* propName,
                           AMethRead   rMeth,
-                          const char* rName)
+                          const char* rName,
+                          const char* getdoc=0)
     {
         String*   name  = engine->AllocStringNC(propName);
-        Function* rmeth = HookedFunction::Bind<AMethRead>(engine, rMeth, rName ? rName : "", package, class_info);
+        Function* rmeth = HookedFunction::Bind<AMethRead>(engine, rMeth, rName ? rName : "", package, class_info, getdoc);
         Property* prop  = Property::CreateRead(engine, name, rmeth);
 
         if (rName)
@@ -375,10 +382,11 @@ struct SlotBinder
     template<typename AMethWrite>
     SlotBinder& PropertyW(const char* propName,
                           AMethWrite  wMeth,
-                          const char* wName)
+                          const char* wName,
+                          const char* setdoc=0)
     {
         String*   name  = engine->AllocStringNC(propName);
-        Function* wmeth = HookedFunction::Bind<AMethWrite>(engine, wMeth, wName ? wName : "", package, class_info);
+        Function* wmeth = HookedFunction::Bind<AMethWrite>(engine, wMeth, wName ? wName : "", package, class_info, setdoc);
         Property* prop  = Property::CreateWrite(engine, name, wmeth);
 
         if (wName)
@@ -453,14 +461,15 @@ struct SlotBinder
                          const char*  cname,
                          u2           argc    = 0,
                          bool         varargs = true,
-                         bool         strict  = false)
+                         bool         strict  = false,
+                         const char*  docstr  = 0)
     {
         String* name = engine->AllocStringNC(cname);
         u4 flags = 0;
         if (varargs) flags |= DEF_VAR_ARGS;
         if (strict)  flags |= DEF_STRICT;
         Def* fn = Def::CreateWith(engine, name,
-            code, argc, flags, 0);
+            code, argc, flags, 0, docstr);
 
         Function* closure = Function::Create(engine, fn, package);
         object->AddFunction(closure);
@@ -482,10 +491,11 @@ struct SlotBinder
                          const char*  cname,
                          u2           argc    = 0,
                          bool         varargs = true,
-                         bool         strict  = false)
+                         bool         strict  = false,
+                         const char*  docstr  = 0)
     {
         if (!object->IsDerivedFrom(Type::StaticGetClass()))
-            return Register(code, cname, argc, varargs, strict);
+            return Register(code, cname, argc, varargs, strict, docstr);
         
         u4 flags = 0;
         if (varargs) flags |= DEF_VAR_ARGS;
@@ -493,7 +503,7 @@ struct SlotBinder
                 
         String* name = engine->AllocStringNC(cname);        
         Def* fn = Def::CreateWith(engine, name,
-            code, argc, flags, 0);
+            code, argc, flags, 0, docstr);
 
         Function* closure = InstanceMethod::Create(engine, 0, 0, fn, package, (Type*)object);
         object->AddFunction(closure);
@@ -515,10 +525,11 @@ struct SlotBinder
                          const char*  cname,
                          u2           argc    = 0,
                          bool         varargs = true,
-                         bool         strict  = false)
+                         bool         strict  = false,
+                         const char*  docstr  = 0)
     {
         if (!object->IsDerivedFrom(Type::StaticGetClass()))
-            return Register(code, cname, argc, varargs, strict);
+            return Register(code, cname, argc, varargs, strict, docstr);
         
         u4 flags = 0;
         if (varargs) flags |= DEF_VAR_ARGS;
@@ -526,7 +537,7 @@ struct SlotBinder
                 
         String* name = engine->AllocStringNC(cname);        
         Def* fn = Def::CreateWith(engine, name,
-            code, argc, flags, 0);
+            code, argc, flags, 0, docstr);
 
         Function* closure = ClassMethod::Create(engine, 0, 0, fn, package, (Type*)object);
         object->AddFunction(closure);

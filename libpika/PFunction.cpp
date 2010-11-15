@@ -124,18 +124,15 @@ Defaults* Defaults::Create(Engine* eng, Value* v, size_t l)
 
 PIKA_IMPL(Function)
 
-Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* parent_func, const char* doc)
+Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* parent_func, String* doc)
         : ThisSuper(eng, p),
         defaults(0),
         lexEnv(0),
         def(funcdef),
         parent(parent_func),
         location(loc),
-        docstring(0)
+        docstring(doc)
 {
-    if (doc) {
-        docstring = eng->AllocStringNC(doc);
-    }
     ASSERT(engine);
     ASSERT(def);
     ASSERT(location);
@@ -151,10 +148,10 @@ Function::Function(const Function* rhs) : ThisSuper(rhs),
 {
 }
 
-Function* Function::Create(Engine* eng, Def* def, Package* loc, Function* parent, const char* doc)
+Function* Function::Create(Engine* eng, Def* def, Package* loc, Function* parent)
 {
     Function* cl = 0;
-    PIKA_NEW(Function, cl, (eng, eng->Function_Type, def, loc ? loc : eng->GetWorld(), parent, doc));
+    PIKA_NEW(Function, cl, (eng, eng->Function_Type, def, loc ? loc : eng->GetWorld(), parent, 0));
     eng->AddToGC(cl);
     return cl;
 }
@@ -163,8 +160,8 @@ Function* Function::Create(Engine* eng, RegisterFunction* rf, Package* loc)
 {
     String* funcName = eng->AllocString(rf->name);
     Def* def = Def::CreateWith(eng, funcName, rf->code,
-                               rf->argc, rf->flags, 0);    
-    return Create(eng, def, loc, 0, rf->__doc);
+                               rf->argc, rf->flags, 0, rf->__doc);
+    return Create(eng, def, loc, 0);
 }
 
 Function::~Function() {}
@@ -297,7 +294,7 @@ InstanceMethod::InstanceMethod(Engine*   eng,
                                Def*      func_def,
                                Package*  loc,
                                Type*     tclass,
-                               const char* doc)
+                               String*   doc)
 : Function(eng, t, func_def, loc, c, doc),
 classtype(tclass)
 {
@@ -309,12 +306,12 @@ InstanceMethod::InstanceMethod(Engine* eng, Type* tthis, Function* f, Type* tcla
            tthis,
            f->GetDef(),
            f->location,
-           f->parent),
+           f->parent,
+           f->docstring),
 classtype(tclass)
 {
     if (f)
     {
-        docstring = f->docstring;
         lexEnv = f->lexEnv;
         defaults = f->defaults;
     }
@@ -336,10 +333,10 @@ InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* f, Typ
 InstanceMethod::~InstanceMethod() {}
 
 InstanceMethod* InstanceMethod::Create(Engine* eng, Type* type, Function* c, Def* func_def,
-                                       Package* loc, Type* tclass, const char* doc)
+                                       Package* loc, Type* tclass)
 {
     InstanceMethod* im = 0;
-    GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, c, func_def, loc, tclass, doc));
+    GCNEW(eng, InstanceMethod, im, (eng, type ? type : eng->InstanceMethod_Type, c, func_def, loc, tclass));
     return im;
 }
 
@@ -881,8 +878,14 @@ void Function::Constructor(Engine* eng, Type* obj_type, Value& res)
 
 String* Function::GetDocumentation()
 { 
-    if (!docstring)
-        return engine->emptyString;
+    if (!docstring) {
+        if (def && def->__native_doc__) {
+            docstring = engine->AllocStringNC(def->__native_doc__);
+            WriteBarrier(docstring);
+        } else {
+            return engine->emptyString;
+        }
+    }
     return docstring; 
 }
 
