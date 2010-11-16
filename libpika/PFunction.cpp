@@ -226,25 +226,6 @@ String* Function::GetName() const
     return def ? def->name: engine->emptyString;
 }
 
-Value Function::Apply(Value& aself, Array* args)
-{
-    Context* ctx = engine->GetActiveContextSafe();
-    u2 argc = args ? static_cast<u2>(args->GetLength()) : 0;
-    
-    for (u2 a = 0; a < argc; ++a)
-        ctx->Push(args->At(a));
-        
-    ctx->Push(aself);
-    ctx->Push(this);
-    
-    if (ctx->SetupCall(argc))
-    {
-        ctx->Run();
-    }
-    Value& ret = ctx->PopTop();
-    return ret;
-}
-
 String* Function::ToString()
 {
     return String::ConcatSep(GetType()->GetName(), def->name, ':');
@@ -663,54 +644,6 @@ int Function_getLocalCount(Context* ctx, Value& self)
     return 1;
 }
 
-int Function_gen(Context* ctx, Value& self)
-{
-    GETSELF(Function, f, "Function");
-    Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
-    ctx->Push(c);
-    
-    u4 argc = ctx->GetArgCount();
-    Value* args = ctx->GetArgs();
-    
-    c->CheckStackSpace( argc + 2 );
-    for (u4 a = 0; a < argc; ++a)
-    {
-        c->Push(args[a]);
-    }
-    c->Push(f);
-    c->Setup(ctx);
-    
-    return 1;
-}
-
-// TODO: it currently takes our argc which causes a problem
-int Function_genAs(Context* ctx, Value& self)
-{
-    GETSELF(Function, f, "Function");
-    Context* c = Context::Create(f->GetEngine(), f->GetEngine()->Context_Type);
-    ctx->Push(c);
-    
-    u4 argc = ctx->GetArgCount();
-    Value* args = ctx->GetArgs();
-    if (!argc)
-    {
-        c->PushNull();
-    }
-    else
-    {
-        c->CheckStackSpace( argc + 2 );
-        for (u4 a = 1; a < argc; ++a)
-        {
-            c->Push(args[a]);
-        }
-        c->Push(args[0]);
-    }
-    c->Push(f);
-    c->Setup(ctx);
-    
-    return 1;
-}
-
 int Function_printBytecode(Context* ctx, Value&)
 {
     String* str = ctx->GetStringArg(0);
@@ -747,29 +680,6 @@ int Function_printLiterals(Context* ctx, Value& self)
 
 /* A native, do nothing function. */
 int null_Function(Context*, Value&) { return 0; }
-
-int Function_call(Context* ctx, Value& self)
-{
-    Array* args = 0;
-    Value selfObj = NULL_VALUE;
-    u4 argc = ctx->GetArgCount();
-    switch (argc) {
-    case 2:
-        selfObj = ctx->GetArg(0);
-        args = ctx->GetArgT<Array>(1); 
-        break;
-    case 1:
-        args = ctx->GetArgT<Array>(0);
-        break;
-    case 0:
-        break;
-    default:
-        ctx->WrongArgCount();
-    }
-    Function* fn = self.val.function;
-    ctx->Push(fn->Apply(selfObj, args));
-    return 1;
-}
 
 Function* Create_null_Function(Engine* eng)
 {
@@ -899,15 +809,11 @@ void Function::SetDocumentation(String* doc)
 void Function::StaticInitType(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
-    .Method(&Function::Apply,               "apply")
     .RegisterMethod(Function_getBytecode,   "getBytecode")
     .RegisterMethod(Function_getText,       "getText")
     .RegisterMethod(Function_getLocal,      "getLocal")
     .RegisterMethod(Function_setLocal,      "setLocal")    
     .RegisterMethod(Function_getLocalCount, "getLocalCount")
-    .RegisterMethod(Function_call,          "call")
-    .RegisterMethod(Function_gen,           "gen")
-    .RegisterMethod(Function_genAs,         "genAs")
     .RegisterMethod(Function_printLiterals, "printLiterals")
     .RegisterClassMethod(Function_printBytecode,    "printBytecode")
     .PropertyRW("__doc", 

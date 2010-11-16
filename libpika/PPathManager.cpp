@@ -92,7 +92,7 @@ String* PathManager::FindFile(String* file)
     for (size_t i = 0; i < searchPaths.GetSize(); ++i)
     {
         String* currpath = searchPaths[i];
-        
+        //std::cout << i << ": " << currpath->GetBuffer() << ", " << file->GetBuffer() << '\n';
         if (Pika_snprintf(temp, BUFF_SZ, "%s%s", currpath->GetBuffer(), file->GetBuffer()) < 0)
         {
             continue;
@@ -101,7 +101,7 @@ String* PathManager::FindFile(String* file)
         
         if (IsValidFile(temp))
         {
-            String* res = engine->AllocString(temp);
+            String* res = engine->AllocStringNC(temp);
             Pika_free(temp);
             errno = oldErrno;
             return res;
@@ -122,8 +122,9 @@ void PathManager::MarkRefs(Collector* c)
     ThisSuper::MarkRefs(c);
     
     size_t sz = searchPaths.GetSize();
-    for (size_t i = 0; i < sz; ++i)
-        c->MoveToGray(searchPaths[i]);
+    for (size_t i = 0; i < sz; ++i) {
+        searchPaths[i]->Mark(c);
+    }
 }
 
 bool PathManager::Finalize()

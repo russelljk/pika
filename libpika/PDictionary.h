@@ -6,8 +6,7 @@
 #define PIKA_DICTIONARY_HEADER
 
 namespace pika {
-    class PIKA_API Dictionary : public Object
-    {
+    class PIKA_API Dictionary : public Object {
         PIKA_DECL(Dictionary, Object)
     public:
         Dictionary(Engine*, Type*);

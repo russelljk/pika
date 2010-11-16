@@ -10,9 +10,10 @@
 #include "PString.h"
 #include "PUserData.h"
 #include "PEngine.h"
+#include "PDictionary.h"
 #include "PNativeBind.h"
 #include "PContext_Ops.inl"
-#include "PDictionary.h"
+
 #include "PGenerator.h"
 
 namespace pika {
@@ -854,9 +855,6 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
                        engine->GetTypenameOf(b)->GetBuffer());
 }
 
-// TODO { Is there any reason we cannot add OP_tailapply? It seems like a function
-//        apply call would be more likely to be a tail call, since usually you are
-///       turning control over to another function. }
 bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
 {
     /* [  arg 0  ]

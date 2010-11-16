@@ -43,6 +43,7 @@ class               Array;
 class               Function;
 class               Context;
 class				Debugger;
+class               Dictionary;
 class           Property;
 class           String;
 class           UserData;

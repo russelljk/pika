@@ -9,6 +9,8 @@
 #include "PEngine.h"
 #include "PProperty.h"
 #include "PPackage.h"
+#include "PDictionary.h"
+#include "PFunction.h"
 #include "PNativeMethod.h"
 
 namespace pika {

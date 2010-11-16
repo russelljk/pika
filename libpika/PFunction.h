@@ -16,6 +16,8 @@ class Function;
 class Package;
 class Value;
 class LexicalEnv;
+class Dictionary;
+class Array;
 
 class PIKA_API LexicalEnv : public GCObject 
 {
@@ -118,9 +120,6 @@ public:
     INLINE  bool IsNative()  const { return !def->GetBytecode() && def->nativecode; }
     
     virtual void BeginCall(Context*);    
-    
-    /** Call this function with the given self value and Array of arguments. */
-    virtual Value Apply(Value& self_value, Array* args);
     
     /** Returns the line number of the byte code pointer passed. On failure -1 is returned. */
     int DetermineLineNumber(code_t* pc); 

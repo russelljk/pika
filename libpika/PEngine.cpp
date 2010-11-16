@@ -468,9 +468,9 @@ Script* Engine::Compile(String* name, Context* parent)
     {        
         std::ifstream yyin;
         yyin.open(name->GetBuffer(), std::ios_base::binary | std::ios_base::in);
-        if (!yyin)        
+        if (!yyin)  {      
             return 0;
-        
+        }
         LiteralPool* literals  = 0;
         
         // Create the CompileStste and Parser.
@@ -886,7 +886,7 @@ void Engine::CreateRoots()
     AddToRoots(false_String);
     AddToRoots(message_String);
     AddToRoots(null_Function);
-    
+    AddToRoots(paths);
     for (size_t i = 0 ; i < NUM_OVERRIDES ; ++i)
     {
         AddToRoots(override_strings[i]);

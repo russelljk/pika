@@ -392,10 +392,13 @@ namespace {
     {
         if (count)
         {
-            // TODO Check for overflow
             size_t const last_size=buff.GetSize();
-            buff.Resize(last_size + count);            
-            Pika_memcpy(buff.GetAt(last_size), source, count);
+            if (SizeAdditionOverflow(last_size, count)) {
+                RaiseException(Exception::ERROR_overflow, "String.matchReplace resultant string is too large. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
+            } else {
+                buff.Resize(last_size + count);            
+                Pika_memcpy(buff.GetAt(last_size), source, count);   
+            }
         }
     }
     
@@ -503,7 +506,7 @@ namespace {
             BufferAppend(buff, source->GetBuffer() + bounds.start, source->GetLength() - bounds.start);
         }
         if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
-            RaiseException("Attempt to create a String too large in String.matchReplace.");
+            RaiseException("Attempt to create a String too large in String.matchReplace. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
         String* resultant = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
         ctx->Push(resultant);
         if (eng->GetActiveContext() == ctx)

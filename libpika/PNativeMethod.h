@@ -850,7 +850,7 @@ struct RetType<Function*>
 
 DECLARE_BINDING(Package);
 DECLARE_BINDING(Type);
-
+DECLARE_BINDING(Dictionary);
 BIND_INT_TYPE(s1, BTInt8 );
 BIND_INT_TYPE(s2, BTInt16);
 BIND_INT_TYPE(s4, BTInt32);
