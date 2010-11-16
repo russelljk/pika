@@ -412,7 +412,7 @@ int Object_toString(Context* ctx, Value& self)
     ctx->Push(rep);
     return 1;
 }
-// TODO { rawDotRead should return 2 values, a boolean and the slot value }
+
 int Object_rawDotRead(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
@@ -482,6 +482,78 @@ void Object::Constructor(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+PIKA_DOC(Object_remove, "/(:names)"
+"\n"
+"Takes a variable number of arguments and permanently removes each element specified."
+);
+
+PIKA_DOC(Object_iterate, "/(set)"
+"\n"
+"Returns an [Iterator] that will iterate over a subset of elements. Valid values"
+" include \'\' for both names and values, '\names\' for names and \'values\' for"
+" values."
+);
+
+PIKA_DOC(Object_clone, "/()"
+"\n"
+"Returns a deep copy of this object."
+);
+
+PIKA_DOC(Object_init, "/(:v)"
+"\n"
+"Initializes a new objects. This is a convience method for derived "
+"classes and is called automatically by [Type.new]."
+);
+
+PIKA_DOC(Object_toBoolean, "/()"
+"\n"
+"Returns a [Boolean] representation of the object.");
+
+PIKA_DOC(Object_toString, "/()"
+"\n"
+"Returns a [String] representation of the object.");
+
+PIKA_DOC(Object_rawDotRead, "/(obj, key)"
+"\n"
+"Returns the instance variable named |key| from |obj|. This is equivalent to the operation"
+" |obj|.|key| but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
+"  Typically this function will only be called from inside opGet."
+);
+
+PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
+"\n"
+"Sets the instance variable in |obj| named |key| to the value |val|."
+"This is equivalent to the operation |obj|.|key| = |val| but avoids all overrides and [Property property] reads"
+" If the |key| doesn't exist it will be created."
+" Typically this function will only be called from inside opSet."
+);
+
+PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
+"\n"
+"Returns the element named |key| from |obj|. This is equivalent to the operation"
+" |obj|[|key|] but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
+"  Typically this function will only be called from inside opGetAt."
+);
+
+PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
+"\n"
+"Sets the element in |obj| named |key| to the value |val|."
+"This is equivalent to the operation |obj|[|key|] = |val| but avoids all overrides and [Property property] reads"
+" If the |key| doesn't exist it will be created."
+" Typically this function will only be called from inside opSetAt."
+);
+
+PIKA_DOC(Global_import, "/(:files)"
+"\n"
+"Imports each file whoose name is passed as an argument."
+" The full path and extension typically do not need to be provided as long as"
+" the path the file resides in is inside [os os.paths]. This function will load"
+" both [Script scripts] and native [Module modules]."
+"\n"
+"This function will return one value for each argument passed. If file was already imported then the result"
+" of the previous import will be returned."
+);
+
 void Object::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -490,7 +562,7 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction GlobalFunctions[] =
     {
-        { "import", Global_import, 0, DEF_VAR_ARGS, 0 },
+        { "import", Global_import, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Global_import) },
     };
     
     Pkg_World->AddNative(GlobalFunctions, countof(GlobalFunctions));
@@ -499,19 +571,19 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction ObjectFunctions[] =
     {
-        { "remove",         Object_remove,        0, DEF_VAR_ARGS, 0 },
-        { "iterate",        Object_getEnumerator, 0, DEF_VAR_ARGS, 0 },
-        { "clone",          Object_clone,         0, 0,            0 },
-        { OPINIT_CSTR,      Object_init,          0, DEF_VAR_ARGS, 0 },
-        { "toString",       Object_toString,      0, 0,            0 },
+        { "remove",         Object_remove,        0, DEF_VAR_ARGS, PIKA_GET_DOC(Object_remove) },
+        { "iterate",        Object_getEnumerator, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Object_iterate) },
+        { "clone",          Object_clone,         0, 0,            PIKA_GET_DOC(Object_clone) },
+        { OPINIT_CSTR,      Object_init,          0, DEF_VAR_ARGS, PIKA_GET_DOC(Object_init) },
+        { "toString",       Object_toString,      0, 0,            PIKA_GET_DOC(Object_toString) },
     };
     
     static RegisterFunction Object_ClassMethods[] =
     {
-        { "rawDotRead",      Object_rawDotRead,      2, DEF_STRICT, 0 },
-        { "rawDotWrite",     Object_rawDotWrite,     3, DEF_STRICT, 0 },
-        { "rawBracketRead",  Object_rawBracketRead,  2, DEF_STRICT, 0 },
-        { "rawBracketWrite", Object_rawBracketWrite, 3, DEF_STRICT, 0 },
+        { "rawDotRead",      Object_rawDotRead,      2, DEF_STRICT, PIKA_GET_DOC(Object_rawDotRead) },
+        { "rawDotWrite",     Object_rawDotWrite,     3, DEF_STRICT, PIKA_GET_DOC(Object_rawDotWrite) },
+        { "rawBracketRead",  Object_rawBracketRead,  2, DEF_STRICT, PIKA_GET_DOC(Object_rawBracketRead) },
+        { "rawBracketWrite", Object_rawBracketWrite, 3, DEF_STRICT, PIKA_GET_DOC(Object_rawBracketWrite) },
     };
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
@@ -521,7 +593,7 @@ void Object::StaticInitType(Engine* eng)
     
     SlotBinder<Object>(eng, eng->Object_Type)
     .Alias("__iterate", "iterate")
-    .Method(&Object::ToBoolean, "toBoolean")
+    .Method(&Object::ToBoolean, "toBoolean", PIKA_GET_DOC(Object_toBoolean))
     ;
     
     // Type ///////////////////////////////////////////////////////////////////
