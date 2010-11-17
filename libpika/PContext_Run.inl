@@ -275,7 +275,7 @@ void Context::Run()
                 else
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "invalid property name. expected string or null.");
+                                       "Invalid property name. Expected String or Null.");
                 }
                 
                 if (getter.IsDerivedFrom(Function::StaticGetClass()))
@@ -285,8 +285,9 @@ void Context::Run()
                 else if ( !getter.IsNull() )
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "invalid getter for property %s.",
-                                       propname->GetBuffer());
+                                       "Invalid \'get:\' attribute specified for property %s. Expected Function but was given type \'%s\'.",
+                                       propname->GetBuffer(),
+                                       engine->GetTypenameOf(getter)->GetBuffer());
                 }
                 
                 if (setter.IsDerivedFrom(Function::StaticGetClass()))
@@ -296,8 +297,9 @@ void Context::Run()
                 else if  ( !setter.IsNull() )
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "invalid setter for property %s.",
-                                       propname->GetBuffer());
+                                       "Invalid \'set:\' attribute specified for property %s. Expected Function but was given type \'%s\'.",
+                                       propname->GetBuffer(),
+                                       engine->GetTypenameOf(setter)->GetBuffer());
                 }
                 
                 Property* p = 0;
@@ -323,7 +325,7 @@ void Context::Run()
                 else
                 {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                                       "Attempt to create property %s without a getter or setter function.",
+                                       "Attempt to create property %s without a get: or set: function.",
                                        propname->GetBuffer());
                 }
                 

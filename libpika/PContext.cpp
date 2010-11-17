@@ -858,11 +858,11 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
 bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
 {
     /* [  arg 0  ]
-       [  .....  ] < regular arguments, 0-argc
+       [  .....  ] < regular arguments, [0 to argc]
        [  arg N  ]
        [  key 0  ]
        [  val 0  ]
-       [  .....  ] < keyword arg pairs, 0-kwargc
+       [  .....  ] < keyword arg pairs, [0 to kwargc]
        [  key N  ]
        [  val N  ]
        [  [...]  ] < variable argument array

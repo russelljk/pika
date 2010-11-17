@@ -462,24 +462,37 @@ Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Pac
     return type;
 }
 
-int Type_alloc(Context* ctx, Value& self)
+PIKA_DOC(Type_new, "/(:varg, ::kwarg)"
+"\n\n"
+"This function is responsible for creating and initializing new instances."
+" The [Type Type's] '''init''' function will be called with same arguments. The newly created instance is returned.");
+
+int Type_new(Context* ctx, Value& self)
 {
     Engine* engine = ctx->GetEngine();
     u2      argc   = ctx->GetArgCount();
     Type*   type   = self.val.type;
+    Dictionary* dict = ctx->GetKeywordArgs();
     
+    Value kw(NULL_VALUE);
     Value vobj(NULL_VALUE);
     Value vfunc(NULL_VALUE);
     
+    if (dict)
+        kw.Set(dict);
+       
     type->CreateInstance(vobj);
+    ctx->CheckStackSpace(argc + 5); // args + null + dict + obj + func + retvalue
     if (type->GetField(Value(engine->GetOverrideString(OVR_init)), vfunc))
     {
         ctx->StackAlloc(argc);
         Pika_memcpy(ctx->GetStackPtr() - argc, ctx->GetArgs(), argc * sizeof(Value));
+        ctx->PushNull(); // No Variable Argument Array
+        ctx->Push(kw); // Dictionary If Present
         ctx->Push(vobj);
         ctx->Push(vfunc);
         
-        if (ctx->SetupCall(argc))
+        if (ctx->OpApply(argc, 1, 0, false))
         {
             ctx->Run();
         }
@@ -576,7 +589,7 @@ void Type::StaticInitType(Engine* eng)
     
     static RegisterFunction TypeFunctions[] =
     {
-        { "new", Type_alloc, 0, DEF_VAR_ARGS, 0 },
+        { "new", Type_new, 0, DEF_VAR_ARGS | DEF_KEYWORD_ARGS, PIKA_GET_DOC(Type_new) },
     };
     
     static RegisterFunction TypeClassMethods[] =
