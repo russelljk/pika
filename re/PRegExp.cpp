@@ -528,7 +528,7 @@ PIKA_MODULE(RegExp, eng, re)
     pika::Type* RegExp_Type = pika::Type::Create(eng, RegExp_String, eng->Object_Type, RegExp::Constructor, Pkg_World);
     
     pika::SlotBinder<pika::RegExp>(eng, RegExp_Type)
-    .Register(pika::RegExp_exec, "exec", 1, true, false)
+    .RegisterMethod(pika::RegExp_exec, "exec", 1, true, false)
     .Method(&RegExp::Test,     "test")
     .Method(&RegExp::Compile,  "compile")
     .MethodVA(&RegExp::Init,   "init")

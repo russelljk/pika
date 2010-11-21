@@ -497,7 +497,7 @@ PIKA_DOC(Object_remove, "/(:names)"
 PIKA_DOC(Object_iterate, "/(set)"
 "\n"
 "Returns an [Iterator] that will iterate over a subset of elements. Valid values"
-" include \'\' for both names and values, \'names\' for names and \'values\' for"
+" include the empty [String] \"\" for both names and values, \'names\' for names and \'values\' for"
 " values."
 );
 
@@ -509,7 +509,7 @@ PIKA_DOC(Object_clone, "/()"
 PIKA_DOC(Object_init, "/(:v)"
 "\n"
 "Initializes a new objects. This is a convience method for derived "
-"classes and is called automatically by [Type.new]."
+"classes and is called automatically by [Type.new]. Do not call directly unless you are overriding [Object.new]."
 );
 
 PIKA_DOC(Object_toBoolean, "/()"
@@ -525,6 +525,9 @@ PIKA_DOC(Object_rawDotRead, "/(obj, key)"
 "Returns the instance variable named |key| from |obj|. This is equivalent to the operation"
 " |obj|.|key| but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
 "  Typically this function will only be called from inside opGet."
+"[[[function opGet(key)\n"
+"  return Object.rawDotRead(self, key)\n"
+"end]]]"
 );
 
 PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
@@ -533,6 +536,9 @@ PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
 "This is equivalent to the operation |obj|.|key| = |val| but avoids all overrides and [Property property] reads"
 " If the |key| doesn't exist it will be created."
 " Typically this function will only be called from inside opSet."
+"[[[function opSet(key, val)\n"
+"  Object.rawDotWrite(self, key, val)\n"
+"end]]]"
 );
 
 PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
@@ -540,6 +546,9 @@ PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
 "Returns the element named |key| from |obj|. This is equivalent to the operation"
 " |obj|[|key|] but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
 "  Typically this function will only be called from inside opGetAt."
+"[[[function opGetAt(key)\n"
+"  return Object.rawBracketRead(self, key)\n"
+"end]]]"
 );
 
 PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
@@ -548,6 +557,9 @@ PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
 "This is equivalent to the operation |obj|[|key|] = |val| but avoids all overrides and [Property property] reads"
 " If the |key| doesn't exist it will be created."
 " Typically this function will only be called from inside opSetAt."
+"[[[function opSetAt(key, val)\n"
+"  Object.rawBracketWrite(self, key, val)\n"
+"end]]]"
 );
 
 PIKA_DOC(Global_import, "/(:files)"
@@ -563,11 +575,6 @@ PIKA_DOC(Global_import, "/(:files)"
 
 PIKA_DOC(Object_class, "Object is the default [Type.base base] class for all class declarations."
 " Instances can have instance variables, properties and methods of their own."
-);
-
-PIKA_DOC(Object_new, "/()"
-"\n"
-"Creates and initializes a new Object instance. No arguments are needed."
 );
 
 void Object::StaticInitType(Engine* eng)
@@ -605,7 +612,6 @@ void Object::StaticInitType(Engine* eng)
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
     eng->Object_Type->EnterClassMethods(Object_ClassMethods, countof(Object_ClassMethods));
     eng->Object_Type->SetSlot("__doc", eng->AllocStringNC(PIKA_GET_DOC(Object_class)));
-    eng->Object_Type->SetSlot("__doc_new", eng->AllocStringNC(PIKA_GET_DOC(Object_new)));
     
     Pkg_World->SetSlot("Object", eng->Object_Type);
     

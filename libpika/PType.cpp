@@ -286,7 +286,7 @@ void Type::EnterClassMethods(RegisterFunction* fns, size_t count, Package* pkg)
     {
         String* methodName = engine->AllocString(fns[i].name);
         Def* def = Def::CreateWith(engine, methodName, fns[i].code,
-                                   fns[i].argc, fns[i].flags, 0);
+                                   fns[i].argc, fns[i].flags, 0, fns[i].__doc);
                                    
         Function* closure = ClassMethod::Create(engine, 0, 0, def, pkg, this);
         AddFunction(closure);
