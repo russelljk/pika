@@ -209,7 +209,7 @@ protected:
     explicit BoundFunction(const BoundFunction*);
 public:    
     virtual ~BoundFunction();
-    
+    virtual void      Init(Context*);
     virtual Function* GetBoundFunction() const { return closure;}
     virtual Value     GetBoundSelf()     const { return self; }
     virtual Object*   Clone();

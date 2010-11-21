@@ -506,6 +506,18 @@ BoundFunction* BoundFunction::Create(Engine* eng, Type* type, Function* c, Value
     return b;
 }
 
+void BoundFunction::Init(Context* ctx)
+{
+    closure = ctx->GetArgT<Function>(0);
+    if (!closure)
+        RaiseException("BoundFunction.init excepts a valid Function and self object.");
+    self = ctx->GetArg(1);
+    WriteBarrier(closure);
+    lexEnv = closure->lexEnv;
+    if (self.IsCollectible())
+        WriteBarrier(self);
+}
+
 void BoundFunction::BeginCall(Context* ctx)
 {
     ctx->SetSelf(self);
@@ -809,6 +821,7 @@ void Function::SetDocumentation(String* doc)
 void Function::StaticInitType(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
+    .Method(&Function::BindWith, "bindto")
     .RegisterMethod(Function_getBytecode,   "getBytecode")
     .RegisterMethod(Function_getText,       "getText")
     .RegisterMethod(Function_getLocal,      "getLocal")

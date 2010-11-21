@@ -1230,7 +1230,7 @@ public:
 PIKA_DOC(String_chomp, 
 "/([set])\n"
 "Drops the zero indexed character as long as it is in the string |set|."
-"It stops when the zero indexed character is not in |set| or the string's [length] is 0."
+"It stops when the zero indexed character is not in |set| or the string's length is 0."
 "If |set| is not specified them all whitespace characters will be removed from"
 "the front of the string."
 );

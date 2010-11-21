@@ -49,10 +49,23 @@ int os_sleep(Context* ctx, Value&)
     return 0;
 }
 
+PIKA_DOC(os_clock, "/()"
+"\n"
+"Returns the number of seconds since the start of the program."
+" This has no relation to the execution time of the current [Script] or [Context]."
+);
+
 preal_t os_clock()
 {
     return static_cast<preal_t>(clock()) / static_cast<preal_t>(CLOCKS_PER_SEC);
 }
+
+PIKA_DOC(os_time, "/()"
+"\n"
+"Returns the time in milliseconds since the start of the Epoch."
+" The value returned may vary across platforms."
+" As a result programs should deal with relative values instead of absolute ones."
+);
 
 pint_t os_time()
 {
@@ -103,9 +116,27 @@ int math_Abs(Context* ctx, Value&)
     return 0;
 }
 
-int os_system(Nullable<const char*> str)
+PIKA_DOC(os_system, "/([cmd])"
+"\n"
+"Performs the system command |cmd|."
+" The return value will be a system depended value that determines if the command was successfully executed."
+" Call with no arguments to check whether or not a command '''can''' be executed."
+);
+int os_system(Context* ctx, Value&)
 {
-    return system(str);
+    pint_t res = 0;
+    u2 argc = ctx->GetArgCount();
+    if (argc == 1) {
+        String* str = ctx->GetStringArg(0);
+        res = system(str->GetBuffer());
+    } else if (argc == 0) {
+        res = system(0);
+    } else {
+        ctx->WrongArgCount();
+        return 0;
+    }
+    ctx->Push((pint_t)res);
+    return 1;
 }
 
 // TODO: math_max should handle >= 2 args and any number type
@@ -462,6 +493,21 @@ int math_lib_load(Context* ctx, Value&)
     return 1;
 }
 
+PIKA_DOC(os_getEnv, "/(var)"
+"\n"
+"Returns the environmental variable named |var|. If the variable does not exist '''null''' will be returned."
+);
+
+PIKA_DOC(os_setEnv, "/(var, val)"
+"\n"
+"Sets the environmental variable named |var| to value of [String] |val|. If |val| is '''null''' then the variable will be removed."
+);
+
+PIKA_DOC(os_unSetEnv, "/(var)"
+"\n"
+"Removes the environmental variable named |var|. This is equivalent to calling [setEnv] with a '''null''' value."
+);
+
 int os_lib_load(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
@@ -472,18 +518,18 @@ int os_lib_load(Context* ctx, Value&)
     Package* os_Package    = eng->OpenPackage(os_String, world_Package, false);
     
 	SlotBinder<Object>(eng, os_Package, os_Package)
-    .StaticMethod( os_clock,                 "clock")
-    .StaticMethod( os_system,                "system")
-    .StaticMethod( os_time,                  "time")
-    .StaticMethod( getenv,                   "getEnv")
-    .StaticMethod( setenv,                   "setEnv")
-    .StaticMethod( unsetenv,                 "unSetEnv")
+    .StaticMethod( os_clock,                 "clock",  PIKA_GET_DOC(os_clock))
+    .StaticMethod( os_time,                  "time",   PIKA_GET_DOC(os_time))
+    .StaticMethod( getenv,                   "getEnv", PIKA_GET_DOC(os_getEnv))
+    .StaticMethod( setenv,                   "setEnv", PIKA_GET_DOC(os_setEnv))
+    .StaticMethod( unsetenv,                 "unSetEnv", PIKA_GET_DOC(os_unSetEnv))
     .StaticMethod( Pika_FileExists,          "fileExists?") // Checks for the existence of a file or directory.
     .StaticMethod( Pika_IsFile,              "file?")       // Checks for the existence of a file.
     .StaticMethod( Pika_IsDirectory,         "dir?")        // Checks for the existence of a directory.
     .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
     .StaticMethod( Pika_RemoveDirectory,     "removeDir")   // Removes a directory.
     .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
+    .Register    ( os_system,                "system", 0, true, false, PIKA_GET_DOC(os_system))
     .Register    ( os_sleep,                 "sleep")       // Sleep a given number of ms.
     .Register    ( os_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
     .Register    ( os_moveFile,              "moveFile")    // Moves a file to a new location.

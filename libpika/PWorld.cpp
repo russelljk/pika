@@ -777,7 +777,11 @@ void Engine::InitializeWorld()
         NativeMethod_Type->SetAbstract(true);
         
         Pkg_World->SetSlot(Function_String, Function_Type);
-        
+        Pkg_World->SetSlot("NativeFunction", NativeFunction_Type);
+        Pkg_World->SetSlot("NativeMethod", NativeMethod_Type);
+        Pkg_World->SetSlot("InstanceMethod", InstanceMethod_Type);
+        Pkg_World->SetSlot("ClassMethod", ClassMethod_Type);
+        Pkg_World->SetSlot("BoundFunction", BoundFunction_Type);                
         Object::StaticInitType(this);
         Dictionary::StaticInitType(this);
         Package::StaticInitType(this);   

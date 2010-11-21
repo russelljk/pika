@@ -2399,16 +2399,16 @@ void Context::DoClosure(Def* fun, Value& retframe, Value* mself)
     GCPAUSE(engine);
     
     Function* f = 0;
+    ScopeInfo& currA = *(scopesTop - 1);
     if (fun->name == 0 || fun->name == engine->emptyString)
     {
         f = Function::Create(engine, fun, package, closure);
     }
-    else if (mself && (mself->IsDerivedFrom(Type::StaticGetClass()) ||
-                       (mself->IsNull() && self.IsDerivedFrom(Type::StaticGetClass()))))
+    else if (mself && (mself->IsDerivedFrom(Type::StaticGetClass())))
     {
         f = ClassMethod::Create(engine, 0, closure, fun, package, mself->IsNull() ? self.val.type : mself->val.type);
     }
-    else if (package->IsDerivedFrom(Type::StaticGetClass()))
+    else if (currA.kind == SCOPE_package && package->IsDerivedFrom(Type::StaticGetClass()))
     {
         f = InstanceMethod::Create(engine, 0, closure, fun, package, (Type*)package);
     }

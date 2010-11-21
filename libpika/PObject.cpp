@@ -155,7 +155,14 @@ bool Object::GetSlot(const Value& key, Value& result)
 
 bool Object::HasSlot(const Value& key)
 {
-    return members ? members->Exists(key) : false;
+    if (members && members->Exists(key))
+        return true;
+    Value res(NULL_VALUE);
+    if (type->GetField(key, res) && res.tag == TAG_property) {
+        // TODO: Check that property.reader.location == type or property.writer.location == type
+        return true;
+    }
+    return false;
 }
 
 bool Object::DeleteSlot(const Value& key)
@@ -484,13 +491,13 @@ void Object::Constructor(Engine* eng, Type* obj_type, Value& res)
 
 PIKA_DOC(Object_remove, "/(:names)"
 "\n"
-"Takes a variable number of arguments and permanently removes each element specified."
+"Removes each of the instance variables named. Any variable name that doesn't exist will be ignored."
 );
 
 PIKA_DOC(Object_iterate, "/(set)"
 "\n"
 "Returns an [Iterator] that will iterate over a subset of elements. Valid values"
-" include \'\' for both names and values, '\names\' for names and \'values\' for"
+" include \'\' for both names and values, \'names\' for names and \'values\' for"
 " values."
 );
 
@@ -529,7 +536,7 @@ PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
 );
 
 PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
-"\n"
+"\n\n"
 "Returns the element named |key| from |obj|. This is equivalent to the operation"
 " |obj|[|key|] but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
 "  Typically this function will only be called from inside opGetAt."
@@ -552,6 +559,15 @@ PIKA_DOC(Global_import, "/(:files)"
 "\n"
 "This function will return one value for each argument passed. If file was already imported then the result"
 " of the previous import will be returned."
+);
+
+PIKA_DOC(Object_class, "Object is the default [Type.base base] class for all class declarations."
+" Instances can have instance variables, properties and methods of their own."
+);
+
+PIKA_DOC(Object_new, "/()"
+"\n"
+"Creates and initializes a new Object instance. No arguments are needed."
 );
 
 void Object::StaticInitType(Engine* eng)
@@ -588,6 +604,8 @@ void Object::StaticInitType(Engine* eng)
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
     eng->Object_Type->EnterClassMethods(Object_ClassMethods, countof(Object_ClassMethods));
+    eng->Object_Type->SetSlot("__doc", eng->AllocStringNC(PIKA_GET_DOC(Object_class)));
+    eng->Object_Type->SetSlot("__doc_new", eng->AllocStringNC(PIKA_GET_DOC(Object_new)));
     
     Pkg_World->SetSlot("Object", eng->Object_Type);
     
