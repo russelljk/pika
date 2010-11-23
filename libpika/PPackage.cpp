@@ -100,7 +100,7 @@ void Package::AddNative(RegisterFunction* fns, size_t count)
     {
         String* funname = engine->AllocString(fns[i].name);
         
-        Def* fn = Def::CreateWith(engine, funname, fns[i].code, fns[i].argc, fns[i].flags, 0);
+        Def* fn = Def::CreateWith(engine, funname, fns[i].code, fns[i].argc, fns[i].flags, 0, fns[i].__doc);
                                                   
         Value vname(funname);
         Value vfn(fn);
@@ -197,21 +197,28 @@ namespace {
 int Pkg_getParent(Context* ctx, Value& self)
 {
     GETSELF(Package, pkg, "Package")
-    ctx->Push(pkg->GetSuper());
+    Package* super = pkg->GetSuper();
+    if (super) {
+        ctx->Push(super);
+    } else {
+        ctx->PushNull();
+    }
     return 1;
 }
 
 int Pkg_getName(Context* ctx, Value& self)
 {
     GETSELF(Package, pkg, "Package")
-    ctx->Push(pkg->GetName());
+    String* name = pkg->GetName() ? pkg->GetName() : ctx->GetEngine()->emptyString;
+    ctx->Push(name);
     return 1;
 }
 
 int Pkg_getPath(Context* ctx, Value& self)
 {
     GETSELF(Package, pkg, "Package")
-    ctx->Push(pkg->GetDotName());
+    String* name = pkg->GetDotName() ? pkg->GetDotName() : ctx->GetEngine()->emptyString;
+    ctx->Push(name);
     return 1;
 }
 

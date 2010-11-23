@@ -221,6 +221,53 @@ int Primitive_getType(Context* ctx, Value& self)
     return 0;
 }
 
+int Multi_getDoc(Context* ctx, Value& self)
+{
+    Engine* eng =ctx->GetEngine();
+    String* doc = eng->emptyString;
+    if (self.IsDerivedFrom(Type::StaticGetClass())) {
+        Type* type = (Type*)self.val.object;
+        doc = type->GetDoc();
+    } else if (self.IsDerivedFrom(Function::StaticGetClass())) {
+        Function* func = (Function*)self.val.object;
+        doc = func->GetDocumentation();
+    } else if (self.IsObject()) {
+      Value res(NULL_VALUE);
+      if (self.val.object->MembersPtr()) {
+        Table* tab = self.val.object->MembersPtr();
+        if (tab->Get(eng->AllocStringNC("__doc"), res) && res.IsString()) {
+            doc = res.val.str;
+        }
+      }  
+    } else {
+//        Engine* eng = ctx->GetEngine();
+//        Type* type = eng->GetTypeOf(self);
+//        doc = type->GetDoc();
+    }
+    if (!doc)
+        ctx->Push(ctx->GetEngine()->emptyString);
+    else
+        ctx->Push(doc);
+    return 1;
+}
+
+int Multi_setDoc(Context* ctx, Value& self)
+{
+    String* doc = ctx->GetStringArg(0);
+    if (self.IsDerivedFrom(Type::StaticGetClass())) {
+        Type* type = (Type*)self.val.object;
+        type->SetDoc(doc);
+    } else if (self.IsDerivedFrom(Function::StaticGetClass())) {
+        Function* func = (Function*)self.val.object;
+        func->SetDocumentation(doc);
+    } else if (self.IsObject()) {
+        Object* obj = self.val.object;
+        Engine* eng = ctx->GetEngine();
+        obj->SetSlot(eng->AllocStringNC("__doc"), doc, Slot::ATTR_forcewrite);
+    }
+    return 0;
+}
+
 ////////////////////////////////////////////// Real ////////////////////////////////////////////////
 
 int Real_init(Context* ctx, Value& self)
@@ -548,12 +595,15 @@ int Global_assert(Context* ctx, Value& self)
     return 0;
 }
 
-Type* CreateErrorType(Engine* eng, const char* name, Type* base)
+Type* CreateErrorType(Engine* eng, const char* name, Type* base, const char* doc = 0)
 {
     Package* Pkg_World = eng->GetWorld();
     String* error_name = eng->AllocString(name);
     Type* error_type = Type::Create(eng, error_name, base, Error_NewFn, Pkg_World);
     Pkg_World->SetSlot(error_name, error_type);
+    if (doc) {
+        error_type->SetDoc(eng->AllocStringNC(doc));
+    }
     return error_type;
 }
 
@@ -603,6 +653,39 @@ void GCPause::onNew(Engine* eng, Type* type, Value& res)
     GCNEW(eng, GCPause, cp, (eng, type));
     res.Set(cp);
 }
+#define ERROR_EXAMPLE(TYPE) \
+    "[[[raise " #TYPE ".new( \"error message\" )]]]"
+
+PIKA_DOC(Value_Type, "The root base [Type type] for all other types."
+" Direct instances of this type do not exist and cannot be created. New types cannot derive from this type Directly."
+);
+
+PIKA_DOC(RuntimeError_Type, "Error type used to signal exceptional runtime conditions. This is the most generic type of runtime error and, as the name suggests, should be used only during the execution of code."
+ERROR_EXAMPLE(RuntimeError));
+
+PIKA_DOC(TypeError_Type, "Error type used to signal conditions where an value of the incorrect [Type type] is present. This includes the wrong type being passed to or returned from a function. As well as incompatible types used as operands for a given operator."
+ERROR_EXAMPLE(TypeError));
+
+PIKA_DOC(ArithmeticError_Type, "Error type used to signal exceptional conditions that occur during arithmetic operations."
+ERROR_EXAMPLE(ArithmeticError));
+
+PIKA_DOC(Error_toString, "/()"
+"\n"
+"Overload of the string conversion operator toString. Returns the formatted error message.");
+
+PIKA_DOC(Error_init, "/(msg)"
+"\n"
+"Initializes this Error object with the [String] |msg|.");
+
+PIKA_DOC(Error_Type, "Base Error type used for exceptional conditions."
+" You should create a new instance in conjunction with a |raise| statement."
+" In general you should use the appropriate derived class to provide more specific information about the error."
+ERROR_EXAMPLE(Error));
+
+PIKA_DOC(AssertError_Type, "Error type used in conjunction with the [assert] function to signal an false assertion."
+ERROR_EXAMPLE(AssertError)
+"Or using the [assert] function."
+"[[[assert( expression )]]]");
 
 void Engine::InitializeWorld()
 {
@@ -743,6 +826,8 @@ void Engine::InitializeWorld()
         Type_Type    ->SetType( TypeType_Type    );
         TypeType_Type->SetType( TypeType_Type    );
         
+        Value_Type->SetDoc(AllocStringNC(PIKA_GET_DOC(Value_Type)));
+        
         Array_Type = Type::Create(this, AllocString("Array"), Object_Type, Array::Constructor, Pkg_World);
         
         /* We need to go back an fix any arrays created before the Array type was created.
@@ -750,6 +835,7 @@ void Engine::InitializeWorld()
          * and useless.
          */
         Basic_Type   ->GetSubtypes()->SetType(Array_Type);
+        Value_Type->GetSubtypes()->SetType(Array_Type);
         Object_Type  ->GetSubtypes()->SetType(Array_Type);
         Package_Type ->GetSubtypes()->SetType(Array_Type);
         Type_Type    ->GetSubtypes()->SetType(Array_Type);
@@ -800,11 +886,12 @@ void Engine::InitializeWorld()
         
         Debugger::StaticInitType(this);
         Array::StaticInitType(this);
-        InitSystemLIB  (this);
+        InitSystemLIB(this);
         Context::StaticInitType(this);
         File::StaticInitType(this);
         ByteArray::StaticInitType(this);
         Init_Annotations(this, Pkg_World);
+        
         // GCPause /////////////////////////////////////////////////////////////////////////////////
         
         String* GCPause_String = AllocString("GCPause");
@@ -816,13 +903,13 @@ void Engine::InitializeWorld()
         .Method(&GCPause::UnPause, "onDispose")
         .PropertyR("paused?", &GCPause::IsPaused, 0);
         
-        // T - methods /////////////////////////////////////////////////////////////////////////
+        // Value methods /////////////////////////////////////////////////////////////////////////
         
         static RegisterProperty Value_Properties[] =
         {
             { "type", Primitive_getType, "getType", 0, 0 },
+            { "__doc", Multi_getDoc, 0, Multi_setDoc, 0, true },
         };
-        
         Value_Type->EnterProperties(Value_Properties, countof(Value_Properties));
         this->Pkg_World->SetSlot(this->AllocString("Basic"), this->Basic_Type);
         
@@ -831,8 +918,8 @@ void Engine::InitializeWorld()
          */        
         static RegisterFunction Error_Functions[] =
         {
-            { OPINIT_CSTR, Error_init,     1, DEF_STRICT, 0 },
-            { "toString",  Error_toString, 0, DEF_STRICT, 0 },
+            { OPINIT_CSTR, Error_init,     1, DEF_STRICT, PIKA_GET_DOC(Error_init) },
+            { "toString",  Error_toString, 0, DEF_STRICT, PIKA_GET_DOC(Error_toString) },
         };
         
         String* Error_String = AllocString("Error");
@@ -840,18 +927,18 @@ void Engine::InitializeWorld()
         
         Pkg_World->SetSlot(Error_String, Error_Type);
         Error_Type->EnterMethods(Error_Functions, countof(Error_Functions));
-                
-        RuntimeError_Type      = CreateErrorType(this, "RuntimeError",      Error_Type);
-        TypeError_Type         = CreateErrorType(this, "TypeError",         Error_Type);        
-        ReferenceError_Type    = CreateErrorType(this, "ReferenceError",    Error_Type);
-        ArithmeticError_Type   = CreateErrorType(this, "ArithmeticError",   Error_Type);
+        Error_Type->SetDoc(AllocStringNC(PIKA_GET_DOC(Error_Type)));
+        
+        RuntimeError_Type      = CreateErrorType(this, "RuntimeError",      Error_Type, PIKA_GET_DOC(RuntimeError_Type));
+        TypeError_Type         = CreateErrorType(this, "TypeError",         Error_Type, PIKA_GET_DOC(TypeError_Type));
+        ArithmeticError_Type   = CreateErrorType(this, "ArithmeticError",   Error_Type, PIKA_GET_DOC(ArithmeticError_Type));
         OverflowError_Type     = CreateErrorType(this, "OverflowError",     ArithmeticError_Type);
         UnderflowError_Type    = CreateErrorType(this, "UnderflowError",    ArithmeticError_Type);
         DivideByZeroError_Type = CreateErrorType(this, "DivideByZeroError", ArithmeticError_Type);
         SyntaxError_Type       = CreateErrorType(this, "SyntaxError",       Error_Type);
         IndexError_Type        = CreateErrorType(this, "IndexError",        Error_Type);      
         SystemError_Type       = CreateErrorType(this, "SystemError",       Error_Type);
-        AssertError_Type       = CreateErrorType(this, "AssertError",       Error_Type);
+        AssertError_Type       = CreateErrorType(this, "AssertError",       Error_Type, PIKA_GET_DOC(AssertError_Type));
         
         // world ///////////////////////////////////////////////////////////////////////////////////////
         
@@ -869,7 +956,7 @@ void Engine::InitializeWorld()
         
         Pkg_World->AddNative(DummyFunctions, countof(DummyFunctions));
         Pkg_World->SetType(Package_Type);
-                
+        
         // Null ////////////////////////////////////////////////////////////////////////////////////////
         
         static RegisterFunction Null_Functions[] =

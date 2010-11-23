@@ -233,7 +233,7 @@ void Object::EnterFunctions(RegisterFunction* fns, size_t count, Package* pkg)
     {
         String* funcName = engine->AllocString(fns[i].name);
         Def* fn = Def::CreateWith(engine, funcName, fns[i].code,
-                                  fns[i].argc, fns[i].flags, 0);
+                                  fns[i].argc, fns[i].flags, 0, fns[i].__doc);
                                   
         Function* closure = Function::Create(engine, fn, pkg);
         AddFunction(closure);
@@ -533,7 +533,7 @@ PIKA_DOC(Object_rawDotRead, "/(obj, key)"
 PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
 "\n"
 "Sets the instance variable in |obj| named |key| to the value |val|."
-"This is equivalent to the operation |obj|.|key| = |val| but avoids all overrides and [Property property] reads"
+" This is equivalent to the operation |obj|.|key| = |val| but avoids all overrides and [Property property] reads"
 " If the |key| doesn't exist it will be created."
 " Typically this function will only be called from inside opSet."
 "[[[function opSet(key, val)\n"
@@ -564,13 +564,15 @@ PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
 
 PIKA_DOC(Global_import, "/(:files)"
 "\n"
-"Imports each file whoose name is passed as an argument."
-" The full path and extension typically do not need to be provided as long as"
-" the path the file resides in is inside [os os.paths]. This function will load"
-" both [Script scripts] and native [Module modules]."
+"This function will load both the [Script scripts] and [Module modules] whose file names are provided."
+" If the file was already loaded as the result of a previous call to import, the previous import value will be returned."
+" All previous imported values can be found in the [Package] [world.imports imports]."
+" Failure to import a given file or a circular dependency will result in an exception being raised."
 "\n"
-"This function will return one value for each argument passed. If file was already imported then the result"
-" of the previous import will be returned."
+" The full path and extension typically do not need to be provided as long as"
+" the path the file resides in is inside [imports.os os.paths]."
+
+
 );
 
 PIKA_DOC(Object_class, "Object is the default [Type.base base] class for all class declarations."
@@ -611,7 +613,7 @@ void Object::StaticInitType(Engine* eng)
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
     eng->Object_Type->EnterClassMethods(Object_ClassMethods, countof(Object_ClassMethods));
-    eng->Object_Type->SetSlot("__doc", eng->AllocStringNC(PIKA_GET_DOC(Object_class)));
+    eng->Object_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Object_class)));
     
     Pkg_World->SetSlot("Object", eng->Object_Type);
     

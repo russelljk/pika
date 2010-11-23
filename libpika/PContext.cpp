@@ -695,7 +695,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
 #       ifndef NO_DIVIDEBYZERO_ERROR
                 if (ib == 0)
                 {
-                    RaiseException(Exception::ERROR_arithmetic, "OpDiv: division by zero");
+                     RaiseException(Exception::ERROR_dividebyzero, "Divide by zero while attempting to find "PINT_FMT" divided by "PINT_FMT".", ia, ib);
                 }
 #       endif                
                 if (ia % ib == 0)

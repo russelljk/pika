@@ -287,9 +287,20 @@ void Random::Constructor(Engine* eng, Type* obj_type, Value& res)
     Random* ra = Random::Create(eng, obj_type);
     res.Set(ra);
 }
-
+PIKA_DOC(random_obj, "/()\
+\n\
+Returns the next psuedo-random number. \
+This is an instance of the type [imports.math.Random Random] which implements opCall.\n\
+[[[math = import 'math'\n\
+print(math.random())]]]\n\
+You can easily change the random numbers seed as well.\n\
+[[[math.random.seed = 1024]]]\n\
+Please refer to [imports.math.Random Random's] documentation for more information \
+on other methods and properties."
+);
 void Random::StaticInitType(Package* module, Engine* eng)
 {
+    GCPAUSE_NORUN(eng);
     String* Random_String = eng->AllocString("Random");
     Type*   Random_Type  = Type::Create(eng, Random_String, eng->Object_Type, Random::Constructor, module);
     
@@ -310,8 +321,9 @@ void Random::StaticInitType(Package* module, Engine* eng)
             &Random::SetSeed,   "setSeed")
     ;
     
-    Object* obj = Random::Create(eng, Random_Type);
-    module->SetSlot(eng->AllocString("random"), obj, Slot::ATTR_protected);
+    Object* random_obj = Random::Create(eng, Random_Type);
+    module->SetSlot(eng->AllocString("random"), random_obj, Slot::ATTR_protected);
+    random_obj->SetSlot(eng->AllocString("__doc"), eng->AllocStringNC(PIKA_GET_DOC(random_obj)), Slot::ATTR_forcewrite); 
 }
 
 }// pika

@@ -1229,8 +1229,8 @@ public:
 
 PIKA_DOC(String_chomp, 
 "/([set])\n"
-"Drops the zero indexed character as long as it is in the string |set|."
-"It stops when the zero indexed character is not in |set| or the string's length is 0."
+"Drops characters as long as they appear in the string |set|."
+"It stops when the zero indexed character is no longer in |set| or the string's length is 0."
 "If |set| is not specified them all whitespace characters will be removed from"
 "the front of the string."
 );
@@ -1280,17 +1280,49 @@ PIKA_DOC(String_is_whitespace,
 "If the string is empty false is returned"
 );
 
+PIKA_DOC(String_toInteger, "/()\n"
+"Returns the [Integer] represented by this string. The integer must be in the same format"
+" as an integer literal in Pika. The integer can be specified in any base from 2 to 36."
+" If the conversion cannot take place an exception will be raised."
+);
+
+PIKA_DOC(String_toReal, "/()\n"
+"Returns the [Real] represented by this string. The real must be in the same format"
+" as an real literal in Pika. The real can be specified in any base from 2 to 36 or contain an exponent."
+" If the conversion cannot take place an exception will be raised."
+);
+
+PIKA_DOC(String_toNumber, "/()\n"
+"Returns the [Real] or [Integer] represented by this string. See [toInteger] and [toReal] for more information on valid formats."
+" If the conversion cannot take place an exception will be raised."
+);
+
+PIKA_DOC(String_toLower, "/()\n"
+"Converts and returns a copy of this string, with each letter converted to lower-case. Non-letter characters are copied as they appear in the string."
+);
+
+PIKA_DOC(String_toUpper, "/()\n"
+"Converts and returns a copy of this string, with each letter converted to upper-case. Non-letter characters are copied as they appear in the string."
+);
+
 void String::StaticInitType(Engine* eng)
 {
+    PIKA_DOC(String_Type, "The base string type used in Pika. Strings are immutable, meaning they cannot be modified. \
+    They can contains any valid byte. This means they can contain arbitrary binary data, including null characters. They \
+    can also be used for utf-8 encoded characters.\
+    \n\n\
+    Strings are created for each single or double quote string literal appearing in a script. Since they are immutable two strings containing the same\
+    sequence of characters will reference the same object.");
+    
     static RegisterFunction String_Methods[] =
     {
         // name, function, argc, strict, varargs
         { "replaceChar",	StringApi::replaceChar,         2, DEF_STRICT,   0 },
-        { "toInteger",  	StringApi::toInteger,           0, 0,            0 },
-        { "toReal",     	StringApi::toReal,              0, 0,            0 },
-        { "toNumber",       StringApi::toNumber,            0, 0,            0 },
-        { "toLower",        StringApi::toLower,             0, 0,            0 },
-        { "toUpper",        StringApi::toUpper,             0, 0,            0 },
+        { "toInteger",  	StringApi::toInteger,           0, 0,            PIKA_GET_DOC(String_toInteger) },
+        { "toReal",     	StringApi::toReal,              0, 0,            PIKA_GET_DOC(String_toReal) },
+        { "toNumber",       StringApi::toNumber,            0, 0,            PIKA_GET_DOC(String_toNumber) },
+        { "toLower",        StringApi::toLower,             0, 0,            PIKA_GET_DOC(String_toLower) },
+        { "toUpper",        StringApi::toUpper,             0, 0,            PIKA_GET_DOC(String_toUpper) },
         { "charAt",         StringApi::charAt,              1, DEF_STRICT,   0 },
         { "split",          StringApi::split,               1, 0,            0 },
         { "splitAt",        StringApi::splitAt,             1, 0,            0 },
@@ -1327,6 +1359,7 @@ void String::StaticInitType(Engine* eng)
     eng->String_Type->SetAbstract(true);    
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
     eng->String_Type->EnterClassMethods(String_ClassMethods, countof(String_ClassMethods));
+    eng->String_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(String_Type)));
     Value string_MAX((pint_t)PIKA_STRING_MAX_LEN);
     eng->String_Type->SetSlot("MAX", string_MAX);
     eng->GetWorld()->SetSlot("String", eng->String_Type);

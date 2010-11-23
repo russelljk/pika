@@ -191,7 +191,7 @@ public:
     
     /** Make a String persistent. */
     void PersistentString(String*);
-    
+    Type* GetTypeOf(Value& v);
     String* GetTypenameOf(Value&);
         
     INLINE String* GetOverrideString(OpOverride ovr) { return override_strings[ovr]; }
@@ -296,7 +296,6 @@ public:
     Type*                   RuntimeError_Type;
     Type*                       AssertError_Type;
     Type*                   TypeError_Type;
-    Type*                   ReferenceError_Type;
     Type*                   ArithmeticError_Type;
     Type*                   OverflowError_Type;
     Type*                   UnderflowError_Type;

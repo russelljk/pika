@@ -173,7 +173,7 @@ void Date::StaticInitType(Package* pkg, Engine* eng)
     .PropertyRW("isdst",
             &Date::GetIsDst,    0,
             &Date::SetIsDst,    0)
-    .Register(Date_mktime,      "mktime", 0, false, true)
+    .RegisterMethod(Date_mktime, "mktime", 0, false, true)
     .Method(&Date::LocalTime,   "localtime")
     .Method(&Date::GmTime,      "gmtime")
     .Method(&Date::Diff,        "opSub")

@@ -189,7 +189,7 @@ void Dictionary::StaticInitType(Engine* eng)
     .Method(&Dictionary::Values,    "values!")
     .Method(&Dictionary::HasSlot,    "hasKey")
     .Method(&Dictionary::ToBoolean,  "toBoolean")
-    .Register(Dictionary_unzip, "unzip", 0, false, true)
+    .RegisterMethod(Dictionary_unzip, "unzip", 0, false, true)
     .PropertyR("length", &Dictionary::GetLength, "getLength")
     ;
     

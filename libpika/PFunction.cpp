@@ -697,7 +697,7 @@ Function* Create_null_Function(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
     Package* pkg = eng->GetWorld();
-    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, DEF_VAR_ARGS, 0);
+    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, DEF_VAR_ARGS, 0, 0);
     return Function::Create(eng, def, pkg, 0);
 }
 
@@ -783,7 +783,7 @@ void Function::Constructor(Engine* eng, Type* obj_type, Value& res)
 {
     GCPAUSE_NORUN(eng);
     Package* pkg = eng->GetWorld();
-    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, DEF_VAR_ARGS, 0);
+    Def* def = Def::CreateWith(eng, eng->emptyString, null_Function, 0, DEF_VAR_ARGS, 0, 0);
     Context* ctx = eng->GetActiveContext();
     if (ctx)
     {
@@ -829,9 +829,6 @@ void Function::StaticInitType(Engine* eng)
     .RegisterMethod(Function_getLocalCount, "getLocalCount")
     .RegisterMethod(Function_printLiterals, "printLiterals")
     .RegisterClassMethod(Function_printBytecode,    "printBytecode")
-    .PropertyRW("__doc", 
-                    &Function::GetDocumentation, 0, 
-                    &Function::SetDocumentation, 0)
     .Constant((pint_t)PIKA_MAX_RETC,             "MAX_RET_COUNT")
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
@@ -841,9 +838,9 @@ void Function::StaticInitType(Engine* eng)
         { "parent",   Function_parent,   "getParent",   0, 0, true },
         { "location", Function_location, "getLocation", 0, 0, true },
     };
-    
+        
     eng->Function_Type->EnterProperties(Function_Properties, countof(Function_Properties));
-    
+        
     eng->null_Function = Create_null_Function(eng);
     
     SlotBinder<InstanceMethod>(eng, eng->InstanceMethod_Type)

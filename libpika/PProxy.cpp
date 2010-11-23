@@ -126,6 +126,18 @@ Value Proxy::Name() { return name; }
 
 namespace {
 
+int Proxy_getReader(Context* ctx, Value& self)
+{
+    Proxy* proxy = (Proxy*)self.val.object;
+    Function* f = proxy->Reader();
+    if (f) {
+        ctx->Push(f);
+        return 1;
+    } 
+    ctx->PushNull();
+    return 1;
+}
+
 int Proxy_setReader(Context* ctx, Value& self)
 {
     Proxy* proxy = (Proxy*)self.val.object;
@@ -143,6 +155,18 @@ int Proxy_setReader(Context* ctx, Value& self)
     }
     proxy->SetReader(fn, attach);
     return 0;
+}
+
+int Proxy_getWriter(Context* ctx, Value& self)
+{
+    Proxy* proxy = (Proxy*)self.val.object;
+    Function* f = proxy->Writer();
+    if (f) {
+        ctx->Push(f);
+        return 1;
+    } 
+    ctx->PushNull();
+    return 1;
 }
 
 int Proxy_setWriter(Context* ctx, Value& self)
@@ -164,6 +188,8 @@ int Proxy_setWriter(Context* ctx, Value& self)
     return 0;
 }
 
+
+
 }// namespace
 
 void Proxy::StaticInitType(Engine* eng)
@@ -173,17 +199,19 @@ void Proxy::StaticInitType(Engine* eng)
     
     eng->Property_Type->SetSlot(Proxy_String, Proxy_Type);
     
+    static RegisterProperty Proxy_Properties[] = {
+    { "reader", Proxy_getReader, "getReader", Proxy_setReader, "setReader" },
+    { "writer", Proxy_getReader, "getWriter", Proxy_setReader, "setWriter" },
+    };
+    
     SlotBinder<Proxy>(eng, Proxy_Type)
     .Method(&Proxy::IsRead, "read?")
     .Method(&Proxy::IsWrite, "write?")
     .Method(&Proxy::IsReadWrite, "readWrite?")
-    .Method(&Proxy::Writer, "getWriter")
-    .Method(&Proxy::Reader, "getReader")
     .PropertyR("object", &Proxy::Obj, "getObject")
     .PropertyR("name", &Proxy::Name, "getName")
-    .Register(Proxy_setReader, "setReader")
-    .Register(Proxy_setWriter, "setWriter")
     ;
+    Proxy_Type->EnterProperties(Proxy_Properties, countof(Proxy_Properties));
 }
 
 }// pika

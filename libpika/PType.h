@@ -138,6 +138,8 @@ public:
     /** Returns an Array containing all subtypes. */
     INLINE Array* GetSubtypes() { return subtypes; }
     
+    virtual String* GetDoc();
+    virtual void SetDoc(String* s);
     /** Adds a type method. */
     void AddMethod(Function*);
     void AddClassMethod(Function*);
@@ -151,12 +153,13 @@ public:
 protected:
     /** Adds a subtype. Called by derived types when they are created. */
     void AddSubtype(Type*);
-    
+
     Type*      baseType; // The base type or super type.
     Type_NewFn newfn;    // Native allocation + construction function.
     bool       final;    // Type cannot be used as the base for another type.
     bool       abstract; // Type cannot create instances.
     Array*     subtypes; // All types that are direct descendence of this type.
+    String*    __doc;
 };
 
 }// pika

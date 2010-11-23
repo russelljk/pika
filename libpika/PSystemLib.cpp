@@ -515,7 +515,7 @@ int os_lib_load(Context* ctx, Value&)
     
     Package* world_Package = eng->GetWorld();
     String*  os_String     = eng->AllocString("os");
-    Package* os_Package    = eng->OpenPackage(os_String, world_Package, false);
+    Package* os_Package    = Package::Create(eng, os_String, world_Package);
     
 	SlotBinder<Object>(eng, os_Package, os_Package)
     .StaticMethod( os_clock,                 "clock",  PIKA_GET_DOC(os_clock))

@@ -159,7 +159,7 @@ Engine::Engine()
         false_String(0), message_String(0), dot_String(0), OpDispose_String(0), OpUse_String(0), loading_String(0),
         Value_Type(0), Basic_Type(0), Object_Type(0), Iterator_Type(0), PathManager_Type(0), Dictionary_Type(0), Function_Type(0), InstanceMethod_Type(0), ClassMethod_Type(0), BoundFunction_Type(0), NativeFunction_Type(0),
         NativeMethod_Type(0), Generator_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
-        LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0), ReferenceError_Type(0), 
+        LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0),  
         ArithmeticError_Type(0), OverflowError_Type(0), UnderflowError_Type(0), DivideByZeroError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
         Enumerator_Type(0), Property_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0),
         null_Function(0),
@@ -610,7 +610,7 @@ bool Engine::ToBoolean(Context* ctx, const Value& v)
             
             if (res.tag != TAG_boolean)
             {
-                RaiseException(Exception::ERROR_runtime, "conversion operator %s failed.", toBoolean_String->GetBuffer());
+                RaiseException(Exception::ERROR_runtime, "conversion operator %s failed. For object of type %s.", toBoolean_String->GetBuffer());
             }
             return res.val.index != 0;
         }
@@ -848,7 +848,6 @@ void Engine::CreateRoots()
     AddToRoots(Error_Type);
     AddToRoots(RuntimeError_Type);
     AddToRoots(TypeError_Type);
-    AddToRoots(ReferenceError_Type);
     AddToRoots(ArithmeticError_Type);
     AddToRoots(IndexError_Type);
     AddToRoots(SystemError_Type);
@@ -914,6 +913,28 @@ void Engine::ChangeContext(Context* t)
 {
     gc->ChangeContext(t);
     active_context = t;
+}
+
+Type* Engine::GetTypeOf(Value& v)
+{
+    switch (v.tag)
+    {
+    case TAG_null:       return Null_Type;
+    case TAG_boolean:    return Boolean_Type;
+    case TAG_integer:    return Integer_Type;
+    case TAG_real:       return Real_Type;
+    case TAG_string:
+    case TAG_property:
+    case TAG_userdata:
+    case TAG_object:
+    {
+        ASSERT(v.val.basic);        
+        Basic* obj = v.val.basic;
+        Type* objType = obj->GetType();
+        return objType;
+    }
+    }
+    return Value_Type;
 }
 
 String* Engine::GetTypenameOf(Value& v)

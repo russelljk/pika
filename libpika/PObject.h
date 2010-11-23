@@ -127,6 +127,8 @@ public:
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
+
+    Table* MembersPtr() { return members; }
 protected:
     /** Return a reference to this object's members Table. If the table does not
       * exist it will be created.

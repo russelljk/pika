@@ -55,7 +55,8 @@ Type::Type(Engine*    eng,
         newfn(newFn),
         final(false),
         abstract(false),
-        subtypes(0)
+        subtypes(0),
+        __doc(0)
 {
     if (baseType)
     {
@@ -73,7 +74,8 @@ Type::Type(const Type* rhs)
         newfn(rhs->newfn),
         final(rhs->final),
         abstract(rhs->abstract),
-        subtypes(rhs->subtypes ? (Array*)rhs->subtypes->Clone() : 0)
+        subtypes(rhs->subtypes ? (Array*)rhs->subtypes->Clone() : 0),
+        __doc(rhs->__doc)
 {
     if (baseType)
     {
@@ -121,6 +123,7 @@ void Type::MarkRefs(Collector* c)
     ThisSuper::MarkRefs(c);
     if (baseType) baseType->Mark(c);
     if (subtypes) subtypes->Mark(c);
+    if (__doc) __doc->Mark(c);
 }
 
 bool Type::IsSubtype(Type* stype)
@@ -335,6 +338,15 @@ bool Type::GetGlobal(const Value& key, Value& result)
 bool Type::SetGlobal(const Value& key, Value& val, u4 attr)
 {
     return Package::SetGlobal(key, val, attr);
+}
+
+String* Type::GetDoc() { return __doc ?__doc : engine->emptyString; }
+
+void Type::SetDoc(String* s)
+{
+    __doc = s;
+    if (__doc)
+        WriteBarrier(__doc);
 }
 
 bool Type::CanSetSlot(const Value& key)
@@ -572,19 +584,45 @@ void Type::Constructor(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+PIKA_DOC(Type_getBase, "/()"
+"\n"
+"Returns the base class of the type."
+);
+
+PIKA_DOC(Type_getName, "/()"
+"\n"
+"Returns the name of the type."
+);
+
+PIKA_DOC(Type_isSubtype, "/(type)\
+\n\
+Returns true or false based on whether the argument, |type|, is derived from this type.");
+
+PIKA_DOC(Type_addMethod, "/(func)\
+\n\
+Adds the function, |func|, as a [InstanceMethod] of this type. The method will \
+contain the same name as |func|. However, if the |func| is a native function it \
+will instead be added as a regular function.");
+
+PIKA_DOC(Type_addClassMethod, "/(func)\
+\n\
+Adds the function, |func|, as a [ClassMethod] of this type. The method will \
+contain the same name as |func|. However, if the |func| is a native function it \
+will instead be added as a regular function.");
+
 void Type::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     SlotBinder<Type>(eng, eng->Type_Type)
-    .PropertyR("base", &Type::GetBase,  "getBase")
-    .PropertyR("name", &Type::GetName,  "getName")
+    .PropertyR("base", &Type::GetBase,  "getBase", PIKA_GET_DOC(Type_getBase))
+    .PropertyR("name", &Type::GetName,  "getName", PIKA_GET_DOC(Type_getName))
     .Alias("__base", "base")
     .Alias("__name", "name")
     .PropertyR("location", &Type::GetLocation, "getLocation")
     .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes")
-    .Method(&Type::IsSubtype, "isSubType")
-    .Method(&Type::AddMethod, "addMethod")
-    .Method(&Type::AddClassMethod, "addClassMethod")
+    .Method(&Type::IsSubtype,       "isSubtype",        PIKA_GET_DOC(Type_isSubtype))
+    .Method(&Type::AddMethod,       "addMethod",        PIKA_GET_DOC(Type_addMethod))
+    .Method(&Type::AddClassMethod,  "addClassMethod",   PIKA_GET_DOC(Type_addClassMethod))
     ;
     
     static RegisterFunction TypeFunctions[] =
