@@ -264,7 +264,7 @@ void Random::SetSeed(pint_t s)
 Array* Random::Generate(pint_t amt)
 {
     if (amt < 0)
-        return 0;
+        RaiseException("Attempt to generate "PINT_FMT" random numbers. The amount should be > 0.", amt);
         
     GCPAUSE_NORUN(engine);
     Array* v = Array::Create(engine, 0, amt, 0);
@@ -287,6 +287,13 @@ void Random::Constructor(Engine* eng, Type* obj_type, Value& res)
     Random* ra = Random::Create(eng, obj_type);
     res.Set(ra);
 }
+
+PIKA_DOC(Random, "\
+A psuedo-random number generator (PRNG) based on '''Mersenne Twister'''. \n\
+[[[Random.new([seed])]]]\n\
+You can create multiple instances to have different PRNGs \
+with distinct states.");
+
 PIKA_DOC(random_obj, "/()\
 \n\
 Returns the next psuedo-random number. \
@@ -298,6 +305,27 @@ You can easily change the random numbers seed as well.\n\
 Please refer to [imports.math.Random Random's] documentation for more information \
 on other methods and properties."
 );
+
+PIKA_DOC(Random_next, "/()\
+\n\
+Returns the next psuedo-randomly generated [Integer integer]. This method is also used to override the call operator.");
+
+PIKA_DOC(Random_nextReal, "/()\
+\n\
+Returns the next psuedo-randomly generated [Real real number].");
+
+PIKA_DOC(Random_generate, "/(amt)\
+\n\
+Returns a [Array] of size |amt|, filled with psuedo-randomly generated numbers. If |amt| is negative or not an [Integer integer] an exception will be raised.");
+
+PIKA_DOC(Random_setSeed, "/(s)\
+\n\
+Re-seed the PRNG (Pseudo-Random Number Generator) with the seed |s|. You can reset the state of the PRNG by setting |s| to the current value of [seed].");
+
+PIKA_DOC(Random_getSeed, "/()\
+\n\
+Return the current seed.");
+
 void Random::StaticInitType(Package* module, Engine* eng)
 {
     GCPAUSE_NORUN(eng);
@@ -307,20 +335,16 @@ void Random::StaticInitType(Package* module, Engine* eng)
     module->SetSlot(Random_String, Random_Type, Slot::ATTR_protected);
     
     SlotBinder<Random>(eng, Random_Type)
-    .MethodVA(&Random::Next,        "opCall")
-    .MethodVA(&Random::Next,        "getNext")
-    .Method(&Random::NextReal,      "getNextReal")
-    .Method(&Random::Generate,      "generate")
-    .Constant((pint_t)MAX_RANDOM,     "MAX")
-    .PropertyR("next",
-            &Random::NextUInt,  0)
-    .PropertyR("nextReal",  
-            &Random::NextReal,  0)
+    .MethodVA(&Random::Next, "opCall", PIKA_GET_DOC(Random_next))
+    .Alias("next", "opCall")
+    .Method(&Random::NextReal,      "nextReal", PIKA_GET_DOC(Random_nextReal))
+    .Method(&Random::Generate,      "generate", PIKA_GET_DOC(Random_generate))
+    .Constant((pint_t)MAX_RANDOM,   "MAX")
     .PropertyRW("seed",     
             &Random::GetSeed,   "getSeed", 
-            &Random::SetSeed,   "setSeed")
+            &Random::SetSeed,   "setSeed", PIKA_GET_DOC(Random_getSeed), PIKA_GET_DOC(Random_setSeed))
     ;
-    
+    Random_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Random)));
     Object* random_obj = Random::Create(eng, Random_Type);
     module->SetSlot(eng->AllocString("random"), random_obj, Slot::ATTR_protected);
     random_obj->SetSlot(eng->AllocString("__doc"), eng->AllocStringNC(PIKA_GET_DOC(random_obj)), Slot::ATTR_forcewrite); 

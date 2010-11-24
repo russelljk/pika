@@ -193,6 +193,9 @@ void Array::MarkRefs(Collector* c)
 
 Array* Array::Create(Engine* eng, Type* type, size_t length, Value* elems)
 {
+    if (length > GetMax()) {
+        RaiseException("Attempt to create an Array larger than the maximum size allowed "SIZE_T_FMT".", GetMax());
+    }
     Array* v = 0;
     type = type ? type : eng->Array_Type;
     PIKA_NEW(Array, v, (eng, type, length, elems));
@@ -221,7 +224,7 @@ void Array::SetLength(ssize_t slen)
     size_t len = static_cast<size_t>(slen);
     if (len >= GetMax())
     {
-        RaiseException("Array size too large.");
+        RaiseException("Attempt to create an Array larger than the maximum size allowed "SIZE_T_FMT".", GetMax());
     }
     size_t oldlen = elements.GetSize();
     size_t amt    = (oldlen < len) ? (len - oldlen) : 0;
@@ -236,7 +239,7 @@ Array* Array::Unshift(Value& v)
 {
     if (elements.GetSize() >= GetMax())
     {
-        RaiseException("Cannot add more elements to array.");
+        RaiseException("Max size of "SIZE_T_FMT" reached. Cannot add more elements to the array.", GetMax());
     }
     WriteBarrier(v);
     
@@ -300,7 +303,7 @@ Array* Array::Push(Value& v)
 {
     if (elements.GetSize() >= GetMax())
     {
-        RaiseException("Max size reached. Cannot add more elements to the array.");
+        RaiseException("Max size of "SIZE_T_FMT" reached. Cannot add more elements to the array.", GetMax());
     }
     WriteBarrier(v);
     elements.Push(v);
@@ -325,7 +328,7 @@ Value Array::Pop()
     }
     else
     {
-        RaiseException("Cannot remove elements from an empty array");
+        RaiseException("Attempt to remove elements from an empty array");
     }
     return v;
 }
@@ -403,7 +406,7 @@ void Array::Init(Context* ctx)
         }
         else
         {
-            RaiseException("Cannot create a Array with negative length\n");
+            RaiseException("Attempt to create an Array with a negative length.\n");
         }
     }
     else if (argc != 0)
@@ -624,11 +627,16 @@ Array* Array::Append(Array* other)
     return this;
 }
 
+// TODO: Add a multi return value version of Array.at
 Value& Array::At(pint_t idx)
 {
     if (idx < 0 || (size_t)idx >= elements.GetSize())
     {
-        RaiseException("Attempt to access element "PINT_FMT".", idx);
+        if (idx < 0) {
+            RaiseException("Attempt to access an element with an index of "PINT_FMT".", idx); // TODO: BoundsError
+        } else {
+            RaiseException("Attempt to access element "PINT_FMT" from an array of size "SIZE_T_FMT".", idx, elements.GetSize()); // TODO: BoundsError
+        }        
     }
     return *elements.GetAt(idx);
 }
@@ -747,35 +755,109 @@ void Array::Constructor(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+#define RETURN_VAL_AFTER() "The return value is a reference to this array."
+
+PIKA_DOC(Array_sort, "/(comp)\
+\n\
+Sort the array based on the comparison function |comp|. The algorithm used to \
+sort elements is quicksort with insertion sort for small arrays. "
+RETURN_VAL_AFTER()
+"[[[# Sort from smallest to largest\n\
+a = [21, 22, 3, -3, 99, 5, 7]\n\
+a.sort(\\(x, y)=>x < y)]]]\
+");
+
+PIKA_DOC(Array_empty, "/()\
+\n\
+Returns true or false depending on whether the array is empty.\
+");
+
+PIKA_DOC(Array_append, "/(a)\
+\n\
+Appends the elements of array |a| onto the end of this array. \
+"RETURN_VAL_AFTER());
+
+PIKA_DOC(Array_zip, "/(a)\
+\n\
+Returns a [Dictionary] made with the keys taken from this array's elements and \
+values taken from |a|'s elements. \
+The size of the dictionary will be the equal to min(self.length, |a|.length).");
+
+PIKA_DOC(Array_at, "/(idx)\
+\n\
+Return the element located at the given index |idx|. If |idx| is not an [Integer] or is \
+out of bounds an exception will be raised.");
+
+PIKA_DOC(Array_reverse, "/()\
+\n\
+Reverses the order of elements in this array. \
+"RETURN_VAL_AFTER());
+
+PIKA_DOC(Array_push, "/(val)\
+\n\
+Pushes |val| on to back of the array.\
+"RETURN_VAL_AFTER());
+
+PIKA_DOC(Array_pop, "/()\
+\n\
+Pops and returns the last element of the array. If the array is empty an exception will be raised.");
+
+PIKA_DOC(Array_shift, "/()\
+\n\
+Pops and returns the first element of the array. If the array is empty an exception will be raised.");
+
+PIKA_DOC(Array_unshift, "/(val)\
+\n\
+Pushes |val| on to the front of the array.\
+"RETURN_VAL_AFTER());
+
+PIKA_DOC(Array_map, "/(fn)\
+\n\
+For each element the function |fn| is called with that element as the argument. \
+The element is then replaced with the return value from |fn|."
+RETURN_VAL_AFTER()
+"[[[a = [1, 2, 3]\n\
+\n\
+# Square each element\n\
+a.map(\\(x)=> x * x )]]]\
+");
+
+PIKA_DOC(Array_filter, "/(fn)\
+\n\
+Creates and returns a new array with elements filtered through the function |fn|. \
+The filter function will be called for each element in this array. When the filter returns true \
+the element is added to the new array. Otherwise, the element will be discarded.\
+[[[a = [1, 2, 3, 4, 5, 6]\n\
+\n\
+# Only let evens through\n\
+a.filter(\\(x)=> x mod 2 == 0)]]]\
+");
+
 void Array::StaticInitType(Engine* eng)
-{   
+{
     pint_t Array_MAX = Array::GetMax();
     
     SlotBinder<Array>(eng, eng->Array_Type)
-    .Method(&Array::Empty,      "empty?")
-    .Method(&Array::Append,     "append")
-    .Method(&Array::At,         "at")
-    .Method(&Array::Reverse,    "reverse")
-    .Method(&Array::Push,       "push")
-    .Method(&Array::Push,       "opLsh")
-    .Method(&Array::Push,       "opLsh_r")
-    .Method(&Array::Unshift,    "opRsh")
-    .Method(&Array::Unshift,    "opRsh_r")
-    .Method(&Array::Pop,        "pop")
-    .Method(&Array::Shift,      "shift")
-    .Method(&Array::Unshift,    "unshift")
-    .Method(&Array::Map,        "map")
-    .Method(&Array::Filter,     "filter")
+    .Method(&Array::Empty,      "empty?", PIKA_GET_DOC(Array_empty))
+    .Method(&Array::Append,     "append", PIKA_GET_DOC(Array_append))
+    .Method(&Array::At,         "at",     PIKA_GET_DOC(Array_at))
+    .Method(&Array::Reverse,    "reverse",PIKA_GET_DOC(Array_reverse))
+    .Method(&Array::Push,       "push",   PIKA_GET_DOC(Array_push))
+    .Method(&Array::Pop,        "pop",    PIKA_GET_DOC(Array_pop))
+    .Method(&Array::Shift,      "shift",  PIKA_GET_DOC(Array_shift))
+    .Method(&Array::Unshift,    "unshift",PIKA_GET_DOC(Array_unshift))
+    .Method(&Array::Map,        "map",    PIKA_GET_DOC(Array_map))
+    .Method(&Array::Filter,     "filter", PIKA_GET_DOC(Array_filter))
     .Method(&Array::TakeWhile,  "takeWhile")
     .Method(&Array::DropWhile,  "dropWhile")
     .Method(&Array::Foldr,      "foldr")
     .Method(&Array::Fold,       "fold")
-    .Method(&Array::Sort,       "sort")
+    .Method(&Array::Sort,       "sort", PIKA_GET_DOC(Array_sort))
     .Method(&Array::CatLhs,     "opCat")
     .Method(&Array::CatRhs,     "opCat_r")
     .Method(&Array::Slice,      OPSLICE_STR)
     .Method(&Array::ToString,   "toString")
-    .Method(&Array::Zip,        "zip")    
+    .Method(&Array::Zip,        "zip", PIKA_GET_DOC(Array_zip))    
     .StaticMethod(&Array::Cat,  "cat")
     .PropertyRW("length",
                 &Array::GetLength,  "getLength",
