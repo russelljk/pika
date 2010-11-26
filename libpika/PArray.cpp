@@ -762,9 +762,11 @@ PIKA_DOC(Array_sort, "/(comp)\
 Sort the array based on the comparison function |comp|. The algorithm used to \
 sort elements is quicksort with insertion sort for small arrays. "
 RETURN_VAL_AFTER()
-"[[[# Sort from smallest to largest\n\
+"\
+[[[# Sort from smallest to largest\n\
 a = [21, 22, 3, -3, 99, 5, 7]\n\
-a.sort(\\(x, y)=>x < y)]]]\
+a.sort(\\(x, y)=>x < y)\
+]]]\
 ");
 
 PIKA_DOC(Array_empty, "/()\
@@ -816,7 +818,8 @@ PIKA_DOC(Array_map, "/(fn)\
 For each element the function |fn| is called with that element as the argument. \
 The element is then replaced with the return value from |fn|."
 RETURN_VAL_AFTER()
-"[[[a = [1, 2, 3]\n\
+"\
+[[[a = [1, 2, 3]\n\
 \n\
 # Square each element\n\
 a.map(\\(x)=> x * x )]]]\
@@ -827,50 +830,187 @@ PIKA_DOC(Array_filter, "/(fn)\
 Creates and returns a new array with elements filtered through the function |fn|. \
 The filter function will be called for each element in this array. When the filter returns true \
 the element is added to the new array. Otherwise, the element will be discarded.\
-[[[a = [1, 2, 3, 4, 5, 6]\n\
+\
+[[[\
+a = [1, 2, 3, 4, 5, 6]\n\
 \n\
 # Only let evens through\n\
 a.filter(\\(x)=> x mod 2 == 0)]]]\
 ");
+
+PIKA_DOC(Array_takeWhile, "/(cond)\
+\n\
+Creates and returns a new array costructed from elements from this array. \
+Elements are taken until the function |cond| returns '''false'''. \
+At which point the elements left are discarded.\
+[[[a = [1, 2, 3, 4, 5]\n\
+print(a.takeWhile(\\(x)=> x <= 2) #=> [1, 2]\
+]]]\
+");
+
+PIKA_DOC(Array_dropWhile, "/(cond)\
+\n\
+Creates and returns a new array costructed from elements from this array. \
+Elements are dropped while the function |cond| returns '''false'''. \
+At which point the elements left are added to the new array.\
+\
+[[[\
+a = [1, 2, 3, 4, 5]\n\
+print(a.dropWhile(\\(x)=> x <= 2) #=> [3, 4, 5]\
+]]]\
+");
+
+PIKA_DOC(Array_fold, "/(x, func)\
+\n\
+Folds this array into a single value by calling |func| with arguments |x| and the \
+first element. |x| is then set equal to the return value of |func|. \
+The operation is then performed again on the next element with the updated \
+value of |x|. This will continue until each element in the array is exhausted.\
+\n\
+This is the reverse of [foldr]. \
+\
+[[[\
+a = ['bob', 'says', 'hello']\
+print a.fold('', \\(a, b) => a...b) #=> 'bob says hello'\
+]]]\
+");
+
+PIKA_DOC(Array_foldr, "/(x, func)\
+\n\
+Folds this array into a single value by calling |func| with arguments |x| and the \
+last element. |x| is then set equal to the return value of |func|. \
+The operation is then performed again on the penultimate element with the updated \
+value of |x|. This will continue until each element in the array is exhausted.\
+\n\
+This is the reverse of [fold]. \
+\
+[[[\
+a = ['bob', 'says', 'hello']\
+print a.foldr('', \\(a, b) => a...b) #=> 'hello says bob'\
+]]]\
+");
+
+PIKA_DOC(Array_opCat, "/(right)\
+\n\
+An override of the concatenation operator which returns this array concatentated \
+with the array |right|. \
+\
+[[[\
+c = [2, 3]..[4, 5] #=> [2, 3, 4, 5]\
+]]]\
+");
+
+PIKA_DOC(Array_opCat_r, "/(left)\
+\n\
+An override of the right-handed concatenation operator which returns the array \
+|left| concatentated with this array. \
+\
+[[[\
+c = [2, 3]..[4, 5] #=> [2, 3, 4, 5]\
+]]]\
+");
+
+PIKA_DOC(Array_opSlice, "/(start, stop)\
+Returns a subset of the array from |start| to |stop|. If |start| is greater \
+than |stop| the elements will be reversed. The number of elements in the array \
+will be |stop|-|start| with |start| being the first element taken.\
+\
+[[[\
+a = [1, 2, 3, 4, 5]\n\
+print a[1 to 3] #=> [2, 3]\n\
+print a[3 to a.length] #=> [4, 5]\
+]]]\
+");
+
+PIKA_DOC(Array_toString, "/()\
+\n\
+Returns a string representation of this array.");
+
+PIKA_DOC(Array_cat, "/(left, right)\
+\n\
+Return the concatenation of arrays |left| and |right|.\
+[[[\
+a, b = [1, 2], [4, 5]\
+print Array.cat(a, b) #=> [1, 2, 4, 5]\
+]]]\
+");
+
+PIKA_DOC(Array_getLength, "/()\
+\n\
+Return the length of the array.");
+
+PIKA_DOC(Array_setLength, "/(len)\
+\n\
+Resizes the array to length |len|. If |len| is < 0 then an exception will be raised.");
+
+PIKA_DOC(Array_getFront, "/()\
+\n\
+Returns the first element of the array. An exception will be \
+raised if the array is empty.");
+
+PIKA_DOC(Array_setFront, "/(x)\
+\n\
+Sets the first element of the array to |x|. An exception will be \
+raised if the array is empty.");
+
+PIKA_DOC(Array_getBack, "/()\
+\n\
+Returns the last element of the array. An exception will be \
+raised if the array is empty.");
+
+PIKA_DOC(Array_setBack, "/(x)\
+\n\
+Sets the last element of the array to |x|. An exception will be \
+raised if the array is empty.");
+
+PIKA_DOC(Array_Type, "A resizable array object. This type is also used for variable \
+arguments and array literals.");
 
 void Array::StaticInitType(Engine* eng)
 {
     pint_t Array_MAX = Array::GetMax();
     
     SlotBinder<Array>(eng, eng->Array_Type)
-    .Method(&Array::Empty,      "empty?", PIKA_GET_DOC(Array_empty))
-    .Method(&Array::Append,     "append", PIKA_GET_DOC(Array_append))
-    .Method(&Array::At,         "at",     PIKA_GET_DOC(Array_at))
-    .Method(&Array::Reverse,    "reverse",PIKA_GET_DOC(Array_reverse))
-    .Method(&Array::Push,       "push",   PIKA_GET_DOC(Array_push))
-    .Method(&Array::Pop,        "pop",    PIKA_GET_DOC(Array_pop))
-    .Method(&Array::Shift,      "shift",  PIKA_GET_DOC(Array_shift))
-    .Method(&Array::Unshift,    "unshift",PIKA_GET_DOC(Array_unshift))
-    .Method(&Array::Map,        "map",    PIKA_GET_DOC(Array_map))
-    .Method(&Array::Filter,     "filter", PIKA_GET_DOC(Array_filter))
-    .Method(&Array::TakeWhile,  "takeWhile")
-    .Method(&Array::DropWhile,  "dropWhile")
-    .Method(&Array::Foldr,      "foldr")
-    .Method(&Array::Fold,       "fold")
-    .Method(&Array::Sort,       "sort", PIKA_GET_DOC(Array_sort))
-    .Method(&Array::CatLhs,     "opCat")
-    .Method(&Array::CatRhs,     "opCat_r")
-    .Method(&Array::Slice,      OPSLICE_STR)
-    .Method(&Array::ToString,   "toString")
-    .Method(&Array::Zip,        "zip", PIKA_GET_DOC(Array_zip))    
-    .StaticMethod(&Array::Cat,  "cat")
+    .Method(&Array::Empty,      "empty?",   PIKA_GET_DOC(Array_empty))
+    .Method(&Array::Append,     "append",   PIKA_GET_DOC(Array_append))
+    .Method(&Array::At,         "at",       PIKA_GET_DOC(Array_at))
+    .Method(&Array::Reverse,    "reverse",  PIKA_GET_DOC(Array_reverse))
+    .Method(&Array::Push,       "push",     PIKA_GET_DOC(Array_push))
+    .Method(&Array::Pop,        "pop",      PIKA_GET_DOC(Array_pop))
+    .Method(&Array::Shift,      "shift",    PIKA_GET_DOC(Array_shift))
+    .Method(&Array::Unshift,    "unshift",  PIKA_GET_DOC(Array_unshift))
+    .Method(&Array::Map,        "map",      PIKA_GET_DOC(Array_map))
+    .Method(&Array::Filter,     "filter",   PIKA_GET_DOC(Array_filter))
+    .Method(&Array::TakeWhile,  "takeWhile",PIKA_GET_DOC(Array_takeWhile))
+    .Method(&Array::DropWhile,  "dropWhile",PIKA_GET_DOC(Array_dropWhile))
+    .Method(&Array::Foldr,      "foldr",    PIKA_GET_DOC(Array_foldr))
+    .Method(&Array::Fold,       "fold",     PIKA_GET_DOC(Array_fold))
+    .Method(&Array::Sort,       "sort",     PIKA_GET_DOC(Array_sort))
+    .Method(&Array::CatLhs,     "opCat",    PIKA_GET_DOC(Array_opCat))
+    .Method(&Array::CatRhs,     "opCat_r",  PIKA_GET_DOC(Array_opCat_r))
+    .Method(&Array::Slice,      OPSLICE_STR,PIKA_GET_DOC(Array_opSlice))
+    .Method(&Array::ToString,   "toString", PIKA_GET_DOC(Array_toString))
+    .Method(&Array::Zip,        "zip",      PIKA_GET_DOC(Array_zip))    
+    .StaticMethod(&Array::Cat,  "cat",      PIKA_GET_DOC(Array_cat))    
     .PropertyRW("length",
                 &Array::GetLength,  "getLength",
-                &Array::SetLength,  "setLength")
+                &Array::SetLength,  "setLength", 
+                PIKA_GET_DOC(Array_getLength), 
+                PIKA_GET_DOC(Array_setLength))    
     .PropertyRW("front",
                 &Array::GetFront,   "getFront",
-                &Array::SetFront,   "setFront")
+                &Array::SetFront,   "setFront", 
+                PIKA_GET_DOC(Array_getFront), 
+                PIKA_GET_DOC(Array_setFront)) 
     .PropertyRW("back",
                 &Array::GetBack,    "getBack",
-                &Array::SetBack,    "setBack")
+                &Array::SetBack,    "setBack", 
+                PIKA_GET_DOC(Array_getBack), 
+                PIKA_GET_DOC(Array_setBack)) 
     .Constant(Array_MAX, "MAX")
     ;
     eng->GetWorld()->SetSlot(eng->Array_String, eng->Array_Type);
+    eng->Array_Type->SetDoc(eng->AllocString(PIKA_GET_DOC(Array_Type)));
 }
 
 }// pika
