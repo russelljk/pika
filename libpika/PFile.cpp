@@ -151,11 +151,28 @@ void File::MarkRefs(Collector* c)
     if (filename) filename->Mark(c);
 }
 
+PIKA_DOC(File_toBoolean, "/()\
+\n\
+Returns true if the file handle is valid. Otherwise, false will be returned.\
+");
 bool File::ToBoolean()
 {
     return handle != 0;
 }
 
+PIKA_DOC(File_open, "/(name, opts)\
+\n\
+Opens the file |name| and returns true of false depending on if the \
+file could be opened successfully. |opts| should be a [String string] \
+containing the options.\n\
+Valid options include: 'r' - read, 'w' - write, 'b' - binary, 't' - text.\
+[[[\
+file = File.new()\n\
+if file.open('path/to/file', 'wt')\
+]]]\n\
+If file.usPaths is true then [imports.os.paths os.paths] will be searched if |name| is not \
+a relative or absolute path from the current directory.\
+");
 bool File::Open(String* name, String* opts)
 {
     if (handle) Close();
@@ -174,6 +191,11 @@ bool File::Open(String* name, String* opts)
     return false;
 }
 
+PIKA_DOC(File_close, "/()\
+\n\
+Closes the file if it is open. If the file not open or is a \
+std input stream nothing will be done.\
+");
 void File::Close()
 {
     if (handle)
@@ -187,6 +209,12 @@ void File::Close()
     filename = 0;
 }
 
+PIKA_DOC(File_eof, "/()\
+\n\
+Returns true if the file is open and has reached the end of the file. \
+Returns false if an open file has not reach the end of the file. \
+If the file is closed or is not open true will be returned. \
+");
 bool File::IsEof()
 {
     return handle ? (feof(handle) != 0) : true;
@@ -367,10 +395,20 @@ void File::Rewind()
     }
 }
 
+PIKA_DOC(File_getUsePaths, "/()\
+\n\
+Returns whether [imports.os.paths os.paths] is used to find files.");
+
 bool File::GetUsePaths() const
 {
     return use_paths;
 }
+
+PIKA_DOC(File_setUsePaths, "/(use?)\
+\n\
+If |use?| is true then [imports.os.paths os.paths] will be used to find files. \
+Otherwise file names will need to be relative to the working \
+directory or an absolute path to the file.");
 
 void File::SetUsePaths(bool use)
 {
@@ -404,6 +442,14 @@ void File::Constructor(Engine* eng, Type* type, Value& obj)
     obj.Set(f);
 }
 
+PIKA_DOC(File_init, "/([name, opts])\
+\n\
+Initializes a new File instance. Optionally you can \
+open the file |name| with options |opts| for more information on the arguments \
+see [open File.open]. If |name| and |opts| are supplied and the file could not be opened \
+and exception will be raised.\
+");
+
 void File::StaticInitType(Engine* eng)
 {
     String* File_String = eng->AllocString("File");
@@ -416,13 +462,15 @@ void File::StaticInitType(Engine* eng)
     File* file_stdin  = File::Create(eng, File_Type);
     
     SlotBinder<File>(eng, File_Type)
-    .Method(&File::ToBoolean,   "toBoolean")
+    .Method(&File::ToBoolean,   "toBoolean", PIKA_GET_DOC(File_toBoolean))
     .PropertyRW("usePaths", 
             &File::GetUsePaths, "getUsePaths", 
-            &File::SetUsePaths, "setUsePaths")
-    .Method(&File::Open,        "open")
-    .Method(&File::Close,       "close")
-    .Method(&File::IsEof,       "eof?")
+            &File::SetUsePaths, "setUsePaths",
+            PIKA_GET_DOC(File_getUsePaths),
+            PIKA_GET_DOC(File_setUsePaths))
+    .Method(&File::Open,        "open", PIKA_GET_DOC(File_open))
+    .Method(&File::Close,       "close",PIKA_GET_DOC(File_close))
+    .Method(&File::IsEof,       "eof?", PIKA_GET_DOC(File_eof))
     .MethodVA(&File::Write,     "write")
     .MethodVA(&File::Read,      "read")
     .Method(&File::Seek,        "seek")
@@ -433,6 +481,7 @@ void File::StaticInitType(Engine* eng)
     .Method(&File::ReadLines,   "readLines")
     .Method(&File::IsOpen,      "open?")
     .Method(&File::Rewind,      "rewind")
+    .MethodVA(&File::Init,      "init", PIKA_GET_DOC(File_init))
     .Constant((pint_t)SEEK_SET, "SEEK_SET")
     .Constant((pint_t)SEEK_SET, "SEEK_BEG")
     .Constant((pint_t)SEEK_CUR, "SEEK_CUR")

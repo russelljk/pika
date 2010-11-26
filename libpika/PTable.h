@@ -40,7 +40,7 @@ struct Slot
 
 /** A hash table class used for instance variables and associative arrays in Pika.
   * The size is always a power of two, which allows us to quickly perform the hash 
-  * function using only a subtraction and an bitwise and.
+  * function using only a subtraction and a bitwise and.
   */
 class PIKA_API Table 
 {
@@ -52,8 +52,17 @@ public:
      */
     struct Iterator 
     {
+        Iterator() : index(0),
+            pos(0),
+            owner(0)
+        {
+        }
+        
         Iterator(Table* t)
-                : owner(t)
+                : index(0),
+                pos(0),
+                owner(t)
+                
         {
             Reset();
         }

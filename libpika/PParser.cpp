@@ -1689,7 +1689,7 @@ Expr* Parser::DoConditionalExpression()
         BufferNext();
         Match(TOK_else);
         
-        Expr* other = DoExpression();
+        Expr* other = DoConditionalExpression();
                     
         Expr* resExpr = 0;
         PIKA_NEWNODE(CondExpr, resExpr, (state, cond, expr, other, unless));
