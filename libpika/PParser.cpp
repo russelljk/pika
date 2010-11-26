@@ -496,7 +496,7 @@ Stmt* Parser::DoStatement(bool skipExpr)
     case TOK_yield:         stmt = DoGenerateStatement();  break;
     case TOK_break:         stmt = DoBreakStatement();     break;
     case TOK_continue:      stmt = DoContinueStatement();  break;
-    case TOK_begin:         stmt = DoBlockStatement();     break;
+    case TOK_do:            stmt = DoBlockStatement();     break;
     
     break;
     case TOK_using:      stmt = DoUsingStatement();    break;
@@ -568,10 +568,10 @@ Stmt* Parser::DoClassStatement()
 
 void Parser::DoBlockBegin(int tok, int prevln, int currln)
 {
-    if (Optional(tok))
-        return;    
     if (prevln == currln)
     {
+        if (Optional(tok))
+            return;    
         if (!Optional(';'))
         {
             Expected(';');
@@ -836,9 +836,10 @@ Stmt* Parser::DoFinallyBlock(Stmt* in)
 Stmt* Parser::DoBlockStatement()
 {
     BufferNext();
-    Match(TOK_begin);
+    Match(TOK_do);
     const int terms[] = { TOK_end, TOK_finally, 0 };
     Stmt* block = DoStatementListBlock(terms);
+    BufferCurrent();
     
     return DoFinallyBlock(block);
 }
@@ -1189,7 +1190,7 @@ Stmt* Parser::DoWhileStatement()
     
     PIKA_NEWNODE(CondLoopStmt, stmt, (state, cond, body, false, false));
     stmt->line = cond->line;
-           
+
     return DoFinallyBlock(stmt);
 }
 
