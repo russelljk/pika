@@ -819,7 +819,8 @@ For each element the function |fn| is called with that element as the argument. 
 The element is then replaced with the return value from |fn|."
 RETURN_VAL_AFTER()
 "\
-[[[a = [1, 2, 3]\n\
+[[[\
+a = [1, 2, 3]\n\
 \n\
 # Square each element\n\
 a.map(\\(x)=> x * x )]]]\
@@ -843,7 +844,8 @@ PIKA_DOC(Array_takeWhile, "/(cond)\
 Creates and returns a new array costructed from elements from this array. \
 Elements are taken until the function |cond| returns '''false'''. \
 At which point the elements left are discarded.\
-[[[a = [1, 2, 3, 4, 5]\n\
+[[[\
+a = [1, 2, 3, 4, 5]\n\
 print(a.takeWhile(\\(x)=> x <= 2) #=> [1, 2]\
 ]]]\
 ");
@@ -870,7 +872,7 @@ value of |x|. This will continue until each element in the array is exhausted.\
 This is the reverse of [foldr]. \
 \
 [[[\
-a = ['bob', 'says', 'hello']\
+a = ['bob', 'says', 'hello']\n\
 print a.fold('', \\(a, b) => a...b) #=> 'bob says hello'\
 ]]]\
 ");
@@ -885,7 +887,7 @@ value of |x|. This will continue until each element in the array is exhausted.\
 This is the reverse of [fold]. \
 \
 [[[\
-a = ['bob', 'says', 'hello']\
+a = ['bob', 'says', 'hello']\n\
 print a.foldr('', \\(a, b) => a...b) #=> 'hello says bob'\
 ]]]\
 ");
@@ -911,6 +913,7 @@ c = [2, 3]..[4, 5] #=> [2, 3, 4, 5]\
 ");
 
 PIKA_DOC(Array_opSlice, "/(start, stop)\
+\n\
 Returns a subset of the array from |start| to |stop|. If |start| is greater \
 than |stop| the elements will be reversed. The number of elements in the array \
 will be |stop|-|start| with |start| being the first element taken.\
@@ -930,7 +933,7 @@ PIKA_DOC(Array_cat, "/(left, right)\
 \n\
 Return the concatenation of arrays |left| and |right|.\
 [[[\
-a, b = [1, 2], [4, 5]\
+a, b = [1, 2], [4, 5]\n\
 print Array.cat(a, b) #=> [1, 2, 4, 5]\
 ]]]\
 ");

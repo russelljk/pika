@@ -687,6 +687,8 @@ ERROR_EXAMPLE(AssertError)
 "Or using the [assert] function."
 "[[[assert( expression )]]]");
 
+PIKA_DOC(os_paths, "Contains the list of search paths used by pika for finding and loading resources. The paths contained in this object affect the where [Script scripts], [Module modules] and [File files] are loaded from.");
+
 void Engine::InitializeWorld()
 {
     /* !!! DO NOT RE-ARRANGE WITHOUT CHECKING DEPENDENCIES !!! */
@@ -880,7 +882,8 @@ void Engine::InitializeWorld()
         Iterator::StaticInitType(this);
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
-        
+        paths->SetSlot(AllocString("__doc"), AllocStringNC(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 
+            
         Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
         Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);
         
