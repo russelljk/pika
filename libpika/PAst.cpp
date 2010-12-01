@@ -546,72 +546,78 @@ void KeywordExpr::CalculateResources(SymbolTable* st)
 
 void LocalDecl::CalculateResources(SymbolTable* st)
 {
-    if (st->IsDefined(name->name))
-    {
-        symbol = st->Get(name->name);
-        if (symbol->table == st && !symbol->isGlobal && !symbol->isWith)
+    // If this is not a placeholder...
+    if (name) {
+        if (st->IsDefined(name->name))
         {
-            newLocal = false;
+            symbol = st->Get(name->name);
+            if (symbol->table == st && !symbol->isGlobal && !symbol->isWith)
+            {
+                newLocal = false;
+            }
+            else
+            {
+                symbol    = st->Shadow(name->name);
+                newLocal = true;
+            }
         }
         else
         {
-            symbol    = st->Shadow(name->name);
+            symbol    = st->Put(name->name);
             newLocal = true;
         }
+        symbol->isWith   = false;
+        symbol->isGlobal = false;
+        
+        if (newLocal)
+        {
+            symbol->offset = state->NextLocalOffset(name->name);
+        }
     }
-    else
-    {
-        symbol    = st->Put(name->name);
-        newLocal = true;
-    }
-    symbol->isWith   = false;
-    symbol->isGlobal = false;
-    
-    if (newLocal)
-    {
-        symbol->offset = state->NextLocalOffset(name->name);
-    }
-    
     if (next)
         next->CalculateResources(st);
 }
 
 void MemberDeclaration::CalculateResources(SymbolTable* st)
 {
-    if (st->IsDefined(name->name))
-    {
-        symbol = st->Shadow(name->name);
+    // If this is not a placeholder...
+    if (name) {
+        if (st->IsDefined(name->name))
+        {
+            symbol = st->Shadow(name->name);
+        }
+        else
+        {
+            symbol = st->Put(name->name);
+        }
+        
+        symbol->isGlobal = true;
+        symbol->isWith   = true;
+        symbol->offset = -1;
+        nameIndex = state->AddConstant(name->name);
     }
-    else
-    {
-        symbol = st->Put(name->name);
-    }
-    
-    symbol->isGlobal = true;
-    symbol->isWith   = true;
-    symbol->offset = -1;
-    nameIndex = state->AddConstant(name->name);
-    
     if (next)
         next->CalculateResources(st);
 }
 
 void VarDecl::CalculateResources(SymbolTable* st)
 {
-    if (st->IsDefined(name->name))
-    {
-        symbol = st->Shadow(name->name);
+    // If this is not a placeholder...
+    if (name) {
+        if (st->IsDefined(name->name))
+        {
+            symbol = st->Shadow(name->name);
+        }
+        else
+        {
+            symbol = st->Put(name->name);
+        }
+        
+        symbol->isGlobal = true;
+        symbol->isWith   = false;
+        symbol->offset = -1;
+        nameIndex = state->AddConstant(name->name);
     }
-    else
-    {
-        symbol = st->Put(name->name);
-    }
-    
-    symbol->isGlobal = true;
-    symbol->isWith   = false;
-    symbol->offset = -1;
-    nameIndex = state->AddConstant(name->name);
-    
     if (next)
         next->CalculateResources(st);
 }

@@ -473,7 +473,7 @@ Instr* LocalDecl::GenerateCode()
 {
     Instr* irep = 0;
     
-    if (!newLocal)
+    if (!newLocal || !name)
     {
         irep = state->CreateOp(OP_nop);
     }
@@ -2170,12 +2170,30 @@ Instr* VariableTarget::GenerateCode()
     
     while (curr_decl)
     {
-        symbol    = curr_decl->symbol;
-        with      = curr_decl->symbol->isWith;
-        nameindex = curr_decl->nameIndex;
+        if (curr_decl->name) {
+            /*
+               If the name field is valid then go ahead
+               and generate the set code.
+            */
+            symbol    = curr_decl->symbol;
+            with      = curr_decl->symbol->isWith;
+            nameindex = curr_decl->nameIndex;
         
-        Instr* iset = GenerateCodeSet();
-        assgn->Attach(iset);
+            Instr* iset = GenerateCodeSet();
+            assgn->Attach(iset);
+        } else {
+            /* 
+               Otherwise, the curr_decl was not specified (null was used). This
+               means we should pop the value.
+               
+                   .---- curr_decl
+                   |
+                   V
+               a, null, b, c = 1, 2, 3, 4
+             */
+            Instr* ipop = state->CreateOp(OP_pop);
+            assgn->Attach(ipop);
+        }
         curr_decl = curr_decl->next;
     }
     ReverseDeclarations(&decls);

@@ -1015,10 +1015,25 @@ Decl* Parser::DoVarDeclaration()
         sto = STO_global;
     }
     BufferCurrent();
+    bool has_placeholders = false;
     do
     {
         VarDecl* nxtdecl = 0;
-        Id* name = DoIdentifier();
+        Id* name = 0;
+        int line = 0;
+        if (tstream.GetType() == TOK_null) {
+            // This is a place holder, meaning the programmer wants to skip the
+            // value.
+            //
+            // a, b, null, c = 1, 2, 3, 4
+            //
+            line = tstream.GetLineNumber();
+            tstream.Advance();
+            has_placeholders = true;
+        } else {
+            name = DoIdentifier();
+            line = name->line;
+        }
         
         if (is_local)
         {
@@ -1033,7 +1048,7 @@ Decl* Parser::DoVarDeclaration()
             PIKA_NEWNODE(VarDecl, nxtdecl, (state, name));
         }
         
-        nxtdecl->line = name->line;
+        nxtdecl->line = line;
         
         if (!firstdecl)
             firstdecl = nxtdecl;
@@ -1061,7 +1076,10 @@ Decl* Parser::DoVarDeclaration()
         vt->line = firstdecl->line;
         return vt;
     }
-    
+    else if (has_placeholders)
+    {
+        Expected('=');
+    }
     return firstdecl;
 }
 
