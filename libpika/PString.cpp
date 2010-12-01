@@ -1224,7 +1224,49 @@ public:
         }
         return 0;
     }
+    
+    static int join(Context* ctx, Value& self)
+    {
+        Engine* eng = ctx->GetEngine();
+        String* src_str = self.val.str;
+        size_t src_len = src_str->GetLength();
+        Array* array = ctx->GetArgT<Array>(0);
+        Buffer<char> buff;
+        buff.SetCapacity(32);
+        for (size_t i = 0; i < array->GetLength(); ++i)
+        {
+            Value elem = array->At(i);
+            String* elem_str = eng->ToString(ctx, elem);
+            size_t pos = buff.GetSize();
+            size_t elem_len = elem_str->GetLength();
+            
+            if (SizeAdditionOverflow(pos, elem_len) ||
+                SizeAdditionOverflow(pos + elem_len, src_len))
+            {
+                RaiseException("Attempt to create a String too large in String.join. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
+            }
+            
+            if (pos)
+            {
+                buff.Resize(pos + elem_len + src_len);
+                Pika_memcpy(buff.GetAt(pos), src_str->GetBuffer(), src_len);
+                pos += src_len;
+            }
+            else
+            {
+                buff.Resize(pos + elem_len);
 
+            }
+            Pika_memcpy(buff.GetAt(pos), elem_str->GetBuffer(), elem_len);
+        }
+        
+        if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
+            RaiseException("Attempt to create a String too large in String.join. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
+            
+        String* result = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
+        ctx->Push(result);
+        return 1;
+    }
 };
 
 PIKA_DOC(String_chomp, 
@@ -1305,6 +1347,15 @@ PIKA_DOC(String_toUpper, "/()\n"
 "Converts and returns a copy of this string, with each letter converted to upper-case. Non-letter characters are copied as they appear in the string."
 );
 
+PIKA_DOC(String_joing, "/(array)\
+\n\
+Joins the elements of the |array|, converted to a string, with this string inserted as glue between elements.\
+[[[\
+print ';'.join( [ 1, 2, 3 ] ) #=> '1;2;3'\
+]]]\
+"
+);
+
 void String::StaticInitType(Engine* eng)
 {
     PIKA_DOC(String_Type, "The base string type used in Pika. Strings are immutable, meaning they cannot be modified. \
@@ -1343,7 +1394,8 @@ void String::StaticInitType(Engine* eng)
         { "digit?",         StringApi::is_digit,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_digit) },
         { "ascii?",         StringApi::is_ascii,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_ascii) },
         { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT,   PIKA_GET_DOC(String_is_whitespace) },
-        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, 0 },    
+        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, 0 },
+        { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_joing) },
     };
     
     static RegisterFunction String_ClassMethods[] =
