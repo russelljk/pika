@@ -146,7 +146,10 @@ public:
     Def*        def;       //!< Function definition, may be shared with other functions.
     Function*   parent;    //!< The parent function we are defined inside (for nested functions only).
     Package*    location;  //!< Package we are declared inside of.
-    String*     docstring; //!< Documentation string.
+    
+    // We have the docstring here so that adding the string __doc to a function will not
+    // force the creation of its members table.
+    String*     docstring; //!< Documentation string. 
 };
 
 /** A function callable only by instances of the same type. */

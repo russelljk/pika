@@ -557,11 +557,11 @@ String* String::sprintp(Engine*  eng,    // context
                 {
                     if (argc > 1)
                     {
-                        RaiseException("positional argument %u out of range [0-%u].", pos, argc - 1);
+                        RaiseException(Exception::ERROR_index, "positional argument %u out of range [0-%u].", pos, argc - 1);
                     }
                     else
                     {
-                        RaiseException("positional argument %u used but not specified.", pos);
+                        RaiseException(Exception::ERROR_index, "positional argument %u used but not specified.", pos);
                     }
                 }
                 cfmt--;
@@ -664,7 +664,7 @@ public:
         Engine* eng = ctx->GetEngine();
         
         if (at < 0 || (size_t)at >= len)
-            RaiseException("cannot slit string of length: "PINT_FMT" at position: "PINT_FMT, (pint_t)len, at);
+            RaiseException(Exception::ERROR_index, "Cannot split string of length: "PINT_FMT" at position: "PINT_FMT, (pint_t)len, at);
             
         String* stra = eng->AllocString(src->GetBuffer(), at);
         ctx->Push(stra);
@@ -926,7 +926,7 @@ public:
     static int charAt(Context* ctx, Value& self)
     {
         String* str = self.val.str;
-        pint_t   idx = ctx->GetIntArg(0);
+        pint_t idx = ctx->GetIntArg(0);
         Engine* eng = ctx->GetEngine();
         
         if (idx >= 0 && ((size_t)idx < str->length))
@@ -935,7 +935,7 @@ public:
         }
         else
         {
-            ctx->Push(eng->emptyString);
+            RaiseException(Exception::ERROR_index, "Attempt to get character at index "PINT_FMT". Index must be between 0 and "SIZE_T_FMT".", idx, str->GetBuffer());
         }
         return 1;
     }
@@ -1085,7 +1085,7 @@ public:
         
         if (!buff)
         {
-            RaiseException("string.concatSpace: insufficient memory to create the resulting string.");
+            RaiseException("String.concatSpace: insufficient memory to create the resulting string.");
         }
         try
         {
@@ -1159,7 +1159,7 @@ public:
             
             if ((PIKA_STRING_MAX_LEN / urep) < len)
             {
-                RaiseException("string.times: string too large to repeat "PINT_FMT" times.", rep);
+                RaiseException("String.times: string too large to repeat "PINT_FMT" times.", rep);
             }
             size_t newlen = len * urep;
             eng->string_buff.Resize(newlen);

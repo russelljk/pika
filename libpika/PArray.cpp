@@ -633,9 +633,9 @@ Value& Array::At(pint_t idx)
     if (idx < 0 || (size_t)idx >= elements.GetSize())
     {
         if (idx < 0) {
-            RaiseException("Attempt to access an element with an index of "PINT_FMT".", idx); // TODO: BoundsError
+            RaiseException(Exception::ERROR_index, "Attempt to access an element with an index of "PINT_FMT".", idx); // TODO: BoundsError
         } else {
-            RaiseException("Attempt to access element "PINT_FMT" from an array of size "SIZE_T_FMT".", idx, elements.GetSize()); // TODO: BoundsError
+            RaiseException(Exception::ERROR_index, "Attempt to access element "PINT_FMT" from an array of size "SIZE_T_FMT".", idx, elements.GetSize()); // TODO: BoundsError
         }        
     }
     return *elements.GetAt(idx);
@@ -717,7 +717,7 @@ Value Array::GetFront()
 {
     if (elements.GetSize() == 0)
     {
-        RaiseException("Attempt to retrieve the first element of an empty array.\n");
+        RaiseException(Exception::ERROR_index, "Attempt to retrieve the first element of an empty array.\n");
     }
     return elements.Front();
 }
@@ -726,7 +726,7 @@ Value Array::GetBack()
 {
     if (elements.GetSize() == 0)
     {
-        RaiseException("Attempt to retrieve the last element of an empty array.\n");
+        RaiseException(Exception::ERROR_index, "Attempt to retrieve the last element of an empty array.\n");
     }
     return elements.Back();
 }
@@ -735,7 +735,7 @@ void Array::SetFront(const Value& v)
 {
     if (elements.GetSize() == 0)
     {
-        RaiseException("Attempt to set the first element of an empty array.\n");
+        RaiseException(Exception::ERROR_index, "Attempt to set the first element of an empty array.\n");
     }
     elements.Front() = v;
 }
@@ -744,7 +744,7 @@ void Array::SetBack(const Value& v)
 {
     if (elements.GetSize() == 0)
     {
-        RaiseException("Attempt to set the last element of an empty array.\n");
+        RaiseException(Exception::ERROR_index, "Attempt to set the last element of an empty array.\n");
     }
     elements.Back() = v;
 }

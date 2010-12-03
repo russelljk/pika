@@ -126,7 +126,7 @@ struct VarType<Array*>
     INLINE operator Array*()
     {
         if (!val->IsDerivedFrom(Array::StaticGetClass()))
-            RaiseException("Expecting Array argument\n.");
+            RaiseException(Exception::ERROR_type, "Expecting Array argument\n.");
         return (Array*)val;
     }
 
@@ -149,7 +149,7 @@ struct VarType<Array&>
     INLINE operator Array&()
     {
         if (!val->IsDerivedFrom(Array::StaticGetClass()))
-            RaiseException("Expecting Array argument\n.");
+            RaiseException(Exception::ERROR_type, "Expecting Array argument\n.");
         return *(Array*)val;
     }
 

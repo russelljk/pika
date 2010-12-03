@@ -298,7 +298,7 @@ public:
     void SetLastIndex(pint_t idx)
     {
         if (idx < 0)
-            RaiseException("lastIndex cannot be negative");
+            RaiseException(Exception::ERROR_index, "Property 'lastIndex' cannot be negative.");
         last_index = idx;
     }
     

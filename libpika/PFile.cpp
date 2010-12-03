@@ -80,6 +80,10 @@ bool Pika_fgetln(FILE* fp, TStringBuffer& buff)
 
 }
 
+PIKA_DOC(File_readLine, "/()\
+\n\
+Returns the next line in the file. If the file is not open or has reached the end of file marker then '''null''' is returned.");
+
 String* File::ReadLine()
 {
     if (!handle) return 0;
@@ -101,6 +105,10 @@ Object* File::Clone()
 {
     return 0;
 }
+
+PIKA_DOC(File_readLines, "/()\
+\n\
+Returns an [Array] filled with all the lines remaining in the file. If the file is not open or has reached the end of file marker then '''null''' is returned.");
 
 Array* File::ReadLines()
 {
@@ -153,7 +161,7 @@ void File::MarkRefs(Collector* c)
 
 PIKA_DOC(File_toBoolean, "/()\
 \n\
-Returns true if the file handle is valid. Otherwise, false will be returned.\
+Returns '''true''' if the file handle is valid. Otherwise, '''false''' will be returned.\
 ");
 bool File::ToBoolean()
 {
@@ -162,7 +170,7 @@ bool File::ToBoolean()
 
 PIKA_DOC(File_open, "/(name, opts)\
 \n\
-Opens the file |name| and returns true of false depending on if the \
+Opens the file |name| and returns '''true''' of '''false''' depending on if the \
 file could be opened successfully. |opts| should be a [String string] \
 containing the options.\n\
 Valid options include: 'r' - read, 'w' - write, 'b' - binary, 't' - text.\
@@ -170,7 +178,7 @@ Valid options include: 'r' - read, 'w' - write, 'b' - binary, 't' - text.\
 file = File.new()\n\
 if file.open('path/to/file', 'wt')\
 ]]]\n\
-If file.usPaths is true then [imports.os.paths os.paths] will be searched if |name| is not \
+If file.usPaths is '''true''' then [imports.os.paths os.paths] will be searched if |name| is not \
 a relative or absolute path from the current directory.\
 ");
 bool File::Open(String* name, String* opts)
@@ -196,6 +204,7 @@ PIKA_DOC(File_close, "/()\
 Closes the file if it is open. If the file not open or is a \
 std input stream nothing will be done.\
 ");
+
 void File::Close()
 {
     if (handle)
@@ -211,19 +220,26 @@ void File::Close()
 
 PIKA_DOC(File_eof, "/()\
 \n\
-Returns true if the file is open and has reached the end of the file. \
-Returns false if an open file has not reach the end of the file. \
-If the file is closed or is not open true will be returned. \
+Returns '''true''' if the file is open and has reached the end of the file. \
+Returns '''false''' if an open file has not reach the end of the file. \
+If the file is closed or is not open '''true''' will be returned. \
 ");
+
 bool File::IsEof()
 {
     return handle ? (feof(handle) != 0) : true;
 }
 
+PIKA_DOC(File_read, "/([amt])\
+\n\
+If no arguments are passed then the whole file will be read. Otherwise the \
+number of bytes/characters specified by |amt| will be read and returned.\
+");
+
 String* File::Read(Context* ctx)
 {
     if (!handle)
-        return engine->emptyString;
+        RaiseException("Attempt to read an invalid or closed file.");
 
     u2 argc = ctx->GetArgCount();
 
@@ -261,10 +277,16 @@ String* File::Read(Context* ctx)
     return engine->emptyString;
 }
 
+PIKA_DOC(File_write, "/(:va)\
+\n\
+Write each argument to the file. Each argument will be converted to a [String] \
+if not already one. If the file is invalid or closed and exception will be raised.\
+");
+
 bool File::Write(Context* ctx)
 {
     if ( !handle )
-        return false;
+        RaiseException("Attempt to write to an invalid or closed file.");
 
     GCPAUSE(engine);
     u2 argc = ctx->GetArgCount();
@@ -290,6 +312,14 @@ File* File::Create(Engine* eng, Type* obj_type)
     return f;
 }
 
+PIKA_DOC(File_init, "/([name, opts])\
+\n\
+Initializes a new File instance. Optionally you can \
+open the file |name| with options |opts| for more information on the arguments \
+see [open File.open]. If |name| and |opts| are supplied and the file could not be opened \
+and exception will be raised.\
+");
+
 void File::Init(Context* ctx)
 {
     u2 argc = ctx->GetArgCount();
@@ -310,7 +340,18 @@ void File::Init(Context* ctx)
     }
 }
 
-pint_t File::Seek(pint_t pos, pint_t startingPoint)
+PIKA_DOC(File_seek, "/(off, start)\
+\n\
+Sets the current position of the file. The position is determined by the \
+offset, |off|, from the starting point |start|.\
+\n\
+|start| should be one of:\
+<ul><li>File.SEEK_BEG - Start from the beginning of the File</li>\
+<li>File.SEEK_END - Start from the end of the File.</li>\
+<li>File.SEEK_CUR - Start from the current position</li></ul>\
+");
+
+pint_t File::Seek(pint_t off, pint_t startingPoint)
 {
     if (handle)
     {
@@ -318,11 +359,18 @@ pint_t File::Seek(pint_t pos, pint_t startingPoint)
         {
             RaiseException("incorrect starting point for seek.");
         }
-        int res = fseek(handle, pos, startingPoint);
+        int res = fseek(handle, off, startingPoint);
         return res;
     }
     return 0;
 }
+
+PIKA_DOC(File_setPos, "/(pos)\
+\n\
+Sets the position of the file. If |pos| is positive then the starting point is \
+the beginning of the file. If |pos| is negative then the starting point is the \
+end of the file.\
+");
 
 pint_t File::SetPos(pint_t pos)
 {
@@ -346,16 +394,26 @@ pint_t File::SetPos(pint_t pos)
     return 0;
 }
 
-pint_t File::Advance(pint_t pos)
+PIKA_DOC(File_advance, "/(off)\
+\n\
+Advance the file |off| number of bytes from the current position.\
+");
+
+pint_t File::Advance(pint_t off)
 {
     if (handle)
     {
         int whence = SEEK_CUR;
-        int res = fseek(handle, pos, whence);
+        int res = fseek(handle, off, whence);
         return res;
     }
     return 0;
 }
+
+PIKA_DOC(File_flush, "/(off)\
+\n\
+Flush the file's buffer forcing any pending [read] or [write] operations.\
+");
 
 void File::Flush()
 {
@@ -367,6 +425,10 @@ void File::Flush()
 
 String* File::GetFilename() { return filename; }
 
+PIKA_DOC(File_opened, "/()\
+\n\
+Returns '''true''' if the file is opened and '''false''' if it is not opened.\
+");
 bool File::IsOpen() const { return handle != 0; }
 
 void File::SetFilename(String* str)
@@ -387,6 +449,10 @@ void File::SetHandle(FILE* f)
     handle = f;
 }
 
+PIKA_DOC(File_rewind, "/()\
+\n\
+Rewinds the file if it is opened.");
+
 void File::Rewind()
 {
     if (handle)
@@ -406,7 +472,7 @@ bool File::GetUsePaths() const
 
 PIKA_DOC(File_setUsePaths, "/(use?)\
 \n\
-If |use?| is true then [imports.os.paths os.paths] will be used to find files. \
+If |use?| is '''true''' then [imports.os.paths os.paths] will be used to find files. \
 Otherwise file names will need to be relative to the working \
 directory or an absolute path to the file.");
 
@@ -417,10 +483,20 @@ void File::SetUsePaths(bool use)
 
 namespace {
 
+PIKA_DOC(File_rename, "/(old_name, new_name)\
+\n\
+Renames the file named |old_name| to |new_name|. Returns '''true''' if successful, '''false''' on failure.\
+");
 bool File_rename(String* oldname, String* newname)
 {
     return rename(oldname->GetBuffer(), newname->GetBuffer()) == 0;
 }
+
+PIKA_DOC(File_tempName, "/()\
+\n\
+Returns the path and name that can be used for a temporary file. The location \
+and file name is system dependent. \
+");
 
 String* TempName(Context* ctx)
 {
@@ -442,13 +518,9 @@ void File::Constructor(Engine* eng, Type* type, Value& obj)
     obj.Set(f);
 }
 
-PIKA_DOC(File_init, "/([name, opts])\
-\n\
-Initializes a new File instance. Optionally you can \
-open the file |name| with options |opts| for more information on the arguments \
-see [open File.open]. If |name| and |opts| are supplied and the file could not be opened \
-and exception will be raised.\
-");
+PIKA_DOC(file_stdout, "A File object for the standard output stream");
+PIKA_DOC(file_stderr, "A File object for the standard error stream");
+PIKA_DOC(file_stdin, "A File object for the standard input stream");
 
 void File::StaticInitType(Engine* eng)
 {
@@ -461,6 +533,10 @@ void File::StaticInitType(Engine* eng)
     File* file_stderr = File::Create(eng, File_Type);
     File* file_stdin  = File::Create(eng, File_Type);
     
+    file_stdout->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(file_stdout)), Slot::ATTR_forcewrite); 
+    file_stderr->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(file_stderr)), Slot::ATTR_forcewrite); 
+    file_stdin->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(file_stdin)), Slot::ATTR_forcewrite); 
+    
     SlotBinder<File>(eng, File_Type)
     .Method(&File::ToBoolean,   "toBoolean", PIKA_GET_DOC(File_toBoolean))
     .PropertyRW("usePaths", 
@@ -471,26 +547,25 @@ void File::StaticInitType(Engine* eng)
     .Method(&File::Open,        "open", PIKA_GET_DOC(File_open))
     .Method(&File::Close,       "close",PIKA_GET_DOC(File_close))
     .Method(&File::IsEof,       "eof?", PIKA_GET_DOC(File_eof))
-    .MethodVA(&File::Write,     "write")
-    .MethodVA(&File::Read,      "read")
-    .Method(&File::Seek,        "seek")
-    .Method(&File::SetPos,      "setPos")
-    .Method(&File::Advance,     "advance")
-    .Method(&File::Flush,       "flush")
-    .Method(&File::ReadLine,    "readLine")
-    .Method(&File::ReadLines,   "readLines")
-    .Method(&File::IsOpen,      "open?")
-    .Method(&File::Rewind,      "rewind")
-    .MethodVA(&File::Init,      "init", PIKA_GET_DOC(File_init))
-    .Constant((pint_t)SEEK_SET, "SEEK_SET")
+    .MethodVA(&File::Write,     "write",PIKA_GET_DOC(File_write))
+    .MethodVA(&File::Read,      "read", PIKA_GET_DOC(File_read))
+    .Method(&File::Seek,        "seek", PIKA_GET_DOC(File_seek))
+    .Method(&File::SetPos,      "setPos",PIKA_GET_DOC(File_setPos))
+    .Method(&File::Advance,     "advance", PIKA_GET_DOC(File_advance))
+    .Method(&File::Flush,       "flush", PIKA_GET_DOC(File_flush))
+    .Method(&File::ReadLine,    "readLine",  PIKA_GET_DOC(File_readLine))
+    .Method(&File::ReadLines,   "readLines", PIKA_GET_DOC(File_readLines))
+    .Method(&File::IsOpen,      "opened?",   PIKA_GET_DOC(File_opened))
+    .Method(&File::Rewind,      "rewind",    PIKA_GET_DOC(File_rewind))
+    .MethodVA(&File::Init,      "init",      PIKA_GET_DOC(File_init))
     .Constant((pint_t)SEEK_SET, "SEEK_BEG")
     .Constant((pint_t)SEEK_CUR, "SEEK_CUR")
     .Constant((pint_t)SEEK_END, "SEEK_END")
     .Constant(file_stdout,      "stdout")
     .Constant(file_stderr,      "stderr")
     .Constant(file_stdin,       "stdin")
-    .StaticMethodVA(TempName,   "tempName")
-    .StaticMethod(File_rename,  "rename")
+    .StaticMethodVA(TempName,   "tempName", PIKA_GET_DOC(File_tempName))
+    .StaticMethod(File_rename,  "rename", PIKA_GET_DOC(File_rename))
     ;
     
     file_stdout->SetFilename(eng->AllocString("stdout"));

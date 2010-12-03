@@ -510,7 +510,7 @@ void BoundFunction::Init(Context* ctx)
 {
     closure = ctx->GetArgT<Function>(0);
     if (!closure)
-        RaiseException("BoundFunction.init excepts a valid Function and self object.");
+        RaiseException(Exception::ERROR_type, "BoundFunction.init excepts a valid Function and self object.");
     self = ctx->GetArg(1);
     WriteBarrier(closure);
     lexEnv = closure->lexEnv;
@@ -620,7 +620,7 @@ int Function_getLocal(Context* ctx, Value& self)
             return 1;
         }
     }
-    RaiseException("Attempt to access local variable: %d", (u2)idx);
+    RaiseException(Exception::ERROR_index, "Attempt to access local variable: "PINT_FMT".", idx);
     return 0;
 }
 
@@ -639,7 +639,7 @@ int Function_setLocal(Context* ctx, Value& self)
             return 0;
         }
     }    
-    RaiseException("Attempt to access local variable: %d", (u2)idx);
+    RaiseException(Exception::ERROR_index, "Attempt to access local variable: "PINT_FMT".", idx);
     return 0;
 }
 
@@ -718,7 +718,7 @@ int Function_name(Context* ctx, Value& self)
         ctx->Push(t->GetName());   
         return 1;
     }    
-    RaiseException("Attempt to call Function.getName with incorrect type.");
+    RaiseException(Exception::ERROR_type, "Attempt to call Function.getName with incorrect type.");
     return 0;    
 }
 
@@ -736,7 +736,7 @@ int Function_parent(Context* ctx, Value& self)
         ctx->Push(t->GetSuper());   
         return 1;
     }    
-    RaiseException("Attempt to call Function.getParent with incorrect type.");
+    RaiseException(Exception::ERROR_type, "Attempt to call Function.getParent with incorrect type.");
     return 0;    
 }
 
@@ -754,7 +754,7 @@ int Function_location(Context* ctx, Value& self)
         ctx->Push(t->GetLocation());   
         return 1;
     }    
-    RaiseException("Attempt to call Function.getLocation with incorrect type.");
+    RaiseException(Exception::ERROR_type, "Attempt to call Function.getLocation with incorrect type.");
     return 0;    
 }
 

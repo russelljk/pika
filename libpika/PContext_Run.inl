@@ -155,13 +155,13 @@ void Context::Run()
             
             PIKA_BEGIN_DISPATCH()
             
-            //  Standard push|pop get|set operations
+            //  Standard push & pop, get & set operations
 #           include "PContext_Ops_Std.inl"
             
-            //  All arithmetic/logical operators that can be overriden.
+            //  All arithmetic & logical operators that can be overriden.
 #           include "PContext_Ops_Arith.inl"
             
-            //  Call|new operations
+            //  Call & apply operations
 #           include "PContext_Ops_Call.inl"
             
             //  dot get|set

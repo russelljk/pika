@@ -2373,13 +2373,13 @@ Value& Context::GetOuter(u2 idx, u1 depth)
     if ( !curr || !curr->lexEnv )
     {
         // Shouldn't happen under properly compiled script.
-        RaiseException("Attempt to access invalid bound variable of depth %d and index of %d.",
+        RaiseException(Exception::ERROR_index, "Attempt to access invalid bound variable of depth %d and index of %d.",
                        depth,
                        idx);
     }
     else if (curr->lexEnv->Length() <= idx)
     {
-        RaiseException("Attempt to access invalid bound variable of index %d at depth %d.",
+        RaiseException(Exception::ERROR_index, "Attempt to access invalid bound variable of index %d at depth %d.",
                        depth,
                        idx);
     }

@@ -882,7 +882,7 @@ void Engine::InitializeWorld()
         Iterator::StaticInitType(this);
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
-        paths->SetSlot(AllocString("__doc"), AllocStringNC(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 
+        paths->SetSlot(AllocStringNC("__doc"), AllocStringNC(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 
             
         Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
         Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);
