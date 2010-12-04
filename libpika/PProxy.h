@@ -27,7 +27,14 @@ public:
     
     Value Obj();
     Value Name();
-    
+    String* GetDoc() { return property ? property->GetDoc() : engine->emptyString; }
+
+    void SetDoc(String* doc) {
+        if (property) {
+            property->SetDoc(doc);
+        }
+    }
+
     static void Constructor(Engine* eng, Type* type, Value& res);
     static void StaticInitType(Engine* eng);
 private:

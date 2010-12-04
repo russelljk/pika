@@ -8,7 +8,7 @@
 #include "PByteArray.h"
 #include "PFile.h"
 #include "PGenerator.h"
-
+#include "PProxy.h"
 namespace pika {
 extern void InitSystemLIB(Engine*);
 extern void Initialize_ImportAPI(Engine*);
@@ -124,6 +124,11 @@ int Null_init(Context* ctx, Value& self)
 }
 
 ///////////////////////////////////////////// Integer //////////////////////////////////////////////
+PIKA_DOC(Integer_init, "/([val])\
+\n\
+Creates a new integer. If |val| is provided it will be converted to a integer \
+using it's toInteger method. If the conversion cannot happen then an exception is raised.\
+");
 
 int Integer_init(Context* ctx, Value& self)
 {
@@ -144,7 +149,8 @@ int Integer_init(Context* ctx, Value& self)
     return 1;
 }
 
-// TODO: add radix support.
+PIKA_DOC(Integer_toString, "Returns this integer converted to an [String string].");
+
 int Integer_toString(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
@@ -174,11 +180,15 @@ int Integer_toString(Context* ctx, Value& self)
     return 0;
 }
 
+PIKA_DOC(Integer_toInteger, "Returns this integer.");
+
 int Integer_toInteger(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
+
+PIKA_DOC(Integer_toReal, "Returns this integer converted to a [Real real number].");
 
 int Integer_toReal(Context* ctx, Value& self)
 {
@@ -186,11 +196,17 @@ int Integer_toReal(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Integer_toNumber, "Returns this integer.");
+
 int Integer_toNumber(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
+
+
+PIKA_DOC(Integer_toBoolean, "Converts this integer to a [Boolean]. This method \
+will return false only when the integer is 0.");
 
 int Integer_toBoolean(Context* ctx, Value& self)
 {
@@ -198,7 +214,9 @@ int Integer_toBoolean(Context* ctx, Value& self)
     return 1;
 }
 
-int Primitive_getType(Context* ctx, Value& self)
+PIKA_DOC(Value_getType, "Returns the type of this instance.");
+PIKA_DOC(Value_type, "The type for this instance.");
+int Value_getType(Context* ctx, Value& self)
 {
     Engine* eng = ctx->GetEngine();
     switch (self.tag)
@@ -221,6 +239,7 @@ int Primitive_getType(Context* ctx, Value& self)
     return 0;
 }
 
+PIKA_DOC(Value_doc, "The documentation string for this instance.");
 int Multi_getDoc(Context* ctx, Value& self)
 {
     Engine* eng =ctx->GetEngine();
@@ -231,6 +250,12 @@ int Multi_getDoc(Context* ctx, Value& self)
     } else if (self.IsDerivedFrom(Function::StaticGetClass())) {
         Function* func = (Function*)self.val.object;
         doc = func->GetDocumentation();
+    } else if (self.IsDerivedFrom(Proxy::StaticGetClass())) {
+        Proxy* proxy = (Proxy*)self.val.object;
+        doc = proxy->GetDoc();
+    } else if (self.IsProperty()) {
+        Property* prop = (Property*)self.val.property;
+        doc = prop->GetDoc();
     } else if (self.IsObject()) {
       Value res(NULL_VALUE);
       if (self.val.object->MembersPtr()) {
@@ -260,6 +285,12 @@ int Multi_setDoc(Context* ctx, Value& self)
     } else if (self.IsDerivedFrom(Function::StaticGetClass())) {
         Function* func = (Function*)self.val.object;
         func->SetDocumentation(doc);
+    } else if (self.IsDerivedFrom(Proxy::StaticGetClass())) {
+        Proxy* proxy = (Proxy*)self.val.object;
+        proxy->SetDoc(doc);
+    } else if (self.IsProperty()) {
+        Property* prop = (Property*)self.val.property;
+        prop->SetDoc(doc);
     } else if (self.IsObject()) {
         Object* obj = self.val.object;
         Engine* eng = ctx->GetEngine();
@@ -269,6 +300,12 @@ int Multi_setDoc(Context* ctx, Value& self)
 }
 
 ////////////////////////////////////////////// Real ////////////////////////////////////////////////
+
+PIKA_DOC(Real_init, "/([val])\
+\n\
+Creates a new real number. If |val| is provided it will be converted to a real \
+using it's toReal method. If the conversion cannot happen then an exception is raised.\
+");
 
 int Real_init(Context* ctx, Value& self)
 {
@@ -290,11 +327,15 @@ int Real_init(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Real_toString, "Returns this real number converted to an [String string].");
+
 int Real_toString(Context* ctx, Value& self)
 {
     ctx->Push(Engine::NumberToString(ctx->GetEngine(), self));
     return 1;
 }
+
+PIKA_DOC(Real_toInteger, "Returns this real number converted to an [Integer integer].");
 
 int Real_toInteger(Context* ctx, Value& self)
 {
@@ -302,11 +343,15 @@ int Real_toInteger(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Real_toReal, "Returns this real number.");
+
 int Real_toReal(Context* ctx, Value& self)
 {
     ctx->Push(self);
     return 1;
 }
+
+PIKA_DOC(Real_toNumber, "Returns this real number.");
 
 int Real_toNumber(Context* ctx, Value& self)
 {
@@ -314,17 +359,24 @@ int Real_toNumber(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Real_toBoolean, "Converts this real number to a [Boolean]. This method \
+will return false only when the real number is 0.0 or [nan? not a number].");
+
 int Real_toBoolean(Context* ctx, Value& self)
 {
     ctx->PushBool(Pika_RealToBoolean(self.val.real));
     return 1;
 }
 
+PIKA_DOC(Real_isnan, "Returns '''true''' if the real is not a valid real number.");
+
 int Real_isnan(Context* ctx, Value& self)
 {
     ctx->PushBool(Pika_isnan(self.val.real) != 0);
     return 1;
 }
+
+PIKA_DOC(Real_integer, "Returns the integer portion of this real number.");
 
 int Real_integer(Context* ctx, Value& self)
 {
@@ -334,6 +386,8 @@ int Real_integer(Context* ctx, Value& self)
     ctx->Push(i);
     return 1;
 }
+
+PIKA_DOC(Real_fraction, "Returns the fraction portion of this real number.");
 
 int Real_fraction(Context* ctx, Value& self)
 {
@@ -910,9 +964,10 @@ void Engine::InitializeWorld()
         
         static RegisterProperty Value_Properties[] =
         {
-            { "type", Primitive_getType, "getType", 0, 0 },
-            { "__doc", Multi_getDoc, 0, Multi_setDoc, 0, true },
+            { "type",  Value_getType, "getType", 0,            0, false, PIKA_GET_DOC(Value_getType), 0, PIKA_GET_DOC(Value_type) },
+            { "__doc", Multi_getDoc,  0,         Multi_setDoc, 0, true,  0,                           0, PIKA_GET_DOC(Value_doc) },
         };
+        
         Value_Type->EnterProperties(Value_Properties, countof(Value_Properties));
         this->Pkg_World->SetSlot(this->AllocString("Basic"), this->Basic_Type);
         
@@ -1010,16 +1065,16 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Integer_Functions[] =
         {
-            { "toString",   Integer_toString,  0, DEF_VAR_ARGS, 0 },
-            { "toInteger",  Integer_toInteger, 0, 0,            0 },
-            { "toReal",     Integer_toReal,    0, 0,            0 },
-            { "toNumber",   Integer_toNumber,  0, 0,            0 },
-            { "toBoolean",  Integer_toBoolean, 0, 0,            0 },
+            { "toString",   Integer_toString,  0, DEF_VAR_ARGS, PIKA_GET_DOC(Integer_toString) },
+            { "toInteger",  Integer_toInteger, 0, 0,            PIKA_GET_DOC(Integer_toInteger) },
+            { "toReal",     Integer_toReal,    0, 0,            PIKA_GET_DOC(Integer_toReal) },
+            { "toNumber",   Integer_toNumber,  0, 0,            PIKA_GET_DOC(Integer_toNumber) },
+            { "toBoolean",  Integer_toBoolean, 0, 0,            PIKA_GET_DOC(Integer_toBoolean) },
         };
         
         static RegisterFunction Integer_ClassMethods[] =
         {
-            { NEW_CSTR, Integer_init, 0, DEF_VAR_ARGS, 0 },
+            { NEW_CSTR, Integer_init, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Integer_init) },
         };
         
         Integer_Type  = Type::Create(this, AllocString("Integer"), Value_Type, 0, Pkg_World);
@@ -1035,24 +1090,24 @@ void Engine::InitializeWorld()
         
         static RegisterFunction Real_Functions[] =
         {
-            { "toString",   Real_toString,  0, 0, 0 },
-            { "toInteger",  Real_toInteger, 0, 0, 0 },
-            { "toReal",     Real_toReal,    0, 0, 0 },
-            { "toNumber",   Real_toNumber,  0, 0, 0 },
-            { "toBoolean",  Real_toBoolean, 0, 0, 0 },
-            { "nan?",       Real_isnan,     0, 0, 0 },
+            { "toString",   Real_toString,  0, 0, PIKA_GET_DOC(Real_toString) },
+            { "toInteger",  Real_toInteger, 0, 0, PIKA_GET_DOC(Real_toInteger) },
+            { "toReal",     Real_toReal,    0, 0, PIKA_GET_DOC(Real_toReal) },
+            { "toNumber",   Real_toNumber,  0, 0, PIKA_GET_DOC(Real_toNumber) },
+            { "toBoolean",  Real_toBoolean, 0, 0, PIKA_GET_DOC(Real_toBoolean) },
+            { "nan?",       Real_isnan,     0, 0, PIKA_GET_DOC(Real_isnan) },
             // TODO:: finite? infinite? SignBit etc...
         };
         
         static RegisterProperty Real_Properties[] =
         {
-            { "integer",  Real_integer,  "getInteger",  0, 0 },
-            { "fraction", Real_fraction, "getFraction", 0, 0 },
+            { "integer",  Real_integer,  "getInteger",  0, 0, false, PIKA_GET_DOC(Real_integer), 0 },
+            { "fraction", Real_fraction, "getFraction", 0, 0, false, PIKA_GET_DOC(Real_fraction), 0 },
         };
         
         static RegisterFunction Real_ClassMethods[] =
         {
-            { NEW_CSTR, Real_init, 0, DEF_VAR_ARGS, 0 },
+            { NEW_CSTR, Real_init, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Real_init) },
         };
         
         Real_Type  = Type::Create(this, AllocString("Real"), Value_Type, 0, Pkg_World);

@@ -68,6 +68,9 @@ struct RegisterProperty
     Nativecode_t setter;        //!< Setter funcion.
     const char*  setterName;    //!< Setter name.
     bool         unattached;    //!< Should the function's be attached to the Object/Type (ClassMethod or InstanceMethod).
+    const char*  getterdoc;
+    const char*  setterdoc;
+    const char*  __doc;
 };
 
 class Bytecode

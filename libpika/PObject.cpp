@@ -257,7 +257,7 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, getname, propdef->getter,
-                                       0, DEF_STRICT, 0);
+                                       0, DEF_STRICT, 0, propdef->getterdoc);
                                         
             getter = Function::Create(engine, def, pkg);
             
@@ -277,7 +277,7 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, setname, propdef->setter,
-                                       1, DEF_STRICT, 0);
+                                       1, DEF_STRICT, 0, propdef->setterdoc);
                                        
             setter =  Function::Create(engine, def, pkg);
             
@@ -293,16 +293,16 @@ void Object::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
         {
             if (setter)
             {
-                prop = Property::CreateReadWrite(engine, strname, getter, setter);
+                prop = Property::CreateReadWrite(engine, strname, getter, setter, propdef->__doc);
             }
             else
             {
-                prop = Property::CreateRead(engine, strname, getter);
+                prop = Property::CreateRead(engine, strname, getter, propdef->__doc);
             }
         }
         else if (setter)
         {
-            prop = Property::CreateWrite(engine, strname, setter);
+            prop = Property::CreateWrite(engine, strname, setter, propdef->__doc);
         }
         
         if (prop)

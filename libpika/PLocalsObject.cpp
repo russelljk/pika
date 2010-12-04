@@ -248,10 +248,10 @@ void LocalsObject::StaticInitType(Engine* eng)
 {
     struct RegisterProperty localsObject_Properties[] =
     {
-        { "parent",  LocalsObject_getParent,  "getParent",  0, 0, true  },
-        { "length",  LocalsObject_getLength,  "getLength",  0, 0, false },
-        { "depth",   LocalsObject_getDepth,   "getDepth",   0, 0, false },
-        { "closure", LocalsObject_getClosure, "getClosure", 0, 0, false }        
+        { "parent",  LocalsObject_getParent,  "getParent",  0, 0, true,  0, 0 },
+        { "length",  LocalsObject_getLength,  "getLength",  0, 0, false, 0, 0 },
+        { "depth",   LocalsObject_getDepth,   "getDepth",   0, 0, false, 0, 0 },
+        { "closure", LocalsObject_getClosure, "getClosure", 0, 0, false, 0, 0 }        
     };
     
     eng->LocalsObject_Type->EnterProperties(localsObject_Properties, countof(localsObject_Properties));

@@ -834,9 +834,9 @@ void Function::StaticInitType(Engine* eng)
     ;
     
     struct RegisterProperty Function_Properties[] = {
-        { "name",     Function_name,     "getName",     0, 0, true },
-        { "parent",   Function_parent,   "getParent",   0, 0, true },
-        { "location", Function_location, "getLocation", 0, 0, true },
+        { "name",     Function_name,     "getName",     0, 0, true, 0, 0 },
+        { "parent",   Function_parent,   "getParent",   0, 0, true, 0, 0 },
+        { "location", Function_location, "getLocation", 0, 0, true, 0, 0 },
     };
         
     eng->Function_Type->EnterProperties(Function_Properties, countof(Function_Properties));

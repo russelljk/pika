@@ -938,6 +938,8 @@ print Array.cat(a, b) #=> [1, 2, 4, 5]\
 ]]]\
 ");
 
+PIKA_DOC(Array_length, "The length of the array.");
+
 PIKA_DOC(Array_getLength, "/()\
 \n\
 Return the length of the array.");
@@ -945,6 +947,8 @@ Return the length of the array.");
 PIKA_DOC(Array_setLength, "/(len)\
 \n\
 Resizes the array to length |len|. If |len| is < 0 then an exception will be raised.");
+
+PIKA_DOC(Array_front, "The first element of the array.");
 
 PIKA_DOC(Array_getFront, "/()\
 \n\
@@ -955,6 +959,8 @@ PIKA_DOC(Array_setFront, "/(x)\
 \n\
 Sets the first element of the array to |x|. An exception will be \
 raised if the array is empty.");
+
+PIKA_DOC(Array_back, "The last element of the array.");
 
 PIKA_DOC(Array_getBack, "/()\
 \n\
@@ -999,17 +1005,20 @@ void Array::StaticInitType(Engine* eng)
                 &Array::GetLength,  "getLength",
                 &Array::SetLength,  "setLength", 
                 PIKA_GET_DOC(Array_getLength), 
-                PIKA_GET_DOC(Array_setLength))    
+                PIKA_GET_DOC(Array_setLength),
+                PIKA_GET_DOC(Array_length))    
     .PropertyRW("front",
                 &Array::GetFront,   "getFront",
                 &Array::SetFront,   "setFront", 
                 PIKA_GET_DOC(Array_getFront), 
-                PIKA_GET_DOC(Array_setFront)) 
+                PIKA_GET_DOC(Array_setFront),
+                PIKA_GET_DOC(Array_front)) 
     .PropertyRW("back",
                 &Array::GetBack,    "getBack",
                 &Array::SetBack,    "setBack", 
                 PIKA_GET_DOC(Array_getBack), 
-                PIKA_GET_DOC(Array_setBack)) 
+                PIKA_GET_DOC(Array_setBack),
+                PIKA_GET_DOC(Array_back)) 
     .Constant(Array_MAX, "MAX")
     ;
     eng->GetWorld()->SetSlot(eng->Array_String, eng->Array_Type);

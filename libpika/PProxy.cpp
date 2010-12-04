@@ -188,8 +188,6 @@ int Proxy_setWriter(Context* ctx, Value& self)
     return 0;
 }
 
-
-
 }// namespace
 
 void Proxy::StaticInitType(Engine* eng)
@@ -200,8 +198,8 @@ void Proxy::StaticInitType(Engine* eng)
     eng->Property_Type->SetSlot(Proxy_String, Proxy_Type);
     
     static RegisterProperty Proxy_Properties[] = {
-    { "reader", Proxy_getReader, "getReader", Proxy_setReader, "setReader" },
-    { "writer", Proxy_getReader, "getWriter", Proxy_setReader, "setWriter" },
+    { "reader", Proxy_getReader, "getReader", Proxy_setReader, "setReader", false, 0, 0 },
+    { "writer", Proxy_getReader, "getWriter", Proxy_setReader, "setWriter", false, 0, 0 },
     };
     
     SlotBinder<Proxy>(eng, Proxy_Type)

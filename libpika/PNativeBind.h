@@ -325,12 +325,13 @@ struct SlotBinder
                            AMethWrite  writeMeth,
                            const char* writeName,
                            const char* getdoc=0,
-                           const char* setdoc=0)   // name of the write function or null
+                           const char* setdoc=0,
+                           const char* propdoc=0)   // name of the write function or null
     {
         String*   name = engine->AllocStringNC(propName);
         Function* rm   = HookedFunction::Bind<AMethRead>(engine,  readMeth,  readName  ? readName  : "", package, class_info, getdoc);
         Function* wm   = HookedFunction::Bind<AMethWrite>(engine, writeMeth, writeName ? writeName : "", package, class_info, setdoc);
-        Property* p    = Property::CreateReadWrite(engine, name, rm, wm);
+        Property* p    = Property::CreateReadWrite(engine, name, rm, wm, propdoc);
         
         if (readName)
             object->AddFunction(rm);
@@ -357,11 +358,12 @@ struct SlotBinder
     SlotBinder& PropertyR(const char* propName,
                           AMethRead   rMeth,
                           const char* rName,
-                          const char* getdoc=0)
+                          const char* getdoc=0,
+                          const char* propdoc=0)
     {
         String*   name  = engine->AllocStringNC(propName);
         Function* rmeth = HookedFunction::Bind<AMethRead>(engine, rMeth, rName ? rName : "", package, class_info, getdoc);
-        Property* prop  = Property::CreateRead(engine, name, rmeth);
+        Property* prop  = Property::CreateRead(engine, name, rmeth, propdoc);
 
         if (rName)
             object->AddFunction(rmeth);
@@ -385,11 +387,12 @@ struct SlotBinder
     SlotBinder& PropertyW(const char* propName,
                           AMethWrite  wMeth,
                           const char* wName,
-                          const char* setdoc=0)
+                          const char* setdoc=0,
+                          const char* propdoc=0)
     {
         String*   name  = engine->AllocStringNC(propName);
         Function* wmeth = HookedFunction::Bind<AMethWrite>(engine, wMeth, wName ? wName : "", package, class_info, setdoc);
-        Property* prop  = Property::CreateWrite(engine, name, wmeth);
+        Property* prop  = Property::CreateWrite(engine, name, wmeth, propdoc);
 
         if (wName)
             object->AddFunction(wmeth);

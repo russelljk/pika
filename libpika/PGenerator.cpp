@@ -342,8 +342,8 @@ void Generator::StaticInitType(Engine* eng)
     
     static RegisterProperty Generator_Properties[] =
     {
-        { "state",    Generator_state,    "getState",    0, 0 },
-        { "function", Generator_function, "getFunction", 0, 0 }
+        { "state",    Generator_state,    "getState",    0, 0, false, 0, 0 },
+        { "function", Generator_function, "getFunction", 0, 0, false, 0, 0 }
     };
     
     eng->Generator_Type->EnterProperties(Generator_Properties, countof(Generator_Properties));

@@ -24,13 +24,13 @@ class PIKA_API Property : public Basic
 {
     PIKA_DECL(Property, Basic)
 public:
-    Property(Engine* eng, String* name, Function* getter, Function* setter);
+    Property(Engine* eng, String* name, Function* getter, Function* setter, String* doc);
     
     virtual ~Property();
     
-    static Property* CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter);
-    static Property* CreateRead     (Engine* eng, String* name, Function* getter);
-    static Property* CreateWrite    (Engine* eng, String* name, Function* setter);
+    static Property* CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter, const char* doc = 0);
+    static Property* CreateRead     (Engine* eng, String* name, Function* getter, const char* doc = 0);
+    static Property* CreateWrite    (Engine* eng, String* name, Function* setter, const char* doc = 0);
     
     virtual void  MarkRefs(Collector* c);
     virtual Type* GetType() const;
@@ -42,13 +42,16 @@ public:
     virtual Function* Reader();
     virtual Function* Writer();
     virtual String*   Name();
-    
+    virtual String*   GetDoc();
+    virtual void      SetDoc(String*);
+    virtual void      SetDoc(const char*);
     virtual void SetWriter(Function* s);
     virtual void SetRead(Function* g);    
 protected:
     Function* getter;
     Function* setter;
     String*   name;
+    String*   __doc;
 };
 
 }// pika

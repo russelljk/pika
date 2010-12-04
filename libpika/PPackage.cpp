@@ -194,9 +194,14 @@ void Package::Constructor(Engine* eng, Type* obj_type, Value& res)
 
 namespace {
 
-int Pkg_getParent(Context* ctx, Value& self)
+PIKA_DOC(Package_getParent, "/()\
+\n\
+Returns the parent of the package.\
+");
+
+int Package_getParent(Context* ctx, Value& self)
 {
-    GETSELF(Package, pkg, "Package")
+    Package* pkg = self.val.package;
     Package* super = pkg->GetSuper();
     if (super) {
         ctx->Push(super);
@@ -206,21 +211,37 @@ int Pkg_getParent(Context* ctx, Value& self)
     return 1;
 }
 
-int Pkg_getName(Context* ctx, Value& self)
+PIKA_DOC(Package_getName, "/()\
+\n\
+Returns the name of this package.\
+");
+
+int Package_getName(Context* ctx, Value& self)
 {
-    GETSELF(Package, pkg, "Package")
+    Package* pkg = self.val.package;
     String* name = pkg->GetName() ? pkg->GetName() : ctx->GetEngine()->emptyString;
     ctx->Push(name);
     return 1;
 }
 
-int Pkg_getPath(Context* ctx, Value& self)
+PIKA_DOC(Package_getPath, "/()\
+\n\
+Returns the full path of this package.\
+");
+
+int Package_getPath(Context* ctx, Value& self)
 {
-    GETSELF(Package, pkg, "Package")
+    Package* pkg = self.val.package;
     String* name = pkg->GetDotName() ? pkg->GetDotName() : ctx->GetEngine()->emptyString;
     ctx->Push(name);
     return 1;
 }
+
+PIKA_DOC(Package_getGlobal, "/(name, val)\
+\n\
+Returns the global |name| or '''null''' if it doesn't exist. You can use \
+[__hasGlobal] to check for the existence of a global variable. \
+");
 
 int Package_getGlobal(Context* ctx, Value& self)
 {
@@ -241,15 +262,20 @@ int Package_getGlobal(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Package_setGlobal, "/(name, val)\
+\n\
+Returns whether or not the global |name| could be set to the value of |val|.\
+");
+
 int Package_setGlobal(Context* ctx, Value& self)
 {
     Package* pkg  = self.val.package;
     Value&   arg0 = ctx->GetArg(0);
     Value&   arg1 = ctx->GetArg(1);
-
+    
      // TODO: call properties
 
-    if (pkg->GetGlobal(arg0, arg1))
+    if (pkg->SetGlobal(arg0, arg1))
     {
         ctx->PushTrue();
     }
@@ -259,6 +285,12 @@ int Package_setGlobal(Context* ctx, Value& self)
     }
     return 1;
 }
+
+PIKA_DOC(Package_hasGlobal, "/(name)\
+\n\
+Returns whether or not |name| exists as a global variable in this package's \
+scope. \
+");
 
 int Package_hasGlobal(Context* ctx, Value& self)
 {
@@ -266,7 +298,7 @@ int Package_hasGlobal(Context* ctx, Value& self)
     Value&  arg0 = ctx->GetArg(0);
     Value   res(NULL_VALUE);
     
-    if (pkg->GetSlot(arg0, res))
+    if (pkg->GetGlobal(arg0, res))
     {
         ctx->PushTrue();
     }
@@ -277,18 +309,19 @@ int Package_hasGlobal(Context* ctx, Value& self)
     return 1;
 }
 
-int Package_getName(Context* ctx, Value& self)
-{
-    Package* pkg = self.val.package;
-    ctx->Push(pkg->GetName());
-    return 1;
-}
+PIKA_DOC(Package_openPath, "/(path [, where [, forcewrite ]])\
+\n\
+Creates and/or returns the package located at the |path| provided. If |where| \
+is provided then it will be used as the root of the path. Otherwise the |path| \
+should be absolute. The optional argument, |forcewrite|, determines whether \
+the package will overwrite any non-package located at the |path| given. \
+");
 
 int Package_openPath(Context* ctx, Value&)
 {
     String*  path  = 0;
     Package* where = 0;
-    bool     write = false;
+    bool     forcewrite = false;
     u4       argc  = ctx->GetArgCount();
     Engine*  eng   = ctx->GetEngine();
     
@@ -296,7 +329,7 @@ int Package_openPath(Context* ctx, Value&)
     
     switch (argc)
     {
-    case 3: write = ctx->GetBoolArg(2);
+    case 3: forcewrite = ctx->GetBoolArg(2);
     case 2: where = ctx->GetArg(1).IsNull() ? 0 : ctx->GetArgT<Package>(1);
     case 1: path  = ctx->GetStringArg(0);
             break;
@@ -305,13 +338,19 @@ int Package_openPath(Context* ctx, Value&)
         return 0;
     }
     
-    Package* pkg = eng->OpenPackageDotPath(path, where, write);
+    Package* pkg = eng->OpenPackageDotPath(path, where, forcewrite);
     ctx->Push(pkg);
     return 1;
 }
 
 }// namespace
-                                    
+
+PIKA_DOC(Package_class, "The Package class is the base importable type and used \
+for the global scope of scripts. Packages exists in a heirarchy with each \
+Package having a single parent and multiple children. The root package is \
+[world] which has no parent.\
+");
+
 void Package::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -322,23 +361,23 @@ void Package::StaticInitType(Engine* eng)
     
     static RegisterFunction Package_methods[] =
     {
-        { "__getGlobal", Package_getGlobal, 1, DEF_STRICT, 0 },
-        { "__setGlobal", Package_setGlobal, 2, DEF_STRICT, 0 },
-        { "__hasGlobal", Package_hasGlobal, 1, DEF_STRICT, 0 },
+        { "__getGlobal", Package_getGlobal, 1, DEF_STRICT, PIKA_GET_DOC(Package_getGlobal) },
+        { "__setGlobal", Package_setGlobal, 2, DEF_STRICT, PIKA_GET_DOC(Package_setGlobal) },
+        { "__hasGlobal", Package_hasGlobal, 1, DEF_STRICT, PIKA_GET_DOC(Package_hasGlobal) },
     };
     
     static RegisterFunction Package_classMethods[] =
     {
-        { "__openPath", Package_openPath, 0, DEF_VAR_ARGS, 0 },
+        { "__openPath", Package_openPath, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Package_openPath) },
     };
     
     static RegisterProperty Pkg_Properties[] =
     {
-        { "__parent", Pkg_getParent, "__getParent", 0, 0 },
-        { "__name",   Pkg_getName,   "__getName",   0, 0 },
-        { "__path",   Pkg_getPath,   "__getPath",   0, 0 },
+        { "__parent", Package_getParent, "__getParent", 0, 0, false, PIKA_GET_DOC(Package_getParent), 0 },
+        { "__name",   Package_getName,   "__getName",   0, 0, false, PIKA_GET_DOC(Package_getName), 0 },
+        { "__path",   Package_getPath,   "__getPath",   0, 0, false, PIKA_GET_DOC(Package_getPath), 0 },
     };
-    
+    eng->Package_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Package_class)));
     eng->Package_Type->EnterMethods(Package_methods, countof(Package_methods));
     eng->Package_Type->EnterClassMethods(Package_classMethods, countof(Package_classMethods));
     eng->Package_Type->EnterProperties(Pkg_Properties, countof(Pkg_Properties));

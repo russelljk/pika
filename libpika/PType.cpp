@@ -205,7 +205,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, getname, propdef->getter,
-                                       0, DEF_STRICT, 0);
+                                       0, DEF_STRICT, 0, propdef->getterdoc);
                                         
             getter = propdef->unattached ? Function::Create(engine, def, pkg) : 
                                            InstanceMethod::Create(engine, 0, 0, def, pkg, this);
@@ -226,7 +226,7 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
                               engine->emptyString;
                               
             Def* def = Def::CreateWith(engine, setname, propdef->setter,
-                                       1, DEF_STRICT, 0);
+                                       1, DEF_STRICT, 0, propdef->setterdoc);
                                        
             setter =  propdef->unattached ? Function::Create(engine, def, pkg) :
                                             InstanceMethod::Create(engine, 0, 0, def, pkg, this);
@@ -243,16 +243,16 @@ void Type::EnterProperties(RegisterProperty* rp, size_t count, Package* pkg)
         {
             if (setter)
             {
-                prop = Property::CreateReadWrite(engine, strname, getter, setter);
+                prop = Property::CreateReadWrite(engine, strname, getter, setter, propdef->__doc);
             }
             else
             {
-                prop = Property::CreateRead(engine, strname, getter);
+                prop = Property::CreateRead(engine, strname, getter, propdef->__doc);
             }
         }
         else if (setter)
         {
-            prop = Property::CreateWrite(engine, strname, setter);
+            prop = Property::CreateWrite(engine, strname, setter, propdef->__doc);
         }
         
         if (prop)
@@ -395,6 +395,13 @@ bool Type::CanSetField(const Value& key)
     return baseType ? baseType->CanSetField(key) : true;
 }
 
+PIKA_DOC(Type_addMethod, "/(func)\
+\n\
+Adds the function, |func|, as a [InstanceMethod] of this type. The method will \
+contain the same name as |func|. However, if the |func| is a native function it \
+will instead be added as a regular function.\
+");
+
 void Type::AddMethod(Function* f)
 {
     if (f->IsNative())
@@ -410,6 +417,13 @@ void Type::AddMethod(Function* f)
         AddFunction(im);
     }
 }
+
+PIKA_DOC(Type_addClassMethod, "/(func)\
+\n\
+Adds the function, |func|, as a [ClassMethod] of this type. The method will \
+contain the same name as |func|. However, if the |func| is a native function it \
+will instead be added as a regular function.\
+");
 
 void Type::AddClassMethod(Function* f)
 {
@@ -513,26 +527,46 @@ int Type_new(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Type_create, "/(name, base, pkg [, meta])\
+\n\
+Create a new Type. The |name| is the name of the type. The |base| is the base \
+type of the type. The |pkg| is the parent and global scope of the type. \
+Optionally |meta| will be the meta type of the class. \
+");
+
 int Type_create(Context* ctx, Value& self)
 {
     Engine*  eng  = ctx->GetEngine();
-    String*  name = ctx->GetStringArg(0);
-    Type*    base = ctx->GetArgT<Type>(1);
-    Package* loc  = ctx->GetArgT<Package>(2);
-    Type*    meta = ctx->GetArgT<Type>(3);
-    Type*    res  = Type::Create(eng, name, base, base->GetNewFn(), loc, meta);
+    u2 argc = ctx->GetArgCount();
     
-    ctx->Push(res);
-    return 1;
+    String* name = ctx->GetStringArg(0);
+    Type* base = ctx->GetArgT<Type>(1);
+    Package* loc  = ctx->GetArgT<Package>(2);
+    if (argc == 4) {
+        Type* meta = ctx->GetArgT<Type>(3);
+        Type* res  = Type::Create(eng, name, base, base->GetNewFn(), loc, meta);
+        ctx->Push(res);
+        return 1;
+    } else if (argc == 3) {
+        Type* res  = Type::Create(eng, name, base, base->GetNewFn(), loc);
+        ctx->Push(res);
+        return 1;        
+    } else {
+        ctx->WrongArgCount();
+    }
+    return 0;
 }
 
-/* Type.createWith 
- * Creates a new Type object with the given class body, name, base Type and located in the given package.
- * @param body  class body script
- * @param name  class name [default ""]
- * @param base  base class [default Object]
- * @param pkg   parent package  [default world]
- */
+
+PIKA_DOC(Type_createWith, "/(body [, name [, base [, pkg ]]])\
+\n\
+Create a new Type. The |body| is the text of the class body. The |name| is the \
+name of the type. The |base| is the base type of the type. If no |base| is \
+specified then [Object] will be used. Lastly |pkg| is the parent and global \
+scope of the type. If not specified then |pkg| will be [world]. If you want to \
+create a type without specify the body use [create].\
+");
+
 int Type_createWith(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();    
@@ -596,30 +630,40 @@ PIKA_DOC(Type_getName, "/()"
 
 PIKA_DOC(Type_isSubtype, "/(type)\
 \n\
-Returns true or false based on whether the argument, |type|, is derived from this type.");
+Returns '''true''' or '''false''' based on whether the argument, |type|, is derived from this type.");
 
-PIKA_DOC(Type_addMethod, "/(func)\
+PIKA_DOC(Type_getSubtypes, "/()\
 \n\
-Adds the function, |func|, as a [InstanceMethod] of this type. The method will \
-contain the same name as |func|. However, if the |func| is a native function it \
-will instead be added as a regular function.");
+Returns an [Array array] of all derived types or '''null''', if this type has \
+no derived types.\
+");
 
-PIKA_DOC(Type_addClassMethod, "/(func)\
+PIKA_DOC(Type_getLocation, "/()\
 \n\
-Adds the function, |func|, as a [ClassMethod] of this type. The method will \
-contain the same name as |func|. However, if the |func| is a native function it \
-will instead be added as a regular function.");
+Returns the [Package package] that the class was declared in. This package is \
+the global scope of the type.\
+");
+
+PIKA_DOC(Type_class, "Types serve as the blueprints for their instances. New \
+types can be created by a class statement or using the [ClassMethod class methods] \
+[create] or [createWith]. Use the methods [addMethod] and \
+[addClassMethod] to add methods for instances.");
+
+PIKA_DOC(Type_base, "The base type we inherit from.");
+PIKA_DOC(Type_name, "The name of the type.");
+PIKA_DOC(Type_location, "The package this type is located in.");
+PIKA_DOC(Type_subtypes, "An [Array array] containing all derived types. Will be null if no types inherit from this type.");
 
 void Type::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     SlotBinder<Type>(eng, eng->Type_Type)
-    .PropertyR("base", &Type::GetBase,  "getBase", PIKA_GET_DOC(Type_getBase))
-    .PropertyR("name", &Type::GetName,  "getName", PIKA_GET_DOC(Type_getName))
+    .PropertyR("base", &Type::GetBase,  "getBase", PIKA_GET_DOC(Type_getBase), PIKA_GET_DOC(Type_base))
+    .PropertyR("name", &Type::GetName,  "getName", PIKA_GET_DOC(Type_getName), PIKA_GET_DOC(Type_name))
     .Alias("__base", "base")
     .Alias("__name", "name")
-    .PropertyR("location", &Type::GetLocation, "getLocation")
-    .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes")
+    .PropertyR("location", &Type::GetLocation, "getLocation", PIKA_GET_DOC(Type_getLocation), PIKA_GET_DOC(Type_location))
+    .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes", PIKA_GET_DOC(Type_getSubtypes), PIKA_GET_DOC(Type_subtypes))
     .Method(&Type::IsSubtype,       "isSubtype",        PIKA_GET_DOC(Type_isSubtype))
     .Method(&Type::AddMethod,       "addMethod",        PIKA_GET_DOC(Type_addMethod))
     .Method(&Type::AddClassMethod,  "addClassMethod",   PIKA_GET_DOC(Type_addClassMethod))
@@ -632,10 +676,10 @@ void Type::StaticInitType(Engine* eng)
     
     static RegisterFunction TypeClassMethods[] =
     {
-        { "create",     Type_create,     4, DEF_STRICT,   0 },
-        { "createWith", Type_createWith, 4, DEF_VAR_ARGS, 0 },
+        { "create",     Type_create,     4, DEF_STRICT,   PIKA_GET_DOC(Type_create) },
+        { "createWith", Type_createWith, 4, DEF_VAR_ARGS, PIKA_GET_DOC(Type_createWith) },
     };
-    
+    eng->Type_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Type_class)));
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));
     eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));
     Pkg_World->SetSlot("Type", eng->Type_Type);
