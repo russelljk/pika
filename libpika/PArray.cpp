@@ -767,51 +767,51 @@ RETURN_VAL_AFTER()
 a = [21, 22, 3, -3, 99, 5, 7]\n\
 a.sort(\\(x, y)=>x < y)\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_empty, "/()\
 \n\
 Returns true or false depending on whether the array is empty.\
-");
+")
 
 PIKA_DOC(Array_append, "/(a)\
 \n\
 Appends the elements of array |a| onto the end of this array. \
-"RETURN_VAL_AFTER());
+"RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_zip, "/(a)\
 \n\
 Returns a [Dictionary] made with the keys taken from this array's elements and \
 values taken from |a|'s elements. \
-The size of the dictionary will be the equal to min(self.length, |a|.length).");
+The size of the dictionary will be the equal to min(self.length, |a|.length).")
 
 PIKA_DOC(Array_at, "/(idx)\
 \n\
 Return the element located at the given index |idx|. If |idx| is not an [Integer] or is \
-out of bounds an exception will be raised.");
+out of bounds an exception will be raised.")
 
 PIKA_DOC(Array_reverse, "/()\
 \n\
 Reverses the order of elements in this array. \
-"RETURN_VAL_AFTER());
+"RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_push, "/(val)\
 \n\
 Pushes |val| on to back of the array.\
-"RETURN_VAL_AFTER());
+"RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_pop, "/()\
 \n\
-Pops and returns the last element of the array. If the array is empty an exception will be raised.");
+Pops and returns the last element of the array. If the array is empty an exception will be raised.")
 
 PIKA_DOC(Array_shift, "/()\
 \n\
-Pops and returns the first element of the array. If the array is empty an exception will be raised.");
+Pops and returns the first element of the array. If the array is empty an exception will be raised.")
 
 PIKA_DOC(Array_unshift, "/(val)\
 \n\
 Pushes |val| on to the front of the array.\
-"RETURN_VAL_AFTER());
+"RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_map, "/(fn)\
 \n\
@@ -824,7 +824,7 @@ a = [1, 2, 3]\n\
 \n\
 # Square each element\n\
 a.map(\\(x)=> x * x )]]]\
-");
+")
 
 PIKA_DOC(Array_filter, "/(fn)\
 \n\
@@ -837,7 +837,7 @@ a = [1, 2, 3, 4, 5, 6]\n\
 \n\
 # Only let evens through\n\
 a.filter(\\(x)=> x mod 2 == 0)]]]\
-");
+")
 
 PIKA_DOC(Array_takeWhile, "/(cond)\
 \n\
@@ -848,7 +848,7 @@ At which point the elements left are discarded.\
 a = [1, 2, 3, 4, 5]\n\
 print(a.takeWhile(\\(x)=> x <= 2) #=> [1, 2]\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_dropWhile, "/(cond)\
 \n\
@@ -860,7 +860,7 @@ At which point the elements left are added to the new array.\
 a = [1, 2, 3, 4, 5]\n\
 print(a.dropWhile(\\(x)=> x <= 2) #=> [3, 4, 5]\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_fold, "/(x, func)\
 \n\
@@ -875,7 +875,7 @@ This is the reverse of [foldr]. \
 a = ['bob', 'says', 'hello']\n\
 print a.fold('', \\(a, b) => a...b) #=> 'bob says hello'\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_foldr, "/(x, func)\
 \n\
@@ -890,7 +890,7 @@ This is the reverse of [fold]. \
 a = ['bob', 'says', 'hello']\n\
 print a.foldr('', \\(a, b) => a...b) #=> 'hello says bob'\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_opCat, "/(right)\
 \n\
@@ -900,7 +900,7 @@ with the array |right|. \
 [[[\
 c = [2, 3]..[4, 5] #=> [2, 3, 4, 5]\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_opCat_r, "/(left)\
 \n\
@@ -910,7 +910,7 @@ An override of the right-handed concatenation operator which returns the array \
 [[[\
 c = [2, 3]..[4, 5] #=> [2, 3, 4, 5]\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_opSlice, "/(start, stop)\
 \n\
@@ -923,11 +923,11 @@ a = [1, 2, 3, 4, 5]\n\
 print a[1 to 3] #=> [2, 3]\n\
 print a[3 to a.length] #=> [4, 5]\
 ]]]\
-");
+")
 
 PIKA_DOC(Array_toString, "/()\
 \n\
-Returns a string representation of this array.");
+Returns a string representation of this array.")
 
 PIKA_DOC(Array_cat, "/(left, right)\
 \n\
@@ -936,44 +936,44 @@ Return the concatenation of arrays |left| and |right|.\
 a, b = [1, 2], [4, 5]\n\
 print Array.cat(a, b) #=> [1, 2, 4, 5]\
 ]]]\
-");
+")
 
-PIKA_DOC(Array_length, "The length of the array.");
+PIKA_DOC(Array_length, "The length of the array.")
 
 PIKA_DOC(Array_getLength, "/()\
 \n\
-Return the length of the array.");
+Return the length of the array.")
 
 PIKA_DOC(Array_setLength, "/(len)\
 \n\
-Resizes the array to length |len|. If |len| is < 0 then an exception will be raised.");
+Resizes the array to length |len|. If |len| is < 0 then an exception will be raised.")
 
-PIKA_DOC(Array_front, "The first element of the array.");
+PIKA_DOC(Array_front, "The first element of the array.")
 
 PIKA_DOC(Array_getFront, "/()\
 \n\
 Returns the first element of the array. An exception will be \
-raised if the array is empty.");
+raised if the array is empty.")
 
 PIKA_DOC(Array_setFront, "/(x)\
 \n\
 Sets the first element of the array to |x|. An exception will be \
-raised if the array is empty.");
+raised if the array is empty.")
 
-PIKA_DOC(Array_back, "The last element of the array.");
+PIKA_DOC(Array_back, "The last element of the array.")
 
 PIKA_DOC(Array_getBack, "/()\
 \n\
 Returns the last element of the array. An exception will be \
-raised if the array is empty.");
+raised if the array is empty.")
 
 PIKA_DOC(Array_setBack, "/(x)\
 \n\
 Sets the last element of the array to |x|. An exception will be \
-raised if the array is empty.");
+raised if the array is empty.")
 
 PIKA_DOC(Array_Type, "A resizable array object. This type is also used for variable \
-arguments and array literals.");
+arguments and array literals.")
 
 void Array::StaticInitType(Engine* eng)
 {

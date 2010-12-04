@@ -140,6 +140,8 @@ public:
     
     virtual String* GetDoc();
     virtual void SetDoc(String* s);
+    virtual void SetDoc(const char*);
+    
     /** Adds a type method. */
     void AddMethod(Function*);
     void AddClassMethod(Function*);

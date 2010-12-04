@@ -131,7 +131,7 @@ Function::Function(Engine* eng, Type* p, Def* funcdef, Package* loc, Function* p
         def(funcdef),
         parent(parent_func),
         location(loc),
-        docstring(doc)
+        __doc(doc)
 {
     ASSERT(engine);
     ASSERT(def);
@@ -144,7 +144,7 @@ Function::Function(const Function* rhs) : ThisSuper(rhs),
         def(rhs->def),
         parent(rhs->parent),
         location(rhs->location),
-        docstring(rhs->docstring)
+        __doc(rhs->__doc)
 {
 }
 
@@ -180,7 +180,7 @@ void Function::MarkRefs(Collector* c)
     if (lexEnv)   lexEnv->Mark(c);
     if (location) location->Mark(c);
     if (defaults) defaults->Mark(c);
-    if (docstring) docstring->Mark(c);
+    if (__doc) __doc->Mark(c);
 }
 
 int Function::DetermineLineNumber(code_t* xpc)
@@ -288,7 +288,7 @@ InstanceMethod::InstanceMethod(Engine* eng, Type* tthis, Function* f, Type* tcla
            f->GetDef(),
            f->location,
            f->parent,
-           f->docstring),
+           f->__doc),
 classtype(tclass)
 {
     if (f)
@@ -798,24 +798,33 @@ void Function::Constructor(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
-String* Function::GetDocumentation()
+String* Function::GetDoc()
 { 
-    if (!docstring) {
+    if (!__doc) {
         if (def && def->__native_doc__) {
-            docstring = engine->AllocStringNC(def->__native_doc__);
-            WriteBarrier(docstring);
+            __doc = engine->AllocStringNC(def->__native_doc__);
+            WriteBarrier(__doc);
         } else {
             return engine->emptyString;
         }
     }
-    return docstring; 
+    return __doc; 
 }
 
-void Function::SetDocumentation(String* doc)
+void Function::SetDoc(String* doc)
 {
     if (doc)
         WriteBarrier(doc);
-    docstring = doc;
+    __doc = doc;
+}
+
+void Function::SetDoc(const char* cstr)
+{
+    if (!cstr) {
+        __doc = 0;
+    } else {
+        SetDoc(engine->AllocStringNC(cstr));
+    }
 }
 
 void Function::StaticInitType(Engine* eng)

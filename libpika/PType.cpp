@@ -349,6 +349,15 @@ void Type::SetDoc(String* s)
         WriteBarrier(__doc);
 }
 
+void Type::SetDoc(const char* cstr)
+{
+    if (!cstr) {
+        __doc = 0;
+    } else {
+        SetDoc(engine->AllocStringNC(cstr));
+    }
+}
+
 bool Type::CanSetSlot(const Value& key)
 {
     Table::ESlotState ss = members ? members->CanSet(key) : Table::SS_nil;
@@ -400,7 +409,7 @@ PIKA_DOC(Type_addMethod, "/(func)\
 Adds the function, |func|, as a [InstanceMethod] of this type. The method will \
 contain the same name as |func|. However, if the |func| is a native function it \
 will instead be added as a regular function.\
-");
+")
 
 void Type::AddMethod(Function* f)
 {
@@ -423,7 +432,7 @@ PIKA_DOC(Type_addClassMethod, "/(func)\
 Adds the function, |func|, as a [ClassMethod] of this type. The method will \
 contain the same name as |func|. However, if the |func| is a native function it \
 will instead be added as a regular function.\
-");
+")
 
 void Type::AddClassMethod(Function* f)
 {
@@ -491,7 +500,8 @@ Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Pac
 PIKA_DOC(Type_new, "/(:varg, ::kwarg)"
 "\n\n"
 "This function is responsible for creating and initializing new instances."
-" The [Type Type's] '''init''' function will be called with same arguments. The newly created instance is returned.");
+" The [Type Type's] '''init''' function will be called with same arguments. The \
+newly created instance is returned.")
 
 int Type_new(Context* ctx, Value& self)
 {
@@ -518,7 +528,7 @@ int Type_new(Context* ctx, Value& self)
         ctx->Push(vobj);
         ctx->Push(vfunc);
         
-        if (ctx->OpApply(argc, 1, 0, false))
+        if (ctx->OpApply((u2)argc, 1, 0, false))
         {
             ctx->Run();
         }
@@ -532,7 +542,7 @@ PIKA_DOC(Type_create, "/(name, base, pkg [, meta])\
 Create a new Type. The |name| is the name of the type. The |base| is the base \
 type of the type. The |pkg| is the parent and global scope of the type. \
 Optionally |meta| will be the meta type of the class. \
-");
+")
 
 int Type_create(Context* ctx, Value& self)
 {
@@ -565,7 +575,7 @@ name of the type. The |base| is the base type of the type. If no |base| is \
 specified then [Object] will be used. Lastly |pkg| is the parent and global \
 scope of the type. If not specified then |pkg| will be [world]. If you want to \
 create a type without specify the body use [create].\
-");
+")
 
 int Type_createWith(Context* ctx, Value& self)
 {
@@ -621,38 +631,39 @@ void Type::Constructor(Engine* eng, Type* obj_type, Value& res)
 PIKA_DOC(Type_getBase, "/()"
 "\n"
 "Returns the base class of the type."
-);
+)
 
 PIKA_DOC(Type_getName, "/()"
 "\n"
 "Returns the name of the type."
-);
+)
 
 PIKA_DOC(Type_isSubtype, "/(type)\
 \n\
-Returns '''true''' or '''false''' based on whether the argument, |type|, is derived from this type.");
+Returns '''true''' or '''false''' based on whether the argument, |type|, is derived from this type.")
 
 PIKA_DOC(Type_getSubtypes, "/()\
 \n\
 Returns an [Array array] of all derived types or '''null''', if this type has \
 no derived types.\
-");
+")
 
 PIKA_DOC(Type_getLocation, "/()\
 \n\
 Returns the [Package package] that the class was declared in. This package is \
 the global scope of the type.\
-");
+")
 
 PIKA_DOC(Type_class, "Types serve as the blueprints for their instances. New \
 types can be created by a class statement or using the [ClassMethod class methods] \
 [create] or [createWith]. Use the methods [addMethod] and \
-[addClassMethod] to add methods for instances.");
+[addClassMethod] to add methods for instances.")
 
-PIKA_DOC(Type_base, "The base type we inherit from.");
-PIKA_DOC(Type_name, "The name of the type.");
-PIKA_DOC(Type_location, "The package this type is located in.");
-PIKA_DOC(Type_subtypes, "An [Array array] containing all derived types. Will be null if no types inherit from this type.");
+PIKA_DOC(Type_base, "The base type we inherit from.")
+PIKA_DOC(Type_name, "The name of the type.")
+PIKA_DOC(Type_location, "The package this type is located in.")
+PIKA_DOC(Type_subtypes, "An [Array array] containing all derived types. Will be \
+null if no types inherit from this type.")
 
 void Type::StaticInitType(Engine* eng)
 {

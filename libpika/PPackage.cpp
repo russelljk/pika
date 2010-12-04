@@ -197,7 +197,7 @@ namespace {
 PIKA_DOC(Package_getParent, "/()\
 \n\
 Returns the parent of the package.\
-");
+")
 
 int Package_getParent(Context* ctx, Value& self)
 {
@@ -214,7 +214,7 @@ int Package_getParent(Context* ctx, Value& self)
 PIKA_DOC(Package_getName, "/()\
 \n\
 Returns the name of this package.\
-");
+")
 
 int Package_getName(Context* ctx, Value& self)
 {
@@ -227,7 +227,7 @@ int Package_getName(Context* ctx, Value& self)
 PIKA_DOC(Package_getPath, "/()\
 \n\
 Returns the full path of this package.\
-");
+")
 
 int Package_getPath(Context* ctx, Value& self)
 {
@@ -241,7 +241,7 @@ PIKA_DOC(Package_getGlobal, "/(name, val)\
 \n\
 Returns the global |name| or '''null''' if it doesn't exist. You can use \
 [__hasGlobal] to check for the existence of a global variable. \
-");
+")
 
 int Package_getGlobal(Context* ctx, Value& self)
 {
@@ -265,7 +265,7 @@ int Package_getGlobal(Context* ctx, Value& self)
 PIKA_DOC(Package_setGlobal, "/(name, val)\
 \n\
 Returns whether or not the global |name| could be set to the value of |val|.\
-");
+")
 
 int Package_setGlobal(Context* ctx, Value& self)
 {
@@ -290,7 +290,7 @@ PIKA_DOC(Package_hasGlobal, "/(name)\
 \n\
 Returns whether or not |name| exists as a global variable in this package's \
 scope. \
-");
+")
 
 int Package_hasGlobal(Context* ctx, Value& self)
 {
@@ -315,7 +315,7 @@ Creates and/or returns the package located at the |path| provided. If |where| \
 is provided then it will be used as the root of the path. Otherwise the |path| \
 should be absolute. The optional argument, |forcewrite|, determines whether \
 the package will overwrite any non-package located at the |path| given. \
-");
+")
 
 int Package_openPath(Context* ctx, Value&)
 {
@@ -349,7 +349,7 @@ PIKA_DOC(Package_class, "The Package class is the base importable type and used 
 for the global scope of scripts. Packages exists in a heirarchy with each \
 Package having a single parent and multiple children. The root package is \
 [world] which has no parent.\
-");
+")
 
 void Package::StaticInitType(Engine* eng)
 {

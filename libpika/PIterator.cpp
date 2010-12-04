@@ -49,18 +49,18 @@ PIKA_DOC(Iterator_Type, "Iterators are objects that can enumerate over a range o
 "  ...\n"
 "end]]]"
 " Types can provide thier own Iterators by overriding the [Object.iterate] method."
-);
+)
 
 PIKA_DOC(Iterator_toBoolean, "/()"
 "\n"
 "Returns true as long as the iterator is valid."
-);
+)
 
 PIKA_DOC(Iterator_next, "/()"
 "\n"
 "Moves the iterator to the next value in the sequence it covers."
 " This function should be used in conjunction with [toBoolean] to ensure that the values returned are part of the sequence."
-);
+)
 
 int Iterator_next(Context* ctx, Value& self)
 {

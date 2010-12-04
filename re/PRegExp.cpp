@@ -286,11 +286,11 @@ public:
         return false;
     }
     
-    bool IsGlobal() const { return is_global; }
+    bool IsGlobal() const { return is_global != 0; }
     
-    bool IsMultiline()   const { return is_multiline; }
-    bool IsInsensitive() const { return is_insensitive; }
-    bool IsUtf8()        const { return is_utf8; }
+    bool IsMultiline()   const { return is_multiline != 0; }
+    bool IsInsensitive() const { return is_insensitive != 0; }
+    bool IsUtf8()        const { return is_utf8 != 0; }
     String* Pattern() { return pattern_string; }
     
     size_t GetLastIndex() { return last_index; }

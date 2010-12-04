@@ -70,10 +70,10 @@ void Property::SetDoc(String* str)
 
 void Property::SetDoc(const char* cstr)
 {
-    if (cstr) {
-        SetDoc(engine->AllocStringNC(cstr));
+    if (!cstr) {
+        __doc = 0;
     } else {
-        SetDoc(engine->emptyString);
+        SetDoc(engine->AllocStringNC(cstr));
     }
 }
 

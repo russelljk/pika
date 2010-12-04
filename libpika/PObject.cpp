@@ -491,34 +491,32 @@ void Object::Constructor(Engine* eng, Type* obj_type, Value& res)
 
 PIKA_DOC(Object_remove, "/(:names)"
 "\n"
-"Removes each of the instance variables named. Any variable name that doesn't exist will be ignored."
-);
+"Removes each of the instance variables named. Any variable name that doesn't \
+exist will be ignored.")
 
 PIKA_DOC(Object_iterate, "/(set)"
 "\n"
 "Returns an [Iterator] that will iterate over a subset of elements. Valid values"
 " include the empty [String] \"\" for both names and values, \'names\' for names and \'values\' for"
-" values."
-);
+" values.")
 
 PIKA_DOC(Object_clone, "/()"
 "\n"
-"Returns a deep copy of this object."
-);
+"Returns a deep copy of this object.")
 
 PIKA_DOC(Object_init, "/(:v)"
 "\n"
 "Initializes a new objects. This is a convience method for derived "
-"classes and is called automatically by [Type.new]. Do not call directly unless you are overriding [Object.new]."
-);
+"classes and is called automatically by [Type.new]. Do not call directly unless \
+you are overriding [Object.new].")
 
 PIKA_DOC(Object_toBoolean, "/()"
 "\n"
-"Returns a [Boolean] representation of the object.");
+"Returns a [Boolean] representation of the object.")
 
 PIKA_DOC(Object_toString, "/()"
 "\n"
-"Returns a [String] representation of the object.");
+"Returns a [String] representation of the object.")
 
 PIKA_DOC(Object_rawDotRead, "/(obj, key)"
 "\n"
@@ -528,7 +526,7 @@ PIKA_DOC(Object_rawDotRead, "/(obj, key)"
 "[[[function opGet(key)\n"
 "  return Object.rawDotRead(self, key)\n"
 "end]]]"
-);
+)
 
 PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
 "\n"
@@ -539,7 +537,7 @@ PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
 "[[[function opSet(key, val)\n"
 "  Object.rawDotWrite(self, key, val)\n"
 "end]]]"
-);
+)
 
 PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
 "\n\n"
@@ -549,7 +547,7 @@ PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
 "[[[function opGetAt(key)\n"
 "  return Object.rawBracketRead(self, key)\n"
 "end]]]"
-);
+)
 
 PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
 "\n"
@@ -560,7 +558,7 @@ PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
 "[[[function opSetAt(key, val)\n"
 "  Object.rawBracketWrite(self, key, val)\n"
 "end]]]"
-);
+)
 
 PIKA_DOC(Global_import, "/(:files)"
 "\n"
@@ -570,14 +568,10 @@ PIKA_DOC(Global_import, "/(:files)"
 " Failure to import a given file or a circular dependency will result in an exception being raised."
 "\n"
 " The full path and extension typically do not need to be provided as long as"
-" the path the file resides in is inside [imports.os os.paths]."
-
-
-);
+" the path the file resides in is inside [imports.os os.paths].")
 
 PIKA_DOC(Object_class, "Object is the default [Type.base base] class for all class declarations."
-" Instances can have instance variables, properties and methods of their own."
-);
+" Instances can have instance variables, properties and methods of their own.")
 
 void Object::StaticInitType(Engine* eng)
 {

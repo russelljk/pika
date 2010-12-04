@@ -135,8 +135,9 @@ public:
       */
     virtual String* GetDotPath();
     
-    String* GetDocumentation();    
-    void SetDocumentation(String* doc);
+    virtual String* GetDoc();    
+    virtual void SetDoc(String* doc);
+    virtual void SetDoc(const char* doc);
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static void StaticInitType(Engine* eng);
@@ -147,9 +148,9 @@ public:
     Function*   parent;    //!< The parent function we are defined inside (for nested functions only).
     Package*    location;  //!< Package we are declared inside of.
     
-    // We have the docstring here so that adding the string __doc to a function will not
+    // We have the doc string here so that setting function.__doc will not
     // force the creation of its members table.
-    String*     docstring; //!< Documentation string. 
+    String*     __doc; //!< Documentation string. 
 };
 
 /** A function callable only by instances of the same type. */

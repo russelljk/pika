@@ -49,6 +49,7 @@ public:
     virtual void Mark(Collector*);
 protected:   
     friend class Collector;
+    friend class Engine;
     
     INLINE bool IsLinked() const { return gcprev != 0 && gcnext != 0; }
     void Unlink();

@@ -53,7 +53,7 @@ PIKA_DOC(os_clock, "/()"
 "\n"
 "Returns the number of seconds since the start of the program."
 " This has no relation to the execution time of the current [Script] or [Context]."
-);
+)
 
 preal_t os_clock()
 {
@@ -65,7 +65,7 @@ PIKA_DOC(os_time, "/()"
 "Returns the time in milliseconds since the start of the Epoch."
 " The value returned may vary across platforms."
 " As a result programs should deal with relative values instead of absolute ones."
-);
+)
 
 pint_t os_time()
 {
@@ -121,7 +121,7 @@ PIKA_DOC(os_system, "/([cmd])"
 "Performs the system command |cmd|."
 " The return value will be a system depended value that determines if the command was successfully executed."
 " Call with no arguments to check whether or not a command '''can''' be executed."
-);
+)
 int os_system(Context* ctx, Value&)
 {
     pint_t res = 0;
@@ -496,17 +496,17 @@ int math_lib_load(Context* ctx, Value&)
 PIKA_DOC(os_getEnv, "/(var)"
 "\n"
 "Returns the environmental variable named |var|. If the variable does not exist '''null''' will be returned."
-);
+)
 
 PIKA_DOC(os_setEnv, "/(var, val)"
 "\n"
 "Sets the environmental variable named |var| to value of [String] |val|. If |val| is '''null''' then the variable will be removed."
-);
+)
 
 PIKA_DOC(os_unSetEnv, "/(var)"
 "\n"
 "Removes the environmental variable named |var|. This is equivalent to calling [setEnv] with a '''null''' value."
-);
+)
 
 int os_lib_load(Context* ctx, Value&)
 {

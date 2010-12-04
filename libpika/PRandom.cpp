@@ -184,7 +184,7 @@ randuint_t Random::NextRandom()
 
 PIKA_DOC(Random_nextReal, "/()\
 \n\
-Returns the next psuedo-randomly generated [Real real number].");
+Returns the next psuedo-randomly generated [Real real number].")
 
 preal_t Random::NextReal()
 {
@@ -221,7 +221,7 @@ void Random::Init(Context* ctx)
 PIKA_DOC(Random_next, "/()\
 \n\
 Returns the next psuedo-randomly generated [Integer integer]. This method is \
-also used to override the call operator.");
+also used to override the call operator.")
 
 pint_t Random::Next(Context* ctx)
 {
@@ -263,7 +263,7 @@ pint_t Random::Next(Context* ctx)
 
 PIKA_DOC(Random_getSeed, "/()\
 \n\
-Return the current seed.");
+Return the current seed.")
 
 pint_t Random::GetSeed()
 { 
@@ -273,7 +273,7 @@ pint_t Random::GetSeed()
 PIKA_DOC(Random_setSeed, "/(s)\
 \n\
 Re-seed the PRNG (Pseudo-Random Number Generator) with the seed |s|. You can \
-reset the state of the PRNG by setting |s| to the current value of [seed].");
+reset the state of the PRNG by setting |s| to the current value of [seed].")
 
 void Random::SetSeed(pint_t s)
 {
@@ -285,7 +285,7 @@ void Random::SetSeed(pint_t s)
 PIKA_DOC(Random_generate, "/(amt)\
 \n\
 Returns a [Array] of size |amt|, filled with psuedo-randomly generated numbers. \
-If |amt| is negative or not an [Integer integer] an exception will be raised.");
+If |amt| is negative or not an [Integer integer] an exception will be raised.")
 
 Array* Random::Generate(pint_t amt)
 {
@@ -322,7 +322,7 @@ Random.new([seed])\
 ]]]\
 \n\
 You can create multiple instances to have different PRNGs \
-with distinct states.");
+with distinct states.")
 
 PIKA_DOC(random_obj, "/()\
 \n\
@@ -338,7 +338,7 @@ You can easily change the random numbers seed as well.\n\
 [[[math.random.seed = 1024]]]\n\
 Please refer to [imports.math.Random Random's] documentation for more information \
 on other methods and properties."
-);
+)
 
 void Random::StaticInitType(Package* module, Engine* eng)
 {

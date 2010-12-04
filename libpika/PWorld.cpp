@@ -128,7 +128,7 @@ PIKA_DOC(Integer_init, "/([val])\
 \n\
 Creates a new integer. If |val| is provided it will be converted to a integer \
 using it's toInteger method. If the conversion cannot happen then an exception is raised.\
-");
+")
 
 int Integer_init(Context* ctx, Value& self)
 {
@@ -149,7 +149,7 @@ int Integer_init(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Integer_toString, "Returns this integer converted to an [String string].");
+PIKA_DOC(Integer_toString, "Returns this integer converted to an [String string].")
 
 int Integer_toString(Context* ctx, Value& self)
 {
@@ -180,7 +180,7 @@ int Integer_toString(Context* ctx, Value& self)
     return 0;
 }
 
-PIKA_DOC(Integer_toInteger, "Returns this integer.");
+PIKA_DOC(Integer_toInteger, "Returns this integer.")
 
 int Integer_toInteger(Context* ctx, Value& self)
 {
@@ -188,7 +188,7 @@ int Integer_toInteger(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Integer_toReal, "Returns this integer converted to a [Real real number].");
+PIKA_DOC(Integer_toReal, "Returns this integer converted to a [Real real number].")
 
 int Integer_toReal(Context* ctx, Value& self)
 {
@@ -196,7 +196,7 @@ int Integer_toReal(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Integer_toNumber, "Returns this integer.");
+PIKA_DOC(Integer_toNumber, "Returns this integer.")
 
 int Integer_toNumber(Context* ctx, Value& self)
 {
@@ -206,7 +206,7 @@ int Integer_toNumber(Context* ctx, Value& self)
 
 
 PIKA_DOC(Integer_toBoolean, "Converts this integer to a [Boolean]. This method \
-will return false only when the integer is 0.");
+will return false only when the integer is 0.")
 
 int Integer_toBoolean(Context* ctx, Value& self)
 {
@@ -214,8 +214,8 @@ int Integer_toBoolean(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Value_getType, "Returns the type of this instance.");
-PIKA_DOC(Value_type, "The type for this instance.");
+PIKA_DOC(Value_getType, "Returns the type of this instance.")
+PIKA_DOC(Value_type, "The type for this instance.")
 int Value_getType(Context* ctx, Value& self)
 {
     Engine* eng = ctx->GetEngine();
@@ -239,7 +239,7 @@ int Value_getType(Context* ctx, Value& self)
     return 0;
 }
 
-PIKA_DOC(Value_doc, "The documentation string for this instance.");
+PIKA_DOC(Value_doc, "The documentation string for this instance.")
 int Multi_getDoc(Context* ctx, Value& self)
 {
     Engine* eng =ctx->GetEngine();
@@ -249,7 +249,7 @@ int Multi_getDoc(Context* ctx, Value& self)
         doc = type->GetDoc();
     } else if (self.IsDerivedFrom(Function::StaticGetClass())) {
         Function* func = (Function*)self.val.object;
-        doc = func->GetDocumentation();
+        doc = func->GetDoc();
     } else if (self.IsDerivedFrom(Proxy::StaticGetClass())) {
         Proxy* proxy = (Proxy*)self.val.object;
         doc = proxy->GetDoc();
@@ -284,7 +284,7 @@ int Multi_setDoc(Context* ctx, Value& self)
         type->SetDoc(doc);
     } else if (self.IsDerivedFrom(Function::StaticGetClass())) {
         Function* func = (Function*)self.val.object;
-        func->SetDocumentation(doc);
+        func->SetDoc(doc);
     } else if (self.IsDerivedFrom(Proxy::StaticGetClass())) {
         Proxy* proxy = (Proxy*)self.val.object;
         proxy->SetDoc(doc);
@@ -305,7 +305,7 @@ PIKA_DOC(Real_init, "/([val])\
 \n\
 Creates a new real number. If |val| is provided it will be converted to a real \
 using it's toReal method. If the conversion cannot happen then an exception is raised.\
-");
+")
 
 int Real_init(Context* ctx, Value& self)
 {
@@ -327,7 +327,7 @@ int Real_init(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_toString, "Returns this real number converted to an [String string].");
+PIKA_DOC(Real_toString, "Returns this real number converted to an [String string].")
 
 int Real_toString(Context* ctx, Value& self)
 {
@@ -335,7 +335,7 @@ int Real_toString(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_toInteger, "Returns this real number converted to an [Integer integer].");
+PIKA_DOC(Real_toInteger, "Returns this real number converted to an [Integer integer].")
 
 int Real_toInteger(Context* ctx, Value& self)
 {
@@ -343,7 +343,7 @@ int Real_toInteger(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_toReal, "Returns this real number.");
+PIKA_DOC(Real_toReal, "Returns this real number.")
 
 int Real_toReal(Context* ctx, Value& self)
 {
@@ -351,7 +351,7 @@ int Real_toReal(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_toNumber, "Returns this real number.");
+PIKA_DOC(Real_toNumber, "Returns this real number.")
 
 int Real_toNumber(Context* ctx, Value& self)
 {
@@ -360,7 +360,7 @@ int Real_toNumber(Context* ctx, Value& self)
 }
 
 PIKA_DOC(Real_toBoolean, "Converts this real number to a [Boolean]. This method \
-will return false only when the real number is 0.0 or [nan? not a number].");
+will return false only when the real number is 0.0 or [nan? not a number].")
 
 int Real_toBoolean(Context* ctx, Value& self)
 {
@@ -368,7 +368,7 @@ int Real_toBoolean(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_isnan, "Returns '''true''' if the real is not a valid real number.");
+PIKA_DOC(Real_isnan, "Returns '''true''' if the real is not a valid real number.")
 
 int Real_isnan(Context* ctx, Value& self)
 {
@@ -376,7 +376,7 @@ int Real_isnan(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_integer, "Returns the integer portion of this real number.");
+PIKA_DOC(Real_integer, "Returns the integer portion of this real number.")
 
 int Real_integer(Context* ctx, Value& self)
 {
@@ -387,7 +387,7 @@ int Real_integer(Context* ctx, Value& self)
     return 1;
 }
 
-PIKA_DOC(Real_fraction, "Returns the fraction portion of this real number.");
+PIKA_DOC(Real_fraction, "Returns the fraction portion of this real number.")
 
 int Real_fraction(Context* ctx, Value& self)
 {
@@ -712,36 +712,36 @@ void GCPause::onNew(Engine* eng, Type* type, Value& res)
 
 PIKA_DOC(Value_Type, "The root base [Type type] for all other types."
 " Direct instances of this type do not exist and cannot be created. New types cannot derive from this type Directly."
-);
+)
 
 PIKA_DOC(RuntimeError_Type, "Error type used to signal exceptional runtime conditions. This is the most generic type of runtime error and, as the name suggests, should be used only during the execution of code."
-ERROR_EXAMPLE(RuntimeError));
+ERROR_EXAMPLE(RuntimeError))
 
 PIKA_DOC(TypeError_Type, "Error type used to signal conditions where an value of the incorrect [Type type] is present. This includes the wrong type being passed to or returned from a function. As well as incompatible types used as operands for a given operator."
-ERROR_EXAMPLE(TypeError));
+ERROR_EXAMPLE(TypeError))
 
 PIKA_DOC(ArithmeticError_Type, "Error type used to signal exceptional conditions that occur during arithmetic operations."
-ERROR_EXAMPLE(ArithmeticError));
+ERROR_EXAMPLE(ArithmeticError))
 
 PIKA_DOC(Error_toString, "/()"
 "\n"
-"Overload of the string conversion operator toString. Returns the formatted error message.");
+"Overload of the string conversion operator toString. Returns the formatted error message.")
 
 PIKA_DOC(Error_init, "/(msg)"
 "\n"
-"Initializes this Error object with the [String] |msg|.");
+"Initializes this Error object with the [String] |msg|.")
 
 PIKA_DOC(Error_Type, "Base Error type used for exceptional conditions."
 " You should create a new instance in conjunction with a |raise| statement."
 " In general you should use the appropriate derived class to provide more specific information about the error."
-ERROR_EXAMPLE(Error));
+ERROR_EXAMPLE(Error))
 
 PIKA_DOC(AssertError_Type, "Error type used in conjunction with the [assert] function to signal an false assertion."
 ERROR_EXAMPLE(AssertError)
 "Or using the [assert] function."
-"[[[assert( expression )]]]");
+"[[[assert( expression )]]]")
 
-PIKA_DOC(os_paths, "Contains the list of search paths used by pika for finding and loading resources. The paths contained in this object affect the where [Script scripts], [Module modules] and [File files] are loaded from.");
+PIKA_DOC(os_paths, "Contains the list of search paths used by pika for finding and loading resources. The paths contained in this object affect the where [Script scripts], [Module modules] and [File files] are loaded from.")
 
 void Engine::InitializeWorld()
 {

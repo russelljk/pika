@@ -45,11 +45,17 @@ enum DefFlags {
     DEF_KEYWORD_ARGS = PIKA_BITFLAG(2)  //!< Create a keyword argument when called.
 };
 
-#define PIKA_DOC(X, DOC)\
-    static const char* X##_Doc_String = DOC
+#if defined(PIKA_NO_DOC_STRINGS)
+#   define PIKA_DOC(X, DOC)    
+#   define PIKA_GET_DOC(X) \
+    ((const char*)0)
+#else
+#   define PIKA_DOC(X, DOC)\
+        static const char* X##_Doc_String = DOC;
 
-#define PIKA_GET_DOC(X)\
-    X##_Doc_String
+#   define PIKA_GET_DOC(X)\
+        X##_Doc_String
+#endif
 
 struct RegisterFunction
 {

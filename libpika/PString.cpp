@@ -1275,77 +1275,77 @@ PIKA_DOC(String_chomp,
 "It stops when the zero indexed character is no longer in |set| or the string's length is 0."
 "If |set| is not specified them all whitespace characters will be removed from"
 "the front of the string."
-);
+)
 
 PIKA_DOC(String_times, 
 "/(rep)\n"
 "Returns the string repeated |rep| times."
-);
+)
 
 PIKA_DOC(String_reverse, 
 "/()\n"
 "Returns the entire string reversed."
-);
+)
 
 PIKA_DOC(String_toString, 
 "/()\n"
 "Returns a reference to this string."
-);
+)
 
 PIKA_DOC(String_is_letter, 
 "/()\n"
 "Returns true if and only if each character in the string is a letter. "
 "If the string is empty false is returned"
-);
+)
 
 PIKA_DOC(String_is_letterOrDigit, 
 "/()\n"
 "Returns true if and only if each character in the string is a letter or a digit. "
 "If the string is empty false is returned"
-);
+)
 
 PIKA_DOC(String_is_digit, 
 "/()\n"
 "Returns true if and only if each character in the string is a digit. "
 "If the string is empty false is returned"
-);
+)
 
 PIKA_DOC(String_is_ascii, 
 "/()\n"
 "Returns true if and only if each character in the string is a valid ascii character. "
 "If the string is empty false is returned"
-);
+)
 
 PIKA_DOC(String_is_whitespace, 
 "/()\n"
 "Returns true if and only if each character in the string is a whitespace character, including newlines. "
 "If the string is empty false is returned"
-);
+)
 
 PIKA_DOC(String_toInteger, "/()\n"
 "Returns the [Integer] represented by this string. The integer must be in the same format"
 " as an integer literal in Pika. The integer can be specified in any base from 2 to 36."
 " If the conversion cannot take place an exception will be raised."
-);
+)
 
 PIKA_DOC(String_toReal, "/()\n"
 "Returns the [Real] represented by this string. The real must be in the same format"
 " as an real literal in Pika. The real can be specified in any base from 2 to 36 or contain an exponent."
 " If the conversion cannot take place an exception will be raised."
-);
+)
 
 PIKA_DOC(String_toNumber, "/()\n"
 "Returns the [Real] or [Integer] represented by this string. See [toInteger] and [toReal] for more information on valid formats."
 " If the conversion cannot take place an exception will be raised."
-);
+)
 
 PIKA_DOC(String_toLower, "/()\n"
 "Converts and returns a copy of this string, with each letter converted to lower-case. Non-letter characters are copied as they appear in the string."
-);
+)
 
 PIKA_DOC(String_toUpper, "/()\n"
 "Converts and returns a copy of this string, with each letter converted to upper-case. Non-letter characters are copied as they appear in the string."
-);
+)
 
 PIKA_DOC(String_joing, "/(array)\
 \n\
@@ -1354,7 +1354,7 @@ Joins the elements of the |array|, converted to a string, with this string inser
 print ';'.join( [ 1, 2, 3 ] ) #=> '1;2;3'\
 ]]]\
 "
-);
+)
 
 void String::StaticInitType(Engine* eng)
 {
@@ -1363,7 +1363,7 @@ void String::StaticInitType(Engine* eng)
     can also be used for utf-8 encoded characters.\
     \n\n\
     Strings are created for each single or double quote string literal appearing in a script. Since they are immutable two strings containing the same\
-    sequence of characters will reference the same object.");
+    sequence of characters will reference the same object.")
     
     static RegisterFunction String_Methods[] =
     {
