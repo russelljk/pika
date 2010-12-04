@@ -260,7 +260,7 @@ int Multi_getDoc(Context* ctx, Value& self)
       Value res(NULL_VALUE);
       if (self.val.object->MembersPtr()) {
         Table* tab = self.val.object->MembersPtr();
-        if (tab->Get(eng->AllocStringNC("__doc"), res) && res.IsString()) {
+        if (tab->Get(eng->GetString("__doc"), res) && res.IsString()) {
             doc = res.val.str;
         }
       }  
@@ -294,7 +294,7 @@ int Multi_setDoc(Context* ctx, Value& self)
     } else if (self.IsObject()) {
         Object* obj = self.val.object;
         Engine* eng = ctx->GetEngine();
-        obj->SetSlot(eng->AllocStringNC("__doc"), doc, Slot::ATTR_forcewrite);
+        obj->SetSlot(eng->GetString("__doc"), doc, Slot::ATTR_forcewrite);
     }
     return 0;
 }
@@ -656,7 +656,7 @@ Type* CreateErrorType(Engine* eng, const char* name, Type* base, const char* doc
     Type* error_type = Type::Create(eng, error_name, base, Error_NewFn, Pkg_World);
     Pkg_World->SetSlot(error_name, error_type);
     if (doc) {
-        error_type->SetDoc(eng->AllocStringNC(doc));
+        error_type->SetDoc(eng->GetString(doc));
     }
     return error_type;
 }
@@ -882,7 +882,7 @@ void Engine::InitializeWorld()
         Type_Type    ->SetType( TypeType_Type    );
         TypeType_Type->SetType( TypeType_Type    );
         
-        Value_Type->SetDoc(AllocStringNC(PIKA_GET_DOC(Value_Type)));
+        Value_Type->SetDoc(GetString(PIKA_GET_DOC(Value_Type)));
         
         Array_Type = Type::Create(this, AllocString("Array"), Object_Type, Array::Constructor, Pkg_World);
         
@@ -936,7 +936,7 @@ void Engine::InitializeWorld()
         Iterator::StaticInitType(this);
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
-        paths->SetSlot(AllocStringNC("__doc"), AllocStringNC(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 
+        paths->SetSlot(GetString("__doc"), GetString(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 
             
         Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);
         Pkg_Types   = OpenPackage(Types_Str, 0, true, Slot::ATTR_protected);
@@ -985,7 +985,7 @@ void Engine::InitializeWorld()
         
         Pkg_World->SetSlot(Error_String, Error_Type);
         Error_Type->EnterMethods(Error_Functions, countof(Error_Functions));
-        Error_Type->SetDoc(AllocStringNC(PIKA_GET_DOC(Error_Type)));
+        Error_Type->SetDoc(GetString(PIKA_GET_DOC(Error_Type)));
         
         RuntimeError_Type      = CreateErrorType(this, "RuntimeError",      Error_Type, PIKA_GET_DOC(RuntimeError_Type));
         TypeError_Type         = CreateErrorType(this, "TypeError",         Error_Type, PIKA_GET_DOC(TypeError_Type));

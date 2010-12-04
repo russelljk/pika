@@ -68,7 +68,7 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeMethod(meth);
 
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+        Def* mdef = Def::CreateWith(eng, (name ? eng->GetString(name) : eng->emptyString),
             HookedFunction::Hook, def->GetArgCount(), DEF_STRICT, 0, docstr);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
@@ -87,7 +87,7 @@ public:
 
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeStaticMethod(meth);        
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+        Def* mdef = Def::CreateWith(eng, (name ? eng->GetString(name) : eng->emptyString),
             HookedFunction::StaticHook, def->GetArgCount(), DEF_STRICT, 0, docstr);
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
         return bm;
@@ -106,7 +106,7 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeStaticMethodVA(meth);
         
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+        Def* mdef = Def::CreateWith(eng, (name ? eng->GetString(name) : eng->emptyString),
             HookedFunction::StaticHook, def->GetArgCount(), DEF_VAR_ARGS, 0, docstr);
 
         HookedFunction* bm = Create(eng, eng->NativeFunction_Type, mdef, def, 0, package ? package : world);
@@ -127,7 +127,7 @@ public:
         Package* world = eng->GetWorld();
         NativeMethodBase* def = MakeFunctionVA(meth);
         
-        Def* mdef = Def::CreateWith(eng, (name ? eng->AllocStringNC(name) : eng->emptyString),
+        Def* mdef = Def::CreateWith(eng, (name ? eng->GetString(name) : eng->emptyString),
             HookedFunction::Hook, def->GetArgCount(), DEF_VAR_ARGS, 0, docstr);
 
         HookedFunction* bm = Create(eng, eng->NativeMethod_Type, mdef, def, info, package ? package : world);
@@ -187,7 +187,7 @@ public:
   * usage:
   * GCPAUSE_NORUN(engine);
   * Package* pkg = engine->GetWorld();
-  * Type* Foo_Type = Type::Create(engine, engine->AllocStringNC("Foo"), Foo_Base_Type, Foo::Constructor, pkg);
+  * Type* Foo_Type = Type::Create(engine, engine->GetString("Foo"), Foo_Base_Type, Foo::Constructor, pkg);
   * 
   * SlotBinder<Foo>(engine, Foo_Type, pkg)
   * .Method( &Foo::Bar, "bar")
@@ -235,8 +235,8 @@ struct SlotBinder
       */
     SlotBinder& Alias(const char* aliasname, const char* name)
     {
-        String* name_String = engine->AllocStringNC(name);
-        String* aliasname_String = engine->AllocStringNC(aliasname);
+        String* name_String = engine->GetString(name);
+        String* aliasname_String = engine->GetString(aliasname);
 
         Value res;
         if (object->GetSlot(name_String, res))
@@ -328,7 +328,7 @@ struct SlotBinder
                            const char* setdoc=0,
                            const char* propdoc=0)   // name of the write function or null
     {
-        String*   name = engine->AllocStringNC(propName);
+        String*   name = engine->GetString(propName);
         Function* rm   = HookedFunction::Bind<AMethRead>(engine,  readMeth,  readName  ? readName  : "", package, class_info, getdoc);
         Function* wm   = HookedFunction::Bind<AMethWrite>(engine, writeMeth, writeName ? writeName : "", package, class_info, setdoc);
         Property* p    = Property::CreateReadWrite(engine, name, rm, wm, propdoc);
@@ -361,7 +361,7 @@ struct SlotBinder
                           const char* getdoc=0,
                           const char* propdoc=0)
     {
-        String*   name  = engine->AllocStringNC(propName);
+        String*   name  = engine->GetString(propName);
         Function* rmeth = HookedFunction::Bind<AMethRead>(engine, rMeth, rName ? rName : "", package, class_info, getdoc);
         Property* prop  = Property::CreateRead(engine, name, rmeth, propdoc);
 
@@ -390,7 +390,7 @@ struct SlotBinder
                           const char* setdoc=0,
                           const char* propdoc=0)
     {
-        String*   name  = engine->AllocStringNC(propName);
+        String*   name  = engine->GetString(propName);
         Function* wmeth = HookedFunction::Bind<AMethWrite>(engine, wMeth, wName ? wName : "", package, class_info, setdoc);
         Property* prop  = Property::CreateWrite(engine, name, wmeth, propdoc);
 
@@ -413,7 +413,7 @@ struct SlotBinder
     template<typename AType>
     SlotBinder& Constant(AType val, const char* propName)
     {
-        String* name = engine->AllocStringNC(propName);
+        String* name = engine->GetString(propName);
         object->SetSlot(name, val, Slot::ATTR_protected);
         return *this;
     }
@@ -430,7 +430,7 @@ struct SlotBinder
     template<typename AType>
     SlotBinder& Internal(AType val, const char* propName)
     {
-        String* name = engine->AllocStringNC(propName);
+        String* name = engine->GetString(propName);
         object->SetSlot(name, val, Slot::ATTR_internal | Slot::ATTR_forcewrite);
         return *this;
     }
@@ -446,7 +446,7 @@ struct SlotBinder
     template<typename AType>
     SlotBinder& Member(AType val, const char* propName)
     {
-        String* name = engine->AllocStringNC(propName);
+        String* name = engine->GetString(propName);
         object->SetSlot(name, val);
         return *this;
     }
@@ -469,7 +469,7 @@ struct SlotBinder
                          bool         strict  = false,
                          const char*  docstr  = 0)
     {
-        String* name = engine->AllocStringNC(cname);
+        String* name = engine->GetString(cname);
         u4 flags = 0;
         if (varargs) flags |= DEF_VAR_ARGS;
         if (strict)  flags |= DEF_STRICT;
@@ -506,7 +506,7 @@ struct SlotBinder
         if (varargs) flags |= DEF_VAR_ARGS;
         if (strict)  flags |= DEF_STRICT;
                 
-        String* name = engine->AllocStringNC(cname);        
+        String* name = engine->GetString(cname);        
         Def* fn = Def::CreateWith(engine, name,
             code, argc, flags, 0, docstr);
 
@@ -540,7 +540,7 @@ struct SlotBinder
         if (varargs) flags |= DEF_VAR_ARGS;
         if (strict)  flags |= DEF_STRICT;
                 
-        String* name = engine->AllocStringNC(cname);        
+        String* name = engine->GetString(cname);        
         Def* fn = Def::CreateWith(engine, name,
             code, argc, flags, 0, docstr);
 

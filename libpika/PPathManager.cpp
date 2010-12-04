@@ -29,12 +29,12 @@ PathManager::PathManager(Engine* eng, Type* type)
     
     if (buff)
     {
-        startingPath = engine->AllocStringNC(buff);
+        startingPath = engine->GetString(buff);
         Pika_free(buff);
     }
     else
     {
-        startingPath = engine->AllocStringNC("./");
+        startingPath = engine->GetString("./");
     }
     
     if (startingPath)
@@ -92,7 +92,7 @@ String* PathManager::FindFile(String* file)
     for (size_t i = 0; i < searchPaths.GetSize(); ++i)
     {
         String* currpath = searchPaths[i];
-        //std::cout << i << ": " << currpath->GetBuffer() << ", " << file->GetBuffer() << '\n';
+        
         if (Pika_snprintf(temp, BUFF_SZ, "%s%s", currpath->GetBuffer(), file->GetBuffer()) < 0)
         {
             continue;
@@ -101,7 +101,7 @@ String* PathManager::FindFile(String* file)
         
         if (IsValidFile(temp))
         {
-            String* res = engine->AllocStringNC(temp);
+            String* res = engine->GetString(temp);
             Pika_free(temp);
             errno = oldErrno;
             return res;
@@ -138,7 +138,7 @@ void PathManager::AddPath(String* path)
                             path->GetLength())
        )
     {
-        path = String::Concat(path, engine->AllocStringNC(PIKA_PATH_SEP));
+        path = String::Concat(path, engine->GetString(PIKA_PATH_SEP));
     }
     
     engine->GetGC()->WriteBarrier(this, path);
@@ -167,7 +167,7 @@ void PathManager::AddEnvPath(String* env)
         {
             m = n = strlen(path);
         }
-        AddPath(engine->AllocStringNC(path, n));
+        AddPath(engine->GetString(path, n));
     }
 }
 

@@ -302,7 +302,7 @@ struct RetType<const char*>
     INLINE RetType(Context* ctx, const char* s)
     {
         Engine* eng = ctx->GetEngine();
-        String* str = s ? eng->AllocStringNC(s) : eng->emptyString;
+        String* str = s ? eng->GetString(s) : eng->emptyString;
         ctx->Push(str); // TODO::Perhaps Null should be pushed for functions that return 0. After all 0 != "" in C++ or Pika.
     }
 };
@@ -313,7 +313,7 @@ struct RetType<char*>
     INLINE RetType(Context* ctx, char* s)
     {
         Engine* eng = ctx->GetEngine();
-        String* str = s ? eng->AllocStringNC(s) : eng->emptyString;
+        String* str = s ? eng->GetString(s) : eng->emptyString;
         ctx->Push(str);
     }
 };

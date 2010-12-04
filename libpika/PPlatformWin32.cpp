@@ -152,16 +152,22 @@ bool Pika_GetFullPath(const char* pathname, char* dest, size_t destlen)
 char* Pika_GetFullPath(const char* pathname)
 {
     if (!pathname)
-        return NULL;
-
-    char* res = (char*)Pika_malloc(PIKA_MAX_PATH * sizeof(char));
+        return 0;
+    
+    size_t count = GetFullPathName(pathname, 0, 0, 0);
+    
+    if (!count)
+        return 0;
+        
+    char* res = (char*)Pika_malloc(count * sizeof(char));
+    
     if (!res)
-        return NULL;
+        return 0;
 
-    if (GetFullPathName(pathname, (DWORD)PIKA_MAX_PATH, res, 0) == 0)
+    if (GetFullPathName(pathname, (DWORD)count, res, 0) == 0)
     {
         Pika_free(res);
-        return NULL;
+        return 0;
     }
     return res;
 }

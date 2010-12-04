@@ -55,7 +55,7 @@ namespace {
     
 	int Annotation_doc(Context* ctx, Value&)
 	{
-        String* doc_String = ctx->GetEngine()->AllocStringNC("__doc"); // TODO: This string will be used enough to add it as a root object.
+        String* doc_String = ctx->GetEngine()->GetString("__doc"); // TODO: This string will be used enough to add it as a root object.
         Object* object = ctx->GetObjectArg(0);
         String* doc = ctx->GetStringArg(1);
 

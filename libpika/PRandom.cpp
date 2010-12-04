@@ -339,7 +339,7 @@ You can easily change the random numbers seed as well.\n\
 Please refer to [imports.math.Random Random's] documentation for more information \
 on other methods and properties."
 )
-
+PIKA_DOC(Random_seed, "The seed used for this psuedo-random number generator.")
 void Random::StaticInitType(Package* module, Engine* eng)
 {
     GCPAUSE_NORUN(eng);
@@ -356,12 +356,15 @@ void Random::StaticInitType(Package* module, Engine* eng)
     .Constant((pint_t)MAX_RANDOM,   "MAX")
     .PropertyRW("seed",     
             &Random::GetSeed,   "getSeed", 
-            &Random::SetSeed,   "setSeed", PIKA_GET_DOC(Random_getSeed), PIKA_GET_DOC(Random_setSeed))
+            &Random::SetSeed,   "setSeed", 
+            PIKA_GET_DOC(Random_getSeed), 
+            PIKA_GET_DOC(Random_setSeed),
+            PIKA_GET_DOC(Random_seed))
     ;
-    Random_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Random)));
+    Random_Type->SetDoc(eng->GetString(PIKA_GET_DOC(Random)));
     Object* random_obj = Random::Create(eng, Random_Type);
     module->SetSlot(eng->AllocString("random"), random_obj, Slot::ATTR_protected);
-    random_obj->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(random_obj)), Slot::ATTR_forcewrite); 
+    random_obj->SetSlot(eng->GetString("__doc"), eng->GetString(PIKA_GET_DOC(random_obj)), Slot::ATTR_forcewrite); 
 }
 
 }// pika

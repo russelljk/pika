@@ -17,14 +17,14 @@ PIKA_IMPL(Basic)
 
 bool Basic::SetSlot(const char* key, Value& value, u4 attr)
 {
-    String* strKey = engine->AllocStringNC(key);
+    String* strKey = engine->GetString(key);
     Value vkey(strKey);
     return SetSlot(vkey, value, attr);
 }
 
 bool Basic::BracketWrite(const char* key, Value& value, u4 attr)
 {
-    String* strKey = engine->AllocStringNC(key);
+    String* strKey = engine->GetString(key);
     Value vkey(strKey);
     return BracketWrite(vkey, value, attr);
 }

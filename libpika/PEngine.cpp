@@ -304,14 +304,14 @@ bool Engine::PutImport(String* libname, Value value)
 
 void Engine::AddEnvPath(const char* var)
 {
-    String* str_path = AllocStringNC(var);
+    String* str_path = GetString(var);
     paths->AddEnvPath(str_path);
 }
 
 
 void Engine::AddSearchPath(const char* path)
 {
-    String* str_path = AllocStringNC(path);
+    String* str_path = GetString(path);
     paths->AddPath(str_path);
 }
 
@@ -331,7 +331,7 @@ void Engine::ReadExecutePrintLoop()
     Array* args = 0;
     
     {   GCPAUSE_NORUN(this);
-        repl_script_name = this->AllocStringNC("read_execute_print_loop");
+        repl_script_name = this->GetString("read_execute_print_loop");
         args = Array::Create(this, Array_Type, 0, 0);
         this->AddToRoots(args);
         
@@ -397,7 +397,7 @@ void Engine::ReadExecutePrintLoop()
                                                  entry_def, // Type's body
                                                  script);   // Set the Type the package
                 
-                script->Initialize(literals, context, closure.val.function);
+                script->Initialize(literals, context, closure.val.function, 0);
                 
                 // Make sure we don't get GC sweeped the first time around.
                 gc->ForceToGray(script);
@@ -516,7 +516,7 @@ Script* Engine::Compile(String* name, Context* parent)
                                          entry_def, // Type's body
                                          script);   // Set the Type the package
         
-        script->Initialize(literals, context, closure.val.function);
+        script->Initialize(literals, context, closure.val.function, name);
         
         // Make sure we don't get GC sweeped the first time around.
         gc->ForceToGray(script);
@@ -552,7 +552,7 @@ String* Engine::AllocString(const char* str)
     return string_table->Get(str);
 }
 
-String* Engine::AllocStringNC(const char* str)
+String* Engine::GetString(const char* str)
 {
     return string_table->Get(str, true);
 }
@@ -562,7 +562,7 @@ String* Engine::AllocString(const char* str, size_t length)
     return string_table->Get(str, length);
 }
 
-String* Engine::AllocStringNC(const char* str, size_t length)
+String* Engine::GetString(const char* str, size_t length)
 {
     return string_table->Get(str, length, true);
 }

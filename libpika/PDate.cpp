@@ -28,7 +28,7 @@ Date::~Date() {}
 
 String* Date::ToString()
 {
-    return engine->AllocStringNC( asctime( &the_time ) );
+    return engine->GetString( asctime( &the_time ) );
 }
 
 void Date::LocalTime()

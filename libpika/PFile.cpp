@@ -539,9 +539,9 @@ void File::StaticInitType(Engine* eng)
     File* file_stderr = File::Create(eng, File_Type);
     File* file_stdin  = File::Create(eng, File_Type);
     
-    file_stdout->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(file_stdout)), Slot::ATTR_forcewrite); 
-    file_stderr->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(file_stderr)), Slot::ATTR_forcewrite); 
-    file_stdin->SetSlot(eng->AllocStringNC("__doc"), eng->AllocStringNC(PIKA_GET_DOC(file_stdin)), Slot::ATTR_forcewrite); 
+    file_stdout->SetSlot(eng->GetString("__doc"), eng->GetString(PIKA_GET_DOC(file_stdout)), Slot::ATTR_forcewrite); 
+    file_stderr->SetSlot(eng->GetString("__doc"), eng->GetString(PIKA_GET_DOC(file_stderr)), Slot::ATTR_forcewrite); 
+    file_stdin->SetSlot(eng->GetString("__doc"), eng->GetString(PIKA_GET_DOC(file_stdin)), Slot::ATTR_forcewrite); 
     
     SlotBinder<File>(eng, File_Type)
     .Method(&File::ToBoolean,   "toBoolean", PIKA_GET_DOC(File_toBoolean))

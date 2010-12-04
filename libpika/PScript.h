@@ -22,7 +22,7 @@ protected:
     Script(Engine*, Type*, String*, Package*);
     Script(const Script*);
     
-    void            Initialize(LiteralPool*, Context*, Function*);
+    void            Initialize(LiteralPool*, Context*, Function*, String*);
     
     LiteralPool*    literals;
     Context*        context;
@@ -30,7 +30,8 @@ protected:
     Array*          arguments;
     Package*        import_value;
     bool            firstRun;
-    bool            running;    
+    bool            running;  
+    String*         file_name;  
 public:
     virtual ~Script();
     

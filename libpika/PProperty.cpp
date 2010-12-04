@@ -73,14 +73,14 @@ void Property::SetDoc(const char* cstr)
     if (!cstr) {
         __doc = 0;
     } else {
-        SetDoc(engine->AllocStringNC(cstr));
+        SetDoc(engine->GetString(cstr));
     }
 }
 
 Property* Property::CreateReadWrite(Engine* eng, String* name, Function* getter, Function* setter, const char* doc)
 {
     Property* prop = 0;
-    String* docstr = doc ? eng->AllocStringNC(doc) : 0;
+    String* docstr = doc ? eng->GetString(doc) : 0;
     GCNEW(eng, Property, prop, (eng, name, getter, setter, docstr));
     return prop;
 }
@@ -88,7 +88,7 @@ Property* Property::CreateReadWrite(Engine* eng, String* name, Function* getter,
 Property* Property::CreateRead(Engine* eng, String* name, Function* getter, const char* doc)
 {
     Property* prop = 0;
-    String* docstr = doc ? eng->AllocStringNC(doc) : 0;
+    String* docstr = doc ? eng->GetString(doc) : 0;
     GCNEW(eng, Property, prop, (eng, name, getter, 0, docstr));
     return prop;
 }
@@ -96,7 +96,7 @@ Property* Property::CreateRead(Engine* eng, String* name, Function* getter, cons
 Property* Property::CreateWrite(Engine* eng, String* name, Function* setter, const char* doc)
 {
     Property* prop = 0;
-    String* docstr = doc ? eng->AllocStringNC(doc) : 0;
+    String* docstr = doc ? eng->GetString(doc) : 0;
     GCNEW(eng, Property, prop, (eng, name, 0, setter, docstr));    
     return prop;
 }

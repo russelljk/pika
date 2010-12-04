@@ -195,7 +195,7 @@ public:
         else
         {
             // Create a nonempty match string.
-            String* matchstr = engine->AllocStringNC(subj->GetBuffer() + start, len);
+            String* matchstr = engine->GetString(subj->GetBuffer() + start, len);
             res.Set(matchstr);
         }
         return res;
@@ -209,8 +209,8 @@ public:
         Value res(NULL_VALUE);
         size_t len = stop - start;
         // If its an empty match.
-        obj->SetSlot(engine->AllocStringNC("start"), Value((pint_t)start));
-        obj->SetSlot(engine->AllocStringNC("stop"),  Value((pint_t)stop));
+        obj->SetSlot(engine->GetString("start"), Value((pint_t)start));
+        obj->SetSlot(engine->GetString("stop"),  Value((pint_t)stop));
         
         if (len == 0)
         {
@@ -222,7 +222,7 @@ public:
             String* matchstr = engine->AllocString(subj->GetBuffer() + start, len);
             res.Set(matchstr);
         }
-        obj->SetSlot(engine->AllocStringNC("match"), res);
+        obj->SetSlot(engine->GetString("match"), res);
         res.Set(obj);
         return res;
     }
@@ -507,7 +507,7 @@ namespace {
         }
         if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
             RaiseException("Attempt to create a String too large in String.matchReplace. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
-        String* resultant = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
+        String* resultant = eng->GetString(buff.GetAt(0), buff.GetSize());
         ctx->Push(resultant);
         if (eng->GetActiveContext() == ctx)
             eng->GetGC()->CheckIf();

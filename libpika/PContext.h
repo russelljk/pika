@@ -207,7 +207,7 @@ protected:
       * @param  ptrself The optional pointer to the self object. Used when the function is declared with a dot-name ie <code>function foo.bar() ... end </code>.
       */
     void DoClosure(Def* def, Value& ret, Value* ptrself= 0);
-    
+public:
     /* These methods each execute a certain group of opcodes. They are meant to be called from Context::Run (only!)
      * because override methods that are called will be inlined.
      *
@@ -219,7 +219,7 @@ protected:
     void    OpCompBinary (const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls);
     void    OpArithUnary (const Opcode op, const OpOverride ovr, int& numcalls);      
     void    OpUsing();
- public:   
+  
     /** Finds the super method of the method currently being executed.
       * @note Result is returned on the stack.
       */    

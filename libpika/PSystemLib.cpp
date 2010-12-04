@@ -26,6 +26,14 @@
 namespace pika {
 
 namespace {
+
+PIKA_DOC(os_sleep, "/(amt)\
+\n\
+Suspend the program for a given number of milliseconds. If |amt| is a [Real] \
+then it will be treated as a seconds. Otherwise |amt| should be an [Integer] \
+value containing the number of milliseconds.\
+");
+
 int os_sleep(Context* ctx, Value&)
 {
     if (1 != ctx->GetArgCount())
@@ -62,9 +70,9 @@ preal_t os_clock()
 
 PIKA_DOC(os_time, "/()"
 "\n"
-"Returns the time in milliseconds since the start of the Epoch."
-" The value returned may vary across platforms."
-" As a result programs should deal with relative values instead of absolute ones."
+"Returns the time in milliseconds."
+" The value returned and its precision may vary across platforms."
+" As a result programs should deal with relative values instead of absolute ones when used as a timer."
 )
 
 pint_t os_time()
@@ -72,10 +80,18 @@ pint_t os_time()
     return (pint_t)Pika_Milliseconds();
 }
 
+PIKA_DOC(math_round, "/(x)\
+\n\
+Round the [Real real] |x| to the nearest [Integer integer].")
+
 pint_t math_round(preal_t r)
 {
     return ((pint_t)CopySign(Floor(r + (preal_t)0.5), r));
 }
+
+PIKA_DOC(math_power, "/(x, y)\
+\n\
+Return |x| to the power of |y|.")
 
 preal_t math_power(preal_t f, preal_t p)
 {
@@ -91,6 +107,10 @@ preal_t math_power(preal_t f, preal_t p)
         return (sign * Pow(absf, p));
     }
 }
+
+PIKA_DOC(math_abs, "/(x)\
+\n\
+Returns the absolute value of |x|.")
 
 int math_Abs(Context* ctx, Value&)
 {
@@ -139,19 +159,72 @@ int os_system(Context* ctx, Value&)
     return 1;
 }
 
-// TODO: math_max should handle >= 2 args and any number type
-pint_t math_max(pint_t a, pint_t b)
+int CompareArguments(Context* ctx, const Opcode op, const OpOverride ovr, const OpOverride ovr_r)
 {
-    return (a >= b) ? a : b;
+    u2 argc = ctx->GetArgCount();
+    if (argc == 0) {
+        ctx->WrongArgCount();
+    }
+    
+    Value start = ctx->GetArg(0);
+    u2 curr = 1;
+    Engine* engine = ctx->GetEngine();
+
+    while (curr < argc) {
+        int numcalls = 0;
+        ctx->Push(start);
+        Value next = ctx->GetArg(curr);
+        ctx->Push(next);
+        ctx->OpCompBinary(op, ovr, ovr_r, numcalls);
+        if (numcalls > 0) {
+            ctx->Run();
+        }
+        Value& b = ctx->PopTop();
+        bool is_gr = false;
+        if (!b.IsBoolean()) {
+            is_gr = engine->ToBoolean(ctx, b);
+        } else {
+            is_gr = b.val.index != 0;
+        }
+        
+        if( is_gr ) {
+            start = next;
+        }
+        curr++;
+    }
+    ctx->Push(start);
+    return 1;
 }
 
-// TODO: math_min should handle >= 2 args and any number type
-pint_t math_min(pint_t a, pint_t b)
+PIKA_DOC(math_min, "/(:va)\
+\n\
+Returns the minimum value from the arguments given. If two values cannot be \
+compared an exception will be raised. All arguments should implement '''opGt''' and '''opGt_r''' \
+since they will be called to compare the values.")
+
+int Pika_min(Context* ctx, Value&)
 {
-    return (a <= b) ? a : b;
+    return CompareArguments(ctx, OP_gt, OVR_gt, OVR_gt_r);
 }
 
-int os_getFullPath(Context* ctx, Value&)
+PIKA_DOC(math_max, "/(:va)\
+\n\
+Returns the maximum value from the arguments given. If two values cannot be \
+compared an exception will be raised. All arguments should implement '''opLt''' and '''opLt_r''' \
+since they will be called to compare the values.")
+
+int Pika_max(Context* ctx, Value&)
+{
+    return CompareArguments(ctx, OP_lt, OVR_lt, OVR_lt_r);
+}
+
+PIKA_DOC(os_fullpath, "/(path)"
+"\n"
+"Returns the full or absolute path for |path|. If the path does not exist then \
+the empty string will be returned."
+)
+
+int os_fullpath(Context* ctx, Value&)
 {
     Engine* eng  = ctx->GetEngine();
     String* arg0 = ctx->GetStringArg(0);
@@ -170,7 +243,12 @@ int os_getFullPath(Context* ctx, Value&)
     return 1;
 }
 
-int os_getCurrentDir(Context* ctx, Value&)
+PIKA_DOC(os_getcwd, "/()"
+"\n"
+"Returns the current working directory."
+)
+
+int os_getcwd(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     char* res = Pika_GetCurrentDirectory();
@@ -186,6 +264,11 @@ int os_getCurrentDir(Context* ctx, Value&)
     }
     return 1;
 }
+
+PIKA_DOC(os_removeFile, "/(src, evenReadOnly=false)\
+\n\
+Remove the file located at |src|.\
+")
 
 int os_removeFile(Context* ctx, Value&)
 {
@@ -206,6 +289,13 @@ int os_removeFile(Context* ctx, Value&)
     ctx->PushBool(Pika_DeleteFile(src->GetBuffer(), ero));
     return 1;
 }
+
+PIKA_DOC(os_moveFile, "/(src, dest, replace=true)\
+\n\
+Moves the file |src| to |dest|. If a file is already at |dest| then |replace| \
+will determine if it is replaced with |src|. In comparision to |copy| this \
+function will completely move the file located at |src|.\
+")
 
 int os_moveFile(Context* ctx, Value&)
 {
@@ -228,6 +318,12 @@ int os_moveFile(Context* ctx, Value&)
     ctx->PushBool(Pika_MoveFile(src->GetBuffer(), dest->GetBuffer(), replace));
     return 1;
 }
+
+PIKA_DOC(os_copyFile, "/(src, dest, replace=true)\
+\n\
+Moves the file |src| to |dest|. If a file is already at |dest| then |replace| \
+will determine if it is overwritten.\
+")
 
 int os_copyFile(Context* ctx, Value&)
 {
@@ -326,7 +422,7 @@ public:
             {                
                 if (skip_hidden && strchr(entry, '.') == entry)
                     return Advance();
-                current = engine->AllocStringNC(entry);
+                current = engine->GetString(entry);
             }
             else
             {
@@ -347,7 +443,13 @@ private:
     const char*     entry;
 };
 
-int os_readDir(Context* ctx, Value&)
+PIKA_DOC(os_readdir, "/(path, skiphidden=false)\
+\n\
+Returns an [Iterator] that will enumerate all entries in the |path| given. \
+If |skiphidden| is true then entries beginning with '.' will be skipped.\
+")
+
+int os_readdir(Context* ctx, Value&)
 {
     Engine*  eng  = ctx->GetEngine();
     bool skip = false;
@@ -367,7 +469,13 @@ int os_readDir(Context* ctx, Value&)
     return 1;
 }
 
-int os_fileExtOf(Context* ctx, Value&)
+PIKA_DOC(os_extname, "/(path)\
+\n\
+Returns the file exentsion of the |path|. If there is no extension then the \
+empty string will be returned. If the path has multiple .'s such as file.tar.gz only the last part, 'gz', is returned.\
+")
+
+int os_extname(Context* ctx, Value&)
 {
     String* path = ctx->GetStringArg(0);
     const char* extension = Pika_rindex(path->GetBuffer(), '.');
@@ -383,11 +491,26 @@ int os_fileExtOf(Context* ctx, Value&)
     return 1;
 }
 
-String* FindFileName(Engine* eng, String* path)
+String* Basename(Engine* eng, String* path)
+{
+    const char* fullpath  = path->GetBuffer();
+    const char* pathname  = std::max(Pika_rindex(fullpath, '/'), Pika_rindex(fullpath, '\\'));
+    if (!pathname || pathname+1 < fullpath)
+    {
+        return eng->emptyString;
+    }
+    else
+    {
+        pathname++;
+    }
+    return eng->GetString(fullpath, pathname-fullpath);
+}
+
+String* Filename(Engine* eng, String* path)
 {
     const char* fullpath  = path->GetBuffer();
     const char* extension = Pika_rindex(fullpath, '.');
-    const char* filename  = Pika_rindex(fullpath, PIKA_PATH_SEP_CHAR);
+    const char* filename  = std::max(Pika_rindex(fullpath, '\\'), Pika_rindex(fullpath, '/'));
     
     if (!filename)
     {
@@ -410,10 +533,35 @@ String* FindFileName(Engine* eng, String* path)
     return 0;
 }
 
-int os_fileNameOf(Context* ctx, Value&)
+PIKA_DOC(os_filename, "/(path)\
+\n\
+Returns the file name of |path| with out the path or extension.\
+")
+
+int os_filename(Context* ctx, Value&)
 {
     String* path = ctx->GetStringArg(0);
-    String* name = FindFileName(ctx->GetEngine(), path);
+    String* name = Filename(ctx->GetEngine(), path);
+    if (name)
+    {
+        ctx->Push( name );
+    }
+    else
+    {
+        ctx->Push(ctx->GetEngine()->emptyString);
+    }
+    return 1;
+}
+
+PIKA_DOC(os_basename, "/(path)\
+\n\
+Returns the base name of |path| with out the file name or extension.\
+")
+
+int os_basename(Context* ctx, Value&)
+{
+    String* path = ctx->GetStringArg(0);
+    String* name = Basename(ctx->GetEngine(), path);
     if (name)
     {
         ctx->Push( name );
@@ -434,15 +582,93 @@ int os_fileNameOf(Context* ctx, Value&)
 #define _lrotl(x, n)    ((((puint_t)(x)) << ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) >> ((pint_t) ((-(n)) & ROTN))))
 #define _lrotr(x, n)    ((((puint_t)(x)) >> ((pint_t) ((n) & ROTN))) | (((puint_t)(x)) << ((pint_t) ((-(n)) & ROTN))))
 
+PIKA_DOC(math_rotl, "/(x, n)\
+\n\
+Rotate the bits in |x| left by |n| positions.\
+")
+
 pint_t Rotl(pint_t x, pint_t n)
 {
     return _lrotl(x,n);
 }
 
+PIKA_DOC(math_rotr, "/(x, n)\
+\n\
+Rotate the bits in |x| right by |n| positions.\
+")
+
 pint_t Rotr(pint_t x, pint_t n)
 {
     return _lrotr(x,n);
 }
+
+PIKA_DOC(math_cos, "/(x)\
+\n\
+Returns the cosine of |x| in radians.")
+
+PIKA_DOC(math_cosh, "/(x)\
+\n\
+Returns the hyperbolic cosine of |x|.")
+
+PIKA_DOC(math_sin, "/(x)\
+\n\
+Returns the sine of |x| in radians.")
+
+PIKA_DOC(math_sinh, "/(x)\
+\n\
+Returns the hyperbolic sine of |x|.")
+
+PIKA_DOC(math_tan, "/(x)\
+\n\
+Returns the tangent of |x| in radians.")
+
+PIKA_DOC(math_tanh, "/(x)\
+\n\
+Returns the hyperbolic tangent of |x|.")
+
+PIKA_DOC(math_acos, "/(x)\
+\n\
+Returns the arc cosine of |x|.")
+
+PIKA_DOC(math_asin, "/(x)\
+\n\
+Returns the arc sine of |x|.")
+
+PIKA_DOC(math_atan, "/(x)\
+\n\
+Returns the arc tangent of |x|.")
+
+PIKA_DOC(math_atan2, "/(x, y)\
+\n\
+Returns the arc tangent of |x|/|y|.")
+
+PIKA_DOC(math_sqrt, "/(x)\
+\n\
+Returns the square root of |x|.")
+
+PIKA_DOC(math_hypot, "/(x, y)\
+\n\
+Returns sqrt(|x|*|x| + |y|*|y|).")
+
+PIKA_DOC(math_log, "/(x)\
+\n\
+Returns the natural logarithm of |x|.")
+
+PIKA_DOC(math_log10, "/(x)\
+\n\
+Returns the logarithm of |x| to base 10.")
+
+PIKA_DOC(math_floor, "/(x)\
+\n\
+Returns |x| rounded down to the nearest [Integer integer].")
+
+PIKA_DOC(math_ceiling, "/(x)\
+\n\
+Returns |x| rounded up to the nearest [Integer integer].")
+
+PIKA_DOC(math_exp, "/(x)\
+\n\
+Returns e**|x|.")
 
 int math_lib_load(Context* ctx, Value&)
 {
@@ -454,29 +680,30 @@ int math_lib_load(Context* ctx, Value&)
     Package* math_Package  = Package::Create(eng, math_String, world_Package);
     
     SlotBinder<Object>(eng, math_Package, math_Package)
-    .StaticMethod( Rotl,         "rotl")
-    .StaticMethod( Rotr,         "rotr")
-    .StaticMethod( Cos,          "cos")
-    .StaticMethod( Cosh,         "cosh")
-    .StaticMethod( Sin,          "sin")
-    .StaticMethod( Sinh,         "sinh")
-    .StaticMethod( Tan,          "tan")
-    .StaticMethod( Tanh,         "tanh")
-    .StaticMethod( ArcCos,       "arcCos")
-    .StaticMethod( ArcSin,       "arcSin")
-    .StaticMethod( ArcTan,       "arcTan")
-    .StaticMethod( ArcTan2,      "arcTan2")
-    .StaticMethod( Sqrt,         "sqrt")
-    .StaticMethod( math_min,     "min")
-    .StaticMethod( math_max,     "max")
-    .StaticMethod( math_round,   "round")
-    .StaticMethod( math_power,   "power")
-    .StaticMethod( Log10,        "log10")
-    .StaticMethod( Log,          "log")
-    .StaticMethod( Floor,        "floor")
-    .StaticMethod( Ceil,         "ceiling")
-    .StaticMethod( Exp,          "exp")
-    .Register    ( math_Abs,     "abs")
+    .StaticMethod( Rotl,         "rotl",  PIKA_GET_DOC(math_rotl))
+    .StaticMethod( Rotr,         "rotr",  PIKA_GET_DOC(math_rotr))
+    .StaticMethod( Cos,          "cos",   PIKA_GET_DOC(math_cos))
+    .StaticMethod( Cosh,         "cosh",  PIKA_GET_DOC(math_cosh))
+    .StaticMethod( Sin,          "sin",   PIKA_GET_DOC(math_sin))
+    .StaticMethod( Sinh,         "sinh",  PIKA_GET_DOC(math_sinh))
+    .StaticMethod( Tan,          "tan",   PIKA_GET_DOC(math_tan))
+    .StaticMethod( Tanh,         "tanh",  PIKA_GET_DOC(math_tanh))
+    .StaticMethod( ArcCos,       "acos",  PIKA_GET_DOC(math_acos))
+    .StaticMethod( ArcSin,       "asin",  PIKA_GET_DOC(math_asin))
+    .StaticMethod( ArcTan,       "atan",  PIKA_GET_DOC(math_atan))
+    .StaticMethod( ArcTan2,      "atan2", PIKA_GET_DOC(math_atan2))
+    .StaticMethod( Sqrt,         "sqrt",  PIKA_GET_DOC(math_sqrt))
+    .StaticMethod( Hypot,        "hypot", PIKA_GET_DOC(math_hypot))
+    .Register(Pika_max, "max", 0, true, false, PIKA_GET_DOC(math_max))
+    .Register(Pika_min, "min", 0, true, false, PIKA_GET_DOC(math_min))
+    .StaticMethod( math_round,   "round",   PIKA_GET_DOC(math_round))
+    .StaticMethod( math_power,   "power",   PIKA_GET_DOC(math_power))
+    .StaticMethod( Log,          "log",     PIKA_GET_DOC(math_log))
+    .StaticMethod( Log10,        "log10",   PIKA_GET_DOC(math_log10))
+    .StaticMethod( Floor,        "floor",   PIKA_GET_DOC(math_floor))
+    .StaticMethod( Ceil,         "ceiling", PIKA_GET_DOC(math_ceiling))
+    .StaticMethod( Exp,          "exp",     PIKA_GET_DOC(math_exp))
+    .Register    ( math_Abs,     "abs", 1, false, true, PIKA_GET_DOC(math_abs))
     .Constant    ( PIKA_PI,      "PI")
     .Constant    ( PIKA_E,       "E")
     .Constant    ( PIKA_LN10,    "LN10")
@@ -486,6 +713,7 @@ int math_lib_load(Context* ctx, Value&)
     .Constant    ( PIKA_SQRT1_2, "SQRT1_2")
     .Constant    ( PIKA_SQRT2,   "SQRT2")
     ;
+    // TODO: hypot, 
     
     Random::StaticInitType(math_Package, eng);
     eng->PutImport(math_String, math_Package);
@@ -508,6 +736,36 @@ PIKA_DOC(os_unSetEnv, "/(var)"
 "Removes the environmental variable named |var|. This is equivalent to calling [setEnv] with a '''null''' value."
 )
 
+PIKA_DOC(os_exists, "/(path)\
+\n\
+Checks for the existence of a file or directory.\
+")
+
+PIKA_DOC(os_file, "/(path)\
+\n\
+Checks for the existence of a file. Will only return true if |path| points to a file not a directory.\
+")
+
+PIKA_DOC(os_dir, "/(dir)\
+\n\
+Checks for the existence of a directory. Will only return true if |path| points to a directory not a file.\
+")
+
+PIKA_DOC(os_mkdir, "/(path)\
+\n\
+Makes a new directory located at the |path| given.\
+")
+
+PIKA_DOC(os_rmdir, "/(path)\
+\n\
+Removes the directory located at the |path| given.\
+")
+
+PIKA_DOC(os_chdir, "/(path)\
+\n\
+Changes the current directory to the |path| given.\
+")
+
 int os_lib_load(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
@@ -518,28 +776,30 @@ int os_lib_load(Context* ctx, Value&)
     Package* os_Package    = Package::Create(eng, os_String, world_Package);
     
 	SlotBinder<Object>(eng, os_Package, os_Package)
-    .StaticMethod( os_clock,                 "clock",  PIKA_GET_DOC(os_clock))
-    .StaticMethod( os_time,                  "time",   PIKA_GET_DOC(os_time))
-    .StaticMethod( getenv,                   "getEnv", PIKA_GET_DOC(os_getEnv))
-    .StaticMethod( setenv,                   "setEnv", PIKA_GET_DOC(os_setEnv))
-    .StaticMethod( unsetenv,                 "unSetEnv", PIKA_GET_DOC(os_unSetEnv))
-    .StaticMethod( Pika_FileExists,          "fileExists?") // Checks for the existence of a file or directory.
-    .StaticMethod( Pika_IsFile,              "file?")       // Checks for the existence of a file.
-    .StaticMethod( Pika_IsDirectory,         "dir?")        // Checks for the existence of a directory.
-    .StaticMethod( Pika_CreateDirectory,     "makeDir")     // Makes a new directory.
-    .StaticMethod( Pika_RemoveDirectory,     "removeDir")   // Removes a directory.
-    .StaticMethod( Pika_SetCurrentDirectory, "setCurrDir")  // Changes the current directory.
-    .Register    ( os_system,                "system", 0, true, false, PIKA_GET_DOC(os_system))
-    .Register    ( os_sleep,                 "sleep")       // Sleep a given number of ms.
-    .Register    ( os_readDir,               "readDir")     // Provides an enumerator for a directory's contents.
-    .Register    ( os_moveFile,              "moveFile")    // Moves a file to a new location.
-    .Register    ( os_copyFile,              "copyFile")    // Copies a file to a new location.
-    .Register    ( os_removeFile,            "removeFile")  // Removes a file.
-    .Register    ( os_getCurrentDir,         "getCurrDir")  // Returns the current directory.
-    .Register    ( os_getFullPath,           "getFullPath")
-    .Register    ( os_fileExtOf,             "fileExtOf")
-    .Register    ( os_fileNameOf,            "fileNameOf")
-    .Constant    (eng->Paths(),              "paths")
+    .StaticMethod( os_clock,                     "clock",    PIKA_GET_DOC(os_clock))
+    .StaticMethod( os_time,                      "time",     PIKA_GET_DOC(os_time))
+    .StaticMethod( getenv,                       "getEnv",   PIKA_GET_DOC(os_getEnv))
+    .StaticMethod( setenv,                       "setEnv",   PIKA_GET_DOC(os_setEnv))
+    .StaticMethod( unsetenv,                     "unSetEnv", PIKA_GET_DOC(os_unSetEnv))
+    .StaticMethod( Pika_FileExists,              "exists?",  PIKA_GET_DOC(os_exists))  
+    .StaticMethod( Pika_IsFile,                  "file?",    PIKA_GET_DOC(os_file))     
+    .StaticMethod( Pika_IsDirectory,             "dir?",     PIKA_GET_DOC(os_dir))       
+    .StaticMethod( Pika_CreateDirectory,         "mkdir",    PIKA_GET_DOC(os_mkdir))
+    .StaticMethod( Pika_RemoveDirectory,         "rmdir",    PIKA_GET_DOC(os_rmdir))
+    .StaticMethod( Pika_SetCurrentDirectory,     "chdir",    PIKA_GET_DOC(os_chdir))
+    .Register    ( os_system,                    "system",   0, true,  false, PIKA_GET_DOC(os_system))
+    .Register    ( os_sleep,                     "sleep",    1, false, true,  PIKA_GET_DOC(os_sleep))
+    .Register    ( os_readdir,                   "readdir",  0, true,  false, PIKA_GET_DOC(os_readdir))
+    .Register    ( os_moveFile,                  "move",     0, true,  false, PIKA_GET_DOC(os_moveFile))
+    .Register    ( os_copyFile,                  "copy",     0, true,  false, PIKA_GET_DOC(os_copyFile))
+    .Register    ( os_removeFile,                "remove",   0, true,  false, PIKA_GET_DOC(os_removeFile))
+    .Register    ( os_getcwd,                    "getcwd",   0, false, true, PIKA_GET_DOC(os_getcwd))
+    .Register    ( os_fullpath,                  "fullpath", 1, false, true, PIKA_GET_DOC(os_fullpath))
+    .Register    ( os_extname,                   "extname",  1, false, true, PIKA_GET_DOC(os_extname))
+    .Register    ( os_filename,                  "filename", 1, false, true, PIKA_GET_DOC(os_filename))
+    .Register    ( os_basename,                  "basename", 1, false, true, PIKA_GET_DOC(os_basename))
+    .Constant    (eng->Paths(),                  "paths")
+    .Constant    (eng->GetString(PIKA_PATH_SEP), "sep")
     ;
     
     Date::StaticInitType(os_Package, eng);

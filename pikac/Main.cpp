@@ -188,7 +188,7 @@ void AddArgument(Engine* eng, const char* opt, Array* arguments)
         }
     }
 #else
-    String* arg_str = eng->AllocStringNC(opt ? opt : "");
+    String* arg_str = eng->GetString(opt ? opt : "");
     Value varg(arg_str);
     arguments->Push(varg);
 #endif

@@ -232,6 +232,8 @@ PIKA_FORCE_INLINE preal_t Pow(preal_t x,
 PIKA_FORCE_INLINE preal_t Sin(preal_t x)    { return sin(x); }
 PIKA_FORCE_INLINE preal_t Sinh(preal_t x)   { return sinh(x); }
 PIKA_FORCE_INLINE preal_t Sqrt(preal_t x)   { return sqrt(x); }
+PIKA_FORCE_INLINE preal_t Hypot(preal_t x,
+                                preal_t y)  { return hypot(x, y); }
 PIKA_FORCE_INLINE preal_t Tan(preal_t x)    { return tan(x); }
 PIKA_FORCE_INLINE preal_t Tanh(preal_t x)   { return tanh(x); }
 #else
@@ -258,6 +260,8 @@ PIKA_FORCE_INLINE preal_t Pow(preal_t x,
 PIKA_FORCE_INLINE preal_t Sin(preal_t x)    { return (preal_t)sinf(x); }
 PIKA_FORCE_INLINE preal_t Sinh(preal_t x)   { return (preal_t)sinhf(x); }
 PIKA_FORCE_INLINE preal_t Sqrt(preal_t x)   { return (preal_t)sqrtf(x); }
+PIKA_FORCE_INLINE preal_t Hypot(preal_t x,
+                                preal_t y)  { return (preal_t)hypotf(x, y); }
 PIKA_FORCE_INLINE preal_t Tan(preal_t x)    { return (preal_t)tanf(x); }
 PIKA_FORCE_INLINE preal_t Tanh(preal_t x)   { return (preal_t)tanhf(x); }
 #endif

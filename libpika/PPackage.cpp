@@ -377,7 +377,7 @@ void Package::StaticInitType(Engine* eng)
         { "__name",   Package_getName,   "__getName",   0, 0, false, PIKA_GET_DOC(Package_getName), 0 },
         { "__path",   Package_getPath,   "__getPath",   0, 0, false, PIKA_GET_DOC(Package_getPath), 0 },
     };
-    eng->Package_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Package_class)));
+    eng->Package_Type->SetDoc(eng->GetString(PIKA_GET_DOC(Package_class)));
     eng->Package_Type->EnterMethods(Package_methods, countof(Package_methods));
     eng->Package_Type->EnterClassMethods(Package_classMethods, countof(Package_classMethods));
     eng->Package_Type->EnterProperties(Pkg_Properties, countof(Pkg_Properties));

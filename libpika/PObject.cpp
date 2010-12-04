@@ -60,7 +60,7 @@ void Object::MarkRefs(Collector* c)
 
 String* Object::ToString()
 {
-    return String::ConcatSep(this->GetType()->GetName(), engine->AllocStringNC("instance"), ':');
+    return String::ConcatSep(this->GetType()->GetName(), engine->GetString("instance"), ':');
 }
 
 void Object::Init(Context* ctx) {}
@@ -607,7 +607,7 @@ void Object::StaticInitType(Engine* eng)
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
     eng->Object_Type->EnterClassMethods(Object_ClassMethods, countof(Object_ClassMethods));
-    eng->Object_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Object_class)));
+    eng->Object_Type->SetDoc(eng->GetString(PIKA_GET_DOC(Object_class)));
     
     Pkg_World->SetSlot("Object", eng->Object_Type);
     

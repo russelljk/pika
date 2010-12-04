@@ -100,11 +100,11 @@ Iterator* Type::Iterate(String* iter_type)
         GCPAUSE_NORUN(eng);
                 
         Type* filter = 0;
-        if (iter_type == eng->AllocStringNC("methods")) {
+        if (iter_type == eng->GetString("methods")) {
             filter = eng->InstanceMethod_Type;
-        } else if (iter_type == eng->AllocStringNC("classmethods")) {
+        } else if (iter_type == eng->GetString("classmethods")) {
             filter = eng->ClassMethod_Type;
-        } else if (iter_type == eng->AllocStringNC("properties")) {
+        } else if (iter_type == eng->GetString("properties")) {
             filter = eng->Property_Type;
         }
         
@@ -354,7 +354,7 @@ void Type::SetDoc(const char* cstr)
     if (!cstr) {
         __doc = 0;
     } else {
-        SetDoc(engine->AllocStringNC(cstr));
+        SetDoc(engine->GetString(cstr));
     }
 }
 
@@ -690,7 +690,7 @@ void Type::StaticInitType(Engine* eng)
         { "create",     Type_create,     4, DEF_STRICT,   PIKA_GET_DOC(Type_create) },
         { "createWith", Type_createWith, 4, DEF_VAR_ARGS, PIKA_GET_DOC(Type_createWith) },
     };
-    eng->Type_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(Type_class)));
+    eng->Type_Type->SetDoc(eng->GetString(PIKA_GET_DOC(Type_class)));
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));
     eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));
     Pkg_World->SetSlot("Type", eng->Type_Type);

@@ -802,7 +802,7 @@ String* Function::GetDoc()
 { 
     if (!__doc) {
         if (def && def->__native_doc__) {
-            __doc = engine->AllocStringNC(def->__native_doc__);
+            __doc = engine->GetString(def->__native_doc__);
             WriteBarrier(__doc);
         } else {
             return engine->emptyString;
@@ -823,7 +823,7 @@ void Function::SetDoc(const char* cstr)
     if (!cstr) {
         __doc = 0;
     } else {
-        SetDoc(engine->AllocStringNC(cstr));
+        SetDoc(engine->GetString(cstr));
     }
 }
 

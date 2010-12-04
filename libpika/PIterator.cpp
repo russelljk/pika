@@ -82,7 +82,7 @@ void Iterator::StaticInitType(Engine* engine)
     .Method(&Iterator::ToBoolean, "toBoolean", PIKA_GET_DOC(Iterator_toBoolean))
     .RegisterMethod(Iterator_next, "next", 0, false, true, PIKA_GET_DOC(Iterator_next))
     ;
-    engine->Iterator_Type->SetDoc(engine->AllocStringNC(PIKA_GET_DOC(Iterator_Type)));
+    engine->Iterator_Type->SetDoc(engine->GetString(PIKA_GET_DOC(Iterator_Type)));
     Pkg_World->SetSlot(Iterator_String, engine->Iterator_Type);
 }
 

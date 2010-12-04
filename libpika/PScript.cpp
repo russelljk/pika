@@ -4,7 +4,7 @@
  */
 #include "Pika.h"
 #include "PParser.h"
-
+#include "PPlatform.h"
 #if defined(PIKA_DEBUG_OUTPUT)
 #   include "PProfiler.h"
 #   include <iostream>
@@ -22,7 +22,8 @@ Script::Script(Engine* eng, Type* scriptType, String* name, Package* pkg)
         arguments(0),
         import_value(0),
         firstRun(false),
-        running(false)
+        running(false),
+        file_name(0)
 
 {}
 
@@ -34,7 +35,8 @@ Script::Script(const Script* rhs) :
         arguments(rhs->arguments),
         import_value(rhs->import_value),
         firstRun(rhs->firstRun),
-        running(rhs->running)
+        running(rhs->running),
+        file_name(rhs->file_name)
 {
 }
         
@@ -48,17 +50,31 @@ Object* Script::Clone()
     return s;
 }
 
-void Script::Initialize(LiteralPool* lp, Context* ctx, Function* entry)
+void Script::Initialize(LiteralPool* lp, Context* ctx, Function* entry, String* path)
 {
     ASSERT(lp);
     ASSERT(ctx);
-    ASSERT(entry);
+    ASSERT(entry);    
+    
+    if (path) {
+        char* real_name = Pika_GetFullPath(path->GetBuffer());
+        if (real_name) {
+            this->file_name = engine->AllocString(real_name);
+            
+        }
+    }
+    
+    if (!file_name) {
+        this->file_name = path ? path : engine->emptyString;
+    }
+    
     if (firstRun)
         firstRun = false;
     literals   = lp;
     context    = ctx;
     entryPoint = entry;
     
+    WriteBarrier(file_name);
     WriteBarrier(literals);
     WriteBarrier(context);
     WriteBarrier(entryPoint);
@@ -98,7 +114,7 @@ Script* Script::CreateWithBuffer(Engine* eng, String* buff, String* name, Packag
         Context* ctx = Context::Create(eng, eng->Context_Type);
         
         eng->GetGC()->ForceToGray(script);
-        script->Initialize(cs->literals, ctx, entryPoint);
+        script->Initialize(cs->literals, ctx, entryPoint, 0);
     } // GC Pause    
     return script;
 }
@@ -112,6 +128,7 @@ void Script::MarkRefs(Collector* c)
     if (context) context->Mark(c);
     if (arguments) arguments->Mark(c);
     if (import_value) import_value->Mark(c);
+    if (file_name) file_name->Mark(c);
 }
 
 bool Script::Run(Array* args)
@@ -138,7 +155,8 @@ bool Script::Run(Array* args)
         }        
         SetSlot("__script",  this,       Slot::ATTR_internal | Slot::ATTR_forcewrite);
         SetSlot("__context", context,    Slot::ATTR_internal | Slot::ATTR_forcewrite);
-        SetSlot("__main",    entryPoint, Slot::ATTR_internal | Slot::ATTR_forcewrite);        
+        SetSlot("__main",    entryPoint, Slot::ATTR_internal | Slot::ATTR_forcewrite);
+        SetSlot("__FILE",    file_name ? file_name : engine->emptyString, Slot::ATTR_internal | Slot::ATTR_forcewrite);
     }// resume gc
     
     context->PushNull();

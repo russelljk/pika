@@ -48,7 +48,7 @@ public:
         char buff[2];
         buff[0] = string->buffer[currentIndex];
         buff[1] = 0;
-        return engine->AllocStringNC(buff);
+        return engine->GetString(buff);
     }
         
     virtual int Next(Context* ctx)
@@ -255,7 +255,7 @@ String* String::Concat(String* a, String* b)
     
     eng->string_buff[len] = 0;
     
-    return eng->AllocStringNC(&eng->string_buff[0], len);
+    return eng->GetString(&eng->string_buff[0], len);
 }
 
 Array* String::Split(String* search)
@@ -572,7 +572,7 @@ String* String::sprintp(Engine*  eng,    // context
             }
         }
         
-        return eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
+        return eng->GetString(buff.GetAt(0), buff.GetSize());
     }
     return fmt;
 }
@@ -1263,7 +1263,7 @@ public:
         if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
             RaiseException("Attempt to create a String too large in String.join. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
             
-        String* result = eng->AllocStringNC(buff.GetAt(0), buff.GetSize());
+        String* result = eng->GetString(buff.GetAt(0), buff.GetSize());
         ctx->Push(result);
         return 1;
     }
@@ -1411,7 +1411,7 @@ void String::StaticInitType(Engine* eng)
     eng->String_Type->SetAbstract(true);    
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
     eng->String_Type->EnterClassMethods(String_ClassMethods, countof(String_ClassMethods));
-    eng->String_Type->SetDoc(eng->AllocStringNC(PIKA_GET_DOC(String_Type)));
+    eng->String_Type->SetDoc(eng->GetString(PIKA_GET_DOC(String_Type)));
     Value string_MAX((pint_t)PIKA_STRING_MAX_LEN);
     eng->String_Type->SetSlot("MAX", string_MAX);
     eng->GetWorld()->SetSlot("String", eng->String_Type);
