@@ -172,9 +172,9 @@ int CompareArguments(Context* ctx, const Opcode op, const OpOverride ovr, const 
 
     while (curr < argc) {
         int numcalls = 0;
-        ctx->Push(start);
         Value next = ctx->GetArg(curr);
         ctx->Push(next);
+        ctx->Push(start);
         ctx->OpCompBinary(op, ovr, ovr_r, numcalls);
         if (numcalls > 0) {
             ctx->Run();
@@ -199,23 +199,23 @@ int CompareArguments(Context* ctx, const Opcode op, const OpOverride ovr, const 
 PIKA_DOC(math_min, "/(:va)\
 \n\
 Returns the minimum value from the arguments given. If two values cannot be \
-compared an exception will be raised. All arguments should implement '''opGt''' and '''opGt_r''' \
+compared an exception will be raised. All arguments should implement '''opLt''' and '''opLt_r''' \
 since they will be called to compare the values.")
 
 int Pika_min(Context* ctx, Value&)
 {
-    return CompareArguments(ctx, OP_gt, OVR_gt, OVR_gt_r);
+    return CompareArguments(ctx, OP_lt, OVR_lt, OVR_lt_r);
 }
 
 PIKA_DOC(math_max, "/(:va)\
 \n\
 Returns the maximum value from the arguments given. If two values cannot be \
-compared an exception will be raised. All arguments should implement '''opLt''' and '''opLt_r''' \
+compared an exception will be raised. All arguments should implement '''opGt''' and '''opGt_r''' \
 since they will be called to compare the values.")
 
 int Pika_max(Context* ctx, Value&)
 {
-    return CompareArguments(ctx, OP_lt, OVR_lt, OVR_lt_r);
+    return CompareArguments(ctx, OP_gt, OVR_gt, OVR_gt_r);
 }
 
 PIKA_DOC(os_fullpath, "/(path)"
