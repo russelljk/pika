@@ -12,7 +12,7 @@
 #include "PPlatform.h"
 #include "PTokenizer.h"
 #include "PPackage.h"
-
+#include "PNativeBind.h"
 namespace pika {
 
 //////////////////////////////////////////StringIterator//////////////////////////////////////////
@@ -1347,7 +1347,7 @@ PIKA_DOC(String_toUpper, "/()\n"
 "Converts and returns a copy of this string, with each letter converted to upper-case. Non-letter characters are copied as they appear in the string."
 )
 
-PIKA_DOC(String_joing, "/(array)\
+PIKA_DOC(String_join, "/(array)\
 \n\
 Joins the elements of the |array|, converted to a string, with this string inserted as glue between elements.\
 [[[\
@@ -1383,7 +1383,6 @@ void String::StaticInitType(Engine* eng)
         { "lastOf",         StringApi::lastOf,              2, DEF_VAR_ARGS, 0 },
         { "lastNotOf",      StringApi::lastNotOf,           2, DEF_VAR_ARGS, 0 },
         { "substring",      StringApi::slice,               2, DEF_STRICT,   0 },
-        { OPSLICE_STR,      StringApi::slice,               2, DEF_STRICT,   0 },
         { "chomp",          StringApi::chomp,               1, DEF_VAR_ARGS, PIKA_GET_DOC(String_chomp) },
         { "times",          StringApi::times,               1, DEF_STRICT,   PIKA_GET_DOC(String_times)   },
         { "opMul",          StringApi::times,               1, DEF_STRICT,   PIKA_GET_DOC(String_times)   },
@@ -1395,7 +1394,7 @@ void String::StaticInitType(Engine* eng)
         { "ascii?",         StringApi::is_ascii,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_ascii) },
         { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT,   PIKA_GET_DOC(String_is_whitespace) },
         { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, 0 },
-        { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_joing) },
+        { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_join) },
     };
     
     static RegisterFunction String_ClassMethods[] =
@@ -1406,7 +1405,7 @@ void String::StaticInitType(Engine* eng)
         { NEW_CSTR,     StringApi::init,        1, DEF_STRICT,   0 },
     };
     eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, StringApi::Constructor, eng->GetWorld());
-    
+        
     eng->String_Type->SetFinal(true);
     eng->String_Type->SetAbstract(true);    
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
@@ -1415,6 +1414,9 @@ void String::StaticInitType(Engine* eng)
     Value string_MAX((pint_t)PIKA_STRING_MAX_LEN);
     eng->String_Type->SetSlot("MAX", string_MAX);
     eng->GetWorld()->SetSlot("String", eng->String_Type);
+    
+    SlotBinder<String>(eng, eng->String_Type)
+    .Alias(OPSLICE_STR, "substring");
 }
 
 }// pika

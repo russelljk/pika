@@ -528,7 +528,7 @@ int Type_new(Context* ctx, Value& self)
         ctx->Push(vobj);
         ctx->Push(vfunc);
         
-        if (ctx->OpApply((u2)argc, 1, 0, false))
+        if (ctx->OpApply((u1)argc, 1, 0, false))
         {
             ctx->Run();
         }

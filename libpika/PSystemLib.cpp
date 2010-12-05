@@ -159,35 +159,84 @@ int os_system(Context* ctx, Value&)
     return 1;
 }
 
+int OpArguments(Context* ctx, const Opcode op, const OpOverride ovr, const OpOverride ovr_r)
+{
+    u2 argc = ctx->GetArgCount();
+    if (argc == 0)
+    {
+        ctx->WrongArgCount();
+    }
+    
+    Value start = ctx->GetArg(0);
+    u2 curr = 1;
+    ctx->CheckStackSpace(3);
+    while (curr < argc)
+    {
+        int numcalls = 0;
+        Value next = ctx->GetArg(curr);
+        ctx->Push(start);
+        ctx->Push(next);
+        
+        ctx->OpArithBinary(op, ovr, ovr_r, numcalls);
+        if (numcalls > 0)
+        {
+            ctx->Run();
+        }
+        start = ctx->PopTop();
+        curr++;
+    }
+    ctx->Push(start);
+    return 1;
+}
+
+PIKA_DOC(math_sum, "/(:va)\
+\n\
+Returns the summation of all the arguments given. If two values cannot be \
+added an exception will be raised. All arguments should implement '''opAdd''' and '''opAdd_r''' \
+since they will be called to add the values.")
+
+int math_sum(Context* ctx, Value&)
+{
+    return OpArguments(ctx, OP_add, OVR_add, OVR_add_r);
+}
+
 int CompareArguments(Context* ctx, const Opcode op, const OpOverride ovr, const OpOverride ovr_r)
 {
     u2 argc = ctx->GetArgCount();
-    if (argc == 0) {
+    if (argc == 0)
+    {
         ctx->WrongArgCount();
     }
     
     Value start = ctx->GetArg(0);
     u2 curr = 1;
     Engine* engine = ctx->GetEngine();
-
-    while (curr < argc) {
+    ctx->CheckStackSpace(3);
+    
+    while (curr < argc)
+    {
         int numcalls = 0;
         Value next = ctx->GetArg(curr);
         ctx->Push(next);
         ctx->Push(start);
         ctx->OpCompBinary(op, ovr, ovr_r, numcalls);
-        if (numcalls > 0) {
+        if (numcalls > 0)
+        {
             ctx->Run();
         }
         Value& b = ctx->PopTop();
         bool is_gr = false;
-        if (!b.IsBoolean()) {
+        if (!b.IsBoolean())
+        {
             is_gr = engine->ToBoolean(ctx, b);
-        } else {
+        }
+        else
+        {
             is_gr = b.val.index != 0;
         }
         
-        if( is_gr ) {
+        if (is_gr)
+        {
             start = next;
         }
         curr++;
@@ -202,7 +251,7 @@ Returns the minimum value from the arguments given. If two values cannot be \
 compared an exception will be raised. All arguments should implement '''opLt''' and '''opLt_r''' \
 since they will be called to compare the values.")
 
-int Pika_min(Context* ctx, Value&)
+int math_min(Context* ctx, Value&)
 {
     return CompareArguments(ctx, OP_lt, OVR_lt, OVR_lt_r);
 }
@@ -213,7 +262,7 @@ Returns the maximum value from the arguments given. If two values cannot be \
 compared an exception will be raised. All arguments should implement '''opGt''' and '''opGt_r''' \
 since they will be called to compare the values.")
 
-int Pika_max(Context* ctx, Value&)
+int math_max(Context* ctx, Value&)
 {
     return CompareArguments(ctx, OP_gt, OVR_gt, OVR_gt_r);
 }
@@ -495,15 +544,15 @@ String* Basename(Engine* eng, String* path)
 {
     const char* fullpath  = path->GetBuffer();
     const char* pathname  = std::max(Pika_rindex(fullpath, '/'), Pika_rindex(fullpath, '\\'));
-    if (!pathname || pathname+1 < fullpath)
+    if (!pathname || pathname + 1 < fullpath)
     {
-        return eng->emptyString;
+        return path;
     }
     else
     {
         pathname++;
     }
-    return eng->GetString(fullpath, pathname-fullpath);
+    return eng->GetString(fullpath, pathname - fullpath);
 }
 
 String* Filename(Engine* eng, String* path)
@@ -648,7 +697,7 @@ Returns the square root of |x|.")
 
 PIKA_DOC(math_hypot, "/(x, y)\
 \n\
-Returns sqrt(|x|*|x| + |y|*|y|).")
+Returns <tt>sqrt(|x|*|x| + |y|*|y|)</tt>.")
 
 PIKA_DOC(math_log, "/(x)\
 \n\
@@ -668,7 +717,7 @@ Returns |x| rounded up to the nearest [Integer integer].")
 
 PIKA_DOC(math_exp, "/(x)\
 \n\
-Returns e**|x|.")
+Returns <tt>e**|x|</tt>.")
 
 int math_lib_load(Context* ctx, Value&)
 {
@@ -694,8 +743,6 @@ int math_lib_load(Context* ctx, Value&)
     .StaticMethod( ArcTan2,      "atan2", PIKA_GET_DOC(math_atan2))
     .StaticMethod( Sqrt,         "sqrt",  PIKA_GET_DOC(math_sqrt))
     .StaticMethod( Hypot,        "hypot", PIKA_GET_DOC(math_hypot))
-    .Register(Pika_max, "max", 0, true, false, PIKA_GET_DOC(math_max))
-    .Register(Pika_min, "min", 0, true, false, PIKA_GET_DOC(math_min))
     .StaticMethod( math_round,   "round",   PIKA_GET_DOC(math_round))
     .StaticMethod( math_power,   "power",   PIKA_GET_DOC(math_power))
     .StaticMethod( Log,          "log",     PIKA_GET_DOC(math_log))
@@ -703,6 +750,9 @@ int math_lib_load(Context* ctx, Value&)
     .StaticMethod( Floor,        "floor",   PIKA_GET_DOC(math_floor))
     .StaticMethod( Ceil,         "ceiling", PIKA_GET_DOC(math_ceiling))
     .StaticMethod( Exp,          "exp",     PIKA_GET_DOC(math_exp))
+    .Register    ( math_sum,     "sum", 0, true, false, PIKA_GET_DOC(math_sum))
+    .Register    ( math_max,     "max", 0, true, false, PIKA_GET_DOC(math_max))
+    .Register    ( math_min,     "min", 0, true, false, PIKA_GET_DOC(math_min))
     .Register    ( math_Abs,     "abs", 1, false, true, PIKA_GET_DOC(math_abs))
     .Constant    ( PIKA_PI,      "PI")
     .Constant    ( PIKA_E,       "E")
@@ -713,7 +763,6 @@ int math_lib_load(Context* ctx, Value&)
     .Constant    ( PIKA_SQRT1_2, "SQRT1_2")
     .Constant    ( PIKA_SQRT2,   "SQRT2")
     ;
-    // TODO: hypot, 
     
     Random::StaticInitType(math_Package, eng);
     eng->PutImport(math_String, math_Package);
