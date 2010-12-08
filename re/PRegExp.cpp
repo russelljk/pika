@@ -25,9 +25,9 @@ INLINE size_t IntToIndex(int const i, size_t const len)
 
 INLINE static size_t IndexOfLongestMatch(const Buffer<size_t>& matches)
 {
-    size_t longest    = 0;
+    size_t longest = 0;
     size_t longestLen = 0;
-    bool   haslongest = false;
+    bool haslongest = false;
     
     size_t const buffsize = matches.GetSize();
     
@@ -268,14 +268,12 @@ public:
         return false;
     }
     
-    bool IsGlobal() const { return is_global != 0; }
-    
-    bool IsMultiline()   const { return is_multiline != 0; }
-    bool IsInsensitive() const { return is_insensitive != 0; }
-    bool IsUtf8()        const { return is_utf8 != 0; }
-    String* Pattern() { return pattern_string; }
-    
-    size_t GetLastIndex() { return last_index; }
+    bool    IsGlobal()      const { return is_global != 0; }    
+    bool    IsMultiline()   const { return is_multiline != 0; }
+    bool    IsInsensitive() const { return is_insensitive != 0; }
+    bool    IsUtf8()        const { return is_utf8 != 0; }
+    String* Pattern()             { return pattern_string; }    
+    size_t  GetLastIndex()        { return last_index; }
     
     void SetLastIndex(pint_t idx)
     {
@@ -296,7 +294,6 @@ public:
     static void Constructor(Engine* eng, Type* obj_type, Value& res)
     {
         Object* re = RegExp::StaticNew(eng, obj_type, 0);
-        ClassInfo* info = re->GetClassInfo();
         res.Set(re);
     }
     
@@ -318,12 +315,12 @@ protected:
         for (int i = 0; i < matchCount; ++i)
         {
             size_t start = IntToIndex(ovector[i].start, subjLen) + last_index;
-            size_t end   = IntToIndex(ovector[i].end,   subjLen) + last_index;
+            size_t end = IntToIndex(ovector[i].end,   subjLen) + last_index;
             if (end < start)
                 Swap(start, end);
             if (end > next_last)
                 next_last = end;
-            res[i*2]     = start;
+            res[i*2] = start;
             res[i*2 + 1] = end;
         }
         
@@ -333,7 +330,7 @@ protected:
         }
         return true;
     }
-        
+    
     u1 is_multiline;
     u1 is_insensitive;
     u1 is_global;
@@ -515,7 +512,8 @@ PIKA_MODULE(RegExp, eng, re)
     .Method(&RegExp::Test,     "test")
     .Method(&RegExp::Compile,  "compile")
     .MethodVA(&RegExp::Init,   "init")
-    .PropertyRW("lastIndex",    &RegExp::GetLastIndex, "getLastIndex", &RegExp::SetLastIndex, "setLastIndex")
+    .PropertyRW("lastIndex",    &RegExp::GetLastIndex, "getLastIndex", 
+                                &RegExp::SetLastIndex, "setLastIndex")
     .PropertyR("global?",       &RegExp::IsGlobal,      0)
     .PropertyR("multiline?",    &RegExp::IsMultiline,   0)
     .PropertyR("utf8?",         &RegExp::IsUtf8,        0)

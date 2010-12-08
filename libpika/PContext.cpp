@@ -50,6 +50,10 @@ int Context_next(Context* ctx, Value& self)
     return retc;
 }
 
+PIKA_DOC(Context_setup, "/(:va)\
+\n\
+Setup this Context so that it can be [next called]. The arguments given will be passed to the [Function function] it was initialized with. This should be a newly created Context.")
+
 /* TODO { Context.setup should be changed to accept keyword Dictionary. } */
 int Context_setup(Context* ctx, Value& self)
 {
@@ -86,8 +90,8 @@ void Context::StaticInitType(Engine* eng)
     
     static RegisterFunction Context_Methods[] =
     {
-        { "next",  Context_next,  0, DEF_STRICT,  0 },
-        { "setup", Context_setup, 0, DEF_VAR_ARGS,0 },
+        { "next",  Context_next,  0, DEF_STRICT,   0 },
+        { "setup", Context_setup, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Context_setup) },
     };
     
     SlotBinder<Context>(eng, eng->Context_Type)

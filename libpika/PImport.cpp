@@ -118,8 +118,8 @@ Package* Pika_importScript(Context* ctx, String* name)
 {
     Engine* engine = ctx->GetEngine();
     Script* script = 0;
-   // size_t sp = ctx->GetStackSize();
-    name = Pika_ConvertDotName(engine, name);
+    // size_t sp = ctx->GetStackSize();
+    // name = Pika_ConvertDotName(engine, name);
     if ((script = engine->Compile(name, ctx)))
     {       
         ctx->Push(script);

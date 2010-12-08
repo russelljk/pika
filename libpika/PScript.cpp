@@ -237,6 +237,11 @@ void Script::Constructor(Engine* eng, Type* type, Value& res)
 
 namespace {
 
+PIKA_DOC(Script_run, "/([args])\
+\n\
+Runs the script with the optional arguments |args|. The return value will be a \
+'''true''' or '''false''' based on the success of the operation.")
+
 int Script_run(Context* ctx, Value& self)
 {
     Script* s = (Script*)self.val.object;
@@ -255,6 +260,24 @@ int Script_run(Context* ctx, Value& self)
     return 1;
 }
 
+PIKA_DOC(Script_fromBuffer, "/(buff)\
+\n\
+Creates a script form the string buffer |buff| given. The string should \
+contain the text of the script being created. After creation you should \
+execute the script with [run Script.run].\
+")
+
+PIKA_DOC(Script_export, "/(pkg)\
+\n\
+Sets the package, |pkg|, as the exported value of this script. This is the value returned from the function [import] which would normally be this script instance.\
+[[[\
+class A\n\
+end\n\
+\n\
+__package.export(A)\
+]]]\
+")
+
 }// namespace
 
 void Script::StaticInitType(Engine* eng)
@@ -264,21 +287,21 @@ void Script::StaticInitType(Engine* eng)
                                     eng->Package_Type,
                                     Script::Constructor, eng->GetWorld());
     SlotBinder<Script>(eng, eng->Script_Type)
-    .Method(&Script::SetImportResult, "export")
+    .Method(&Script::SetImportResult, "export", PIKA_GET_DOC(Script_export))
     ;
     
     static RegisterFunction ScriptMethods[] =
     {
-        { "run", Script_run, 0, DEF_VAR_ARGS, 0 },
+        { "run", Script_run, 0, DEF_VAR_ARGS, PIKA_GET_DOC(Script_run) },
     };
     
-    static RegisterFunction Script_PUB_Methods[] =
+    static RegisterFunction Script_ClassMethods[] =
     {
-        { "fromBuffer", Script_createWith, 3, DEF_VAR_ARGS, 0 },
+        { "fromBuffer", Script_createWith, 3, DEF_VAR_ARGS, PIKA_GET_DOC(Script_fromBuffer) },
     };
     
     eng->Script_Type->EnterMethods(ScriptMethods, countof(ScriptMethods));
-    eng->Script_Type->EnterClassMethods(Script_PUB_Methods, countof(Script_PUB_Methods));
+    eng->Script_Type->EnterClassMethods(Script_ClassMethods, countof(Script_ClassMethods));
     
     eng->GetWorld()->SetSlot("Script", eng->Script_Type);
 }

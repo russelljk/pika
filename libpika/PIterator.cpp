@@ -22,8 +22,8 @@ IterateHelper::~IterateHelper()
 IterateHelper::operator bool()
 {
     Value iter(iterator);
-    context->CheckStackSpace(1);
-    context->Push(iter);
+    
+    context->SafePush(iter);
     bool b = context->GetEngine()->ToBoolean(context, iter);
     context->Pop();
     return b;
@@ -88,23 +88,24 @@ void Iterator::Constructor(Engine* eng, Type* type, Value& res)
 
 namespace {
 
-PIKA_DOC(Iterator_Type, "Iterators are objects that can enumerate over a range or sequence of values."
-" Iterators are most commonly used by '''for''' loop.\n"
-"[[[for x in object\n"
-"  ...\n"
-"end]]]"
-" Types can provide thier own Iterators by overriding the [Object.iterate] method."
+PIKA_DOC(Iterator_Type, "Iterators are objects that can enumerate over a range \
+or sequence of values. Iterators are most commonly used by '''for''' loop.\n\
+[[[for x in object\n\
+  # ...\n\
+end]]]\n\
+Types can provide thier own Iterators by overriding the [Object.iterate] method."
 )
 
-PIKA_DOC(Iterator_toBoolean, "/()"
-"\n"
-"Returns true as long as the iterator is valid."
-)
+PIKA_DOC(Iterator_toBoolean, "/()\
+\n\
+Returns true as long as the iterator is valid.\
+")
 
-PIKA_DOC(Iterator_next, "/()"
-"\n"
-"Moves the iterator to the next value in the sequence it covers."
-" This function should be used in conjunction with [toBoolean] to ensure that the values returned are part of the sequence."
+PIKA_DOC(Iterator_next, "/()\
+\n\
+Moves the iterator to the next value in the sequence it covers. \
+This function should be used in conjunction with [toBoolean] to ensure that \
+the values returned are part of the sequence."
 )
 
 int Iterator_next(Context* ctx, Value& self)
@@ -127,6 +128,7 @@ void Iterator::StaticInitType(Engine* engine)
     .Method(&Iterator::ToBoolean, "toBoolean", PIKA_GET_DOC(Iterator_toBoolean))
     .RegisterMethod(Iterator_next, "next", 0, false, true, PIKA_GET_DOC(Iterator_next))
     ;
+    
     engine->Iterator_Type->SetDoc(engine->GetString(PIKA_GET_DOC(Iterator_Type)));
     Pkg_World->SetSlot(Iterator_String, engine->Iterator_Type);
 }

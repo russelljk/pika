@@ -395,6 +395,10 @@ bool String::SetSlot(const Value& key, Value& value, u4 attr) { return false; }
 bool String::CanSetSlot(const Value& key) { return false; }
 bool String::DeleteSlot(const Value& key) { return false; }
 
+PIKA_DOC(String_iterate, "/([kind])\
+\n\
+Returns an [Iterator iterator] for this string. The values iterated depend on the value of |kind|. If |kind| is equal to 'elements', '' or not specified then characters will be enumerated. If |kind| is 'indices' then indices will be enumerated.")
+
 Iterator* String::Iterate(String* iter_type)
 {
     // "lines" "words" might be useful to have. line world enumerate each substring separated by '\n'. words are chars+numbers,
@@ -1373,14 +1377,93 @@ PIKA_DOC(String_toUpper, "/()\n"
 "Converts and returns a copy of this string, with each letter converted to upper-case. Non-letter characters are copied as they appear in the string."
 )
 
-PIKA_DOC(String_join, "/(array)\
+PIKA_DOC(String_join, "/(obj)\
 \n\
-Joins the elements of the |array|, converted to a string, with this string inserted as glue between elements.\
+Joins the elements of |obj|, converted to a string, with this string inserted between elements. \
+The object, |obj|, must implement the '''iterate''' function or be an instance of an [Iterator] derived class.\
 [[[\
 print ';'.join( [ 1, 2, 3 ] ) #=> '1;2;3'\
 ]]]\
 "
 )
+
+PIKA_DOC(String_splitAt, "/(p)\
+\n\
+Split the string into two substrings at position |p|.")
+
+PIKA_DOC(String_split, "/(set)\
+\n\
+Split the where ever an character from |set| is present. The resultant strings will be returned in an [Array].\
+[[[\
+s = ',;'\n\
+print( 'dog,cat;wolf,lion'.split(s) ) #=> ['dog', 'cat', 'wolf', 'lion']\
+]]]\
+")
+
+PIKA_DOC(String_charAt, "/(pos)\
+\n\
+Returns the character at the position, |pos|, given. The character will be returned as a one character string.")
+
+PIKA_DOC(String_byteAt, "/(pos)\
+\n\
+Returns the byte at the position, |pos|, given. The byte will be returned as an [Integer integer].")
+
+PIKA_DOC(String_firstOf, "/(set)\
+\n\
+Returns the index of the first occurrence of any character in this string that is in the string |set|.\
+[[[\
+print( '123abc'.firstOf('abcd') ) #=> 3\
+]]]\
+")
+
+PIKA_DOC(String_firstNotOf, "/(set)\
+\n\
+Returns the index of the first occurrence of any character in this string that is not in the string |set|.\
+[[[\
+print( '123abc'.firstNotOf('12') ) #=> 2\
+]]]\
+")
+
+PIKA_DOC(String_lastOf, "/(set)\
+\n\
+Returns index of the last occurrence of any character in this string that is in the string |set|.\
+[[[\
+print( '123abc'.lastOf('123') ) #=> 2\
+]]]\
+")
+
+PIKA_DOC(String_lastNotOf, "/(set)\
+\n\
+Returns index of the last occurrence of any character in this string that is not in the string |set|.\
+[[[\
+print( '123abc'.lastNotOf('abc') ) #=> 2\
+]]]\
+")
+
+PIKA_DOC(String_substring, "/(start, stop)\
+\n\
+Returns a sub-string of this string from the range &#91;|start| - |stop|&#93;. If |stop| \
+is less than |start| the returned string will be reversed.")
+
+PIKA_DOC(String_cat, "/(left, right)\
+\n\
+Concatenates the string |left| to the string |right|.")
+
+PIKA_DOC(String_catSp, "/(left, right)\
+\n\
+Concatenates the string |left| to the string |right|, inserting a space character in between them.")
+
+PIKA_DOC(String_fromByte, "/(byte)\
+\n\
+Converts the character |byte| into a string.")
+
+PIKA_DOC(String_new, "/(val)\
+\n\
+Creates a string from |val|, calling the conversion function '''toString''' as needed.")
+
+PIKA_DOC(String_replaceChar, "/(x, r)\
+\n\
+Replaces all instances of |x| with |r|. Both |x| and |r| should be strings of length one.")
 
 void String::StaticInitType(Engine* eng)
 {
@@ -1394,21 +1477,21 @@ void String::StaticInitType(Engine* eng)
     static RegisterFunction String_Methods[] =
     {
         // name, function, argc, strict, varargs
-        { "replaceChar",	StringApi::replaceChar,         2, DEF_STRICT,   0 },
+        { "replaceChar",	StringApi::replaceChar,         2, DEF_STRICT,   PIKA_GET_DOC(String_replaceChar) },
         { "toInteger",  	StringApi::toInteger,           0, 0,            PIKA_GET_DOC(String_toInteger) },
         { "toReal",     	StringApi::toReal,              0, 0,            PIKA_GET_DOC(String_toReal) },
         { "toNumber",       StringApi::toNumber,            0, 0,            PIKA_GET_DOC(String_toNumber) },
         { "toLower",        StringApi::toLower,             0, 0,            PIKA_GET_DOC(String_toLower) },
         { "toUpper",        StringApi::toUpper,             0, 0,            PIKA_GET_DOC(String_toUpper) },
-        { "charAt",         StringApi::charAt,              1, DEF_STRICT,   0 },
-        { "split",          StringApi::split,               1, 0,            0 },
-        { "splitAt",        StringApi::splitAt,             1, 0,            0 },
-        { "byteAt",     	StringApi::byteAt,              1, 0,            0 },
-        { "firstOf",        StringApi::firstOf,             1, DEF_VAR_ARGS, 0 },
-        { "firstNotOf",     StringApi::firstNotOf,          1, DEF_VAR_ARGS, 0 },
-        { "lastOf",         StringApi::lastOf,              2, DEF_VAR_ARGS, 0 },
-        { "lastNotOf",      StringApi::lastNotOf,           2, DEF_VAR_ARGS, 0 },
-        { "substring",      StringApi::slice,               2, DEF_STRICT,   0 },
+        { "charAt",         StringApi::charAt,              1, DEF_STRICT,   PIKA_GET_DOC(String_charAt) },
+        { "split",          StringApi::split,               1, 0,            PIKA_GET_DOC(String_split) },
+        { "splitAt",        StringApi::splitAt,             1, 0,            PIKA_GET_DOC(String_splitAt) },
+        { "byteAt",     	StringApi::byteAt,              1, 0,            PIKA_GET_DOC(String_byteAt) },
+        { "firstOf",        StringApi::firstOf,             1, DEF_VAR_ARGS, PIKA_GET_DOC(String_firstOf) },
+        { "firstNotOf",     StringApi::firstNotOf,          1, DEF_VAR_ARGS, PIKA_GET_DOC(String_firstNotOf) },
+        { "lastOf",         StringApi::lastOf,              2, DEF_VAR_ARGS, PIKA_GET_DOC(String_lastOf) },
+        { "lastNotOf",      StringApi::lastNotOf,           2, DEF_VAR_ARGS, PIKA_GET_DOC(String_lastNotOf) },
+        { "substring",      StringApi::slice,               2, DEF_STRICT,   PIKA_GET_DOC(String_substring) },
         { "chomp",          StringApi::chomp,               1, DEF_VAR_ARGS, PIKA_GET_DOC(String_chomp) },
         { "times",          StringApi::times,               1, DEF_STRICT,   PIKA_GET_DOC(String_times)   },
         { "opMul",          StringApi::times,               1, DEF_STRICT,   PIKA_GET_DOC(String_times)   },
@@ -1419,16 +1502,16 @@ void String::StaticInitType(Engine* eng)
         { "digit?",         StringApi::is_digit,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_digit) },
         { "ascii?",         StringApi::is_ascii,            0, DEF_STRICT,   PIKA_GET_DOC(String_is_ascii) },
         { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT,   PIKA_GET_DOC(String_is_whitespace) },
-        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, 0 },
+        { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, PIKA_GET_DOC(String_iterate) },
         { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_join) },
     };
     
     static RegisterFunction String_ClassMethods[] =
     {
-        { "cat",        StringApi::concat,      0, DEF_VAR_ARGS, 0 },
-        { "catSp",      StringApi::concatSpace, 0, DEF_VAR_ARGS, 0 },
-        { "fromByte",   StringApi::fromByte,    1, DEF_STRICT,   0 },
-        { NEW_CSTR,     StringApi::init,        1, DEF_STRICT,   0 },
+        { "cat",        StringApi::concat,      0, DEF_VAR_ARGS, PIKA_GET_DOC(String_cat) },
+        { "catSp",      StringApi::concatSpace, 0, DEF_VAR_ARGS, PIKA_GET_DOC(String_catSp) },
+        { "fromByte",   StringApi::fromByte,    1, DEF_STRICT,   PIKA_GET_DOC(String_fromByte) },
+        { NEW_CSTR,     StringApi::init,        1, DEF_STRICT,   PIKA_GET_DOC(String_new) },
     };
     eng->String_Type = Type::Create(eng, eng->AllocString("String"), eng->Basic_Type, StringApi::Constructor, eng->GetWorld());
         
