@@ -9,6 +9,10 @@
 #   include "PContext.h"
 #endif
 
+#ifndef PIKA_ITERATOR_HEADER
+#   include "PIterator.h"
+#endif
+
 namespace pika {
 
 enum GenState {
@@ -18,9 +22,9 @@ enum GenState {
     GS_finished,
 };
 
-class PIKA_API Generator : public Object
+class PIKA_API Generator : public Iterator
 {
-    PIKA_DECL(Generator, Object)
+    PIKA_DECL(Generator, Iterator)
 public:
     Generator(Engine* eng, Type* typ, Function* fn);
     Generator(Generator* rhs);

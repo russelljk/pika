@@ -657,8 +657,7 @@ void Context::Run()
                 if (object.tag >= TAG_basic)
                 {
                     if (field.val.str == engine->emptyString && 
-                        (engine->Generator_Type->IsInstance(object) ||
-                         engine->Iterator_Type->IsInstance(object)))
+                        (engine->Iterator_Type->IsInstance(object)))
                     {
                         result = object;
                     }

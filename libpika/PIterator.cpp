@@ -53,6 +53,10 @@ Iterator::Iterator(Engine* eng, Type* typ) : ThisSuper(eng, typ)
 {
 }
 
+Iterator::Iterator(Iterator* rhs) : ThisSuper(rhs)
+{
+}
+
 Iterator::~Iterator()
 {
 }

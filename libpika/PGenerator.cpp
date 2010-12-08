@@ -328,7 +328,7 @@ void Generator::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
     String* Generator_String = eng->AllocString("Generator");
-    eng->Generator_Type = Type::Create(eng, Generator_String, eng->Object_Type, Generator::Constructor, Pkg_World);
+    eng->Generator_Type = Type::Create(eng, Generator_String, eng->Iterator_Type, Generator::Constructor, Pkg_World);
     Pkg_World->SetSlot(Generator_String, eng->Generator_Type);
     
     SlotBinder<Generator>(eng, eng->Generator_Type)

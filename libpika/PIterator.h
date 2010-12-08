@@ -2,8 +2,8 @@
  *  PIterator.h
  *  See Copyright Notice in Pika.h
  */
-#ifndef PITERATOR_HEADER
-#define PITERATOR_HEADER
+#ifndef PIKA_ITERATOR_HEADER
+#define PIKA_ITERATOR_HEADER
 
 namespace pika {
 
@@ -32,6 +32,7 @@ class PIKA_API Iterator : public Object
     PIKA_DECL(Iterator, Object)
 protected:
     Iterator(Engine*, Type*);
+    Iterator(Iterator*);
 public:
     virtual ~Iterator();
     
