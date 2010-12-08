@@ -14,6 +14,19 @@ enum IterateKind {
     IK_default,
 };
 
+class PIKA_API IterateHelper 
+{
+public:
+    IterateHelper(Iterator* iter, Context* ctx);    
+    ~IterateHelper();
+    
+    operator bool();
+    Value Next();
+    
+    Iterator* iterator;
+    Context* context;
+};
+
 class PIKA_API Iterator : public Object
 {
     PIKA_DECL(Iterator, Object)

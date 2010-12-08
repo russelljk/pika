@@ -6,6 +6,47 @@
 #include "PIterator.h"
 
 namespace pika {
+
+IterateHelper::IterateHelper(Iterator* iter, Context* ctx) :
+    iterator(iter),
+    context(ctx)
+{
+
+}
+    
+IterateHelper::~IterateHelper()
+{
+
+}
+
+IterateHelper::operator bool()
+{
+    Value iter(iterator);
+    context->CheckStackSpace(1);
+    context->Push(iter);
+    bool b = context->GetEngine()->ToBoolean(context, iter);
+    context->Pop();
+    return b;
+}
+
+Value IterateHelper::Next()
+{
+    Value iter(iterator);
+    Value res(NULL_VALUE);
+    if (GetOverrideFrom(context->GetEngine(), iter.val.basic, OVR_next, res))
+    {
+        context->CheckStackSpace(3);
+        context->Push(iter);
+        context->Push(res);
+        if (context->SetupCall(0, 1))
+        {
+            context->Run();
+        }
+        return context->PopTop();
+    }
+    return res;
+}
+
 PIKA_IMPL(Iterator)
 
 Iterator::Iterator(Engine* eng, Type* typ) : ThisSuper(eng, typ)

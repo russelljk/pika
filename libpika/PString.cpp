@@ -1230,12 +1230,51 @@ public:
         Engine* eng = ctx->GetEngine();
         String* src_str = self.val.str;
         size_t src_len = src_str->GetLength();
-        Array* array = ctx->GetArgT<Array>(0);
+        Value val = ctx->GetArg(0);
+        Value result(NULL_VALUE);
+        
+        if (!val.tag >= TAG_basic || !GetOverrideFrom(eng, val.val.basic, OVR_iterate, result))
+        {
+            RaiseException("Cannot join string '%s' with non iterable object %s.", src_str->GetBuffer(), eng->SafeToString(ctx, val));
+        }
+        else if (!result.IsDerivedFrom(Iterator::StaticGetClass()))
+        {
+            ctx->Push(eng->emptyString);
+            ctx->Push(val);
+            ctx->Push(result);
+            if (ctx->SetupCall(1))
+            {
+                ctx->Run();
+            }
+    
+            result = ctx->PopTop();
+        }
+        
+        if (!result.IsDerivedFrom(Iterator::StaticGetClass()))
+            RaiseException("Cannot join string '%s' with non iterable object %s.", src_str->GetBuffer(), eng->SafeToString(ctx, val));
+        
+        Iterator* iterator = (Iterator*)result.val.object;            
+        IterateHelper iter(iterator, ctx);
+        
+        
+        if (!iter)
+        {
+            ctx->Push(eng->emptyString);
+            return 1;
+        }
+        else
+        {
+            ctx->Push(iterator);
+        }
+        
         Buffer<char> buff;
         buff.SetCapacity(32);
-        for (size_t i = 0; i < array->GetLength(); ++i)
+        
+        for (;;)
         {
-            Value elem = array->At(i);
+            Value elem = iter.Next();            
+            if (!iter)
+                break;
             String* elem_str = eng->ToString(ctx, elem);
             size_t pos = buff.GetSize();
             size_t elem_len = elem_str->GetLength();
@@ -1258,13 +1297,12 @@ public:
 
             }
             Pika_memcpy(buff.GetAt(pos), elem_str->GetBuffer(), elem_len);
-        }
-        
+        } 
         if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
             RaiseException("Attempt to create a String too large in String.join. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
             
-        String* result = eng->GetString(buff.GetAt(0), buff.GetSize());
-        ctx->Push(result);
+        String* strresult = eng->GetString(buff.GetAt(0), buff.GetSize());
+        ctx->Top().Set(strresult); // Overwrite the iterator
         return 1;
     }
 };
