@@ -167,6 +167,33 @@ bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res)
     return objType->GetField(vwhat, res);
 }
 
+Iterator* GetIteratorFrom(Context* ctx, Value& val, String* kind)
+{
+    if (!val.tag >= TAG_basic)
+        return 0;
+    
+    Engine* eng = ctx->GetEngine();
+    Value result(NULL_VALUE);
+    
+    if (GetOverrideFrom(eng, val.val.basic, OVR_iterate, result))
+    {            
+        ctx->Push(kind ? kind : eng->emptyString);
+        ctx->Push(val);
+        ctx->Push(result);
+        if (ctx->SetupCall(1))
+        {
+            ctx->Run();
+        }
+
+        result = ctx->PopTop();
+        if (eng->Iterator_Type->IsInstance(result))
+        {
+            return (Iterator*)result.val.object;
+        }
+    }
+    return 0;
+}
+
 PIKA_IMPL(Context)
 
 void Context::PushCallScope()

@@ -1224,38 +1224,26 @@ public:
         }
         return 0;
     }
-    
+        
     static int join(Context* ctx, Value& self)
     {
         Engine* eng = ctx->GetEngine();
         String* src_str = self.val.str;
         size_t src_len = src_str->GetLength();
-        Value val = ctx->GetArg(0);
+        Value arg = ctx->GetArg(0);
         Value result(NULL_VALUE);
+        Iterator* iterator = 0;
         
-        if (!val.tag >= TAG_basic || !GetOverrideFrom(eng, val.val.basic, OVR_iterate, result))
+        if (eng->Iterator_Type->IsInstance(arg))
         {
-            RaiseException("Cannot join string '%s' with non iterable object %s.", src_str->GetBuffer(), eng->SafeToString(ctx, val));
+            iterator = (Iterator*)arg.val.object;
         }
-        else if (!result.IsDerivedFrom(Iterator::StaticGetClass()))
+        else if (!(iterator = GetIteratorFrom(ctx, arg, 0)))
         {
-            ctx->Push(eng->emptyString);
-            ctx->Push(val);
-            ctx->Push(result);
-            if (ctx->SetupCall(1))
-            {
-                ctx->Run();
-            }
-    
-            result = ctx->PopTop();
+            RaiseException("Cannot join string '%s' with non iterable object %s.", src_str->GetBuffer(), eng->SafeToString(ctx, arg));
         }
         
-        if (!result.IsDerivedFrom(Iterator::StaticGetClass()))
-            RaiseException("Cannot join string '%s' with non iterable object %s.", src_str->GetBuffer(), eng->SafeToString(ctx, val));
-        
-        Iterator* iterator = (Iterator*)result.val.object;            
-        IterateHelper iter(iterator, ctx);
-        
+        IterateHelper iter(iterator, ctx);        
         
         if (!iter)
         {

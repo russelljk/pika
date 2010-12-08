@@ -690,34 +690,27 @@ void Context::Run()
                                            "For each set kind must be a function generator.");
                             }
                         }
-                        else if (GetOverrideFrom(engine, object.val.basic, OVR_iterate, result))
-                        {
-                            this->Push(field);
-                            this->Push(object);
-                            this->Push(result);
-                            if (this->SetupCall(1))
-                            {
-                                this->Run();
-                            }
-                    
-                            result = this->PopTop();
-                        }
                         else
                         {
-                            if (field.val.str == engine->emptyString)
+                            Iterator* iterator = GetIteratorFrom(this, object, field.val.str);
+                            if (!iterator)
                             {
-                                ReportRuntimeError(Exception::ERROR_runtime,
-                                                   "Cannot find iterator for object of type %s.",
-                                                   engine->GetTypenameOf(object)->GetBuffer());
-                            }
-                            else
-                            {
-                                ReportRuntimeError(Exception::ERROR_runtime, 
-                                                   "Cannot find iterator '%s' for object of type %s.",
-                                                   field.val.str->GetBuffer(), 
-                                                   engine->GetTypenameOf(object)->GetBuffer());    
-                            }
+                                if (field.val.str == engine->emptyString)
+                                {
+                                    ReportRuntimeError(Exception::ERROR_runtime,
+                                                       "Cannot find iterator for object of type %s.",
+                                                       engine->GetTypenameOf(object)->GetBuffer());
+                                }
+                                else
+                                {
+                                    ReportRuntimeError(Exception::ERROR_runtime, 
+                                                       "Cannot find iterator '%s' for object of type %s.",
+                                                       field.val.str->GetBuffer(), 
+                                                       engine->GetTypenameOf(object)->GetBuffer());    
+                                }
 
+                            }
+                            result.Set(iterator);
                         }
                     }        
                 }

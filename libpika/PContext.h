@@ -641,6 +641,7 @@ INLINE T* Context::GetArgT(u2 arg)
 }
 
 bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res);
+Iterator* GetIteratorFrom(Context* ctx, Value& val, String* kind=0);
 
 /** Keeps a value safe from the GC.
   * Since this is a C++ class the destructor will take care of cleanup when the current scope is exited explicitly or implicity.
