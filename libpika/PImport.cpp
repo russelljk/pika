@@ -60,16 +60,17 @@ String* Pika_ConvertDotName(Engine* eng, String* path)
             buff[i] = x;
         }
     }
-    Pika_memcpy(buff + len, extension, path->GetLength() - len);
+    Pika_memcpy(buff + len, extension, path->GetLength() - len);    
+    String* res = eng->GetString(buff, path->GetLength());
     Pika_free(buff);
-    return eng->AllocString(buff, path->GetLength());
+    return res;
 }
 
 /** Constructs a system dependent Module name. */
 String* Pika_ConstructModuleName(Engine* eng, String* name)
 {
-    String* shared_prefix = eng->AllocString(PIKA_LIB_PREFIX);
-    String* shared_ext    = eng->AllocString(PIKA_LIB_EXT);
+    String* shared_prefix = eng->GetString(PIKA_LIB_PREFIX);
+    String* shared_ext    = eng->GetString(PIKA_LIB_EXT);
     String* full_namestr  = String::Concat(shared_prefix, name);
     String* res           = String::Concat(full_namestr, shared_ext);
     return res;
@@ -78,7 +79,7 @@ String* Pika_ConstructModuleName(Engine* eng, String* name)
 /** Constructs the symbol name of a Module's entry point. */
 String* Pika_ConstructModuleFnName(Engine* eng, String* name, const char* libPrefix)
 {
-    String* prefix = eng->AllocString(libPrefix);
+    String* prefix = eng->GetString(libPrefix);
     String* res    = String::Concat(prefix, name);
     return res;
 }
@@ -259,7 +260,7 @@ int Global_import(Context* ctx, Value& self)
                     return 0;                    
                 }
             }
-            else if (res.IsString() && (res.val.str == eng->loading_String || res.val.str == eng->AllocString("compiling")))
+            else if (res.IsString() && (res.val.str == eng->loading_String || res.val.str == eng->GetString("compiling")))
             {
                 RaiseException("Attempt to import '%s' failed. Circular dependency detected.", name->GetBuffer());
             }

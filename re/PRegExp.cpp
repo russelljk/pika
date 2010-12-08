@@ -5,25 +5,7 @@
 #include "Pika.h"
 #include "PRegExp.h"
 #include "PlatRE.h"
-#if defined(PIKA_WIN)
 
-#include <windows.h>
-
-BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD  ul_reason_for_call,
-                      LPVOID lpReserved)
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH: break;
-    }
-    return TRUE;
-}
-
-#endif
 
 #define NUM_MATCHES  128
 #define ERR_BUF_SZ   1024
@@ -313,7 +295,8 @@ public:
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res)
     {
-        RegExp* re = RegExp::StaticNew(eng, obj_type, 0);
+        Object* re = RegExp::StaticNew(eng, obj_type, 0);
+        ClassInfo* info = re->GetClassInfo();
         res.Set(re);
     }
     
