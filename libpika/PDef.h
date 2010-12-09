@@ -143,7 +143,7 @@ public:
     
     //TODO: AddLocalVar and SetLocalRange assume that the CompileState and Def assign the var the same offset.
     //      The offset of the var should be tracked by only one class.
-    
+    void AddNamedParams(Engine*, const char**, size_t count);
     void AddLocalVar(Engine*, const char*, ELocalVarType lvt = LVT_variable);
     void SetLocalRange(size_t local, size_t start, size_t end);
     void SetSource(Engine* eng, const char* buff, size_t len);

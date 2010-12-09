@@ -1096,7 +1096,7 @@ void Engine::InitializeWorld()
             { "toNumber",   Real_toNumber,  0, 0, PIKA_GET_DOC(Real_toNumber) },
             { "toBoolean",  Real_toBoolean, 0, 0, PIKA_GET_DOC(Real_toBoolean) },
             { "nan?",       Real_isnan,     0, 0, PIKA_GET_DOC(Real_isnan) },
-            // TODO:: finite? infinite? SignBit etc...
+            // TODO:: finite? infinite? sign etc...
         };
         
         static RegisterProperty Real_Properties[] =

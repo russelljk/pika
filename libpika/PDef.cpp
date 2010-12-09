@@ -87,6 +87,14 @@ void Def::SetBytecode(code_t* bc, u2 len)
     PIKA_NEW(Bytecode, bytecode, (bc, len));
 }
 
+void Def::AddNamedParams(Engine* eng, const char** names, size_t count)
+{
+    for (size_t p = 0; p < count; ++p)
+    {
+        AddLocalVar(eng, names[p], LVT_parameter);
+    }
+}
+
 void Def::AddLocalVar(Engine* eng, const char* name, ELocalVarType lvt)
 {
     LocalVarInfo lv;
