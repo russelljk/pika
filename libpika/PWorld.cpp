@@ -932,8 +932,9 @@ void Engine::InitializeWorld()
         Function::StaticInitType(this);
         String::StaticInitType(this);
         PathManager::StaticInitType(this);
-        Generator::StaticInitType(this);
         Iterator::StaticInitType(this);
+        Generator::StaticInitType(this);
+
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
         paths->SetSlot(GetString("__doc"), GetString(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 

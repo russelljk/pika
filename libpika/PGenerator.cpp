@@ -71,6 +71,8 @@ void Generator::MarkRefs(Collector* c)
     }
 }
 
+PIKA_DOC(Generator_toBoolean, "Returns whether or not the generator is yielded and can be resumed by calling [next].")
+
 bool Generator::ToBoolean()
 {
     return state == GS_yielded;
@@ -291,12 +293,26 @@ size_t Generator::FindLastCallScope(Context* ctx, ScopeIter iter)
 
 namespace {
 
+PIKA_DOC(Generator_getState, "Returns the current [state] of the generator.")
+
+PIKA_DOC(Generator_state, "The current state of the generator. <br />\
+It will be one of the following values:\n\
+\
+'''Generator.CLEAN''' - The generator has not be initialized or run.<br />\
+'''Generator.YIELDED''' - The generator has yielded.<br />\
+'''Generator.RESUMED''' - The generator is running.<br />\
+'''Generator.FINISHED''' - The generator has run and finished either by a return statement or and exception.<br />\
+")
+
 int Generator_state(Context* ctx, Value& self)
 {
     Generator* gen = static_cast<Generator*>(self.val.object);
     ctx->Push((pint_t)gen->GetState());
     return 1;
 }
+
+PIKA_DOC(Generator_getFunction, "Returns the [function] for this generator.")
+PIKA_DOC(Generator_function, "The [Function function] this generator is using.")
 
 int Generator_function(Context* ctx, Value& self)
 {
@@ -308,6 +324,14 @@ int Generator_function(Context* ctx, Value& self)
         ctx->PushNull();
     return 1;
 }
+
+PIKA_DOC(Generator_next, "Resumes the generator. This method will return any \
+arguments yielded or returned by its [function]. If [toBoolean] returns false \
+then an exception will be raised when this method is called. A generator can \
+only be resumed with it's [state] is equal to '''Generator.YIELDED'''. \n\
+If values returned are from a '''yield''' statement [toBoolean] will be '''true''' and the [state] will be '''Generator.YIELDED'''. \
+If values returned are from a '''return''' statement [toBoolean] will be '''false''' and the [state] will be '''Generator.FINISHED'''.\
+")
 
 int Generator_next(Context* ctx, Value& self)
 {
@@ -322,6 +346,22 @@ int Generator_next(Context* ctx, Value& self)
     return retc;
 }
 
+PIKA_DOC(Generator_class, "The Generator class is an [Iterator] that enumerates \
+the values yielded by its [function]. Because it is an Iterator, Generators can \
+be used in '''for''' loops or you can use the methods [toBoolean] and [next] to control the iteration.\n\
+You can create a new generator by calling a function that contains a yield statement.\
+[[[\
+function count(n)\n\
+  for i = 0 to n\n\
+    yield i\n\
+  end\n\
+end\n\
+\n\
+g = count(10)\n\
+print(g) #=> Generator:instance\n\
+print(g.next(), g.next(), g.next()) #=> 0 1 2\n\
+]]]\
+")
 }
 
 void Generator::StaticInitType(Engine* eng)
@@ -330,10 +370,10 @@ void Generator::StaticInitType(Engine* eng)
     String* Generator_String = eng->AllocString("Generator");
     eng->Generator_Type = Type::Create(eng, Generator_String, eng->Iterator_Type, Generator::Constructor, Pkg_World);
     Pkg_World->SetSlot(Generator_String, eng->Generator_Type);
-    
+    eng->Generator_Type->SetDoc(PIKA_GET_DOC(Generator_class));
     SlotBinder<Generator>(eng, eng->Generator_Type)
-    .Method(&Generator::ToBoolean,  "toBoolean")
-    .Register(Generator_next, "next", 0, false, true)
+    .Method(&Generator::ToBoolean,  "toBoolean", PIKA_GET_DOC(Generator_toBoolean))
+    .Register(Generator_next, "next", 0, false, true, PIKA_GET_DOC(Generator_next))
     .Constant((pint_t)GS_clean,     "CLEAN")
     .Constant((pint_t)GS_yielded,   "YIELDED")
     .Constant((pint_t)GS_resumed,   "RESUMED")
@@ -342,8 +382,8 @@ void Generator::StaticInitType(Engine* eng)
     
     static RegisterProperty Generator_Properties[] =
     {
-        { "state",    Generator_state,    "getState",    0, 0, false, 0, 0 },
-        { "function", Generator_function, "getFunction", 0, 0, false, 0, 0 }
+        { "state",    Generator_state,    "getState",    0, 0, false, PIKA_GET_DOC(Generator_getState),    0, PIKA_GET_DOC(Generator_state)    },
+        { "function", Generator_function, "getFunction", 0, 0, false, PIKA_GET_DOC(Generator_getFunction), 0, PIKA_GET_DOC(Generator_function) }
     };
     
     eng->Generator_Type->EnterProperties(Generator_Properties, countof(Generator_Properties));
