@@ -269,7 +269,8 @@ execute the script with [run Script.run].\
 
 PIKA_DOC(Script_export, "/(pkg)\
 \n\
-Sets the package, |pkg|, as the exported value of this script. This is the value returned from the function [import] which would normally be this script instance.\
+Sets the package, |pkg|, as the exported value of this script. This is the \
+value returned from the function [import] which would normally be this script instance.\
 [[[\
 class A\n\
 end\n\
@@ -277,6 +278,11 @@ end\n\
 __package.export(A)\
 ]]]\
 ")
+
+PIKA_DOC(Script_class, "Scripts are the result of an [import imported] Pika \
+file. Since Script is derived from Package they serve as the global scope for \
+the script. Imported scripts are located in the [imports] package along with \
+other scripts however thier parent package is [world].")
 
 }// namespace
 
@@ -302,7 +308,7 @@ void Script::StaticInitType(Engine* eng)
     
     eng->Script_Type->EnterMethods(ScriptMethods, countof(ScriptMethods));
     eng->Script_Type->EnterClassMethods(Script_ClassMethods, countof(Script_ClassMethods));
-    
+    eng->Script_Type->SetDoc(PIKA_GET_DOC(Script_class));
     eng->GetWorld()->SetSlot("Script", eng->Script_Type);
 }
 

@@ -96,14 +96,9 @@ end]]]\n\
 Types can provide thier own Iterators by overriding the [Object.iterate] method."
 )
 
-PIKA_DOC(Iterator_toBoolean, "/()\
-\n\
-Returns true as long as the iterator is valid.\
-")
+PIKA_DOC(Iterator_toBoolean, "Returns true as long as the iterator is valid.")
 
-PIKA_DOC(Iterator_next, "/()\
-\n\
-Moves the iterator to the next value in the sequence it covers. \
+PIKA_DOC(Iterator_next, "Moves the iterator to the next value in the sequence it covers. \
 This function should be used in conjunction with [toBoolean] to ensure that \
 the values returned are part of the sequence."
 )

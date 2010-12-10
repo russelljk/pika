@@ -99,6 +99,8 @@ public:
             for (size_t i = 0; i < opts->GetLength(); ++i)
             {
                 switch (buff[i]) {
+                case 'a':
+                    is_utf8 = false;
                 case 'g':
                     is_global = true;
                     break;
@@ -107,6 +109,7 @@ public:
                     break;
                 case 'm':
                     is_multiline = true;
+                    break;
                     break;
                 default:
                     RaiseException("Unknown RegExp.init option encountered in '%s' only combinations of 'g', 'i' and 'm' are allowed.", buff);
@@ -499,6 +502,70 @@ namespace {
 
 using pika::RegExp;
 
+PIKA_DOC(RegExp_init, "/(pattern, options)\
+\n\
+Initializes a new RegExp instance. \n\
+The parameter |pattern| should be the regular \
+expression pattern. Ensure that the string is properly escaped otherwise you \
+may end up with a different pattern than intended. \n\
+The parameter |options| is \
+the string containing the options to compile the |pattern| with. Use 'g' for \
+global, 'i' for case insensitive, 'm' for multiline, 'a' ascii no utf-8 support.\n\
+[[[\
+RegExp = import 'RegExp'\n\
+re = RegExp.new('[a-zA-Z]+', 'gm')\
+]]]\
+")
+
+PIKA_DOC(RegExp_is_global, "Is this regular expression global. This means each \
+operation moves the [lastIndex], otherwise each operation will start at the \
+beginning of the [String string].")
+
+PIKA_DOC(RegExp_is_multiline, "Does this regular expression work across multiple \
+lines, otherwise each operation will end at a newline.")
+
+PIKA_DOC(RegExp_is_utf8, "Is this regular expression utf-8 aware. By default this will be true.")
+
+PIKA_DOC(RegExp_is_insensitive, "Is this regular expression case insensitive.")
+
+PIKA_DOC(RegExp_pattern, "The pattern for this regular expression.")
+
+PIKA_DOC(RegExp_getLastIndex, "Returns the last index from the previous \
+operation. If the regular expression is not [global?] then the last index will be ignored.")
+
+PIKA_DOC(RegExp_setLastIndex, "/(index)\
+\n\
+Sets [lastIndex] to |index|. This will be the starting point in a \
+[String string] for any future operations. If the regular expression is not \
+[global?] then the last index will be ignored.")
+
+PIKA_DOC(RegExp_lastIndex, "The last index from the previous operation. If the \
+regular expression is not [global?] then the last index will be ignored.")
+
+PIKA_DOC(RegExp_exec, "/(string, obj? = false)\
+\n\
+Returns an [Array array] of [String] matches for the |string| given. If |obj?| \
+is true then a array of [Object objects] will be returned with the start, stop \
+and match string members.")
+
+PIKA_DOC(RegExp_test, "/(string)\
+\n\
+Returns whether or not |string| is matched. If the regular expression is \
+[global? global] then [lastIndex] will be moved.")
+
+PIKA_DOC(RegExp_compile, "/(pattern)\
+Compile the |pattern| given. The options that this instance was initialized \
+with will be used.")
+
+PIKA_DOC(String_matchReplace, "/(re, fmt)\
+\n\
+Replaces every match from the [imports.RegExp.RegExp regular expression], |re|, using the format \
+[String string] or [Function function] |fmt|. \
+If |fmt| is a string then each match will be placed by applying [sprintp] to the format string and match results. \
+If |fmt| is a function then for each match |fmt| will be called with the current matches. The return value will then be used as the format string passed to [sprintp].\
+\n\
+This method is only available when the [Module] [imports.RegExp] is [import imported].")
+
 PIKA_MODULE(RegExp, eng, re)
 {
     pika::GCPAUSE(eng);
@@ -508,21 +575,24 @@ PIKA_MODULE(RegExp, eng, re)
     pika::Type* RegExp_Type = pika::Type::Create(eng, RegExp_String, eng->Object_Type, RegExp::Constructor, Pkg_World);
     
     pika::SlotBinder<pika::RegExp>(eng, RegExp_Type)
-    .RegisterMethod(pika::RegExp_exec, "exec", 1, true, false)
-    .Method(&RegExp::Test,     "test")
-    .Method(&RegExp::Compile,  "compile")
-    .MethodVA(&RegExp::Init,   "init")
+    .RegisterMethod(pika::RegExp_exec, "exec", 1, true, false, PIKA_GET_DOC(RegExp_exec))
+    .Method(&RegExp::Test,     "test", PIKA_GET_DOC(RegExp_test))
+    .Method(&RegExp::Compile,  "compile", PIKA_GET_DOC(RegExp_compile))
+    .MethodVA(&RegExp::Init,   "init", PIKA_GET_DOC(RegExp_init))
     .PropertyRW("lastIndex",    &RegExp::GetLastIndex, "getLastIndex", 
-                                &RegExp::SetLastIndex, "setLastIndex")
-    .PropertyR("global?",       &RegExp::IsGlobal,      0)
-    .PropertyR("multiline?",    &RegExp::IsMultiline,   0)
-    .PropertyR("utf8?",         &RegExp::IsUtf8,        0)
-    .PropertyR("insensitive?",  &RegExp::IsInsensitive, 0)
-    .PropertyR("pattern",       &RegExp::Pattern,       0)
+                                &RegExp::SetLastIndex, "setLastIndex", 
+                                                           PIKA_GET_DOC(RegExp_getLastIndex), 
+                                                           PIKA_GET_DOC(RegExp_setLastIndex), 
+                                                           PIKA_GET_DOC(RegExp_lastIndex))
+    .PropertyR("global?",       &RegExp::IsGlobal,      0, 0, PIKA_GET_DOC(RegExp_is_global))
+    .PropertyR("multiline?",    &RegExp::IsMultiline,   0, 0, PIKA_GET_DOC(RegExp_is_multiline))
+    .PropertyR("utf8?",         &RegExp::IsUtf8,        0, 0, PIKA_GET_DOC(RegExp_is_utf8))
+    .PropertyR("insensitive?",  &RegExp::IsInsensitive, 0, 0, PIKA_GET_DOC(RegExp_is_insensitive))
+    .PropertyR("pattern",       &RegExp::Pattern,       0, 0, PIKA_GET_DOC(RegExp_pattern))
     ;
     
     static pika::RegisterFunction String_Methods[] = {
-        { "matchReplace", pika::String_matchReplace, 2, pika::DEF_STRICT, 0 }
+        { "matchReplace", pika::String_matchReplace, 2, pika::DEF_STRICT, PIKA_GET_DOC(String_matchReplace) }
     };
     
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
