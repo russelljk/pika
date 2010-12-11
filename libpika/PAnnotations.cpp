@@ -85,6 +85,7 @@ namespace {
         {
             Function* func = static_cast<Function*> (obj);
             func->location = pkg;
+            func->WriteBarrier(pkg);
         }
         else if (engine->Package_Type->IsInstance(obj))
         {
