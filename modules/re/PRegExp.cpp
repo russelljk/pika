@@ -566,7 +566,7 @@ If |fmt| is a function then for each match |fmt| will be called with the current
 \n\
 This method is only available when the [Module] [imports.RegExp] is [import imported].")
 
-PIKA_MODULE(RegExp, eng, re)
+PIKA_MODULE(re, eng, re)
 {
     pika::GCPAUSE(eng);
     //////////////////
@@ -596,8 +596,7 @@ PIKA_MODULE(RegExp, eng, re)
     };
     
     eng->String_Type->EnterMethods(String_Methods, countof(String_Methods));
-    //RegExp_Type->EnterMethods(RegExpFunctions, countof(RegExpFunctions));
     re->SetSlot(RegExp_String, RegExp_Type);
-    return RegExp_Type;
+    return re;
 }
 

@@ -1,8 +1,8 @@
 #
-# CMakeLists.txt for pikaRegExp
+# CMakeLists.txt for pikare
 # TODO: Install library and headers
 #
-message (STATUS "********* Starting pikaRegExp library *********")
+message (STATUS "********* Starting pikare library *********")
 
 # Disable 'unsecure' warnings in VC++
 
@@ -43,6 +43,16 @@ if (RE_EXTERNAL_POSIX)
     check_function_exists ("regcomp;regerror;regexec;regfree" HAVE_POSIX_RE)
 endif(RE_EXTERNAL_POSIX)
 
+# -------------------------------------------------------------------------
+# Set version numbers
+# -------------------------------------------------------------------------
+
+set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
+set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
+set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
+
+set (pikare_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
+
 # --------------------- Source + Header Files ----------------------
 
 if (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)
@@ -65,14 +75,18 @@ include_directories (${Pika_SOURCE_DIR}/libpika)
 
 link_directories (${Pika_BINARY_DIR}/libpika)
 
-add_library (pikaRegExp SHARED ${re_LIB_SRCS} ${re_LIB_HEADERS})
-target_link_libraries (pikaRegExp ${ADD_LIBS} pika)
+add_library (pikare SHARED ${re_LIB_SRCS} ${re_LIB_HEADERS})
+target_link_libraries (pikare ${ADD_LIBS} pika)
 if (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
-    target_link_libraries (pikaRegExp pcre)
+    target_link_libraries (pikare pcre)
 endif (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
 
-install (TARGETS        pikaRegExp
+set_target_properties (pikare 	PROPERTIES
+                            	VERSION           ${pikare_LIB_VERSION}
+                            	SOVERSION         ${pikare_LIB_VERSION})
+
+install (TARGETS        pikare
          RUNTIME        DESTINATION bin
-         LIBRARY        DESTINATION lib
-         ARCHIVE        DESTINATION lib         
+         LIBRARY        DESTINATION lib/pika
+         ARCHIVE        DESTINATION lib/pika         
          FRAMEWORK      DESTINATION Library/Frameworks)
