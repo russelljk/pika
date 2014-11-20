@@ -161,7 +161,7 @@ Engine::Engine()
         NativeMethod_Type(0), Generator_Type(0), Array_Type(0), Context_Type(0), Package_Type(0), Module_Type(0), Script_Type(0), ByteArray_Type(0),
         LocalsObject_Type(0), Type_Type(0), Error_Type(0), RuntimeError_Type(0), AssertError_Type(0), TypeError_Type(0),  
         ArithmeticError_Type(0), OverflowError_Type(0), UnderflowError_Type(0), DivideByZeroError_Type(0), SyntaxError_Type(0), IndexError_Type(0), SystemError_Type(0), 
-        Enumerator_Type(0), Property_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0),
+        Enumerator_Type(0), Property_Type(0), String_Type(0), Null_Type(0), Boolean_Type(0), Integer_Type(0), Real_Type(0), ArgNotDefined(0),
         null_Function(0),
 #if defined(PIKA_USE_TABLE_POOL)
         Table_Pool(TABLE_POOL_SIZE),
@@ -886,6 +886,8 @@ void Engine::CreateRoots()
     AddToRoots(message_String);
     AddToRoots(null_Function);
     AddToRoots(paths);
+    AddToRoots(ArgNotDefined);
+    
     for (size_t i = 0 ; i < NUM_OVERRIDES ; ++i)
     {
         AddToRoots(override_strings[i]);

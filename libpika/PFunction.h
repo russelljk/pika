@@ -128,7 +128,9 @@ public:
     virtual Function* BindWith(Value&);
     
     /** Recursively searches the Package hierachy and determines if this Function lies inside. */
-    bool IsLocatedIn(Package*);
+    bool IsLocatedIn(Package*) const;
+    
+    String* GetFileName() const;
     
     /** Returns the fully qualified dot seperated path of the function. 
       * i.e. package0.package1.name for a package hierachy package0->package1->this-function

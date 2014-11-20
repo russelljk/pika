@@ -5,6 +5,7 @@
 #include "Pika.h"
 #include "PParser.h"
 #include "PPlatform.h"
+
 #if defined(PIKA_DEBUG_OUTPUT)
 #   include "PProfiler.h"
 #   include <iostream>
@@ -161,10 +162,11 @@ bool Script::Run(Array* args)
     
     context->PushNull();
     context->Push(entryPoint);
-    
-    if (context->SetupCall(0)) {
 #   if defined(PIKA_DEBUG_OUTPUT)
         Timer t;
+#   endif            
+    if (context->SetupCall(0)) {
+#   if defined(PIKA_DEBUG_OUTPUT)
         t.Start();
 #   endif
         running = true;    

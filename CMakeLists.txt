@@ -2,10 +2,23 @@
 cmake_minimum_required(VERSION 2.6)
 project(Pika)
 
+if (NOT CMAKE_INSTALL_PREFIX)
+    SET(CMAKE_INSTALL_PREFIX "/usr/local")
+endif (NOT CMAKE_INSTALL_PREFIX)
+
+# -------------------------------------------------------------------------
+# Set version numbers
+# -------------------------------------------------------------------------
+
+set (pika_LIB_VERSION_MAJOR "1")
+set (pika_LIB_VERSION_MINOR "0")
+set (pika_LIB_VERSION_PATCH "3")
+set (pika_ABI_VERSION "1")
+
 if (APPLE AND PIKA_FAT_BINARY)
     # set arch to 32/64 bit ppc & x86
     
-    set (CMAKE_OSX_ARCHITECTURES "ppc;i386;x86_64;ppc64;")
+    set (CMAKE_OSX_ARCHITECTURES "i386;x86_64;")
     
     # set gcc version the 4.0. Otherwise we can't use 10.4u sdk
     
@@ -16,13 +29,13 @@ if (APPLE AND PIKA_FAT_BINARY)
     set (PIKA_CC_COMPILER    "/usr/bin/gcc-4.0")
     set (CMAKE_C_COMPILER    ${PIKA_CC_COMPILER})
     set (CMAKE_GENERATOR_CC  ${PIKA_CC_COMPILER})
-    set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.0")
+    set (CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.0")
     
-    # set the sdk version to 10.4
+    # set the sdk version to 10.5
     
-    set (CMAKE_C_FLAGS     "${CMAKE_C_FLAGS}   -mmacosx-version-min=10.4")
-    set (CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.4")    
-    set (CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.4u.sdk/")
+    set (CMAKE_C_FLAGS     "${CMAKE_C_FLAGS}   -mmacosx-version-min=10.5")
+    set (CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5")    
+    set (CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.5.sdk/")
 endif (APPLE AND PIKA_FAT_BINARY)
 
 # CMake module path 
@@ -88,6 +101,6 @@ else (PIKA_JUST_LIB)
     add_subdirectory(pikac)
     add_subdirectory(libpika)        
     if (NOT PIKA_NO_MODULES)
-    	add_subdirectory(re)
+    	add_subdirectory(modules)
     endif (NOT PIKA_NO_MODULES)
 endif (PIKA_JUST_LIB)

@@ -78,7 +78,7 @@ protected:
 
 /** A tri-color, incremental, mark and sweep garbage collector.
   * The collector is proactive, meaning it will invoke itself as objects are 
-  * added without the need to explicitly call to Check.
+  * added without the need to explicitly call Check.
   * <pre>
   * The collection phases is divided into three major parts.
   * 

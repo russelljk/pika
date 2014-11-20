@@ -37,7 +37,7 @@ struct StringToNumber
     INLINE s8       GetInteger() { return integer; }
     INLINE double   GetReal()    { return real; }
 
-    INLINE int      Peek() { if (curr >= end) return EOF; return *(curr + 1);}        
+    INLINE int      Peek() { if (curr >= end) return EOF; return *(curr);}  
     INLINE int      Look() { return look; }
     
     INLINE void     NumberParseError(const char* msg) {is_number = 0;}
@@ -201,7 +201,7 @@ protected:
     u4              ReadDigits(u4 radix, u8& int_part);
     void            ReadNumber();
     void            ReadIdentifier();
-    void            ReadString();
+    void            ReadString(bool is_plain=false);
     void            ReadControl();
     void            ReadMultiLineComment(int);
     void            ReadSingleLineComment();

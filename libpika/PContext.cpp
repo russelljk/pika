@@ -159,6 +159,14 @@ void ExceptionBlock::DoMark(Collector* c)
     MarkValue(c, self);
 }
 
+bool GetOverrideFromValue(Engine* eng, Value& v, OpOverride ovr, Value& res)
+{
+    Type* type = eng->GetTypeOf(v);
+    String* what = eng->GetOverrideString(ovr);
+    Value vwhat(what);
+    return type->GetField(vwhat, res);
+}
+
 /** What we are doing is reading from obj.type.override where override is the
   * appropriate override name. We intentially skip obj's members since its
   * unlikely to be the correct function, especially when obj is a type.
@@ -481,7 +489,7 @@ void Context::DoResume()
     }
 }
 
-INLINE void Context::OpCompBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
+void Context::OpCompBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
 {
     Value& b = Top();
     Value& a = Top1();
@@ -596,7 +604,7 @@ INLINE void Context::OpCompBinary(const Opcode op, const OpOverride ovr, const O
             return;
     }
     
-    ReportRuntimeError(Exception::ERROR_runtime,
+    ReportRuntimeError(Exception::ERROR_type,
                        "Operator %s not defined between types %s %s.",
                        engine->GetOverrideString(ovr)->GetBuffer(),
                        engine->GetTypenameOf(a)->GetBuffer(),
@@ -637,7 +645,7 @@ INLINE void Context::OpArithUnary(const Opcode op, const OpOverride ovr, int& nu
     }
     else
     {
-        ReportRuntimeError(Exception::ERROR_runtime,
+        ReportRuntimeError(Exception::ERROR_type,
                            "Operator %s not defined for object of type %s.",
                            engine->GetOverrideString(ovr)->GetBuffer(),
                            engine->GetTypenameOf(a)->GetBuffer());
@@ -901,7 +909,29 @@ bool Context::OpApply(u1 argc, u1 retc, u1 kwargc, bool tailcall)
        [ selfobj ] < self object
        [ frame   ] < function to be called
                    < sp
-     */
+    
+    ---------------------------------------------------------------------------
+    
+    First variable arguments.
+    
+    Then for any missing arument from M to N attempt to read the dictionary
+    if that fails at any point raise an execption.
+    
+    if argdiff >= 0
+      if function.is_va
+         
+         array = [] if argdiff == 0 else args[function.param_count:argdiff]
+         if vararg
+           array.append( vararg )
+         push array
+       else
+         raise exception TooManyArgs
+        
+        
+    if function is vararg
+      push the vararg array or []
+    if the function is        
+    */
     Value frame = PopTop();
     Value selfobj = PopTop();
     Value kw_arg = PopTop();
@@ -1012,12 +1042,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
 {
     int resultArgc = argc;
     
-    /* For strict methods this will raise an exception.
-     * Strict methods cannot have default values, variable arguments or keyword 
-     * arguments. This restriction against defaults and keyword arguments may
-     * be removed in the future.
-     */
-    if (def->isStrict)
+    if (def->isStrict && nativecall)
     {
         if (argdiff > 0)
         {
@@ -1046,28 +1071,34 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
     {
         // Too many arguments.
         // ------------------
-        
-        if (!def->isVarArg)
+        if (!nativecall)
         {
-            // Not variadic so we pop off the last 'argdiff' arguments.
-            Pop(argdiff);
-            resultArgc = param_count;
+            if (def->isVarArg)
+            {
+                GCPAUSE_NORUN(engine);
+                
+                Array *v = Array::Create(engine, 0, argdiff, (GetStackPtr() - argdiff));
+                Pop(argdiff);
+                Push(v);            
+                resultArgc = param_count;  
+                ++resultArgc;
+            }
+            else
+            {
+                String* dotname = fun->GetLocation()->GetDotName();
+                RaiseException(Exception::ERROR_runtime,
+                           "Too many arguments for function '%s.%s'. Expected exactly %d %s but was given %d.",
+                           dotname->GetBuffer(),
+                           def->name->GetBuffer(),
+                           param_count,
+                           param_count == 1 ? "argument" : "arguments",
+                           argc);
+            }
         }
-        else if (!nativecall)
-        {
-            GCPAUSE_NORUN(engine);
-            
-            Array *v = Array::Create(engine, 0, argdiff, (GetStackPtr() - argdiff));
-            Pop(argdiff);
-            Push(v);            
-            resultArgc = param_count;  
-            ++resultArgc;          
-        }
-        // Otherwise the function is a variadic native function.
-        // We just keep the arguments given to us.
     }
     else
     {
+        Object* ArgNotDefined = engine->ArgNotDefined;
         /* Too few arguments.
          * --------------------------------------------------------------------
          * We want to push null for all arguments unspecified and
@@ -1081,8 +1112,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
          */        
         int  argstart = argc;
         Defaults* defaults = fun->defaults;
-        
-        
+                
         if (defaults)
         {
             size_t const numDefaults = defaults->Length();
@@ -1094,7 +1124,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
             // Arguments with no default value will be set to null.
             for (int p = 0; p < amttopush; ++p)
             {
-                PushNull();
+                Push(ArgNotDefined);
             }
             
             // Arguments with a default value will be set to their default value.
@@ -1110,7 +1140,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
             int const amttopush = numRegularArgs - argstart;
             for (int p = 0; p < amttopush; ++p)
             {
-                PushNull();
+                Push(ArgNotDefined);
             }
         }
         
@@ -1155,16 +1185,17 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
     // frameVar is a derived from type Function.
     if (engine->Function_Type->IsInstance(frameVar))
     {
+        u2 const provided_argc = argc;
         Function* fun = frameVar.val.function;
         Def* def = fun->GetDef();
-    
+        
         if (kwargc)
         {
             /* Copy keyword argument pairs to a temporary buffer so
              * that we can manipulate the arguments at the top of
              * the stack.
              */
-            size_t kw_total_values = kwargc*2;
+            size_t const kw_total_values = kwargc*2;
             keywords.Resize(kw_total_values);
             Pika_memcpy(keywords.GetAt(0), GetStackPtr()-kw_total_values, kw_total_values*sizeof(Value));
             Pop(kw_total_values);
@@ -1176,9 +1207,9 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             [ arg N ] < sp
         */
         // Adjust argc to match the definition's param_count.
-        int  param_count = def->numArgs;
-        int  argdiff     = (int)argc - param_count;
-        bool nativecall  = (def->nativecode != 0);
+        int  const param_count = def->numArgs;
+        int  const argdiff     = (int)argc - param_count;
+        bool const nativecall  = (def->nativecode != 0);
         
         if (argdiff != 0)
         {
@@ -1202,7 +1233,8 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             {
                 GCPAUSE_NORUN(engine);
                 dict = Dictionary::Create(engine, engine->Dictionary_Type);
-                if (!nativecall)  {
+                if (!nativecall)
+                {
                     Push(dict);
                     ++argc;
                 }
@@ -1216,6 +1248,8 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
                 Value idx(NULL_VALUE);
                 if (kwords.Get(*curr, idx))
                 {
+                    // TODO: Check that argument is not double specified BUT
+                    //       We need a way to make sure it wasn't set as a default value.                    
                     ASSERT(idx.tag == TAG_integer);
                     pint_t the_index = idx.val.integer;
                     ASSERT(the_index < argc);
@@ -1233,6 +1267,52 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             Dictionary* dict = Dictionary::Create(engine, engine->Dictionary_Type);
             Push(dict);
             ++argc;
+        }
+        
+        // Check that there aren't any gaps in the arguments provided.
+        for (Value* a = (sp-argc+provided_argc); a < sp; ++a)
+        {
+            const size_t index = (a - (sp-argc));
+            
+            if (a->IsObject() && *a == engine->ArgNotDefined)
+            {
+                String* dotname = fun->GetLocation()->GetDotName();
+                if (!nativecall)
+                {
+                    size_t args_info_start = (PIKA_MAX_ARGS + 1);
+                    size_t num_locals = def->localsInfo.GetSize();
+                    
+                    for (size_t li = 0; li < num_locals; ++li)
+                    {
+                        if (def->localsInfo[li].type == LVT_parameter)
+                        {
+                            args_info_start = li;
+                            break;
+                        }
+                    }
+                    
+                    if (args_info_start < def->localsInfo.GetSize())
+                    {
+                        LocalVarInfo& linfo = def->localsInfo[args_info_start + index];
+                        String* name = linfo.name;
+                        RaiseException(Exception::ERROR_runtime,
+                            "Argument '%s' not specified when calling function '%s.%s'",
+                            name->GetBuffer(),
+                            dotname->GetBuffer(),
+                            def->name->GetBuffer()
+                        );
+                    }
+                    else
+                    {
+                        RaiseException(Exception::ERROR_runtime,
+                            "Positional argument '%d' not specified when calling function '%s.%s'",
+                            index,
+                            dotname->GetBuffer(),
+                            def->name->GetBuffer()
+                        );
+                    }
+                }
+            }
         }
         
         Value* newsp;
@@ -1384,7 +1464,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
             {
                 if (argc != 0 || kwargc != 0) {
                     ReportRuntimeError(Exception::ERROR_runtime,
-                        "Cannot resume a generator by calling it with arguments or keyword arguments.");
+                        "Attempt resume a generator by calling it with positional and/or keyword arguments.");
                 }
                 Generator* gen = static_cast<Generator*>(frameVar.val.object);
                 gen->Resume(this, retc ? retc : 1, tailcall);
@@ -1623,6 +1703,7 @@ void Context::OpUsing()
         }
     }
 }
+
 void Context::Activate()   { engine->ChangeContext(this); }
 
 void Context::Deactivate() { engine->ChangeContext(0); }
@@ -2050,7 +2131,15 @@ void Context::OpReturn(u4 retc)
     
     if (expectedRetc > 1 && retc == 1)
     {
-        OpUnpack(expectedRetc);
+        const size_t btm  = this->GetStackSize();
+        if (OpUnpack(expectedRetc)) {
+            this->Run();
+            const size_t top = this->GetStackSize();
+            size_t amt_returned = top > btm ? top - btm : 0;
+            if (amt_returned != expectedRetc) {
+                ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but %u values were returned.", expectedRetc, amt_returned);
+            }
+        }
         retc = expectedRetc;
     }
     
@@ -2070,8 +2159,16 @@ void Context::OpYield(u4 yldc)
     
     if (expectedRetc > 1 &&  yldc == 1)
     {
-        OpUnpack(expectedRetc);
-         yldc = expectedRetc;
+        const size_t btm  = this->GetStackSize();
+        if (OpUnpack(expectedRetc)) {
+            this->Run();
+            const size_t top = this->GetStackSize();
+            size_t amt_yielded = top > btm ? top - btm : 0;
+            if (amt_yielded != expectedRetc) {
+                ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but %u values were yielded.", expectedRetc, amt_yielded);
+            }
+        }
+        yldc = expectedRetc;
     }
     size_t pos = sp - stack;
     sp -= yldc;
@@ -2083,31 +2180,13 @@ void Context::OpYield(u4 yldc)
 
 void Context::CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const* top)
 {
-    if (expectedRetc > retc)
+    if (expectedRetc != retc)
     {
-        /* Expected number of return values is greater-than the number
-         * Provided.
-         * 
-         * We copy down the specified return values and pad the difference
-         * with nulls.
-         */                     
-        size_t diff = expectedRetc - retc;
-        
-        /* Copy the all return values inorder. */
-        for (Value const* curr = (top - retc); curr < top; ++curr)
-        {
-            Push(*curr);
+        if (expectedRetc == 1 && retc == 0) {
+            this->PushNull();
         }
-        
-        /* Check that we have enough room for the unspecified
-         * return values. 
-         */
-        CheckStackSpace(diff);
-        
-        /* Push null for the rest. */
-        for (size_t i = 0; i < diff; ++ i)
-        {
-            PushNull();
+        else {
+            ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but received %u.", expectedRetc, retc);
         }
     }
     else
@@ -2130,73 +2209,34 @@ void Context::CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const
 bool Context::OpUnpack(u4 expected)
 {
     Value t = Top();
-    
-    switch (t.tag)
+    Value meth(NULL_VALUE);        
+    if (GetOverrideFromValue(engine, t, OVR_unpack, meth))
     {
-    case TAG_null:
-    case TAG_boolean:
-    case TAG_integer:
-    case TAG_real:
-    case TAG_string:
+        CheckStackSpace(3 + expected);
+        Push((pint_t)expected);
+        Push(t);
+        Push(meth);
+        return SetupCall(1, expected);
+    }
+    else if (t.IsDerivedFrom(Array::StaticGetClass()))
     {
         Pop();
+        Array* v = (Array*)t.val.object;
         Value* start = GetStackPtr();
         StackAlloc(expected);
-        Value* c = start;
-        *c++ = t;
-        for (;c < (start + expected); ++c)
-        {
-            c->SetNull();
-        }
-    }
-    break;
-    
-    case TAG_userdata:
-    case TAG_object:
-    {
-        Basic* obj = t.val.basic;
-        Value meth(NULL_VALUE);
         
-        if (GetOverrideFrom(engine, obj, OVR_unpack, meth))
+        if (expected != v->GetLength())
         {
-            Push(meth);
-            return SetupCall(0, expected);
+            ReportRuntimeError(Exception::ERROR_runtime, "Expected %u unpacked values but received %u.", expected, v->GetLength());
         }
-        else if (t.IsDerivedFrom(Array::StaticGetClass()))
-        {
-            Pop();
-            Array* v = (Array*)t.val.object;
-            Value* start = GetStackPtr();
-            StackAlloc(expected);
-            
-            if (expected <= v->GetLength())
-            {
-                Pika_memcpy(start, v->GetAt(0), expected * sizeof(Value));
-            }
-            else
-            {
-                Pika_memcpy(start, v->GetAt(0), expected * sizeof(Value));
-                
-                for (Value* c = (start + v->GetLength()); c < (start + expected); ++c)
-                {
-                    c->SetNull();
-                }
-            }
-            return false;
-        }
-    }
-    // Fall Through
-    //      |
-    //      V
-    default:
-    {
-        ReportRuntimeError(Exception::ERROR_runtime,
-                           "Attempt to unpack %u elements from object of type '%s'.",
-                           expected,
-                           engine->GetTypenameOf(t)->GetBuffer());
+        
+        Pika_memcpy(start, v->GetAt(0), expected * sizeof(Value));
         return false;
     }
-    }
+    ReportRuntimeError(Exception::ERROR_runtime,
+                       "Attempt to unpack %u elements from object of type '%s'.",
+                       expected,
+                       engine->GetTypenameOf(t)->GetBuffer());
     return false;
 }// OpUnpack
 
@@ -3189,7 +3229,40 @@ void Context::ParseArgsInPlace(const char *args, u2 count)
     }
 }
 
-Context::EErrRes Context::OpException(Exception& e)
+void Context::Traceback()
+{
+    GCPAUSE_NORUN(this->engine);
+    
+    if (!this->closure)
+        return;
+    this->PushCallScope();
+    std::cout << "Traceback for context " << "<0x"<< (size_t)(this) << ">" << " (most recent call first):" << std::endl;
+    for (ScopeIter iter = this->scopesTop-1; iter > this->scopesBeg; iter--)
+    {
+        if (iter->closure)
+        {
+            const bool is_native = iter->closure->IsNative();
+            const char* name = iter->closure->GetDotPath()->GetBuffer();
+            std::cout << "\t* In "<< (is_native ? "Native " : "") <<"function \'" << name << "\'";
+            if (!is_native && iter->pc)
+            {
+                int const line_no = iter->closure->DetermineLineNumber(iter->pc);
+                std::cout << ", at line " << line_no;
+                
+                String* file_name_string = iter->closure->GetFileName();
+                if (file_name_string->GetLength()) {
+                    const char* file_name = file_name_string->GetBuffer();
+                    std::cout << " in file \'" << file_name << "\'";
+                }                
+            }
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::endl;
+    this->PopCallScope();
+}
+
+Context::EErrRes Context::OpException(Exception& e, bool caught)
 {
     Exception::Kind ekind = e.kind;
     
@@ -3205,29 +3278,36 @@ Context::EErrRes Context::OpException(Exception& e)
         }
         else
         {
-            switch (e.kind)
+            Type* error_type = e.GetErrorType(this->engine);
+            if (error_type)
             {
-            case Exception::ERROR_syntax:      engine->SyntaxError_Type->CreateInstance(thrown);       break;
-            case Exception::ERROR_runtime:     engine->RuntimeError_Type->CreateInstance(thrown);      break;
-            case Exception::ERROR_arithmetic:  engine->ArithmeticError_Type->CreateInstance(thrown);   break;
-            case Exception::ERROR_underflow:   engine->UnderflowError_Type->CreateInstance(thrown);    break;
-            case Exception::ERROR_overflow:    engine->OverflowError_Type->CreateInstance(thrown);     break;
-            case Exception::ERROR_dividebyzero:engine->DivideByZeroError_Type->CreateInstance(thrown); break;
-            case Exception::ERROR_index:       engine->IndexError_Type->CreateInstance(thrown);        break;
-            case Exception::ERROR_type:        engine->TypeError_Type->CreateInstance(thrown);         break;
-            case Exception::ERROR_system:      engine->SystemError_Type->CreateInstance(thrown);       break;
-            case Exception::ERROR_assert:      engine->AssertError_Type->CreateInstance(thrown);       break;
-            default:                           engine->Error_Type->CreateInstance(thrown);
+                error_type->CreateInstance(thrown);
             }
-            
+            else
+            {
+                switch (e.kind)
+                {
+                case Exception::ERROR_syntax:      engine->SyntaxError_Type->CreateInstance(thrown);       break;
+                case Exception::ERROR_runtime:     engine->RuntimeError_Type->CreateInstance(thrown);      break;
+                case Exception::ERROR_arithmetic:  engine->ArithmeticError_Type->CreateInstance(thrown);   break;
+                case Exception::ERROR_underflow:   engine->UnderflowError_Type->CreateInstance(thrown);    break;
+                case Exception::ERROR_overflow:    engine->OverflowError_Type->CreateInstance(thrown);     break;
+                case Exception::ERROR_dividebyzero:engine->DivideByZeroError_Type->CreateInstance(thrown); break;
+                case Exception::ERROR_index:       engine->IndexError_Type->CreateInstance(thrown);        break;
+                case Exception::ERROR_type:        engine->TypeError_Type->CreateInstance(thrown);         break;
+                case Exception::ERROR_system:      engine->SystemError_Type->CreateInstance(thrown);       break;
+                case Exception::ERROR_assert:      engine->AssertError_Type->CreateInstance(thrown);       break;
+                default:                           engine->Error_Type->CreateInstance(thrown);
+                }
+            }
             const char* const msg = e.GetMessage();
-            String* const errorStr = msg ? engine->AllocString(msg) : engine->emptyString;
+            String* const errorStr = msg ? engine->GetString(msg) : engine->emptyString;
             
             if (thrown.IsObject() && thrown.val.object)
             {
                 Object* error_obj = thrown.val.object;
                 error_obj->SetSlot(engine->message_String, errorStr);
-                error_obj->SetSlot(engine->AllocString("name"), engine->AllocString(e.GetErrorKind()));
+                error_obj->SetSlot(engine->GetString("name"), engine->GetString(e.GetErrorKind()));
             }
             else
             {
@@ -3254,6 +3334,24 @@ Context::EErrRes Context::OpException(Exception& e)
             {
                 generator->Return();
             }
+            
+            // Check if the current scope is native. If so then its stack has
+            // already been unwound.
+            /*
+            ===============================
+            A           B           C
+            [c++]       [pika]      [c++]       <- currently_native is true iff the top scope is C++            -------------------------------
+            [c++]       [pika]      [pika]      <- If we encounter a non-native scope we set it false
+            [c++]       [pika]      [c++]       <- If we encounter a C++ scope when the previous was non-native we need to throw an exception
+            [pika]      [pika]      [pika]      <- In that case if doesn't matter what comes next we just need to raise an exception and let it pick up at an ealier point.
+                                    [...]
+            
+            ER_continue ER_continue ER_throw
+                       
+            
+            */
+            bool currently_native = closure && closure->def->nativecode;
+            
             PopScope();
             
             // Close every frame up-to but not including the frame
@@ -3269,14 +3367,26 @@ Context::EErrRes Context::OpException(Exception& e)
                     if (scopes[a].pc == 0)
                     {
                         // Native function.
-                        --numRuns;
-                        return ER_throw;
+                        // If it was caught by Context::Run, then the C++ stack
+                        // has already unwound.
+                        // TODO: only decrement numRuns when previous call was non-native???
+                                                
+                        if (!currently_native || !caught) {
+                                --numRuns;
+                                return ER_throw;
+                        } else {
+                            --nativeCallDepth;
+                        }
                     }
                     else if (scopes[a].env)
                     {
-                    
+                        currently_native = false;
                         scopes[a].env->EndCall();
                     }
+                    else {
+                        currently_native = false;
+                    }
+                    
                     if (scopes[a].generator)
                     {
                         scopes[a].generator->Return();
@@ -3321,6 +3431,8 @@ Context::EErrRes Context::OpException(Exception& e)
         Deactivate();
         --numRuns;
         
+        this->Traceback();
+        
         if ((prev && prev->IsRunning()) || (numRuns > 0))
         {
             // We can't handle the exception here so we pass it on.
@@ -3342,13 +3454,13 @@ Context::EErrRes Context::OpException(Exception& e)
                     {
                         String* typestr = engine->GetTypenameOf(se.var);
                         // unhandled TYPE -- MESSAGE\n
-                        std::cerr << "unhandled " << typestr->GetBuffer() << " -- " << msg << std::endl;
+                        std::cerr << "*** Unhandled " << typestr->GetBuffer() << " -- " << msg << std::endl;
                     }
                     // A non-error values was raised.
                     else
                     {
                         // unhandled exception -- MESSAGE
-                        std::cerr << "unhandled exception -- " << msg << std::endl;
+                        std::cerr << "*** Unhandled exception -- " << msg << std::endl;
                     }
                 }
                 else
@@ -3358,7 +3470,7 @@ Context::EErrRes Context::OpException(Exception& e)
             }
             else
             {
-                std::cerr << "*** unhandled exception ***" << std::endl;
+                std::cerr << "*** Unhandled exception ***" << std::endl;
             }
         }
         return ER_exit;

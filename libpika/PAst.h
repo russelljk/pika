@@ -77,6 +77,7 @@ struct          DeclStmt;
 struct          AssignmentStmt;
 struct          UsingStmt;
 struct      Expr;
+struct          EmptyExpr;
 struct          LoadExpr;
 struct          CallExpr;
 struct          CondExpr;
@@ -746,6 +747,7 @@ struct Expr : TreeNode
         EXPR_apply_va,
         EXPR_apply_kw,
         EXPR_hijack,
+        EXPR_empty,
     };
     
     Expr(CompileState* s, Kind kind) : TreeNode(s), kind(kind) {}
@@ -786,6 +788,14 @@ struct PropertyDecl : NamedTarget
     StringExpr* name_expr;
     Expr* getter;
     Expr* setter;
+};
+
+struct EmptyExpr : Expr
+{
+    EmptyExpr(CompileState* s) : Expr(s, Expr::EXPR_empty) {}
+    
+    virtual void CalculateResources(SymbolTable* st) {}
+    virtual Instr* GenerateCode();
 };
 
 struct LoadExpr : Expr
@@ -1270,7 +1280,7 @@ struct IdExpr : Expr
 };
 
 struct ApplyArg : Expr {
-    ApplyArg(CompileState* s, IdExpr* id, bool kw = false): Expr(s, kw ? Expr::EXPR_apply_kw : Expr::EXPR_apply_va), vararg(id) {}
+    ApplyArg(CompileState* s, Expr* id, bool kw = false): Expr(s, kw ? Expr::EXPR_apply_kw : Expr::EXPR_apply_va), vararg(id) {}
     
     virtual ~ApplyArg() {}
     
@@ -1278,7 +1288,7 @@ struct ApplyArg : Expr {
     
     virtual Instr* GenerateCode() { return vararg->GenerateCode(); }
         
-    IdExpr* vararg;
+    Expr* vararg;
 };
 
 //////////////////////////////////////////// ConstantExpr //////////////////////////////////////////

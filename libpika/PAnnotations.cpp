@@ -100,19 +100,7 @@ namespace {
         ctx->Push(obj);
 		return 1;
 	}
-	
-	int Annotation_strict(Context* ctx, Value&)
-	{
-        Function* func = ctx->GetArgT<Function>(0);        
-        Def* def = func->GetDef();
-        if (def->isVarArg || def->isKeyword || func->defaults != 0)
-            RaiseException("Attempt to make function %s strict: functions with default values, variable arguments or keyword arguments cannot be strict.\n", func->GetName()->GetBuffer());
-        else
-            def->isStrict = true;
-        ctx->Push(func);
-		return 1;
-	}
-    
+        
     Package* FunctionGetPackage(Engine* eng, Function* f)
     {
         Package* pkg = f->location;
@@ -194,7 +182,6 @@ void Init_Annotations(Engine* engine, Package* world)
         {"doc",      Annotation_doc,      2, DEF_STRICT, 0 },
         {"final",    Annotation_final,    1, DEF_STRICT, 0 },
         {"scope",    Annotation_scope,    2, DEF_STRICT, 0 },
-        {"strict",   Annotation_strict,   1, DEF_STRICT, 0 },
         {"getter",   Annotation_getter,   2, DEF_STRICT, 0 },
         {"setter",   Annotation_setter,   2, DEF_STRICT, 0 },
     };

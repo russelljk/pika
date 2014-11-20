@@ -935,8 +935,12 @@ void Engine::InitializeWorld()
         Iterator::StaticInitType(this);
         Generator::StaticInitType(this);
 
+        ArgNotDefined = Object::StaticNew(this, this->Object_Type);
         
         GCNEW(this, PathManager, paths, (this, PathManager_Type));
+        String* install_path = AllocString(PIKA_INSTALL_PREFIX"/lib/pika/");
+        this->AddSearchPath(install_path);
+        
         paths->SetSlot(GetString("__doc"), GetString(PIKA_GET_DOC(os_paths)), Slot::ATTR_forcewrite); 
             
         Pkg_Imports = OpenPackage(Imports_Str, Pkg_World, true, Slot::ATTR_protected);

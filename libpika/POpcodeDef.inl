@@ -105,7 +105,7 @@
     DECL_OP( OP_subclass,       "subclass",     1, OF_none,     "" )
     
     DECL_OP( OP_array,          "array",        3, OF_w,        "" )
-    DECL_OP( OP_dictionary,  "object",       3, OF_w,        "" )
+    DECL_OP( OP_dictionary,     "dictionary",   3, OF_w,        "" )
     DECL_OP( OP_super,          "super",        1, OF_none,     "" )
     DECL_OP( OP_forto,          "forto",        3, OF_w,        "" )
     

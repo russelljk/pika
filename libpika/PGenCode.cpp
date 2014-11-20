@@ -89,7 +89,7 @@ void HandleBlockBreaks(CompileState* state, Instr*  start, Instr*  end, Opcode  
 }
 
 // TODO: overload operator new for Instr
-// TODO: use auto_ptr so we do not have to have try-catch blocks.
+// TODO: use an auto pointer so we do not have to have try-catch blocks.
 // TODO: make sure all Instr instances are released with operator delete.
 
 void CompileFunction(int line, CompileState* state, Stmt* body, Def* def)
@@ -299,6 +299,12 @@ Instr* TreeNode::GenerateCode()
 }
 
 Instr* EmptyStmt::DoStmtCodeGen()
+{
+    Instr* inop = state->CreateOp(OP_nop);
+    return inop;
+}
+
+Instr* EmptyExpr::GenerateCode()
 {
     Instr* inop = state->CreateOp(OP_nop);
     return inop;

@@ -534,6 +534,7 @@ int Type_new(Context* ctx, Value& self)
         }
     }
     ctx->Push(vobj);
+    
     return 1;
 }
 
@@ -685,12 +686,18 @@ void Type::StaticInitType(Engine* eng)
         { "new", Type_new, 0, DEF_VAR_ARGS | DEF_KEYWORD_ARGS, PIKA_GET_DOC(Type_new) },
     };
     
+    static RegisterProperty Type_Properties[] = 
+    {
+        { "new!", Type_new, 0, 0, 0, true, 0, 0 },
+    };
+    
     static RegisterFunction TypeClassMethods[] =
     {
         { "create",     Type_create,     4, DEF_STRICT,   PIKA_GET_DOC(Type_create) },
         { "createWith", Type_createWith, 4, DEF_VAR_ARGS, PIKA_GET_DOC(Type_createWith) },
     };
     eng->Type_Type->SetDoc(eng->GetString(PIKA_GET_DOC(Type_class)));
+    eng->Type_Type->EnterProperties(Type_Properties, countof(Type_Properties));
     eng->Type_Type->EnterMethods(TypeFunctions, countof(TypeFunctions));
     eng->Type_Type->EnterClassMethods(TypeClassMethods, countof(TypeClassMethods));
     Pkg_World->SetSlot("Type", eng->Type_Type);

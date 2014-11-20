@@ -370,7 +370,7 @@ bool Parser::IsEndOfStatement()
     {
         return true;
     }
-    else if (tstream.GetType() != TOK_end && tstream.GetType() != '}')
+    else if (tstream.GetType() != TOK_end && tstream.GetType() != TOK_else && tstream.GetType() != '}')
     {
         int currline = tstream.GetLineNumber();
         int nextline = tstream.GetPreviousLineNumber();
@@ -888,7 +888,7 @@ Stmt* Parser::DoTryStatement()
     BufferCurrent();
     
     const int try_terms[] = { TOK_catch, TOK_finally, 0 };
-    Stmt* tryblock = DoStatementListBlock(try_terms);
+    Stmt* tryblock = DoStatementList(try_terms);
     BufferCurrent();
     
     const int terms[] = { TOK_end, TOK_catch, TOK_else, TOK_finally, 0 };
@@ -1443,7 +1443,7 @@ Stmt* Parser::DoReturnStatement()
     
     Match(TOK_return);
     
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))
+    if (!IsEndOfStatement())
     {
         exprList = DoExpressionList();
     }
@@ -1458,9 +1458,7 @@ Stmt* Parser::DoReturnStatement()
     {
         stmt->line = line;
     }
-    
-    stmt = DoOptionalJumpStatement(stmt);
-    
+        
     DoEndOfStatement();
     
     return stmt;
@@ -1474,7 +1472,7 @@ Stmt* Parser::DoGenerateStatement()
     
     Match(TOK_yield);
     
-    if (!IsEndOfStatement() && (tstream.GetType() != TOK_when))
+    if (!IsEndOfStatement())
     {
         exprList = DoExpressionList();
     }
@@ -1489,9 +1487,7 @@ Stmt* Parser::DoGenerateStatement()
     {
         stmt->line = line;
     }
-    
-    stmt = DoOptionalJumpStatement(stmt);
-    
+        
     DoEndOfStatement();
     
     return stmt;
@@ -1558,11 +1554,11 @@ Stmt* Parser::DoOptionalJumpStatement(Stmt* stmt)
     if (line != stmt->line)
         return stmt;
         
-    if (tstream.GetType() == TOK_when)
+    if (tstream.GetType() == TOK_if)
     {
         bool unless = false;
         
-        Match(TOK_when);
+        Match(TOK_if);
 
         BufferCurrent();
         Expr* cond = DoExpression();
@@ -2261,10 +2257,10 @@ Expr* Parser::DoPostfixExpression()
         case TOK_increment:
         {
             int line = tstream.GetLineNumber();
-            
-            if (line > expr->line)
+        
+            if (line > tstream.GetPreviousLineNumber())
                 return expr;
-                
+            
             Expr* lhs = expr;
             tstream.Advance();
             PIKA_NEWNODE(UnaryExpr, expr, (state, Expr::EXPR_postincr, lhs));
@@ -2278,7 +2274,7 @@ Expr* Parser::DoPostfixExpression()
         {
             int line = tstream.GetLineNumber();
             
-            if (line > expr->line)
+            if (line > tstream.GetPreviousLineNumber())
                 return expr;
             
             Expr* lhs = expr;
@@ -2296,7 +2292,7 @@ Expr* Parser::DoPostfixExpression()
             Expr* lhs = expr;
             
             // Check that the '(' occurs on the same line as the callee
-            if (tstream.GetLineNumber() != lhs->line)
+            if (tstream.GetLineNumber() != tstream.GetPreviousLineNumber())
                 return expr;
 
             BufferNext();
@@ -2424,12 +2420,18 @@ Expr* Parser::DoPrimaryExpression()
     {
         BufferNext();
         Match('(');
-        expr = DoExpression();
-        Expr* pexpr=0;
-        PIKA_NEWNODE(ParenExpr, pexpr, (state, expr));
-        pexpr->line =line;
-        expr = pexpr;
-        Match(')');
+        if (!Optional(')')) {
+            expr = DoExpression();
+            Expr* pexpr=0;
+            PIKA_NEWNODE(ParenExpr, pexpr, (state, expr));
+            pexpr->line =line;
+            expr = pexpr;
+            Match(')');
+        } else {
+            Expr* emptyExpr = 0;
+            PIKA_NEWNODE(EmptyExpr, emptyExpr, (state));
+            expr = emptyExpr;
+        }
     }
     break;
     case '\\':
@@ -2661,9 +2663,9 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
-            IdExpr* idexpr = DoIdExpression();
+            Expr* cexpr = DoExpression();
             has_apply_va = true;
-            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, false));
+            PIKA_NEWNODE(ApplyArg, expr, (state, cexpr, false));
             expr->line = line;
             break;        
         }
@@ -2671,9 +2673,9 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
-            IdExpr* idexpr = DoIdExpression();
+            Expr* cexpr = DoExpression();
             has_apply_kw = true;
-            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
+            PIKA_NEWNODE(ApplyArg, expr, (state, cexpr, true));
             expr->line = line;
             break;
         }
@@ -2754,9 +2756,9 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
-            IdExpr* idexpr = DoIdExpression();
+            Expr* cexpr = DoExpression();
             has_apply_va = true;
-            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, false));
+            PIKA_NEWNODE(ApplyArg, expr, (state, cexpr, false));
             expr->line = line;
             break;        
         }
@@ -2764,9 +2766,9 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
-            IdExpr* idexpr = DoIdExpression();
+            Expr* cexpr = DoExpression();
             has_apply_kw = true;
-            PIKA_NEWNODE(ApplyArg, expr, (state, idexpr, true));
+            PIKA_NEWNODE(ApplyArg, expr, (state, cexpr, true));
             expr->line = line;
             break;
         }

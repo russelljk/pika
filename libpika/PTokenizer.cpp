@@ -64,7 +64,6 @@ static KeywordDescriptor static_keywords[] =
     PIKA_keyword(TOK_finally),
     PIKA_keyword(TOK_package),
     PIKA_keyword(TOK_using),
-    PIKA_keyword(TOK_when),
     PIKA_keyword(TOK_bind),
     PIKA_keyword(TOK_to),
     PIKA_keyword(TOK_by),
@@ -116,7 +115,7 @@ struct NumberParser
             return;
         }
         
-        ReadDigits(10, int_part);
+        u4 count = ReadDigits(10, int_part);
         
         if (IsLetter(pT->Look())) // possible radix literal
         {
@@ -191,6 +190,12 @@ struct NumberParser
             fract_part = ReadDigits(radix, int_part);
         }
         
+        if (!count && !fract_part)
+        {
+            pT->NumberParseError("No digits encountered while parsing number.");
+            return;
+        }
+                
         // 4:
         // Read in the exponent part [if present].
         if (pT->Look() == 'e' || pT->Look() == 'E')
@@ -638,7 +643,7 @@ void Tokenizer::ReadIdentifier()
     tokenType    = TOK_identifier;
 }
 
-void Tokenizer::ReadString()
+void Tokenizer::ReadString(bool is_plain)
 {
     int str_tok_type = TOK_stringliteral;
     int termchar = look;
@@ -662,12 +667,12 @@ void Tokenizer::ReadString()
     
     while (look != termchar && !IsEndOfStream())
     {
-        if (look == '\\')
+        if (look == '\\' && !is_plain)
         {
             GetLook(); // move past the back slash
             GetLook(); // move past next char
         }
-        else if (look == '{' && !is_identifier_string && termchar != '`')
+        else if (look == '{' && !is_identifier_string && !is_plain)
         {
             if (is_str_ctor && is_str_ctor != termchar)
                 state->SyntaxException(Exception::ERROR_syntax, prevline, prevcol, "cannot have nested string constructors");
@@ -692,6 +697,8 @@ void Tokenizer::ReadString()
     GetLook();
     
     const char* strbeg = GetBeginPtr() + 1; // move past the opening " or '
+    if (is_plain)
+        strbeg++;
     const char* strend = GetEndPtr() - 1; // move in front of the closing " or '
     
     ASSERT(strend > strbeg);
@@ -762,7 +769,17 @@ void Tokenizer::ReadControl()
         }
     }
     break;
-        
+    case '$':
+    {
+        tokenType = look;
+        GetLook();
+        if (look == '\"' || look == '\'')
+        {
+            ReadString(true);
+            return;
+        }
+    }
+    break;
     case '*':
     {
         tokenType = look;
@@ -1303,7 +1320,7 @@ void REPLStream::NewLoop(const char* pmt)
     if (is_eof) 
         return;
     pos = bufferLength = 0;
-    while (GetNewLine(pmt ? pmt : ">>>"))
+    while (GetNewLine(pmt ? pmt : "pika>"))
     {
         // Line is non-empty
         if (bufferLength > 0)
@@ -1360,7 +1377,7 @@ bool REPLStream::IsEoi()
 
 bool REPLStream::GetNewLine(const char* pmt)
 {
-    const char* prompt = pmt ? pmt : ">>>";
+    const char* prompt = pmt ? pmt : "pika>";
     Pika_memzero(buffer, sizeof(buffer));
 #if defined(HAVE_READLINE)
     const char* res = Pika_readline(prompt);

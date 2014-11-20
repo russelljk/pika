@@ -19,6 +19,9 @@ enum WarningLevel
     WARN_severe, // guaranteed side effects or performance penalties
 };
 
+class Engine;
+class Type;
+
 class PIKA_API Exception 
 {
 public:
@@ -46,7 +49,7 @@ public:
     virtual ~Exception();
 
     virtual void Report();
-    
+    virtual Type* GetErrorType(Engine*) { return 0; }
     virtual const char* GetMessage() const { return msg; }
     virtual const char* GetErrorKind();
     static const char* Static_Error_Formats[MAX_ERROR_KIND];

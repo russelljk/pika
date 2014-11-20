@@ -246,7 +246,7 @@ int LocalsObject_getClosure(Context* ctx, Value& self)
 
 void LocalsObject::StaticInitType(Engine* eng)
 {
-    struct RegisterProperty localsObject_Properties[] =
+    static RegisterProperty localsObject_Properties[] =
     {
         { "parent",  LocalsObject_getParent,  "getParent",  0, 0, true,  0, 0 },
         { "length",  LocalsObject_getLength,  "getLength",  0, 0, false, 0, 0 },

@@ -310,7 +310,7 @@ public:
     Type*       Boolean_Type;
     Type*       Integer_Type;
     Type*       Real_Type;
-
+    Object*     ArgNotDefined;
     
     Function* null_Function;
     

@@ -17,7 +17,8 @@ SymbolTable::SymbolTable(SymbolTable* parent, u4 flags)
     fPackage(PIKA_FLAG2FIELD(flags, ST_package)),
     fFunction(PIKA_FLAG2FIELD(flags, ST_function)),
     fUsing(PIKA_FLAG2FIELD(flags, ST_using)),
-    fNoInherit(PIKA_FLAG2FIELD(flags, ST_noinherit))
+    fNoInherit(PIKA_FLAG2FIELD(flags, ST_noinherit)),
+    fFinally(PIKA_FLAG2FIELD(flags, ST_finally))
 {
     Pika_memzero(table, sizeof(Symbol*) * HASHSIZE);
     depth = (parent) ? parent->depth : 0;

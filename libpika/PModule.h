@@ -6,17 +6,17 @@
 #define PIKA_MODULE_HEADER
 /*
 
-Native modules can provide 2 exported methods:
+Native modules can provide 2 exported methods (Where XXX is the name of the module.)
 -----------------------------------------------------------------------------
-void        pikalib_enter_Foo(Engine* ENG, Module* MOD)
-const char* pikalib_version_Foo()
+void    pikalib_enter_XXX(Engine* ENG, Module* MOD)
+u4      pikalib_version_XXX()
 
 */
 
 #define PIKALIB_PREFIX_ENTER            "pikalib_enter_"
 #define PIKALIB_PREFIX_VER              "pikalib_version_"
 #define PIKA_MODULE(NAME, ENG, MOD)                                                          \
-    PIKA_MODULE_EXPORT const char* pikalib_version_##NAME(void) { return PIKA_BANNER_STR; } \
+    PIKA_MODULE_EXPORT u4             pikalib_version_##NAME(void) { return PIKA_ABI_VERSION; } \
     PIKA_MODULE_EXPORT pika::Package* pikalib_enter_##NAME(pika::Engine* ENG, pika::Module* MOD)
 
 namespace pika {
@@ -25,7 +25,7 @@ class Engine;
 class Module;
 
 typedef Package*   (*ModuleEntry_t)(Engine*, Module*);
-typedef const char*  (*VersionFn_t)(void);
+typedef u4         (*VersionFn_t)(void);
 
 // Module //////////////////////////////////////////////////////////////////////////////////////////
 

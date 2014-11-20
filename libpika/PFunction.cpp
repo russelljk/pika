@@ -16,6 +16,7 @@
 #include "PNativeBind.h"
 #include "PParser.h"
 #include "PAst.h"
+#include "PScript.h"
 
 namespace pika {
 
@@ -237,7 +238,7 @@ Function* Function::BindWith(Value& withobj)
     return bc;
 }
 
-bool Function::IsLocatedIn(Package* pkg)
+bool Function::IsLocatedIn(Package* pkg) const
 {
     if (!pkg)
         return false;
@@ -248,6 +249,24 @@ bool Function::IsLocatedIn(Package* pkg)
         curr = curr->GetSuper();
         
     return curr == pkg;
+}
+
+String* Function::GetFileName() const
+{
+    if (!location)
+        return engine->emptyString;
+    
+    GCPAUSE_NORUN(engine);
+    Package* curr = location;
+    
+    while (curr) {
+        if (curr->IsDerivedFrom(Script::StaticGetClass())) {
+            Script* s = static_cast<Script*>(curr);
+            return s->GetFileName();            
+        }
+        curr = curr->GetSuper();
+    }
+    return engine->emptyString;
 }
 
 String* Function::GetDotPath()
@@ -842,7 +861,7 @@ void Function::StaticInitType(Engine* eng)
     .Constant((pint_t)PIKA_MAX_NESTED_FUNCTIONS, "MAX_FUNCTION_DEPTH")
     ;
     
-    struct RegisterProperty Function_Properties[] = {
+    static RegisterProperty Function_Properties[] = {
         { "name",     Function_name,     "getName",     0, 0, true, 0, 0 },
         { "parent",   Function_parent,   "getParent",   0, 0, true, 0, 0 },
         { "location", Function_location, "getLocation", 0, 0, true, 0, 0 },

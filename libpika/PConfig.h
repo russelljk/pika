@@ -29,9 +29,11 @@
 #define PIKA_STDLIB
 #define INLINE             inline
 #define ASSERT             assert
-#define ENABLE_TRACE
 
 /////////////////////////////////////////// OPTIONAL DEFS //////////////////////////////////////////
+
+/* Print debug trace calls to stdout. */
+/* #define PIKA_ENABLE_TRACE */
 
 /* Use mem-pools for Slot creation.
    Sometimes it can be faster but it is not thread safe. */
@@ -138,6 +140,10 @@
 // Constants ///////////////////////////////////////////////////////////////////////////////////////
 /*
 
+----------------------------------------------------------------------------------------------------
+The following should be defined in the platform specific config header. (ie PConfig_GCC.h, PConfig_VisualStudio.h etc.
+----------------------------------------------------------------------------------------------------
+
 PIKA_MODULE_EXPORT          Declaration needed to export a function from a shared library.
 
 PIKA_ALIGN [default 8]      Don't lower this, but you can increase it to another power of 2 (or more) if needed.
@@ -169,20 +175,20 @@ PIKA_MAC                    Mac OS X                <
 PIKA_MAX_PATH               Maximum length a system path can be.
 
 */
-// VM limits ///////////////////////////////////////////////////////////////////////////////////////
+// VM Limits ///////////////////////////////////////////////////////////////////////////////////////
 /* 
 
 Most of these values can be adjusted as needed. Do not do so unless you know what you are doing.
 Keep in mind the range specified [min .. max ] and the limits of the data type used in storing them.
 
 */
-#define PIKA_MAX_LITERALS           0x7FFF      // Maximum number of literals that can be indexed.     1 .. max( u2 ) - 1
+#define PIKA_MAX_LITERALS           0x7FFF      // Max # of literals that can be indexed.              1 .. max( u2 ) - 1
 #define PIKA_INIT_SCOPE_STACK       128         // Initial size of a scope stack.                      1 .. ]
 #define PIKA_MAX_SCOPE_STACK        32768       // Maximum size a scope stack can grow to.             PIKA_INIT_SCOPE_STACK .. max(size_t)
 #define PIKA_MAX_EXCEPTION_STACK    255         // Maximum size an exception stack can grow to.        1 .. sizeof(size_t) ]
 #define PIKA_INIT_OPERAND_STACK     64          // Initial size of an operand stack.                   1 .. PIKA_MAX_OPERAND_STACK
 #define PIKA_MAX_OPERAND_STACK      1048575     // Maximum size an operand stack can grow to.          PIKA_INIT_OPERAND_STACK .. max(size_t)
-#define PIKA_STACK_GROWTH_RATE      1.5         // Growth Rate of an operand stack.                    must be > 1.0.
+#define PIKA_STACK_GROWTH_RATE      1.5         // Growth Rate of an operand stack.                    Must be > 1.0.
 #define PIKA_MAX_STACKLIMIT         0x7FFF      // Maximum operand stack limit for a single function.
 #define PIKA_OPERAND_STACK_EXTRA    8           // Extra space added to a context's operand stack in-order to support type conversions and override operator calls.
 #define PIKA_NATIVE_STACK_EXTRA     16          // Amount you can safely push without checking for an operand stack overflow. Should be at least PIKA_OPERAND_STACK_EXTRA.
@@ -190,6 +196,11 @@ Keep in mind the range specified [min .. max ] and the limits of the data type u
 #define PIKA_MAX_RETC               128         // Maximum number of return values allowed
 #define PIKA_MAX_ARGS               128
 #define PIKA_MAX_KWARGS             128
+#define PIKA_MAX_NESTED_FUNCTIONS   255
+#define PIKA_BUFFER_MAX_LEN         (PINT_MAX)              // Max length a vector or other buffer may be.
+#define PIKA_STRING_MAX_LEN         (PIKA_BUFFER_MAX_LEN)   // Max length a string may be.
+#define PIKA_MAX_SLOTS              (0xFFFF)                // Max number of slots an object can have. doesn't effect vectors or strings.
+
 
 #ifdef PIKA_64BIT_INT
 #   define          PINT_MAX       (LONG_LONG_MAX)
@@ -285,10 +296,6 @@ INLINE bool IsLetterOrDigit(int x)        { return IsAscii(x) && (isalnum(x) != 
 INLINE bool IsIdentifierExtra(int x)      { return x == '_'; }                        // Is part of a valid identifier.
 INLINE bool IsValidDigit(int x)           { return IsDigit(x) || x == '_'; }          // Is part of a valid number literal.
 
-#define PIKA_BUFFER_MAX_LEN     (PINT_MAX)             // Max length a vector or other buffer may be.
-#define PIKA_STRING_MAX_LEN     (PIKA_BUFFER_MAX_LEN) // Max length a string may be.
-#define PIKA_MAX_SLOTS          (0xFFFF)               // Max number of slots an object can have. doesn't effect vectors or strings.
-
 // Sanity check!
 
 #if defined(PIKA_64) && defined(PIKA_32)
@@ -301,11 +308,9 @@ INLINE bool IsValidDigit(int x)           { return IsDigit(x) || x == '_'; }    
 
 typedef u4 code_t; // needs to be 32bit
 
-#define PIKA_MAX_NESTED_FUNCTIONS 255
-
 #define PIKA_BITFLAG(P) ((u4)((0x1) << P))
 
-#if defined(ENABLE_TRACE)
+#if defined(PIKA_ENABLE_TRACE)
 #define trace0(msg)                 fprintf(stderr, msg)
 #define trace1(msg, A)              fprintf(stderr, msg, A)
 #define trace2(msg, A, B)           fprintf(stderr, msg, A, B)

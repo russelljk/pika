@@ -812,7 +812,8 @@ void BlockStmt::DoStmtResources(SymbolTable* st)
     
     if (stmts)
     {
-        stmts->CalculateResources(symtab);
+        SymbolTable* scope = st->IsFinally() ? st : symtab;   
+        stmts->CalculateResources(scope);
     }
 }
 
@@ -1144,22 +1145,22 @@ void TryStmt::DoStmtResources(SymbolTable* st)
     CompileState::TryState trystate = state->trystate;
     
     PIKA_NEW(SymbolTable, tryTab, (st, st->IsWithBlock() ? ST_using : 0));
+    SymbolTable* scope = st->IsFinally() ? st : tryTab;
     
     state->trystate.inTry = true;
     
-    tryBlock->CalculateResources(tryTab);
-    
+    tryBlock->CalculateResources(scope);
     state->trystate = trystate;
     
     if (!catchis && !catchBlock)
     {
         state->SyntaxException(Exception::ERROR_syntax, line, "Attempt to create a try block without a catch block.");
     }
-    if (catchis) catchis->CalculateResources(st);
+    if (catchis) catchis->CalculateResources(scope);
     
     if (catchBlock)
     {
-        PIKA_NEW(SymbolTable, catchTab, (st, ST_noinherit));
+        PIKA_NEW(SymbolTable, catchTab, (scope, ST_noinherit));
         symbol = catchTab->Put(caughtVar->name);
         symbol->offset = state->NextLocalOffset(caughtVar->name);
         
@@ -1172,7 +1173,7 @@ void TryStmt::DoStmtResources(SymbolTable* st)
     state->trystate = trystate;
     if (elseblock)
     {
-        elseblock->CalculateResources(st);
+        elseblock->CalculateResources(scope);
     }
 }
 
@@ -1472,10 +1473,10 @@ void FinallyStmt::DoStmtResources(SymbolTable* st)
     if (block)
         block->CalculateResources(st);
         
-    PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit));
+    PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit|ST_finally));
     
-    if (finalize_block)
-        finalize_block->CalculateResources(symtab);
+    if (block)
+        block->CalculateResources(symtab);    
 }
 
 UsingStmt::UsingStmt(CompileState* s, Expr* e, Stmt* b)

@@ -39,7 +39,8 @@ public:
 
     Package*         GetImportResult() { return import_value ? import_value : this; }
     void             SetImportResult(Package* impres);
-
+    String*          GetFileName() const { return this->file_name; }
+    
     virtual Context* GetContext() { return context; }
     virtual void     MarkRefs(Collector* c);
     virtual bool     Run(Array* arguments);

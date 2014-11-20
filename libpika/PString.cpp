@@ -813,6 +813,14 @@ public:
         return 1;
     }
     
+    static int getLength(Context* ctx, Value& self)
+    {
+        String* src = self.val.str;
+        size_t len = src->GetLength();
+        ctx->Push((pint_t)len);
+        return 1;
+    }
+    
     static int is_whitespace(Context* ctx, Value& self)
     {
         String* src = self.val.str;
@@ -1393,7 +1401,7 @@ Split the string into two substrings at position |p|.")
 
 PIKA_DOC(String_split, "/(set)\
 \n\
-Split the where ever an character from |set| is present. The resultant strings will be returned in an [Array].\
+Split the string where ever an character from |set| is present. The resultant strings will be returned in an [Array].\
 [[[\
 s = ',;'\n\
 print( 'dog,cat;wolf,lion'.split(s) ) #=> ['dog', 'cat', 'wolf', 'lion']\
@@ -1504,6 +1512,7 @@ void String::StaticInitType(Engine* eng)
         { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT,   PIKA_GET_DOC(String_is_whitespace) },
         { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, PIKA_GET_DOC(String_iterate) },
         { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_join) },
+        { "getLength",      StringApi::getLength,           0, DEF_STRICT,   0 },
     };
     
     static RegisterFunction String_ClassMethods[] =

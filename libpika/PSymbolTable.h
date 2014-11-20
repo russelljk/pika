@@ -37,6 +37,7 @@ enum SymbolType
     ST_function = PIKA_BITFLAG(2),
     ST_using    = PIKA_BITFLAG(3),
     ST_noinherit= PIKA_BITFLAG(4),
+    ST_finally  = PIKA_BITFLAG(5),
 };
 
 class SymbolTable
@@ -59,6 +60,8 @@ public:
     bool DefaultsToGlobal() const { return fMain || fPackage || fUsing; }
     
     bool GetWith() { return fUsing; }
+    
+    bool IsFinally() const { return fFinally ? true : false; }
 
     bool IsWithBlock() const
     {
@@ -82,6 +85,7 @@ private:
     u4 fFunction:1;
     u4 fUsing:1;
     u4 fNoInherit:1;
+    u4 fFinally:1;    
 };
 }// pika
 

@@ -126,8 +126,8 @@ public:
             }
             else
             {
-                // Key was deleted while we were iterating, move on to the next one.
-                Advance();
+                ++currSlot;                
+                
                 if (ToBoolean())
                 {
                     return MoveCurrent();

@@ -340,7 +340,7 @@ protected:
     bool OpCat(bool sp);    
     bool OpIs();    
     bool OpHas();
-    EErrRes OpException(Exception&);
+    EErrRes OpException(Exception&, bool);
     
     /** Make this Context the active one. */        
     void Activate();
@@ -350,6 +350,7 @@ protected:
 public:
     LexicalEnv* GetEnv() { return env; }
     void    CreateEnvAt(ScopeIter);
+    void    Traceback();
     
     /** Returns a dictionary containing keyword argument passed to the current function. The result may be NULL. */
     Dictionary* GetKeywordArgs() { return kwargs; }

@@ -97,4 +97,9 @@
 /* Define to 1 if you have readline/readline.h */
 #cmakedefine HAVE_READLINE 1
 
+#define PIKA_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@"
+
 #define PIKA_VER_STR "@pika_LIB_VERSION@"
+
+#define PIKA_ABI_VERSION @pika_ABI_VERSION@
+

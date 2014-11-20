@@ -134,7 +134,7 @@ void Context::Run()
                                                             // If we are suspended then we need the #calls from the previous run.                                                            
     state         = RUNNING; //  Set our state to running                                                            
     Opcode oc     = OP_nop;  //  Current opcode we are dispatching.
-    code_t instr  = 0;       //  Current instruction (including operands). see the bytecode layout in gOpcode.h
+    code_t instr  = 0;       //  Current instruction (including operands). see the bytecode layout in POpcode.h
     
     Activate();              //  We are now the active thread.
     
@@ -147,6 +147,7 @@ void Context::Run()
             
             //  Pika_PrintInstruction(instr);
             
+            //  PIKA_CHECK_INSTR_HOOK
             //  We check for the existance of the instruction hook (typically used by debuggers).
             //  If you are concerned about speed and don't care about supporting debugging you
             //  can remove this check.
@@ -205,7 +206,7 @@ void Context::Run()
             
                 /* Creates a new Function.
                     
-                    Format => opcode [defaults count: u2]
+                    Format: opcode [defaults count: u2]
                 */
                 u2 defaultArgc = GetShortOperand(instr);
                 
@@ -436,22 +437,6 @@ void Context::Run()
                     RaiseException("Attempt to create object literal failed.");
                 }
                 
-                /* Loop through each {key,val} pair and add it to the new
-                 * object/dictionary.
-                 *
-                 * TODO { If we can break this up by writing:
-                 *        if (is_dict)
-                 *          while ...
-                 *              add to dict
-                 *          end
-                 *        else
-                 *          while (...)
-                 *              add to object
-                 *          end
-                 *        end
-                 *       We would only need to test if(is_dict) once instead of
-                 *       once per element. }
-                 */
                 while (beg < end)
                 {
                     Value* val  = beg;
@@ -805,11 +790,11 @@ void Context::Run()
 
                 Value& thrown = Top();
                 ScriptException exception(thrown);
-                switch (OpException(exception))
+                switch (OpException(exception, false))
                 {
                 case ER_throw:
                     inlineThrow = true; // The exception handler inside run should re-throw this exception.
-                    throw exception;    // "pass" it to the exception handler ... avert your eyes **yuck**
+                    throw exception;    // "pass" it off to the exception handler ... avert your eyes **yuck**
                 case ER_continue:
                 { 
                     PIKA_NEXT()         // We can handle the exception here.
@@ -983,7 +968,7 @@ void Context::Run()
             }
             else
             {
-                switch (OpException(e))
+                switch (OpException(e, true))
                 {
                 case ER_throw:    throw;
                 case ER_continue: continue;

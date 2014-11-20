@@ -827,9 +827,9 @@ int os_lib_load(Context* ctx, Value&)
 	SlotBinder<Object>(eng, os_Package, os_Package)
     .StaticMethod( os_clock,                     "clock",    PIKA_GET_DOC(os_clock))
     .StaticMethod( os_time,                      "time",     PIKA_GET_DOC(os_time))
-    .StaticMethod( getenv,                       "getEnv",   PIKA_GET_DOC(os_getEnv))
-    .StaticMethod( setenv,                       "setEnv",   PIKA_GET_DOC(os_setEnv))
-    .StaticMethod( unsetenv,                     "unSetEnv", PIKA_GET_DOC(os_unSetEnv))
+    .StaticMethod( getenv,                       "getenv",   PIKA_GET_DOC(os_getEnv))
+    .StaticMethod( setenv,                       "setenv",   PIKA_GET_DOC(os_setEnv))
+    .StaticMethod( unsetenv,                     "unsetenv", PIKA_GET_DOC(os_unSetEnv))
     .StaticMethod( Pika_FileExists,              "exists?",  PIKA_GET_DOC(os_exists))  
     .StaticMethod( Pika_IsFile,                  "file?",    PIKA_GET_DOC(os_file))     
     .StaticMethod( Pika_IsDirectory,             "dir?",     PIKA_GET_DOC(os_dir))       
@@ -858,6 +858,20 @@ int os_lib_load(Context* ctx, Value&)
     return 1;
 }
 
+int date_lib_load(Context* ctx, Value&)
+{
+    Engine* eng = ctx->GetEngine();
+    GCPAUSE(eng);
+    
+    Package* world_Package = eng->GetWorld();
+    String*  date_String     = eng->AllocString("date");
+    Package* date_Package    = Package::Create(eng, date_String, world_Package);
+    Date::StaticInitType(date_Package, eng);
+    eng->PutImport(date_String, date_Package);
+    ctx->Push(date_Package);
+    return 1;
+}
+
 }// namespace
 
 void InitSystemLIB(Engine* eng)
@@ -876,6 +890,13 @@ void InitSystemLIB(Engine* eng)
         static RegisterFunction os_FuncDef = { "os", os_lib_load, 0, 0, 0 };    
         Value osfn(Function::Create(eng, &os_FuncDef, World_Package));
         eng->PutImport(os_String, osfn);
+    }
+    { 
+        // Setup 'date' package as an import.
+        String*  date_String = eng->AllocString("date");
+        static RegisterFunction date_FuncDef = { "date", date_lib_load, 0, 0, 0 };    
+        Value date_fn(Function::Create(eng, &date_FuncDef, World_Package));
+        eng->PutImport(date_String, date_fn);
     }
 }
 
