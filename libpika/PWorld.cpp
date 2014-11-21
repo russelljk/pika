@@ -9,7 +9,9 @@
 #include "PFile.h"
 #include "PGenerator.h"
 #include "PProxy.h"
+
 namespace pika {
+
 extern void InitSystemLIB(Engine*);
 extern void Initialize_ImportAPI(Engine*);
 extern void Init_Annotations(Engine*, Package*);
@@ -508,17 +510,20 @@ int Global_printp(Context* ctx, Value& self)
     if (argc > PIKA_MAX_POS_ARGS)
     {
         RaiseException("Too many positional arguments.");
-    }    
+    }
+    
     if (argc == 1)
     {
         printf("%s", fmt->GetBuffer());
         return 0;
     }
+    
     for (u2 a = 1; a < argc; ++a)
     {
         strargs[ a-1 ] = ctx->ArgToString( a );
         ctx->GetArg( a ).Set(strargs[ a-1 ]);     // Keep it safe from the gc.
     }
+    
     String* res = String::sprintp(ctx->GetEngine(), fmt, argc, strargs);
     ctx->Push( static_cast<pint_t>( res->GetLength() ) );
     printf("%s", res->GetBuffer());
@@ -624,6 +629,8 @@ void Error_NewFn(Engine* eng, Type* obj_type, Value& res)
     res.Set(obj);
 }
 
+/* TODO: Report which argument failed the assertion.
+ */
 int Global_assert(Context* ctx, Value& self)
 {
     u2 argc = ctx->GetArgCount();
