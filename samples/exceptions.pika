@@ -8,7 +8,7 @@
 #==============================================================================
 
 function oops()
-  raise Error.new "oops something went wrong."
+    raise Error.new "oops something went wrong."
 end
 
 #==============================================================================
@@ -19,9 +19,9 @@ end
 #==============================================================================
 
 try
-  oops()
+    oops()
 catch e
-  print "{e.type} {e}"
+    print "{e.type} {e}"
 end
 
 #==============================================================================
@@ -32,15 +32,15 @@ end
 #==============================================================================
 
 try
-  try
-    oops()
-  catch e
-    print 'catch #1 {e}.'
-    # raise the exception again.
-    raise
-  end
+    try
+        oops()
+    catch e
+        print 'catch #1 {e}.'
+        # raise the exception again.
+        raise
+    end
 catch e
-  print 'catch #2 {e}.'
+    print 'catch #2 {e}.'
 end
 
 #==============================================================================
@@ -50,11 +50,11 @@ end
 #==============================================================================
 
 try
-  oops()
+    oops()
 catch e
-  print "{e.type} {e}"
+    print "{e.type} {e}"
 finally
-  print "finally block was executed."
+    print "finally block was executed."
 end
 
 #------------------------------------------------------------------------------
@@ -63,10 +63,10 @@ end
 #------------------------------------------------------------------------------
 
 # block with a finally statement
-begin
-  print 'begin'
+do
+    print 'block begin'
 finally
-  print 'finally'
+    print 'block finally'
 end
 
 #------------------------------------------------------------------------------
@@ -87,13 +87,13 @@ end
 #==============================================================================
 
 try
-  oops()
+    oops()
 catch e is String
-  print 'string exception: "{e}" caught'
+    print 'string exception: "{e}" caught'
 catch e is Error
-  print 'Error exception: "{e}" caught'
+    print 'Error exception: "{e}" caught'
 catch e
-  print 'Generic catch statement'
+    print 'Generic catch statement'
 end
 
 #------------------------------------------------------------------------------
@@ -108,10 +108,9 @@ end
 #==============================================================================
 
 try
-  x = 5
+    x = 5
 catch e is String
-  print 'Error caught: {e}'
+    print 'Error caught: {e}'
 else
-  print 'else executed'
+    print 'else executed'
 end
-

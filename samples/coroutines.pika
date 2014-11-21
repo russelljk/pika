@@ -1,1 +1,36 @@
 (* coroutines.pika *)
+class CoroutineSampleError: RuntimeError
+end
+
+function doAddition(a, b)
+    res = a + b
+    Context.suspend('a + b = {res}')
+end
+
+function doSubtraction(a, b)
+    res = a - b
+    Context.suspend('a + b = {res}')
+end
+
+function contextTest(a, b)
+    doAddition(a, b)
+    doSubtraction(a, b)
+    
+    return 'Finished!'
+end
+
+ctx = Context.new(contextTest)  # Run contextTest as a Coroutine.
+ctx.setup(2, 4)                 # Pass arguments for contextTest
+
+print ctx.next()    # Get first value from the coroutine
+print ctx.next()    # Get the second value
+print ctx.next()    # Coroutine return value.
+
+try
+    print ctx.next() # Attempt to call the coro after it yields. This will raise a RuntimError
+catch e is RuntimeError
+    print "Caught {e.type.name}: {e.message}"
+else
+    # No exception raised, which is unexpected.
+    raise CoroutineSampleError.new 'Expected Context.next() would raise a RuntimeError.'    
+end

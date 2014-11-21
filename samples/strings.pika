@@ -34,6 +34,9 @@ print 'I have a "double" quote'
 #   A slash followed by any other character means skip the character in question.
 #==============================================================================
 
+print 'Hello\nWorld'
+print $'Im a Raw\nString Any escaped characters are ignored. You can use me for regular expressions.'
+
 #==============================================================================
 # String Concatentation
 #------------------------------------------------------------------------------
