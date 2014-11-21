@@ -57,13 +57,22 @@ char* Pika_strdup(const char* s, size_t* lenOut)
     return ret;
 }
 
-char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout)
+char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout, bool raw)
 {
     size_t const EXTRA = 32;
     if (!s)
     {
         return 0;
     }
+    else if (raw)
+    {
+        char* rawstr = (char*)Pika_malloc(lenin + 1 * sizeof(char));     
+        Pika_memcpy(rawstr, s, lenin * sizeof(char));
+        rawstr[lenin] = '\0';
+        *lenout = lenin;
+        return rawstr;
+    }
+    
     size_t len = strlen(s);
     pika::Buffer<char> ret;
     ret.SetCapacity( (len + EXTRA) );
@@ -75,7 +84,7 @@ char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout)
         // Handle Escape Sequences.
         if (*s == '\\')
         {
-            *s++;
+            s++;
             if (isdigit(*s))
             {
                 // Convert decimal number to a single character.                

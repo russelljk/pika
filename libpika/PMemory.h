@@ -25,7 +25,7 @@ PIKA_API char* Pika_strdup(const char* s,  size_t* len /*out*/ = 0);
  *
  * @result A script usable string based on the input template string.
  */
-PIKA_API char* Pika_TransformString(const char* s, size_t lenin, size_t* len /*out*/);
+PIKA_API char* Pika_TransformString(const char* s, size_t lenin, size_t* len /*out*/, bool raw);
 
 PIKA_API void* Pika_memmove(void* dest, const void* src, size_t sz);
 PIKA_API void* Pika_memcpy(void* dest, const void* src, size_t sz);

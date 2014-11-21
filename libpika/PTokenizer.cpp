@@ -709,7 +709,7 @@ void Tokenizer::ReadString(bool is_plain)
     Pika_memcpy(strtemp, strbeg, len * sizeof(char));
     
     strtemp[len] = '\0';
-    tokenVal.str = Pika_TransformString(strtemp, len, &tokenVal.len);
+    tokenVal.str = Pika_TransformString(strtemp, len, &tokenVal.len, is_plain);
     tokenType    = str_tok_type;
     
     Pika_free(strtemp);
@@ -1320,7 +1320,7 @@ void REPLStream::NewLoop(const char* pmt)
     if (is_eof) 
         return;
     pos = bufferLength = 0;
-    while (GetNewLine(pmt ? pmt : "pika>"))
+    while (GetNewLine(pmt ? pmt : PIKA_REPL_PROMPT))
     {
         // Line is non-empty
         if (bufferLength > 0)
@@ -1377,7 +1377,7 @@ bool REPLStream::IsEoi()
 
 bool REPLStream::GetNewLine(const char* pmt)
 {
-    const char* prompt = pmt ? pmt : "pika>";
+    const char* prompt = pmt ? pmt : PIKA_REPL_PROMPT;
     Pika_memzero(buffer, sizeof(buffer));
 #if defined(HAVE_READLINE)
     const char* res = Pika_readline(prompt);

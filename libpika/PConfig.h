@@ -27,8 +27,8 @@
 #endif
 
 #define PIKA_STDLIB
-#define INLINE             inline
-#define ASSERT             assert
+#define INLINE              inline
+#define ASSERT              assert
 
 /////////////////////////////////////////// OPTIONAL DEFS //////////////////////////////////////////
 
@@ -336,3 +336,5 @@ typedef u4 code_t; // needs to be 32bit
 #define PIKA_FLAG2FIELD(X, F) ((X & F) ? 1 : 0)
 #define SHOULD_NEVER_HAPPEN() ASSERT(0)
 #endif
+
+#define PIKA_REPL_PROMPT    "pika> "
