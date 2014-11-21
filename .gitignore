@@ -1,2 +1,4 @@
 .DS_Store
 build
+libpika/pika_config.h
+modules/re/re_config.h

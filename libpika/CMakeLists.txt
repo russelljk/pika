@@ -3,6 +3,7 @@
 #
 message (STATUS "********* Starting pika library *********")
 
+
 # Disable 'unsecure' warnings in VC++
 
 if (WIN32)
@@ -86,8 +87,8 @@ check_function_exists (strtok_s HAVE_STRTOK_S)
 # Set version numbers
 # -------------------------------------------------------------------------
 
-set (pika_LIB_VERSION_MAJOR "0")
-set (pika_LIB_VERSION_MINOR "12")
+set (pika_LIB_VERSION_MAJOR "1")
+set (pika_LIB_VERSION_MINOR "0")
 set (pika_LIB_VERSION_PATCH "0")
 
 set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
@@ -195,6 +196,14 @@ install (TARGETS pika
          # For OSX Framework build.
          PUBLIC_HEADER  DESTINATION ${PIKA_INCLUDE_DIR}
          PRIVATE_HEADER DESTINATION ${PIKA_INCLUDE_DIR}/PrivateHeaders)
+
+if (APPLE)
+    set_target_properties( pika 
+                PROPERTIES 
+                MACOSX_RPATH TRUE
+                INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
+                INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+endif (APPLE)
 
 #--------------------- Generate + Install pika.pc ------------------------------
 # We don't mess with the package configuration file if we are making a framework

@@ -498,24 +498,6 @@ bool File_rename(String* oldname, String* newname)
     return rename(oldname->GetBuffer(), newname->GetBuffer()) == 0;
 }
 
-PIKA_DOC(File_tempName, "/()\
-\n\
-Returns the path and name that can be used for a temporary file. The location \
-and file name is system dependent. \
-")
-
-String* TempName(Context* ctx)
-{
-    char buffer[L_tmpnam]; // or PIKA_MAX_PATH
-
-    if (tmpnam(buffer))
-    {
-        String* tempname = ctx->GetEngine()->AllocString(buffer);
-        return tempname;
-    }
-    return 0;
-}
-
 }// namespace
 
 void File::Constructor(Engine* eng, Type* type, Value& obj)
@@ -570,7 +552,6 @@ void File::StaticInitType(Engine* eng)
     .Constant(file_stdout,      "stdout")
     .Constant(file_stderr,      "stderr")
     .Constant(file_stdin,       "stdin")
-    .StaticMethodVA(TempName,   "tempName", PIKA_GET_DOC(File_tempName))
     .StaticMethod(File_rename,  "rename", PIKA_GET_DOC(File_rename))
     ;
     

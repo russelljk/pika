@@ -141,7 +141,7 @@ struct NumberParser
                 pT->GetLook();
                 radix = 8;
             }
-            else if ((x == 'r'))
+            else if (x == 'r')
             {
                 // Radix specification.
                 if ((int_part <= 36) && (int_part >= 2))

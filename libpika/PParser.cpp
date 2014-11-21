@@ -2961,7 +2961,7 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
     }
     else
     {
-        if (close = Optional('('))
+        if ((close = Optional('(')))
             BufferCurrent();
     }
     

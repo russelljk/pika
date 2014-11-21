@@ -341,6 +341,7 @@ protected:
     bool OpIs();    
     bool OpHas();
     EErrRes OpException(Exception&, bool);
+    bool HandleException(Value&, bool&);
     
     /** Make this Context the active one. */        
     void Activate();

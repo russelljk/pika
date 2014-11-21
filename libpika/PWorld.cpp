@@ -229,7 +229,7 @@ int Value_getType(Context* ctx, Value& self)
         if (self.tag >= TAG_basic)
         {
             Type* type = 0;
-            if (type = self.val.basic->GetType())
+            if ((type = self.val.basic->GetType()))
             {
                 ctx->Push(type);
                 return 1;

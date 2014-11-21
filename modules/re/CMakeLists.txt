@@ -81,9 +81,16 @@ if (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
     target_link_libraries (pikare pcre)
 endif (NOT RE_EXTERNAL_PCRE AND HAVE_PCRE)
 
-set_target_properties (pikare 	PROPERTIES
+set_target_properties ( pikare 	PROPERTIES
                             	VERSION           ${pikare_LIB_VERSION}
                             	SOVERSION         ${pikare_LIB_VERSION})
+if (APPLE)
+    set_target_properties( pikare 
+                PROPERTIES 
+                MACOSX_RPATH TRUE
+                INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
+                INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+endif (APPLE)
 
 install (TARGETS        pikare
          RUNTIME        DESTINATION bin

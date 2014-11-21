@@ -135,10 +135,9 @@ namespace {
         GCPAUSE(ctx->GetEngine());
         Function* func = ctx->GetArgT<Function>(0);
         String* name = ctx->GetStringArg(1);
-        Property* p = 0;
         Package* pkg = FunctionGetPackage(ctx->GetEngine(), func);
-                
-        if (p = LookupProperty(ctx->GetEngine(), func, name, pkg))
+        Property* p = LookupProperty(ctx->GetEngine(), func, name, pkg);
+        if (p)
         {
             p->SetRead(func);
         }
@@ -156,9 +155,9 @@ namespace {
         GCPAUSE(ctx->GetEngine());
         Function* func = ctx->GetArgT<Function>(0);
         String* name = ctx->GetStringArg(1);
-        Property* p = 0;
         Package* pkg = FunctionGetPackage(ctx->GetEngine(), func);
-        if (p = LookupProperty(ctx->GetEngine(), func, name, pkg))
+        Property* p = LookupProperty(ctx->GetEngine(), func, name, pkg);
+        if (p)
         {
             p->SetWriter(func);
         }

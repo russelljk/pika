@@ -12,7 +12,7 @@ endif (NOT CMAKE_INSTALL_PREFIX)
 
 set (pika_LIB_VERSION_MAJOR "1")
 set (pika_LIB_VERSION_MINOR "0")
-set (pika_LIB_VERSION_PATCH "3")
+set (pika_LIB_VERSION_PATCH "0")
 set (pika_ABI_VERSION "1")
 
 if (APPLE AND PIKA_FAT_BINARY)
@@ -37,6 +37,7 @@ if (APPLE AND PIKA_FAT_BINARY)
     set (CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5")    
     set (CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.5.sdk/")
 endif (APPLE AND PIKA_FAT_BINARY)
+# INSTALL_NAME_DIR "${LIB_DIR}"
 
 # CMake module path 
 

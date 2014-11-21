@@ -181,7 +181,7 @@ bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res)
 
 Iterator* GetIteratorFrom(Context* ctx, Value& val, String* kind)
 {
-    if (!val.tag >= TAG_basic)
+    if (!(val.tag >= TAG_basic))
         return 0;
     
     Engine* eng = ctx->GetEngine();
@@ -3260,6 +3260,26 @@ void Context::Traceback()
     }
     std::cout << std::endl;
     this->PopCallScope();
+}
+
+bool Context::HandleException(Value& thrown, bool& inlineThrow) {
+    ScriptException exception(thrown);
+    
+    switch (OpException(exception, false))
+    {
+    case ER_throw:
+        inlineThrow = true; // The exception handler inside run should re-throw this exception.
+        throw exception;    // "pass" it off to the exception handler ... avert your eyes **yuck**
+    case ER_continue:
+    {                    
+        return false;
+    }
+    case ER_exit:
+        return true;             // We are dead, nothing to do but exit.
+    default:
+        inlineThrow = true;
+        throw exception;
+    }
 }
 
 Context::EErrRes Context::OpException(Exception& e, bool caught)

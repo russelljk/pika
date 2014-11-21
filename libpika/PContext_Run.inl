@@ -789,21 +789,8 @@ void Context::Run()
                 // The programmer wants to raise an exception.
 
                 Value& thrown = Top();
-                ScriptException exception(thrown);
-                switch (OpException(exception, false))
-                {
-                case ER_throw:
-                    inlineThrow = true; // The exception handler inside run should re-throw this exception.
-                    throw exception;    // "pass" it off to the exception handler ... avert your eyes **yuck**
-                case ER_continue:
-                { 
-                    PIKA_NEXT()         // We can handle the exception here.
-                }
-                case ER_exit:
-                    return;             // We are dead, nothing to do but exit.
-                default:
-                    inlineThrow = true;
-                    throw exception;
+                if (HandleException(thrown, inlineThrow)) {
+                    return;
                 }
             }
             PIKA_NEXT()

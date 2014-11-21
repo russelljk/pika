@@ -550,7 +550,7 @@ String* String::sprintp(Engine*  eng,    // context
                     ch = *cfmt;
                 }
                 
-                if (pos < argc && pos >= 0)
+                if (pos < argc)
                 {
                     String* posstr = args[pos];
                     size_t oldsize = buff.GetSize();
