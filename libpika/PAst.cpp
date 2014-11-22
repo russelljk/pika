@@ -1470,13 +1470,13 @@ FinallyStmt::~FinallyStmt() { Pika_delete(symtab); }
 
 void FinallyStmt::DoStmtResources(SymbolTable* st)
 {
-    if (block)
-        block->CalculateResources(st);
-        
     PIKA_NEW(SymbolTable, symtab, (st, ST_noinherit|ST_finally));
     
     if (block)
-        block->CalculateResources(symtab);    
+        block->CalculateResources(symtab);
+    
+    if (finalize_block)
+        finalize_block->CalculateResources(symtab);
 }
 
 UsingStmt::UsingStmt(CompileState* s, Expr* e, Stmt* b)

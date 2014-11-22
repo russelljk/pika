@@ -87,10 +87,6 @@ check_function_exists (strtok_s HAVE_STRTOK_S)
 # Set version numbers
 # -------------------------------------------------------------------------
 
-set (pika_LIB_VERSION_MAJOR "1")
-set (pika_LIB_VERSION_MINOR "0")
-set (pika_LIB_VERSION_PATCH "0")
-
 set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
 set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
 set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})

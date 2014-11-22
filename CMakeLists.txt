@@ -12,7 +12,7 @@ endif (NOT CMAKE_INSTALL_PREFIX)
 
 set (pika_LIB_VERSION_MAJOR "1")
 set (pika_LIB_VERSION_MINOR "0")
-set (pika_LIB_VERSION_PATCH "0")
+set (pika_LIB_VERSION_PATCH "1")
 set (pika_ABI_VERSION "1")
 
 if (APPLE AND PIKA_FAT_BINARY)
