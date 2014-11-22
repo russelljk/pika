@@ -1,1 +1,81 @@
 (* importing.pika *)
+
+# You can import multiple packages at a time.
+
+re, os = import "re", "os"
+
+# Once imported they are cached, so future calls will return the same module.
+re2 = import "re"
+
+assert re === re2 
+
+print re
+print os
+
+# Since we are just assigning variables, we can emulate "import as" by the variable
+# name we use.
+
+mymath = import "math"
+print mymath
+
+
+# You can find all imported modules in the package: world.imports
+print '\nImported Packages:'
+
+for pkg in world.imports
+    (* However not everything in world.imports is a package.
+     *
+     * There a functions, which are package import functions, which we explain in the next section.
+     *)
+    if pkg is Package
+        print '\t', pkg
+    end
+end
+
+(* Package Import Functions
+ *
+ * If imports finds a function inside world.imports it will call it. 
+ * The function is expected to return a Package, Class or Module.
+ * import will store that result inplace of the function, inside world.imports.  
+ *
+ * You can take advantage of this fact and create your own import functions.
+ * For example we define the following method world.imports.foo that will return
+ * the class Foo.
+ *
+ * Remember that classes are Package.
+ *)
+function world.imports.foo()
+    class Foo
+    end    
+    return Foo
+end
+
+Foo = import "foo"
+print Foo
+
+(* Of course for such a simple example we could directly define a class or method in
+ * world.imports and bypass the function directly.
+ *
+ * If you don't need to perform initialization on the Package, then this is an option.
+ *)
+
+class world.imports.Bar
+    function init(a)
+        self.a = a
+    end
+    
+    function speak()
+        print "Bar says {self.a}"
+    end
+end
+
+MyBar = import "Bar"
+bar = MyBar.new('foo bar')
+bar.speak()
+
+package world.imports.bazz
+    foo = 'foo bazz'
+end
+
+bazz = import 'bazz'
+print bazz.foo

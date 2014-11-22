@@ -1,1 +1,28 @@
 (* using.pika *)
+
+class A: Object
+    function onUse()
+        print 'Use'
+    end
+    
+    function onDispose()
+        print 'Dispose'
+    end
+end
+
+obj = A.new()
+
+using obj
+    self.name = 'John'
+    self.occupation = 'Programmer'
+    self.age = 35
+    try
+        raise RuntimeError.new 'Using Exception'
+    catch e
+        print e
+    end
+end
+
+for attr in obj
+    print attr, attr.type
+end
