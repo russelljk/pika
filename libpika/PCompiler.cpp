@@ -103,7 +103,7 @@ void DoConstantFold(Instr* ir, LiteralPool* lp)
             switch (prev->opcode)
             {
             case OP_pushnull:  jmp = !jmp; break;
-            case OP_pushtrue:  jmp =  jmp; break;
+            case OP_pushtrue:  /* jmp =  jmp; */ break; // noop
             case OP_pushfalse: jmp = !jmp; break;
 
             case OP_pushliteral:

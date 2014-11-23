@@ -110,7 +110,7 @@ public:
     virtual Object*     Clone();
     virtual void        MarkRefs(Collector*);
     
-    virtual bool ToBoolean() const { return state == SUSPENDED || state == RUNNING; }
+    virtual bool ToBoolean() { return state == SUSPENDED || state == RUNNING; }
     
     enum EState
     {
