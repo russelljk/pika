@@ -87,8 +87,8 @@ SET(CPACK_RESOURCE_FILE_LICENSE    "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt")
 SET(CPACK_RESOURCE_FILE_README     "${CMAKE_CURRENT_BINARY_DIR}/README.txt")
 SET(CPACK_RESOURCE_FILE_WELCOME    "${CMAKE_CURRENT_BINARY_DIR}/CPackWelcome.txt")
 
-SET(CPACK_NSIS_HELP_LINK      "http:\\\\\\\\www.pika-lang.org")
-SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.pika-lang.org")
+SET(CPACK_NSIS_HELP_LINK      "http://www.pika-lang.org")
+SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.pika-lang.org")
 SET(CPACK_NSIS_CONTACT        "russell.j.kyle@gmail.com")
 
 
