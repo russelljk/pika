@@ -1075,6 +1075,62 @@ void ArrayExpr::CalculateResources(SymbolTable* st)
     if (elements) elements->CalculateResources(st);
 }
 
+void ComprExprStmt::DoStmtResources(SymbolTable* st)
+{
+    localOffset = state->NextLocalOffset(""); // generate a local variable for the array.
+    if (expr) expr->CalculateResources(st);
+}
+    
+ArrayComprExpr::ArrayComprExpr(CompileState* s, Expr* expr, ForCompr* compr) : Expr(s, Expr::EXPR_compr), stmt(0), body(0), compr(compr)
+{
+    PIKA_NEWNODE(ComprExprStmt, body, (s, expr));
+}
+    
+void ArrayComprExpr::MakeForLoops()
+{
+    RevereNodeList(&compr);
+    ForCompr* curr = compr;
+    Stmt* currStmt = 0;
+    
+    while(curr)
+    {
+        Stmt* forsmt = 0;
+        
+        if (curr->cond)
+        {
+            Stmt* ifstmt = 0;
+            Stmt* ifbody = currStmt ? currStmt : this->body;
+            PIKA_NEWNODE(IfStmt, ifstmt, (state, curr->cond, ifbody, false));
+            currStmt = ifstmt;
+        }
+        
+        Stmt* forbody = currStmt ? currStmt : body;
+        
+        if (curr->kind == ForCompr::FORTO_LOOP)
+        {
+            ForToHeader& header = curr->forToHeader;
+            PIKA_NEWNODE(ForToStmt, forsmt, (state, header.head.id, header.from, header.to, header.step, forbody, header.isdown));            
+        }
+        else
+        {
+            ForEachHeader& header = curr->forEachHeader;
+            PIKA_NEWNODE(ForeachStmt, forsmt, (state, header.head.id, header.of, header.subject, forbody));
+        }
+        currStmt = forsmt;
+        curr = curr->next;
+    }
+    stmt = currStmt;
+}
+
+void ArrayComprExpr::CalculateResources(SymbolTable* st)
+{
+    if (!stmt)
+    {
+        MakeForLoops();
+    }
+    stmt->CalculateResources(st);
+}
+
 void CondExpr::CalculateResources(SymbolTable* st)
 {
     if (cond)  cond ->CalculateResources(st);

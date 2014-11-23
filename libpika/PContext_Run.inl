@@ -521,6 +521,26 @@ void Context::Run()
             }
             PIKA_NEXT()
             
+            PIKA_OPCODE(OP_compr)
+            {
+                u2 localOffset = GetShortOperand(instr);
+                Value& local = GetLocal(localOffset);
+                Value& top = Top();
+                
+                if (local.IsDerivedFrom(Array::StaticGetClass()))
+                {
+                    Array* array = static_cast<Array*>(local.val.object);
+                    array->Push(top);
+                }
+                else
+                {
+                    // Report Error
+                }
+                
+                Pop(1);
+            }
+            PIKA_NEXT()
+            
             PIKA_OPCODE(OP_retacc)
             Push(acc);
             /*

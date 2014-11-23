@@ -108,7 +108,8 @@
     DECL_OP( OP_dictionary,     "dictionary",   3, OF_w,        "" )
     DECL_OP( OP_super,          "super",        1, OF_none,     "" )
     DECL_OP( OP_forto,          "forto",        3, OF_w,        "" )
-    
+
+    DECL_OP( OP_compr,          "compr",        3, OF_w,        "" )    
     DECL_OP( OP_retacc,         "retacc",       1, OF_none,     "" )
     DECL_OP( OP_ret,            "ret",          1, OF_none,     "" )
     DECL_OP( OP_retv,           "retv",         3, OF_w,        "" )

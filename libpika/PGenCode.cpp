@@ -1681,6 +1681,57 @@ Instr* ArrayExpr::GenerateCode()
     return ibeg;
 }
 
+Instr* ArrayComprExpr::GenerateCode()
+{
+    Instr* iprecompr = body->PreGenerateCode();
+    Instr* icompr = stmt->GenerateCode();
+    Instr* ipostcompr = body->PostGenerateCode();
+    
+    iprecompr->
+    Attach(icompr)->
+    Attach(ipostcompr);
+    
+    return iprecompr;
+}
+
+Instr* ComprExprStmt::PreGenerateCode()
+{
+    /* Create the array and the local variable with the result. */
+    Instr* iarray = state->CreateOp(OP_array);
+    Instr* isetLocal = state->CreateOp(OP_setlocal);
+    
+    iarray->
+    Attach(isetLocal);
+    
+    isetLocal->operand = localOffset;
+    isetLocal->operandu1 = 1;
+    isetLocal->target = state->endOfBlock;
+    
+    iarray->operand = 0; // No Elements.
+    
+    return iarray;
+}
+
+Instr* ComprExprStmt::PostGenerateCode()
+{
+    Instr* ipushLocal = state->CreateOp(OP_pushlocal);
+    ipushLocal->operand = localOffset;
+    ipushLocal->operandu1 = 0;
+    return ipushLocal;
+}
+
+Instr* ComprExprStmt::DoStmtCodeGen()
+{
+    Instr* iexpr = expr->GenerateCode();
+    Instr* icompr = state->CreateOp(OP_compr);
+    
+    iexpr->
+    Attach(icompr);
+    
+    icompr->operand = localOffset;
+    return iexpr;
+}
+
 Instr* KeywordExpr::GenerateCode()
 {
     Instr* iname = name->GenerateCode();

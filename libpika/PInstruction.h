@@ -284,7 +284,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     }
     case OP_super:          return  1;
     case OP_forto:          return -3;
-    
+    case OP_compr:          return -1;
     case OP_retacc:         return  1;
     case OP_ret:            return  0; // XXX: ret, retv, gen, genv
     case OP_retv:           return  0; // There is no real need to specify these since

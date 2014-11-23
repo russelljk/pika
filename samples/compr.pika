@@ -1,0 +1,24 @@
+(* compr.pika *)
+
+a = [ x for x = 0 to 10 ]
+
+print 'a = {a}'
+
+(* ------------------------- *)
+
+b = [ x for x in a if x mod 2 ]
+
+print 'b = {b}'
+
+(* ------------------------- *)
+
+function mult(x, y)
+    return x * y
+end
+
+c = [ mult(x, y) 
+        for x = 0 to 10
+           if x mod 2
+               for y = 1 to 3 ]
+
+print 'c = {c}'

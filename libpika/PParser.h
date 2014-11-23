@@ -79,27 +79,9 @@ struct TokenStream
 
 // Parser //////////////////////////////////////////////////////////////////////////////////////////
 
-struct ForHeader
-{    
-    Id*  id;    //!< Loop variable.
-    int  line;  //!< Line the statement starts.
-};
-
-struct ForToHeader
-{
-    ForHeader head;   //!< For statement header.
-    Expr*     from;   //!< Starting point.
-    Expr*     to;     //!< Ending point.
-    Expr*     step;   //!< Step increment.
-    bool      isdown; //!< Are we steping down or up.
-};
-
-struct ForEachHeader
-{
-    ForHeader head;    //!< For statement header.    
-    Expr*     of;      //!< Name of the set we are enumerating.
-    Expr*     subject; //!< The object we are enumerating.
-};
+struct ForHeader;
+struct ForToHeader;
+struct ForEachHeader;
 
 class Parser
 {
@@ -107,6 +89,7 @@ public:
     Program*      root;     //!< Root node of the AST.
     CompileState* state;
     TokenStream   tstream;
+    bool          isCompr;
     
     Parser(CompileState* cs, std::ifstream* yyin);
     Parser(CompileState* cs, const char* buffer, size_t len);
@@ -142,7 +125,8 @@ private:
     Stmt*           DoIfStatement();
     Stmt*           DoWhileStatement();
     Stmt*           DoLoopStatement();
-
+    
+    size_t          DoForHeader(ForHeader* fh);
     Stmt*           DoForStatement();
     Stmt*           DoForToStatement(ForHeader*);
     Stmt*           DoForEachStatement(ForHeader*);

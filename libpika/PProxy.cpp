@@ -199,7 +199,7 @@ void Proxy::StaticInitType(Engine* eng)
     
     static RegisterProperty Proxy_Properties[] = {
     { "reader", Proxy_getReader, "getReader", Proxy_setReader, "setReader", false, 0, 0 },
-    { "writer", Proxy_getReader, "getWriter", Proxy_setReader, "setWriter", false, 0, 0 },
+    { "writer", Proxy_getWriter, "getWriter", Proxy_setWriter, "setWriter", false, 0, 0 },
     };
     
     SlotBinder<Proxy>(eng, Proxy_Type)

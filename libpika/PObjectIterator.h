@@ -178,7 +178,6 @@ private:
     IterateKind kind;
     bool valid;
     bool started;
-    bool bValues;
     Value key;
     Value val;
     Object* owner;

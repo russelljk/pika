@@ -54,6 +54,7 @@ struct          VarDecl;
 struct              LocalDecl;
 struct              MemberDeclaration;
 struct      CatchIsBlock;
+struct      ForCompr;
 struct      Stmt;
 struct          FinallyStmt;
 struct          RaiseStmt;
@@ -76,6 +77,7 @@ struct          BlockStmt;
 struct          DeclStmt;
 struct          AssignmentStmt;
 struct          UsingStmt;
+struct          ComprExprStmt;
 struct      Expr;
 struct          EmptyExpr;
 struct          LoadExpr;
@@ -97,6 +99,7 @@ struct              IntegerExpr;
 struct              RealExpr;
 struct          DictionaryExpr;
 struct          ArrayExpr;
+struct          ArrayComprExpr;
 struct      FieldList;
 struct      ExprList;
 
@@ -511,6 +514,7 @@ struct Stmt : TreeNode
         STMT_with,
         STMT_case,
         STMT_assert,
+        STMT_comprexpr,
     };
     
     Stmt(CompileState* s, Kind kind) : TreeNode(s), newline(false), kind(kind) {}
@@ -735,11 +739,11 @@ struct Expr : TreeNode
         EXPR_property,
         EXPR_dictionary,
         EXPR_array,
+        EXPR_compr,
         EXPR_pow,
         EXPR_load,
         EXPR_dotbind,
         EXPR_new,
-        EXPR_arraycomp,
         EXPR_invalid,
         EXPR_paren,    
         EXPR_namenode, 
@@ -1100,9 +1104,11 @@ struct IfStmt : Stmt
         }
         else
         {
-            IfStmt *curr = next;
+            IfStmt* curr = next;
             while (curr->next)
+            {
                 curr = curr->next;
+            }
             curr->next = nxt;
         }
     }
@@ -1529,6 +1535,93 @@ struct ArrayExpr : Expr
     ExprList*   elements;       //!< elements of the array.
 };
 
+struct ForHeader
+{    
+    Id*  id;    //!< Loop variable.
+    int  line;  //!< Line the statement starts.
+};
+
+struct ForToHeader
+{
+    ForHeader head;   //!< For statement header.
+    Expr*     from;   //!< Starting point.
+    Expr*     to;     //!< Ending point.
+    Expr*     step;   //!< Step increment.
+    bool      isdown; //!< Are we steping down or up.
+};
+
+struct ForEachHeader
+{
+    ForHeader head;    //!< For statement header.    
+    Expr*     of;      //!< Name of the set we are enumerating.
+    Expr*     subject; //!< The object we are enumerating.
+};
+
+struct ForCompr : TreeNode
+{
+    enum ForKind {
+        FORTO_LOOP,
+        FOREACH_LOOP
+    };
+    
+    ForCompr(CompileState* s) : TreeNode(s), kind(FORTO_LOOP), cond(0), next(0)
+    {
+        Pika_memzero(&forEachHeader, sizeof(ForToHeader));
+        Pika_memzero(&forToHeader, sizeof(ForToHeader));
+    }
+    
+    void Attach(ForCompr* nxt)
+    {
+        if (!next)
+        {
+            next = nxt;
+        }
+        else
+        {
+            ForCompr* curr = next;
+            while (curr->next)
+            {
+                curr = curr->next;
+            }
+            curr->next = nxt;
+        }
+    }
+    
+    ForKind kind;
+    ForEachHeader forEachHeader;
+    ForToHeader forToHeader;
+    Expr* cond;
+    ForCompr* next;
+};
+
+struct ComprExprStmt : Stmt
+{
+    ComprExprStmt(CompileState* s, Expr* expr) : Stmt(s, Stmt::STMT_comprexpr), expr(expr) {}
+    
+    virtual void DoStmtResources(SymbolTable* st);
+    virtual Instr* PreGenerateCode();
+    virtual Instr* PostGenerateCode();
+    virtual Instr* DoStmtCodeGen();
+    
+    Expr* expr;
+    size_t localOffset;
+};
+
+struct ArrayComprExpr : Expr
+{
+    ArrayComprExpr(CompileState* s, Expr* expr, ForCompr* compr);
+    
+    virtual ~ArrayComprExpr() {}
+    
+    void MakeForLoops();
+    virtual void CalculateResources(SymbolTable* st);
+    virtual Instr* GenerateCode();
+    
+    Stmt* stmt;
+    ComprExprStmt* body;
+    ForCompr* compr;
+};
+
 struct KeywordExpr : Expr
 {
     KeywordExpr(CompileState* s, StringExpr* name__, Expr* value__) : Expr(s, Expr::EXPR_kwarg), name(name__), value(value__) {}
@@ -1553,6 +1646,24 @@ struct ExprList : TreeNode
     Expr* expr;
     ExprList* next;
 };
+
+template<typename T>
+INLINE T* RevereNodeList(T** l)
+{
+    T* temp1 = *l;
+    T* temp2 = 0;
+    T* temp3 = 0;
+    
+    while (temp1)
+    {
+        *l = temp1;             // set the head to last node
+        temp2 = temp1->next;    // save the next ptr in temp2
+        temp1->next = temp3;    // change next to privous
+        temp3 = temp1;
+        temp1 = temp2;
+    }
+    return *l; 
+}
 
 INLINE ExprList* ReverseExprList(ExprList** l)
 {

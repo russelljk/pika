@@ -189,7 +189,8 @@ void TokenStream::GetNextMore()
 Parser::Parser(CompileState *cs, std::ifstream* yyin)
     : root(0),
     state(cs),
-    tstream(state, yyin)
+    tstream(state, yyin),
+    isCompr(false)
 {
     state->SetParser(this);
 }
@@ -197,14 +198,16 @@ Parser::Parser(CompileState *cs, std::ifstream* yyin)
 Parser::Parser(CompileState *cs, const char* buffer, size_t len)
     : root(0),
     state(cs),
-    tstream(state, buffer, len)
+    tstream(state, buffer, len),
+    isCompr(false)
 {
     state->SetParser(this);
 }
 
-    Parser::Parser(CompileState* cs, IScriptStream* stream) : root(0),
+Parser::Parser(CompileState* cs, IScriptStream* stream) : root(0),
     state(cs),
-    tstream(state, stream)
+    tstream(state, stream),
+    isCompr(false)
 {
     state->SetParser(this);
 }
@@ -1287,12 +1290,10 @@ void Parser::DoForToHeader(ForToHeader* header)
     }    
 }
 
-Stmt* Parser::DoForStatement()
+size_t Parser::DoForHeader(ForHeader* header)
 {
-    ForHeader header = { 0, 0 };
-    
     int line = tstream.GetLineNumber();
-    header.line = line;
+    header->line = line;
         
     Match(TOK_for);
     Id* id = 0;
@@ -1311,8 +1312,16 @@ Stmt* Parser::DoForStatement()
     } 
     while (Optional(','));
     
-    header.id = id;
-    BufferCurrent();    
+    header->id = id;
+    BufferCurrent();  
+    return num_ids;
+}
+
+Stmt* Parser::DoForStatement()
+{
+    ForHeader header = { 0, 0 };
+    size_t num_ids = DoForHeader(&header);
+      
     if (tstream.GetType() == TOK_in)
     {
         return DoForEachStatement(&header);
@@ -1689,7 +1698,7 @@ Expr* Parser::DoConditionalExpression()
         
         PIKA_NEWNODE(CondExpr, expr, (state, cond, then, otherwise));
         expr->line = cond->line; // !!! set line number
-    } else if (tstream.GetType() == TOK_if) {
+    } else if (tstream.GetType() == TOK_if && !isCompr) {
         int line = tstream.GetLineNumber();
         
         if (line > expr->line)
@@ -2317,7 +2326,8 @@ Expr* Parser::DoPostfixExpression()
             BufferNext();
             Match('[');
             
-            if (Optional(':')) {
+            if (Optional(':'))
+            {
                 /* expr[:expr] */
                 Expr* toexpr = DoExpression();
                 int line = tstream.GetLineNumber();
@@ -2325,7 +2335,9 @@ Expr* Parser::DoPostfixExpression()
                 
                 PIKA_NEWNODE(SliceExpr, expr, (state, lhs, 0, toexpr));
                 expr->line = line;
-            } else {
+            }
+            else
+            {
                 Expr* rhs = DoExpression();
 
                 BufferCurrent();
@@ -2885,16 +2897,79 @@ Expr* Parser::DoArrayExpression()
     BufferNext();
     Match('[');
     
-    const int arr_terms[] = { ']', EOI, 0 };
+    const int arr_terms[] = { ']', TOK_for, EOI, 0 };
     ExprList* elems = DoOptionalExpressionList(arr_terms, false);
     
-    int line = tstream.GetLineNumber();
-    
-    Match(']');
-    
-    PIKA_NEWNODE(ArrayExpr, expr, (state, elems));
-    expr->line = line;
-    
+    if (tstream.GetType() == TOK_for)
+    {
+        // If more than 1 expression was returned then the for token was
+        // unexepected.
+        if (elems->next)
+        {
+            Match(']');
+        }
+        
+        Expr* lhs = elems->expr;
+        ForCompr* comp = 0;
+        isCompr = true;
+        while (tstream.GetType() == TOK_for)
+        {
+            ForCompr* curr = 0;
+            PIKA_NEWNODE(ForCompr, curr, (state));
+            
+            ForHeader forHeader = { 0, 0 };
+            size_t num_ids = DoForHeader(&forHeader);
+            
+            if (tstream.GetType() == TOK_in)
+            {
+                curr->forEachHeader.head = forHeader;
+                DoForEachHeader(&curr->forEachHeader);
+                curr->kind = ForCompr::FOREACH_LOOP;
+            }
+            else
+            {
+                if (num_ids != 1)
+                    state->SyntaxError(tstream.GetLineNumber(), "for to, inside the array comprehension, can have only 1 loop variable.");
+                
+                curr->forToHeader.head = forHeader;
+                DoForToHeader(&curr->forToHeader);
+                curr->kind = ForCompr::FORTO_LOOP;
+            }
+            
+            BufferNext();
+            
+            if (Optional(TOK_if))
+            {
+                BufferNext();
+                curr->cond = DoExpression();
+                BufferNext();
+            }
+            
+            if (!comp)
+            {
+                comp = curr;
+            }
+            else
+            {
+                comp->Attach(curr);
+            }
+        }
+        
+        isCompr = false;
+        int line = tstream.GetLineNumber();
+        PIKA_NEWNODE(ArrayComprExpr, expr, (state, lhs, comp));
+        expr->line = line;
+        Match(']');
+    }
+    else
+    {
+        int line = tstream.GetLineNumber();
+        
+        Match(']');
+        
+        PIKA_NEWNODE(ArrayExpr, expr, (state, elems));
+        expr->line = line;
+    }
     return expr;
 }
 
