@@ -4,27 +4,39 @@ Pika is a dynamic, multi-paradigm programming language.
 
 ## Features Include
 
-* First class functions and Closures
-* Class based object system
-* Automatic memory managment through an incremental, mark and sweep, garbage collector
-* Packages
-* Properties with get and set accessor functions
-* Native API for binding with C/C++
-* Unified import system works with scripts and native C/C++ modules
-* Exception handling
-* Block finalizers
-* Lambda expressions
-* Anonymous function expressions
-* Default values for functions
-* Variable argument functions
-* Keyword arguments
-* Multiple return and yield values
-* Coroutines (*aka cooperative threads*)
-* Generators (*light weight coroutines*)
-* Annotations for functions, classes and packages
-* Mersenne Twister based pseudorandom number generator
+* First class functions and Closures.
+* Class based object system.
+* Automatic memory managment through an incremental, mark and sweep, garbage collector.
+* Packages.
+* Properties with get and set accessor functions.
+* Native API for binding with C/C++.
+* Unified import system works with scripts and native C/C++ modules.
+* Exception handling.
+* Block finalizers.
+* Lambda expressions.
+* Anonymous function expressions.
+* Default values for functions.
+* Variable argument functions.
+* Keyword arguments.
+* Multiple return and yield values.
+* Coroutines (*aka cooperative threads*).
+* Generators (*light weight coroutines*).
+* Annotations for functions, classes and packages.
+* Array comprehension.
+* Mersenne Twister based pseudorandom number generator.
 
 ## Some Examples
+
+See the samples subdirectory for a complete list of sample scripts. 
+
+You can import them *once installed* by doing the following:
+
+    # Install sample file classes
+    import "samples/classes.pika" 
+
+Or run them from the command line:
+
+    pika samples/classes.pika
 
 ###Classes
 
@@ -105,10 +117,21 @@ This document will explain how to build and install the Pika library, interprete
 ### First Get CMake
 
 
-(If CMake version 2.6 or greater is already installed go to step 1.)
-Go to the CMake home page at http://www.cmake.org and follow the instructions for installing CMake for your platform. If you are using a *nix platform if might be preferable to use the system's package manager. On Windows you will probably want to use the installer. Under Mac OS X you can use fink, Mac Ports or the installer.
+(If CMake is already installed skip step 1.)
+
+####Step 1
+
+Go to the CMake home page at http://www.cmake.org and follow the instructions for installing CMake for your platform.
+
+ * On **Windows** you will probably want to use the **CMake installer**.
+ * On **Mac OS X** you can use **fink**, **Mac Ports**, **Homebrew** or the **CMake installer**.
+ * On a ***nix platform** if might be preferable to use the system's package manager. 
+
+####Step 2
 
 Now open up the terminal and navigate to the project's root directory.
+
+####Step 3
 
 At the terminal type: 
 note: (don't type the > character)
@@ -124,7 +147,7 @@ The CMake option `-DCMAKE_INSTALL_PREFIX=INSTALL_PATH`  can be used to specify a
 
 To build without modules use the following
 
-    cmake ../../pika -DPIKA_NO_MODULES=1
+    cmake -DPIKA_NO_MODULES=1 ../../pika
 
 ### Module Dependencies
 
