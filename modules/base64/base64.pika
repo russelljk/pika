@@ -1,0 +1,85 @@
+re = import "re"
+
+NON_ALPHA_NUMERIC = re.RegExp.new($"[^A-Za-z0-9\+\/\=]", "g")
+
+CHAR_TO_BYTES = { 
+    A:0,  B:1,  C:2,  D:3,  E:4,  F:5,  G:6,  H:7, 
+    I:8,  J:9,  K:10, L:11, M:12, N:13, O:14, P:15, Q:16, 
+    R:17, S:18, T:19, U:20, V:21, W:22, X:23, Y:24, Z:25, 
+    a:26, b:27, c:28, d:29, e:30, f:31, g:32, h:33, i:34, 
+    j:35, k:36, l:37, m:38, n:39, o:40, p:41, q:42, r:43, 
+    s:44, t:45, u:46, v:47, w:48, x:49, y:50, z:51, 
+    "0":52, "1":53, "2":54, "3":55, "4":56, "5":57, "6":58, 
+    "7":59, "8":60, "9":61, "+":62, "/":63, "=":64 
+}
+
+class Base64DecodeError: RuntimeError
+end
+
+function encode(input)
+    key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+    output = ""
+    for i = 0 to input.length by 3
+        byte1 = input.byteAt( i )
+        byte2 = input.byteAt( i + 1 ) if (i + 1) < input.length else 0
+        byte3 = input.byteAt( i + 2 ) if (i + 2) < input.length else 0
+        
+        enc1 = byte1 >> 2
+        enc2 = ((byte1 & 3)  << 4) | (byte2 >> 4)
+        enc3 = ((byte2 & 15) << 2) | (byte3 >> 6)
+        enc4 = byte3 & 63
+        
+        if byte2 == 0
+            enc3, enc4 = 64
+        elseif byte3 == 0
+            enc4 = 64
+        end
+        
+        output ..= key[enc1] .. key[enc2] .. key[enc3] .. key[enc4]
+    end
+    return output
+end
+
+# Assumes the string consists of [A-Za-z0-9+/]*[=]*
+function decode(input)
+    output = ""
+        
+    if NON_ALPHA_NUMERIC.test(input)
+        raise Base64DecodeError("String must be base64 encoded.")
+    end
+    
+    for i = 0 to input.length by 4
+        enc1 = CHAR_TO_BYTES[ input.charAt( i )]
+        enc2 = CHAR_TO_BYTES[ input.charAt( i + 1 ) if (i + 1) < input.length else 0]
+        enc3 = CHAR_TO_BYTES[ input.charAt( i + 2 ) if (i + 2) < input.length else 0]
+        enc4 = CHAR_TO_BYTES[ input.charAt( i + 3 ) if (i + 3) < input.length else 0]
+        
+        chr1 = (enc1 << 2) | (enc2 >> 4)
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2)
+        chr3 = ((enc3 &  3) << 6) | enc4
+
+        output ..= String.fromByte(chr1)
+
+        if enc3 != 64
+            output ..= String.fromByte(chr2)
+        end
+        if enc4 != 64
+            output ..= String.fromByte(chr3)
+        end
+    end
+    return output
+end
+
+function test()
+    str = "The quick brown fox jumps over the lazy dog."
+    res = encode(str)
+    dec = decode(res)
+
+    if dec != str
+        say "base64 encode|decode: FAILED"
+        return false
+    else
+        say "base64 encode|decode: OK"
+        return true
+    end
+end
