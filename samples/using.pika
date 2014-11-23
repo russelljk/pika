@@ -2,25 +2,25 @@
 
 class A: Object
     function onUse()
-        print 'Use'
+        print 'onUse: called'
     end
     
     function onDispose()
-        print 'Dispose'
+        print 'onDispose: called (even when an exception is raised!)'
     end
 end
 
 obj = A.new()
-
-using obj
-    self.name = 'John'
-    self.occupation = 'Programmer'
-    self.age = 35
-    try
-        raise RuntimeError.new 'Using Exception'
-    catch e
-        print e
+try
+    using obj
+        self.name = 'John'
+        self.occupation = 'Programmer'
+        self.age = 35
+        print 'raising: Using Block Exception'
+        raise RuntimeError.new 'Using Block Exception'
     end
+catch e
+    print "caught: {e.message}"
 end
 
 for attr in obj
