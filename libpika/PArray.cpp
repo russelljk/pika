@@ -975,6 +975,36 @@ raised if the array is empty.")
 PIKA_DOC(Array_Type, "A resizable array object. This type is also used for variable \
 arguments and array literals.")
 
+int Array_opSlice(Context* ctx, Value& self)
+{
+    pint_t from, to;
+    GETSELF(Array, array, "Array");
+    Array* res  = 0;
+    
+    if (ctx->IsArgNull(0)) {
+        from = 0;
+        to   = ctx->GetIntArg(1);
+    } else if (ctx->IsArgNull(1)) {
+        from = ctx->GetIntArg(0);
+        to   = array->GetLength();
+    } else {
+        from = ctx->GetIntArg(0);
+        to   = ctx->GetIntArg(1);
+    }
+    
+    if (to >= 0 && from >= 0)
+    {
+        res = array->Slice(from, to);
+    }
+    
+    if (res)
+    {
+        ctx->Push(res);
+        return 1;
+    }
+    return 0;
+}
+    
 void Array::StaticInitType(Engine* eng)
 {
     pint_t Array_MAX = Array::GetMax();
@@ -997,9 +1027,9 @@ void Array::StaticInitType(Engine* eng)
     .Method(&Array::Sort,       "sort",     PIKA_GET_DOC(Array_sort))
     .Method(&Array::CatLhs,     "opCat",    PIKA_GET_DOC(Array_opCat))
     .Method(&Array::CatRhs,     "opCat_r",  PIKA_GET_DOC(Array_opCat_r))
-    .Method(&Array::Slice,      OPSLICE_STR,PIKA_GET_DOC(Array_opSlice))
     .Method(&Array::ToString,   "toString", PIKA_GET_DOC(Array_toString))
     .Method(&Array::Zip,        "zip",      PIKA_GET_DOC(Array_zip))    
+    .RegisterMethod(Array_opSlice, OPSLICE_STR, 2, false, true, PIKA_GET_DOC(Array_opSlice))
     .StaticMethod(&Array::Cat,  "cat",      PIKA_GET_DOC(Array_cat))    
     .PropertyRW("length",
                 &Array::GetLength,  "getLength",

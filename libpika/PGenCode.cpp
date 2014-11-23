@@ -1780,8 +1780,8 @@ Instr* SliceExpr::GenerateCode()
      * [ result ]
      */
     Instr* iexpr   = expr->GenerateCode();
-    Instr* ifrom   = from->GenerateCode();
-    Instr* ito     = to->GenerateCode();
+    Instr* ifrom   = (from) ? from->GenerateCode() : state->CreateOp(OP_pushnull);
+    Instr* ito     = (to)   ? to->GenerateCode()   : state->CreateOp(OP_pushnull);
     Instr* icall   = state->CreateOp(OP_call);
     Instr* idup    = state->CreateOp(OP_dup); // duplicate iexpr
     Instr* islice  = slicefun->GenerateCode();

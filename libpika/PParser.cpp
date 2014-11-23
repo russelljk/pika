@@ -2317,30 +2317,46 @@ Expr* Parser::DoPostfixExpression()
             BufferNext();
             Match('[');
             
-            Expr* rhs = DoExpression();
-
-            BufferCurrent();
-            if (tstream.GetType() == ']')
-            {
-                int line = tstream.GetLineNumber();
-                
-                Match(']');
-                
-                PIKA_NEWNODE(IndexExpr, expr, (state, lhs, rhs));
-                expr->line = line;
-            }
-            else
-            {
-                Match(TOK_to);
-                BufferCurrent();
-                Expr* fromexpr = rhs;
+            if (Optional(':')) {
+                /* expr[:expr] */
                 Expr* toexpr = DoExpression();
                 int line = tstream.GetLineNumber();
-                
                 Match(']');
                 
-                PIKA_NEWNODE(SliceExpr, expr, (state, lhs, fromexpr, toexpr));
+                PIKA_NEWNODE(SliceExpr, expr, (state, lhs, 0, toexpr));
                 expr->line = line;
+            } else {
+                Expr* rhs = DoExpression();
+
+                BufferCurrent();
+                if (tstream.GetType() == ']')
+                {
+                    int line = tstream.GetLineNumber();
+                
+                    Match(']');
+                    
+                    PIKA_NEWNODE(IndexExpr, expr, (state, lhs, rhs));
+                    expr->line = line;
+                }
+                else
+                {
+                    Match(':');
+                    BufferCurrent();
+                    Expr* fromexpr = rhs;
+                    Expr* toexpr = 0;                    
+                    int line = tstream.GetLineNumber();
+                    
+                    // expr[expr:expr]
+                    if (!Optional(']')) {                        
+                        toexpr = DoExpression();
+                        line = tstream.GetLineNumber();
+                        Match(']');                        
+                    }
+                    // else expr[expr:]
+                          
+                    PIKA_NEWNODE(SliceExpr, expr, (state, lhs, fromexpr, toexpr));
+                    expr->line = line;
+                }
             }
         }
         continue;

@@ -695,10 +695,20 @@ public:
     
     static int slice(Context* ctx, Value& self)
     {
-        pint_t  from = ctx->GetIntArg(0);
-        pint_t  to   = ctx->GetIntArg(1);
+        pint_t from, to;
         String* str  = self.val.str;
         String* res  = 0;
+        
+        if (ctx->IsArgNull(0)) {
+            from = 0;
+            to   = ctx->GetIntArg(1);
+        } else if (ctx->IsArgNull(1)) {
+            from = ctx->GetIntArg(0);
+            to   = str->GetLength();
+        } else {
+            from = ctx->GetIntArg(0);
+            to   = ctx->GetIntArg(1);
+        }
         
         if (to >= 0 && from >= 0)
         {

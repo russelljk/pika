@@ -662,6 +662,36 @@ void ByteArray::Constructor(Engine* eng, Type* type, Value& res)
     res.Set(ba);
 }
 
+int ByteArray_opSlice(Context* ctx, Value& self)
+{
+    pint_t from, to;
+    GETSELF(ByteArray, array, "ByteArray");
+    Object* res  = 0;
+    
+    if (ctx->IsArgNull(0)) {
+        from = 0;
+        to   = ctx->GetIntArg(1);
+    } else if (ctx->IsArgNull(1)) {
+        from = ctx->GetIntArg(0);
+        to   = array->GetLength();
+    } else {
+        from = ctx->GetIntArg(0);
+        to   = ctx->GetIntArg(1);
+    }
+    
+    if (to >= 0 && from >= 0)
+    {
+        res = array->Slice(from, to);
+    }
+    
+    if (res)
+    {
+        ctx->Push(res);
+        return 1;
+    }
+    return 0;
+}
+
 void ByteArray::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -678,8 +708,8 @@ void ByteArray::StaticInitType(Engine* eng)
     .Method(&ByteArray::ReadWord,           "readWord")
     .Method(&ByteArray::ReadDword,          "readDword")
     .RegisterMethod(ByteArray_nextBytes,    "nextBytes")
+    .RegisterMethod(ByteArray_opSlice, OPSLICE_STR, 2, false, true)
     .MethodVA(&ByteArray::ReadString,       "readString")
-    .Method(&ByteArray::Slice,              OPSLICE_STR)
     .Constant((pint_t)ByteArray::BO_big,    "BIG")
     .Constant((pint_t)ByteArray::BO_little, "LITTLE")
     .PropertyRW("endian",
