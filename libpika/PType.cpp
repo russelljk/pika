@@ -507,24 +507,34 @@ int Type_new(Context* ctx, Value& self)
 {
     Engine* engine = ctx->GetEngine();
     u2      argc   = ctx->GetArgCount();
-    Type*   type   = self.val.type;
+    Type*   meta   = self.val.type;
     Dictionary* dict = ctx->GetKeywordArgs();
-    
+    /*
+        Argument 0 name
+        Argument 1 package
+        Argument 2 base
+        Argument 3 meta
+    */
     Value kw(NULL_VALUE);
     Value vobj(NULL_VALUE);
     Value vfunc(NULL_VALUE);
     
     if (dict)
         kw.Set(dict);
-       
-    type->CreateInstance(vobj);
+      
+    
     ctx->CheckStackSpace(argc + 5); // args + null + dict + obj + func + retvalue
-    if (type->GetField(Value(engine->GetOverrideString(OVR_init)), vfunc))
+    meta->CreateInstance(vobj);
+        
+    // Type::Create(eng, name, base, base->GetNewFn(), loc, meta);
+    
+    if (meta->GetField(Value(engine->GetOverrideString(OVR_init)), vfunc))
     {
         ctx->StackAlloc(argc);
         Pika_memcpy(ctx->GetStackPtr() - argc, ctx->GetArgs(), argc * sizeof(Value));
         ctx->PushNull(); // No Variable Argument Array
         ctx->Push(kw); // Dictionary If Present
+        
         ctx->Push(vobj);
         ctx->Push(vfunc);
         
@@ -609,16 +619,27 @@ void Type::Init(Context* ctx)
 {
     ThisSuper::Init(ctx);
     u2 argc = ctx->GetArgCount();
-    if (argc >= 3)
-    {
+    /*
+        Argument 0 name
+        Argument 1 package
+        Argument 2 base
+        Argument 3 meta
+    */
+    if (argc >= 4)
+    {        
         if (baseType)
+        {
             RaiseException("Attempt to initialize already initialized Type named: %s\n",name ? name->GetBuffer() : "<anonymous>");
+        }
         baseType = ctx->GetArgT<Type>(2);
+        
         WriteBarrier(baseType);
+        
         if (!newfn)
         {
             newfn = baseType->newfn;
         }
+        
         baseType->AddSubtype(this);
     }
 }

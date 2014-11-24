@@ -1,0 +1,33 @@
+class AType: Type
+    function init(name, pkg, baseType, metaType, *args, **kwargs)
+        print 'AType.init', self, self.type, self.base
+        super(name, pkg, baseType, metaType, *args, **kwargs)
+        print 'AType.init', self, self.type, self.base
+    end
+end
+
+class BType: AType
+end
+
+class A: Object, AType
+    function init(a, b)
+        print "A.init {a} {b}"
+        self.a = a
+        self.b = b
+    end
+end
+
+class B: A, BType
+    function init(a, b)
+        super(a, b)
+        print "B.init {a} {b}"
+        self.a = a
+        self.b = b
+    end
+end
+
+a = A.new(1, 2)
+print "A instance\n\t{a}\nType\n\t{a.type}\nMeta Type\n\t{a.type.type}"
+
+b = B.new(3, 4)
+print "B instance\n\t{b}\nType\n\t{b.type}\nMeta Type\n\t{b.type.type}"

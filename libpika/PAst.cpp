@@ -1625,6 +1625,7 @@ void ClassDecl::CalculateResources(SymbolTable* st)
     stringid->CalculateResources(st);
     
     if (super) super->CalculateResources(st);
+    if (meta)  meta->CalculateResources(st);
     
     NamedTarget::CalculateSymbols(st);
     

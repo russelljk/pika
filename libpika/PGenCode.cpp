@@ -2366,7 +2366,9 @@ Instr* ClassDecl::GenerateCode()
     Instr* typeName  = stringid->GenerateCode();
     Instr* enterWith = state->CreateOp(pushcode);
     Instr* newType   = state->CreateOp(OP_subclass);
-    Instr* superType = super ? super->GenerateCode() : state->CreateOp(OP_pushnull);    
+    Instr* superType = super ? super->GenerateCode() : state->CreateOp(OP_pushnull);
+    Instr* metaType  = meta  ? meta->GenerateCode()  : state->CreateOp(OP_pushnull);
+    
     Instr* dup = state->CreateOp(OP_dup);
     
     PIKA_BLOCKSTART(state, exitWith);
@@ -2377,11 +2379,12 @@ Instr* ClassDecl::GenerateCode()
     
     Instr* iassign = NamedTarget::GenerateCodeSet();
     
-    insideof         ->
-    Attach(typeName) -> // Push the literal contains the typename.
+    typeName         ->
+    Attach(insideof) -> // Push the literal contains the typename.
     Attach(superType)-> // Push the result of the super expression.
+    Attach(metaType)->  // Push the meta type.
     Attach(newType)     // Create a new Type from the super and typename given.
-   ;
+    ;
     // Generate the code for annotations, which will use the Type we create
     // as a argument.
     insideof = GenerateAnnotationCode(insideof);
@@ -2402,7 +2405,7 @@ Instr* ClassDecl::GenerateCode()
                       popcode,
                       true);
                       
-    return insideof;
+    return typeName;
 }
 
 Instr* ParenExpr::GenerateCode()

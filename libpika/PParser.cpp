@@ -543,6 +543,7 @@ Stmt* Parser::DoClassStatement()
     Stmt* stmt = 0;
     int line = tstream.GetLineNumber();
     Expr* super = 0;
+    Expr* meta = 0;
     Stmt* classbody = 0;
     ClassDecl* decl = 0;
     
@@ -557,12 +558,17 @@ Stmt* Parser::DoClassStatement()
     {
         BufferCurrent();
         super = DoExpression();
+        
+        if (Optional(','))
+        {
+            meta = DoExpression();
+        }
     }
     
     BufferCurrent();
     classbody = DoStatementList(class_terms);
     
-    PIKA_NEWNODE(ClassDecl, decl, (state, name, super, classbody, sk));
+    PIKA_NEWNODE(ClassDecl, decl, (state, name, super, meta, classbody, sk));
     PIKA_NEWNODE(DeclStmt, stmt, (state, decl));
     stmt->line = decl->line = line;
     

@@ -268,7 +268,7 @@ INLINE int OpcodeStackChange(Instr *ir)
     
     case OP_property:       return -2;
 
-    case OP_subclass:       return -2;
+    case OP_subclass:       return -3;
     
     case OP_array:
     {

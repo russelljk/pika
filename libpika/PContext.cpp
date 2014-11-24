@@ -167,6 +167,13 @@ bool GetOverrideFromValue(Engine* eng, Value& v, OpOverride ovr, Value& res)
     return type->GetField(vwhat, res);
 }
 
+bool GetFieldFromValue(Engine* eng, Value& v, String* method, Value& res)
+{
+    Type* type = eng->GetTypeOf(v);
+    Value vwhat(method);
+    return type->GetField(vwhat, res);
+}
+
 /** What we are doing is reading from obj.type.override where override is the
   * appropriate override name. We intentially skip obj's members since its
   * unlikely to be the correct function, especially when obj is a type.

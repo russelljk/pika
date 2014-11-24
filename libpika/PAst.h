@@ -1775,10 +1775,11 @@ struct NameNode : Expr
 
 struct ClassDecl : NamedTarget
 {
-    ClassDecl(CompileState* s, NameNode* id, Expr* super, Stmt* stmts, StorageKind sk)
+    ClassDecl(CompileState* s, NameNode* id, Expr* super, Expr* meta, Stmt* stmts, StorageKind sk)
             : NamedTarget(s, id, Decl::DECL_class, sk),
             stringid(0),
             super(super),
+            meta(meta),
             stmts(stmts),
             symtab(0)
     {}
@@ -1790,6 +1791,7 @@ struct ClassDecl : NamedTarget
     
     StringExpr*     stringid;
     Expr*           super;
+    Expr*           meta;
     Stmt*           stmts;
     SymbolTable*    symtab;
 };

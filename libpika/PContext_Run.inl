@@ -339,32 +339,47 @@ void Context::Run()
             {
                 GCPAUSE(engine);
                 /*
-                [ typename ]
-                [ base     ]
+                
+                [ meta type: Type:Null ] 
+                    -> If null then a meta type is created automatically.
+                    -> Technically it can any object that overrides new, as long as the return value is a class.
+                [ base type: Type:Null ]
+                    -> If null, Object is used.
+                [ super package: Package|Null ]
+                    -> If null the current package is used.
+                [ type name: String ]
                 [ < sp >   ]
+                
+                NOTE: So that we don't need to rearrange the order, we should try and match
+                the order expected by Type.init and Package.init (it's super class).
+                
                 */
-                Value&   vbase  = Top(); // base type
-                Value&   vname  = Top1();
+                Value&   vmeta  = Top();
+                Value&   vbase  = Top1();
                 Value&   vpkg   = Top2();
+                Value&   vname  = TopN(3);
+                
                 String*  name   = vname.val.str;
                 Type*    newtype   = 0;
                 Package* superPkg  = 0;
-                bool     nullsuper = vbase.IsNull();
+                bool     nullbase  = vbase.IsNull();
+                bool     nullmeta  = vmeta.IsNull();
                 bool     specified_pkg =  false;
                 
                 if (vpkg.IsDerivedFrom(Package::StaticGetClass()))
                 {
-                    superPkg = vpkg.val.package;specified_pkg=true;
+                    superPkg = vpkg.val.package;
+                    specified_pkg = true;
                 }
                 else
                 {
                     superPkg = this->package;
                 }               
-                                
-                if (vbase.IsDerivedFrom(Type::StaticGetClass()) || nullsuper)
+                
+                if (vbase.IsDerivedFrom(Type::StaticGetClass()) || nullbase)
                 {
                     // Super is a valid type object.
-                    Type* super = nullsuper ? engine->Object_Type : vbase.val.type;
+                    Type* super = nullbase ? engine->Object_Type : vbase.val.type;
                     
                     if (super->IsFinal())
                     {
@@ -375,11 +390,39 @@ void Context::Run()
                     }          
                     else
                     {
-                        /* TODO { Ideally we would call CreateInstance instead. 
-                         *        If so how do we initialize the super package
-                         *        and base type? }
-                         */
-                        newtype = super->NewType(name, superPkg);
+                        if (nullmeta) // No meta class
+                        {
+                            newtype = super->NewType(name, superPkg);
+                            Pop(3);
+                            vname.Set(newtype);
+                        }
+                        else
+                        {
+                            if (!specified_pkg)
+                            {
+                                vpkg.Set(superPkg);
+                            }
+                            
+                            Value vnew(NULL_VALUE);
+                            if (GetFieldFromValue(engine, vmeta, engine->GetString(NEW_CSTR), vnew))
+                            {
+                                CheckStackSpace(2); // For meta and meta.new
+                                Push(vmeta);
+                                Push(vnew);
+
+                                if (SetupCall(4))
+                                {
+                                    Run();
+                                }                                
+                            }
+                            else
+                            {
+                                ReportRuntimeError(Exception::ERROR_runtime,
+                                                   "Invalid meta class specified for class '%s'. Meta class must implement the method '%s'",
+                                                   super->GetName()->GetBuffer(),
+                                                   NEW_CSTR);
+                            }
+                        }
                     }
                 }
                 else
@@ -389,10 +432,7 @@ void Context::Run()
                     ReportRuntimeError(Exception::ERROR_runtime,
                                        "Attempt to extend non-type derived value: %s.",
                                        supername->GetBuffer());
-                }
-                Pop(2);
-                vpkg.Set(newtype);
-                
+                }                
                 /*
                    [ type   ]                  
                    [ < sp > ]
