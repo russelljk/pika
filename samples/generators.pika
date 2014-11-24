@@ -1,8 +1,8 @@
-(* generators.pika *)
+{* generators.pika *}
 
 print 'Infinite Generator Example...'
 
-(* Any function with a yield statement is considered a generator. *)
+{* Any function with a yield statement is considered a generator. *}
 function fib()
     a, b = 0, 1
     loop
@@ -14,29 +14,29 @@ end
 # The initial call will return the generator.
 fibIterator = fib()
 
-(* As long as values are being yielded a generator will continue,
+{* As long as values are being yielded a generator will continue,
  * one a value is returned or the function exits, the generator will stop.
  * The above generator is an infinite generator, meaning it will never return.
- *)
+ *}
 for i = 0 to 15
     print fibIterator()
 end
 
 print '\nFinite Generator with Arguments...'
 
-(*
+{*
     The following example has a generator function that takes 2 arguments.
-*)
+*}
 function range(start, stop)
     for i = start to stop
         yield i
     end
 end
 
-(* You specify the argument during the creation of the generator object. *)
+{* You specify the argument during the creation of the generator object. *}
 iter = range(1, 6)
 
-(* A generator will evaluate to true as long as it hasn't returned yet. *)
+{* A generator will evaluate to true as long as it hasn't returned yet. *}
 while iter
     print iter()
 end
@@ -48,7 +48,7 @@ class RangeMultiplier
         self.scalar = scalar
     end
     
-    (* Generators can also created from instance methods. *)    
+    {* Generators can also created from instance methods. *}    
     function range(a, b)
         for i = a to b
             yield i * self.scalar
@@ -56,7 +56,7 @@ class RangeMultiplier
     end
 end
 
-rangeMultiplier = RangeMultiplier.new(scalar:2)
+rangeMultiplier = RangeMultiplier.new(scalar=2)
 multIter = rangeMultiplier.range(1, 6)
 
 while multIter

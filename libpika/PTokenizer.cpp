@@ -849,7 +849,7 @@ void Tokenizer::ReadControl()
     }
     break;
 
-    case '(':
+    case '{':
     {
         int lineStart = line;
         tokenType = look;
@@ -1090,7 +1090,7 @@ void Tokenizer::ReadMultiLineComment(int lineStart)
     int depth = 1;
     while (!IsEndOfStream() && depth)
     {
-        if (look == '(')
+        if (look == '{')
         {
             GetLook();
             
@@ -1104,7 +1104,7 @@ void Tokenizer::ReadMultiLineComment(int lineStart)
         {
             GetLook();
             
-            if (look == ')')
+            if (look == '}')
             {
                 depth--;
                 GetLook();

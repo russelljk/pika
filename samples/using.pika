@@ -1,4 +1,4 @@
-(* using.pika *)
+{* using.pika *}
 
 class A: Object
     function onUse()

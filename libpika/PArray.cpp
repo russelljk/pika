@@ -191,7 +191,7 @@ void Array::MarkRefs(Collector* c)
     }
 }
 
-Array* Array::Create(Engine* eng, Type* type, size_t length, Value* elems)
+Array* Array::Create(Engine* eng, Type* type, size_t length, Value const* elems)
 {
     if (length > GetMax()) {
         RaiseException("Attempt to create an Array larger than the maximum size allowed "SIZE_T_FMT".", GetMax());
@@ -349,7 +349,7 @@ Value Array::Zip(Array* rhs)
     return res;
 }
 
-Array::Array(Engine* eng, Type* arrType, size_t length, Value* elems)
+Array::Array(Engine* eng, Type* arrType, size_t length, Value const* elems)
         : ThisSuper(eng, arrType)
 {
     elements.Resize(length);

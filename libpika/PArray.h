@@ -44,7 +44,7 @@ class PIKA_API Array : public Object
 protected:
     friend class ArrayIterator;
     
-    explicit Array(Engine* eng, Type*, size_t, Value*);
+    explicit Array(Engine* eng, Type*, size_t, Value const*);
     explicit Array(const Array*);
     
     bool GetIndexOf(const Value& key, size_t &index);
@@ -154,7 +154,7 @@ public:
     INLINE Value* GetAt(s4 idx) { return elements.GetAt(idx); } //!< Retrieves a pointer to the element at the given index.
     
     static Array*   Cat(Array* lhs, Array* rhs);
-    static Array*   Create(Engine*, Type*, size_t length, Value *elems);
+    static Array*   Create(Engine*, Type*, size_t length, Value const* elems);
     static size_t   GetMax();
     
     static void Constructor(Engine* eng, Type* obj_type, Value& res);

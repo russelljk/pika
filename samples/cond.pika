@@ -1,4 +1,4 @@
-(* cond.pika *)
+{* cond.pika *}
 
 x = true
 if x

@@ -1315,6 +1315,22 @@ public:
         ctx->Top().Set(strresult); // Overwrite the iterator
         return 1;
     }
+    
+    static int search(Context* ctx, Value& self)
+    {
+        Engine* eng = ctx->GetEngine();
+        String* src_str = self.val.str;
+        String* arg = ctx->GetStringArg(0);
+        
+        const char* res = strstr(src_str->GetBuffer(), arg->GetBuffer());
+        if (!res) {
+            ctx->PushNull();
+        } else {
+            pint_t diff = (pint_t)(res - src_str->GetBuffer());
+            ctx->Push(diff);
+        }
+        return 1;
+    }
 };
 
 PIKA_DOC(String_chomp, 
@@ -1522,6 +1538,7 @@ void String::StaticInitType(Engine* eng)
         { "whitespace?",    StringApi::is_whitespace,       0, DEF_STRICT,   PIKA_GET_DOC(String_is_whitespace) },
         { "iterate",        StringApi::iterate,             0, DEF_VAR_ARGS, PIKA_GET_DOC(String_iterate) },
         { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_join) },
+        { "search",         StringApi::search,              0, DEF_VAR_ARGS, 0 },
         { "getLength",      StringApi::getLength,           0, DEF_STRICT,   0 },
     };
     

@@ -1,4 +1,4 @@
-(* properties.pika *)
+{* properties.pika *}
 
 class Person
   function init(first_name, last_name)

@@ -2182,10 +2182,23 @@ void Context::CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const
 {
     if (expectedRetc != retc)
     {
-        if (expectedRetc == 1 && retc == 0) {
-            this->PushNull();
+        if (expectedRetc == 1)
+        {
+            if (retc == 0)
+            {
+                this->PushNull();
+            }
+            else
+            {
+                GCPAUSE_NORUN(engine);
+                
+                Value const* elements = top - retc;
+                Object* array = Array::Create(engine, engine->Array_Type, retc, elements);
+                this->Push(array);
+            }
         }
-        else {
+        else
+        {
             ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but received %u.", expectedRetc, retc);
         }
     }

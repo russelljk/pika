@@ -1,4 +1,4 @@
-(* literals.pika *)
+{* literals.pika *}
 
 print null    # null
 print 3       # integer
@@ -21,7 +21,7 @@ print( [1,  2, 3, "a", 'b'] ) # array literal
 
 o = { name: "Bob", age: 34, occupation: "Programmer", skills: ['C++','Pika','html','css'] } # object literal
 
-for x in o
+for x in keys of o
   print "{x}: {o[x]}"
 end
 

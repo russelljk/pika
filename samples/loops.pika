@@ -1,4 +1,4 @@
-(* loops.pika *)
+{* loops.pika *}
 
 #==============================================================================
 # loop
@@ -52,12 +52,12 @@ for x in dict
   print x
 end
 
-(* Adding ** 'elements' of ** enumerates the set of elements instead of the default, keys. 
+{* Adding ** 'elements' of ** enumerates the set of elements instead of the default, keys. 
  * The most common sets include (with the default first):
  * Dictionary: keys, elements
  * Array: indices, elements
  * Object: names, values
- *) 
+ *} 
 for x in 'elements' of dict
   print x
 end
@@ -87,13 +87,13 @@ for i = 1 to 10
   print '{i} is even'
 end
 
-(*=============================================================================
+{*=============================================================================
  * Labels
  * ____________________________________________________________________________
  * Below the outer most loop is labeled 'outer' and the inner most is labeled 
  * 'inner'. The label must come directly before the loop inorder for the label 
  * to be applied.
- *=============================================================================*)
+ *=============================================================================*}
 
 outer:
 for i = 4 to 0 by -1

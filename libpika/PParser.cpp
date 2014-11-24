@@ -2685,9 +2685,9 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
     {
         Expr* expr = 0;
         switch (tstream.GetType()) {
-        case ':': {
+        case '*': {
             if (has_apply_kw)
-                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "applied variable argument, :vararg ,must come before an applied keyword argument, ::kwarg.");
+                state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "applied variable argument, *vararg ,must come before an applied keyword argument, **kwarg.");
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
@@ -2697,7 +2697,7 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
             expr->line = line;
             break;        
         }
-        case TOK_coloncolon: {
+        case TOK_starstar: {
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
@@ -2708,7 +2708,7 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
             break;
         }
         case TOK_identifier: {
-            if (tstream.GetNextType() == ':') {
+            if (is_call && tstream.GetNextType() == '=') {
                 if (has_apply_kw || has_apply_va) {
                     state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "keyword arguments must come before any applied arguments.");
                 }
@@ -2716,7 +2716,7 @@ ExprList* Parser::DoExpressionList(bool is_call, bool can_apply)
                 int line = tstream.GetLineNumber();
                 StringExpr* sexpr = DoFieldName();
                 BufferNext();
-                Match(':');            
+                Match('=');            
                 Expr* valexpr = DoExpression();
             
                 PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
@@ -2778,7 +2778,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
         Expr* expr = 0;
 
         switch (tstream.GetType()) {
-        case ':': {
+        case '*': {
             if (has_apply_kw)
                 state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "applied variable argument, :vararg ,must come before an applied keyword argument, ::kwarg.");
             int line = tstream.GetLineNumber();
@@ -2790,7 +2790,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
             expr->line = line;
             break;        
         }
-        case TOK_coloncolon: {
+        case TOK_starstar: {
             int line = tstream.GetLineNumber();
             tstream.Advance();
             BufferCurrent();
@@ -2801,7 +2801,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
             break;
         }
         case TOK_identifier: {
-            if (tstream.GetNextType() == ':') {
+            if (is_call && tstream.GetNextType() == '=') {
                 if (has_apply_kw || has_apply_va) {
                     state->SyntaxException(Exception::ERROR_syntax, tstream.GetLineNumber(), tstream.GetCol(), "keyword arguments must come before any applied arguments.");
                 }
@@ -2809,7 +2809,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
                 int line = tstream.GetLineNumber();
                 StringExpr* sexpr = DoFieldName();
                 BufferNext();
-                Match(':');            
+                Match('=');            
                 Expr* valexpr = DoExpression();
             
                 PIKA_NEWNODE(KeywordExpr, expr, (state, sexpr, valexpr));
@@ -2819,7 +2819,7 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
                     has_kwarg = true;                
                 break;
             }
-            // Fall through if next token is not ':' ...
+            // Fall through if next token is not '=' ...
             // |
             // |
             // V        
@@ -2936,13 +2936,14 @@ Expr* Parser::DoArrayExpression()
                 curr->kind = ForCompr::FORTO_LOOP;
             }
             
-            BufferNext();
+            BufferCurrent();
             
             if (Optional(TOK_if))
             {
                 BufferNext();
                 curr->cond = DoExpression();
-                BufferNext();
+                
+                BufferCurrent();
             }
             
             if (!comp)
@@ -3064,15 +3065,15 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
         Id* id = 0;
         Expr* def_expr = 0;
         
-        if (tstream.GetType() == ':')
+        if (tstream.GetType() == '*')
         {
-            Match(':');
+            Match('*');
             BufferCurrent();
             rest_param = true;
         }
-        else if (tstream.GetType() == TOK_coloncolon)
+        else if (tstream.GetType() == TOK_starstar)
         {
-            Match(TOK_coloncolon);
+            Match(TOK_starstar);
             BufferCurrent();
             kw_param = true;
         }
@@ -3114,11 +3115,11 @@ ParamDecl* Parser::DoFunctionParameters(bool close)
             if ((kw_param || rest_param) && tstream.GetType() == ',')
             {
                 if (kw_param) {
-                    state->SyntaxError(tstream.GetLineNumber(), "keyword argument declaration '::' must be the last parameter.");
+                    state->SyntaxError(tstream.GetLineNumber(), "keyword argument declaration '**' must be the last parameter.");
                 } else {
                     BufferNext();
-                    if (tstream.GetNextType() != TOK_coloncolon) {
-                        state->SyntaxError(tstream.GetLineNumber(), "variable argument declaration ':' can only be followed by keyword argument declaration '::'.");
+                    if (tstream.GetNextType() != TOK_starstar) {
+                        state->SyntaxError(tstream.GetLineNumber(), "variable argument declaration '*' can only be followed by keyword argument declaration '**'.");
                     } else {
                         Match(',');
                         BufferCurrent();

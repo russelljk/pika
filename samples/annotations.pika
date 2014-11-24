@@ -1,4 +1,4 @@
-(* annotations.pika *)
+{* annotations.pika *}
 
 #==============================================================================
 # Annotations
@@ -8,11 +8,7 @@
 # arguments.
 #==============================================================================
 
-@strict
-function bar()
-end
-
-@doc "I'm an annotated doc string!"
+@doc("I'm an annotated doc string!")
 function foo()
 end
 
@@ -20,7 +16,7 @@ print "{foo} - {foo.__doc}"
 
 print ''
 
-@attr author:"Foo J Bar", email:"foo.bar@example.com"
+@attr author="Foo J Bar", email="foo.bar@example.com"
 class Widget
 end
 
@@ -56,8 +52,8 @@ function resultis(subj, type)
   # See functions.pika if you don't know whats going on here.
   # Create a function that will take the place of 'subj'
   
-  function __inner__(:v, ::k) 
-    res = self=>subj(:v, ::k) # call the subj with the current self object and arguments        
+  function __inner__(*v, **k) 
+    res = self=>subj(*v, **k) # call the subj with the current self object and arguments        
     assert(res is type)       # check that the result is the right type
     return res                # return the result
   end

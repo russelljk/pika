@@ -1,4 +1,4 @@
-(* classes.pika *)
+{* classes.pika *}
 
 # create A as a subclass of Object
 class A

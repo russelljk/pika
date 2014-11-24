@@ -1,4 +1,4 @@
-(* importing.pika *)
+{* importing.pika *}
 
 # You can import multiple packages at a time.
 
@@ -23,16 +23,16 @@ print mymath
 print '\nImported Packages:'
 
 for pkg in world.imports
-    (* However not everything in world.imports is a package.
+    {* However not everything in world.imports is a package.
      *
      * There a functions, which are package import functions, which we explain in the next section.
-     *)
+     *}
     if pkg is Package
         print '\t', pkg
     end
 end
 
-(* Package Import Functions
+{* Package Import Functions
  *
  * If imports finds a function inside world.imports it will call it. 
  * The function is expected to return a Package, Class or Module.
@@ -43,7 +43,7 @@ end
  * the class Foo.
  *
  * Remember that classes are Package.
- *)
+ *}
 function world.imports.foo()
     class Foo
     end    
@@ -53,11 +53,11 @@ end
 Foo = import "foo"
 print Foo
 
-(* Of course for such a simple example we could directly define a class or method in
+{* Of course for such a simple example we could directly define a class or method in
  * world.imports and bypass the function directly.
  *
  * If you don't need to perform initialization on the Package, then this is an option.
- *)
+ *}
 
 class world.imports.Bar
     function init(a)

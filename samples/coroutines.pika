@@ -1,4 +1,4 @@
-(* coroutines.pika *)
+{* coroutines.pika *}
 class CoroutineSampleError: RuntimeError
 end
 

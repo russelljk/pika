@@ -1,6 +1,6 @@
-(* variables.pika *)
+{* variables.pika *}
 
-(* Identifiers: 
+{* Identifiers: 
  *      [a-zA-Z_][a-zA-Z0-9]*[!?]? 
  *
  * Examples: 
@@ -11,14 +11,14 @@
  *      f23
  *      valid?
  *      set!
- *)
+ *}
 
 # Other identifiers can be enclosed with backticks. 
 
 `id with spaces` = 4
 print `id with spaces`
 
-(* Variables
+{* Variables
  * 
  * By default variables are local. Other blocks have other rules though.
  *
@@ -42,7 +42,7 @@ print `id with spaces`
  *
  * † - classes are derived from packages, so class methods and variables are all global
  *     variables, bound to the class scope.
- *) 
+ *} 
 
 x = 4
 print x
@@ -50,27 +50,27 @@ print x
 x, y = 4, 5
 print x, y
 
-(* Variable scope specifiers.
+{* Variable scope specifiers.
  *  
  * local - Local storage, stored on the stack.
  * global - Global storage, stored in the scope's package.
  * member - Instance variable, stored in the current self object.
  *
  * You can specify the storage explicitly for variable declarations:
- *)
+ *}
 local a = 3          # locals
 global a, b, c = 1, 2, 3 # global variables
 
 using Object.new()
-  (* member's can not be set unless there is a self object.
-   * That is why we are in a using block. *)
+  {* member's can not be set unless there is a self object.
+   * That is why we are in a using block. *}
   member b = 3
 end
 
-(* You don't have to assign a value, but the variable doesn't exist until you do.
+{* You don't have to assign a value, but the variable doesn't exist until you do.
  * That is unless the variable is a local variable. Uninitialized locals are set
  * to null by default.
- *)
+ *}
 
 local b       
 global readVal        
@@ -78,7 +78,7 @@ global readVal
 # It OK to declare a member here even though self == null, since we don't set it.
 member j
 
-(* Storage specifiers can be extented to other declarations. *)
+{* Storage specifiers can be extented to other declarations. *}
 
 local function fn()
 end

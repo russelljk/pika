@@ -1,4 +1,4 @@
-(* fib.pika *)
+{* fib.pika *}
 
 function fib(n)
     if n < 2

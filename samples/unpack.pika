@@ -1,16 +1,16 @@
-(* unpack.pika *)
+{* unpack.pika *}
 
-(* Unpacking values
+{* Unpacking values
  * The right hand value of an assignment will be unpacked when it is the only
- * right hand value and the number of left hand operands is greater than 1. *)
+ * right hand value and the number of left hand operands is greater than 1. *}
 
 a = [1, 2, 3, 4]
 
 w, x, y, z = a
 print w, x, y, z
 
-(* The number of values to unpack must match the number expected.
- * If not, an exception will be raised. *)
+{* The number of values to unpack must match the number expected.
+ * If not, an exception will be raised. *}
 
 i = 77
 try
@@ -18,3 +18,5 @@ try
 catch e is RuntimeError
     print e
 end
+
+print "unpack done"
