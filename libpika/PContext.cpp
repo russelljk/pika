@@ -186,6 +186,7 @@ bool GetOverrideFrom(Engine* eng, Basic* obj, OpOverride ovr, Value& res)
     return objType->GetField(vwhat, res);
 }
 
+
 Iterator* GetIteratorFrom(Context* ctx, Value& val, String* kind)
 {
     if (!(val.tag >= TAG_basic))
@@ -496,11 +497,66 @@ void Context::DoResume()
     }
 }
 
+bool Context::OpComp(const Opcode op)
+{
+    Value& b = Top();
+    Value& a = Top1();
+    bool res = false;
+    bool called = false;
+    bool isrhs = b.tag == TAG_object || b.tag == TAG_userdata;
+    if (isrhs)
+    {
+       Basic* obj = b.val.basic;
+       if (SetupOverrideRhs(obj, OVR_comp, &called))
+       {
+           Run();
+       }
+    }
+    else
+    {
+        Basic* obj = a.val.basic;
+        if (SetupOverrideLhs(obj, OVR_comp, &called))
+        {
+            Run();
+        }
+    }
+    
+    if (called) {
+        Value& top = Top();
+        
+        if (top.IsInteger())
+        {
+            pint_t comp = top.val.integer;                
+            switch (op)
+            {
+            case OP_eq:  res = comp == 0; break;
+            case OP_ne:  res = comp != 0; break;
+            case OP_lt:  res = isrhs ? comp >  0 : comp <  0; break;
+            case OP_gt:  res = isrhs ? comp <  0 : comp >  0; break;
+            case OP_lte: res = isrhs ? comp >= 0 : comp <= 0; break;
+            case OP_gte: res = isrhs ? comp <= 0 : comp >= 0; break;
+            default: break;
+            }
+        }
+        else
+        {
+            ReportRuntimeError(Exception::ERROR_type,
+                               "Expected return type Integer from opComp. Received type '%s'.",
+                               engine->GetTypenameOf(top)->GetBuffer());
+        }
+        
+        top.SetBool(res);
+        return true;
+    }
+    return false;
+}
+
 void Context::OpCompBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
 {
     Value& b = Top();
     Value& a = Top1();
     bool res = false;
+    int const atag = a.tag;
     int const btag = b.tag;
     
     switch (a.tag)
@@ -609,6 +665,14 @@ void Context::OpCompBinary(const Opcode op, const OpOverride ovr, const OpOverri
             ++numcalls;
         if (called)
             return;
+    }
+    
+    if (atag == TAG_object || atag == TAG_userdata || btag == TAG_object || btag == TAG_userdata)
+    {        
+        if (OpComp(op))
+        {
+            return;
+        }
     }
     
     ReportRuntimeError(Exception::ERROR_type,

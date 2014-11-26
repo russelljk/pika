@@ -817,7 +817,8 @@ void Engine::InitializeWorld()
         "opURsh_r",
         "opCatSp_r",
         "opCat_r",
-        "opBind_r"
+        "opBind_r",
+        "opComp"
         };
         
         for (size_t i = 0; i < NUM_OVERRIDES; ++i)

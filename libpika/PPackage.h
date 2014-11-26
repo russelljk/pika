@@ -40,7 +40,7 @@ public:
     virtual Package* GetSuper();
     virtual void SetSuper(Package* super);
     
-    virtual String* GetName();
+    virtual String* GetName() const;
     virtual void SetName(String*);
     
     virtual String* GetDotName();

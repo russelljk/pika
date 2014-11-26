@@ -192,7 +192,7 @@ public:
     /** Make a String persistent. */
     void PersistentString(String*);
     Type* GetTypeOf(Value& v);
-    String* GetTypenameOf(Value&);
+    String* GetTypenameOf(Value const&);
         
     INLINE String* GetOverrideString(OpOverride ovr) { return override_strings[ovr]; }
     

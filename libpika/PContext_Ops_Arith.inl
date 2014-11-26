@@ -45,7 +45,15 @@ PIKA_OPCODE(OP_eq)
             PIKA_NEXT()
         }
     }
-
+    
+    if (a.tag == TAG_object || b.tag == TAG_object)
+    {
+        if (OpComp(OP_eq))
+        {
+            PIKA_NEXT()
+        }
+    }
+    
     if (a.tag == TAG_integer)
     {
         if (b.tag == TAG_integer)
@@ -115,7 +123,15 @@ PIKA_OPCODE(OP_ne)
             PIKA_NEXT()
         }
     }
-
+    
+    if (a.tag == TAG_object || b.tag == TAG_object)
+    {
+        if (OpComp(OP_ne))
+        {
+            PIKA_NEXT()
+        }
+    }
+    
     if (a.tag == TAG_integer) 
     {
         if (b.tag == TAG_integer) 

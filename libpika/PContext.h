@@ -334,7 +334,8 @@ protected:
     void OpReturn(u4);
     void OpYield(u4);
     void CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const* top);
-
+    
+    bool OpComp(const Opcode op);
     bool OpUnpack(u4);    
     bool OpBind();    
     bool OpCat(bool sp);    

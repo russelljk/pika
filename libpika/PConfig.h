@@ -33,7 +33,7 @@
 /////////////////////////////////////////// OPTIONAL DEFS //////////////////////////////////////////
 
 /* Print debug trace calls to stdout. */
-/* #define PIKA_ENABLE_TRACE */
+#define PIKA_ENABLE_TRACE
 
 /* Use mem-pools for Slot creation.
    Sometimes it can be faster but it is not thread safe. */

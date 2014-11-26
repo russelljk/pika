@@ -113,7 +113,7 @@ void Package::AddNative(RegisterFunction* fns, size_t count)
     }
 }
 
-String* Package::GetName() { return name ? name : engine->emptyString; }
+String* Package::GetName() const { return name ? name : engine->emptyString; }
 
 String* Package::GetDotName() { return dotName ? dotName : engine->emptyString; }
 

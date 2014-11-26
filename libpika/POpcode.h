@@ -116,6 +116,7 @@ enum OpOverride
     OVR_catsp_r,
     OVR_cat_r,    
     OVR_bind_r,
+    OVR_comp,
     OVR_max,
     OVR_last = OVR_max,
 };

@@ -939,7 +939,7 @@ Type* Engine::GetTypeOf(Value& v)
     return Value_Type;
 }
 
-String* Engine::GetTypenameOf(Value& v)
+String* Engine::GetTypenameOf(Value const& v)
 {
     switch (v.tag)
     {

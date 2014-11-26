@@ -170,6 +170,14 @@ bool Array::GetIndexOf(const Value& key, size_t &index)
 {
     if (key.tag == TAG_integer)
     {
+        if (key.val.integer < 0)
+        {
+            if (-index < (pint_t)elements.GetSize()) {
+                index = elements.GetSize() + key.val.integer;
+                return true;
+            }
+        }
+        
         if ((key.val.integer >= 0) && (key.val.integer < (pint_t)elements.GetSize()))
         {
             index = (size_t)key.val.integer;
