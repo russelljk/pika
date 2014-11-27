@@ -2,38 +2,7 @@
 
 #define BIGREAL_TYPENAME "BigReal"
 
-namespace pika {
-#   define MPFR_BINARY_OP_BODY(OPNAME, OVRNAME)                     \
-    BigReal* res = BigReal::Create(this->engine, this->GetType());  \
-    if (right.IsDerivedFrom(BigReal::StaticGetClass()))             \
-    {                                                               \
-        BigReal const* rhs = static_cast<BigReal const*>(right.val.object);\
-        mpfr_##OPNAME(res->number, this->number, rhs->number, DEFAULT_RND);\
-    }\
-    else if (right.IsReal())\
-    {\
-        preal_t rhs = right.val.real;\
-        mpfr_##OPNAME##_d(res->number, this->number, rhs, DEFAULT_RND);\
-    }\
-    else if (right.IsInteger())\
-    {\
-        pint_t rhs = right.val.integer;\
-        mpfr_##OPNAME##_si(res->number, this->number, rhs, DEFAULT_RND);\
-    }\
-    else if (right.IsDerivedFrom(BigInteger::StaticGetClass()))\
-    {\
-        BigInteger const* rhs = static_cast<BigInteger const*>(right.val.object);\
-        mpfr_##OPNAME##_z(res->number, this->number, rhs->number, DEFAULT_RND);\
-    }\
-    else\
-    {\
-        GCPAUSE_NORUN(this->engine);\
-        String* typestr = engine->GetTypenameOf(right);\
-        RaiseException(Exception::ERROR_type, "Attempt to call BigReal."#OVRNAME" with right hand operand of type %s.",\
-            typestr->GetBuffer());\
-    }\
-    return res
-    
+namespace pika {    
     BigReal::BigReal(Engine* eng, Type* typeObj) : Object(eng, typeObj)
     {
         mpfr_init(this->number);
@@ -174,15 +143,55 @@ namespace pika {
         }
         return res;
     }
-        
+    
+    BigReal* BigReal::DoBinaryOp(Value const& right, 
+                        const char* ovrName,
+                        mpfr_fn_t mpfr_fn,
+                        mpfr_d_fn_t mpfr_d_fn,
+                        mpfr_si_fn_t mpfr_si_fn,
+                        mpfr_z_fn_t mpfr_z_fn) const
+    {
+        BigReal* res = BigReal::Create(this->engine, this->GetType());
+        if (right.IsDerivedFrom(BigReal::StaticGetClass()))
+        {
+            BigReal const* rhs = static_cast<BigReal const*>(right.val.object);
+            mpfr_fn(res->number, this->number, rhs->number, DEFAULT_RND);
+        }
+        else if (right.IsReal())
+        {
+            preal_t rhs = right.val.real;
+            mpfr_d_fn(res->number, this->number, rhs, DEFAULT_RND);
+        }
+        else if (right.IsInteger())
+        {
+            pint_t rhs = right.val.integer;
+            mpfr_si_fn(res->number, this->number, rhs, DEFAULT_RND);
+        }
+        else if (right.IsDerivedFrom(BigInteger::StaticGetClass()))
+        {
+            BigInteger const* rhs = static_cast<BigInteger const*>(right.val.object);
+            mpfr_z_fn(res->number, this->number, rhs->number, DEFAULT_RND);
+        }
+        else
+        {
+            GCPAUSE_NORUN(this->engine);
+            String* typestr = engine->GetTypenameOf(right);
+            RaiseException(Exception::ERROR_type, 
+                "Attempt to call BigReal.%s with right hand operand of type %s.",
+                ovrName,
+                typestr->GetBuffer());
+        }
+        return res;
+    }
+    
     BigReal* BigReal::Add(Value const& right) const
     {
-        MPFR_BINARY_OP_BODY(add, opAdd);
+        return this->DoBinaryOp(right, "opAdd", mpfr_add, mpfr_add_d, mpfr_add_si, mpfr_add_z);
     }
     
     BigReal* BigReal::Sub(Value const& right) const
     {
-        MPFR_BINARY_OP_BODY(sub, opSub);
+        return this->DoBinaryOp(right, "opSub", mpfr_sub, mpfr_sub_d, mpfr_sub_si, mpfr_sub_z);
     }
     
     BigReal* BigReal::Sub_r(Value const& right) const
@@ -215,12 +224,12 @@ namespace pika {
         
     BigReal* BigReal::Mul(Value const& right) const
     {
-        MPFR_BINARY_OP_BODY(mul, opMul);
+        return this->DoBinaryOp(right, "opMul", mpfr_mul, mpfr_mul_d, mpfr_mul_si, mpfr_mul_z);
     }
     
     BigReal* BigReal::Div(Value const& right) const
     {
-        MPFR_BINARY_OP_BODY(div, opDiv);
+        return this->DoBinaryOp(right, "opDiv", mpfr_div, mpfr_div_d, mpfr_div_si, mpfr_div_z);
     }
     
     BigReal* BigReal::Mod(Value const& right) const
@@ -388,7 +397,6 @@ MAKE_BINARY_OP(opPow,   Pow)
 
 MAKE_UNARY_OP(opNeg, Neg)
     
-
 #define MAKE_UNARY_BOOL_METHOD(NAME, METHOD) \
     int BigReal_##NAME(Context* ctx, Value& self)\
     {\
@@ -403,6 +411,7 @@ MAKE_UNARY_BOOL_METHOD(isNan,       IsNan)
 MAKE_UNARY_BOOL_METHOD(isInfinite,  IsInfinite)
 MAKE_UNARY_BOOL_METHOD(isZero,      IsZero)
 MAKE_UNARY_BOOL_METHOD(isRegular,   IsRegular)
+
 
 int BigReal_sign(Context* ctx, Value& self)
 {

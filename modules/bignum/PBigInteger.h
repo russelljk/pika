@@ -50,6 +50,12 @@ public:
     static BigInteger*  Create(Engine* eng, Type* type);
     static void         Constructor(Engine* eng, Type* obj_type, Value& res);
     
+    virtual bool ToBoolean() const
+    {
+        Value right((pint_t)0);
+        return this->Comp(right) != 0;
+    }
+    
     int Comp(Value const& right) const;
     
     BigInteger* Add(Value const& right) const;
@@ -67,9 +73,9 @@ public:
     BigInteger* Rsh(Value const& right) const;
     
     BigInteger* BitNot() const;
-    BigInteger* Neg() const;
-    pint_t      Sign() const;
-    void FromInt(pint_t n);
+    BigInteger* Neg()    const;
+    pint_t      Sign()   const;
+    void        FromInt(pint_t n);
 };
 
 }
