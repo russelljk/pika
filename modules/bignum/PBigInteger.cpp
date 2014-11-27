@@ -24,13 +24,8 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 void (*gmp_free_func)(void*, size_t);
 
-namespace pika {
-    Type* GetBigIntegerType(Engine* eng)
-    {
-        return (Type*)eng->GetBaseType( eng->GetString(BIGINTEGER_TYPENAME) );
-    }
-    
-    BigInteger::BigInteger(Engine* eng, Type* typeObj) : Object(eng, typeObj), positive(true)
+namespace pika {    
+    BigInteger::BigInteger(Engine* eng, Type* typeObj) : Object(eng, typeObj)
     {
         mpz_init(this->number);
     }
@@ -53,8 +48,33 @@ namespace pika {
         u2 argc = ctx->GetArgCount();
         if (argc == 1)
         {
-            pint_t n = ctx->GetIntArg(0);
-            this->FromInt(n);
+            Value& arg = ctx->GetArg(0);
+            if (arg.IsInteger())
+            {
+                pint_t n = arg.val.integer;
+                this->FromInt(n);                
+            }
+            else if (arg.IsReal())
+            {
+                preal_t n = arg.val.real;
+                mpz_init_set_d(this->number, n);  
+            }
+            else if (arg.IsDerivedFrom(BigInteger::StaticGetClass()))
+            {
+                BigInteger* bi =  static_cast<BigInteger*>(arg.val.object);
+                mpz_init_set(this->number, bi->number);
+            }
+#ifdef  HAVE_MPFR
+            else if (arg.IsDerivedFrom(BigReal::StaticGetClass()))
+            {
+                BigReal* br =  static_cast<BigReal*>(arg.val.object);
+                mpfr_get_z(this->number, br->number, DEFAULT_RND);
+            }
+#endif
+            else
+            {
+                ctx->GetIntArg(0);
+            }
         }
         else if (argc != 0)
         {
@@ -72,26 +92,7 @@ namespace pika {
         BigInteger* bn = BigInteger::Create(eng, obj_type);
         res.Set(bn);
     }
-    
-    int BigInteger__init(Context* ctx, Value& self)
-    {
-        pint_t n = 0;
-        u2 argc = ctx->GetArgCount();
-        BigInteger* bigint = static_cast<BigInteger*>(self.val.object);
-                
-        if (argc == 1)
-        {
-            n = ctx->GetIntArg(0);
-            bigint->FromInt(n);
-        }
-        else if (argc != 0)
-        {
-            ctx->WrongArgCount();
-        }
         
-        return 0;
-    }
-    
     String* BigInteger::ToString()
     {
         return this->ToString(10);
@@ -640,6 +641,14 @@ int BigInteger_toString(Context* ctx, Value& self)
     return 1;
 }
 
+int BigInteger_sign(Context* ctx, Value& self)
+{
+    BigInteger* bi = static_cast<BigInteger*>(self.val.object);
+    pint_t res = bi->Sign();
+    ctx->Push(res);
+    return 1;
+}
+
 /*
     For rhs comparison operators we can just use the inverse
     
@@ -653,7 +662,7 @@ void Initialize_BigInteger(Package* bignum, Engine* eng)
     
     Type* BigInteger_Type = Type::Create(eng, BigInteger_String, eng->Object_Type, BigInteger::Constructor, bignum);
     
-    static RegisterFunction BigInteger_methods[] = {
+    static RegisterFunction BigInteger_Methods[] = {
         { "toString",   BigInteger_toString,      0, DEF_VAR_ARGS, 0 },
         { "opAdd",      BigInteger_opAdd,         1, DEF_STRICT, 0 },
         { "opAdd_r",    BigInteger_opAdd,         1, DEF_STRICT, 0 },
@@ -672,18 +681,22 @@ void Initialize_BigInteger(Package* bignum, Engine* eng)
         { "opBitNot",   BigInteger_opBitNot,      0, DEF_STRICT, 0 },
         { "opNeg",      BigInteger_opNeg,         0, DEF_STRICT, 0 },
         { "opComp",     BigInteger_opComp,        1, DEF_STRICT, 0 },
-        { "toInteger",  BigInteger_toInteger,     0, DEF_STRICT, 0 },
-        { "toInteger",  BigInteger_toInteger,     0, DEF_STRICT, 0 },        
-        { "toReal",     BigInteger_toReal,        0, DEF_STRICT, 0 },        
+        { "toInteger",  BigInteger_toInteger,     0, DEF_STRICT, 0 },  
+        { "toReal",     BigInteger_toReal,        0, DEF_STRICT, 0 },
     };
+
+    static RegisterProperty BigInteger_Properties[] = {
+       { "sign", BigInteger_sign, "getSign", 0, 0, false, 0, 0, 0 }, 
+    };
+    
+    BigInteger_Type->EnterProperties(BigInteger_Properties, countof(BigInteger_Properties));
+    BigInteger_Type->EnterMethods(BigInteger_Methods, countof(BigInteger_Methods));
     
     /*
         bignum.abs
         bignum.sqrt
         bignum.exp
-    */
-    BigInteger_Type->EnterMethods(BigInteger_methods, countof(BigInteger_methods));
-    
+    */    
     bignum->SetSlot(BigInteger_String, BigInteger_Type);
     eng->AddBaseType(BigInteger_String, BigInteger_Type);
 }

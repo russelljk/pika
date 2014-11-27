@@ -1,3 +1,3 @@
 
-// Is curses.h available.
+// Is mpfr available.
 #cmakedefine HAVE_MPFR 1

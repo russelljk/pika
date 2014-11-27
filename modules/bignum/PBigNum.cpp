@@ -33,5 +33,38 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 PIKA_MODULE(bignum, eng, bignum)
 {
     Initialize_BigInteger(bignum, eng);
+    /*
+    TODO: Add the following package methods:
+    cos
+    sin
+    tan
+    acos
+    asin
+    atan
+    cosh
+    sinh
+    tanh
+    acosh
+    asinh
+    atanh
+    hypot
+    abs  => mpz_abs | mpfr_abs
+    min (vararg)
+    max (vararg)
+    
+    PI -> mpfr_const_pi
+    
+    log
+    log2
+    log10
+    
+    exp
+    exp2
+    exp10
+    
+    sqrt => mpz_sqrt | mpfr_sqrt | mpfr_sqrt_ui
+    
+    TODO: Error Checking
+    */
     return bignum;
 }

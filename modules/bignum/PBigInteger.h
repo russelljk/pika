@@ -36,8 +36,6 @@ class BigInteger : public Object
 public:
     BigInteger(Engine* eng, Type* typeObj);
     
-    Buffer<digit_t> digits;
-    bool positive;
     mpz_t number;
     
     virtual ~BigInteger();

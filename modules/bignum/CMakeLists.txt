@@ -29,11 +29,7 @@ endif(GMP_FOUND)
 
 # --------------------- Source + Header Files ----------------------
 
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake-bignum_config.h.in 
-                ${CMAKE_CURRENT_SOURCE_DIR}/bignum_config.h)
 
-set (bignum_LIB_SRCS PBigNum.cpp PBigInteger.cpp)
-set (bignum_LIB_HEADERS PBigNum.h PBigInteger.h bignum_config.h)
 
 find_package(MPFR)
 if(MPFR_FOUND)
@@ -42,13 +38,17 @@ if(MPFR_FOUND)
     
     set (bignum_LIB_SRCS    ${bignum_LIB_SRCS}    PBigReal.cpp)
     set (bignum_LIB_HEADERS ${bignum_LIB_HEADERS} PBigReal.h)
-    
+    set (HAVE_MPFR 1)
     message(STATUS "Using mpfr library ${MPFR_LIBRARIES}")
 else(MPFR_FOUND)
     message(WARNING "Building bignum module without floating point support. Install mpfr and rerun cmake to enable it.")
 endif(MPFR_FOUND)
 
-set (HAVE_MPFR ${MPFR_FOUND})
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake-bignum_config.h.in 
+                ${CMAKE_CURRENT_SOURCE_DIR}/bignum_config.h)
+
+set (bignum_LIB_SRCS    ${bignum_LIB_SRCS}    PBigNum.cpp PBigInteger.cpp)
+set (bignum_LIB_HEADERS ${bignum_LIB_HEADERS} PBigNum.h PBigInteger.h bignum_config.h)
 
 source_group (include FILES ${bignum_LIB_HEADERS})
 source_group (source  FILES ${bignum_LIB_SRCS})

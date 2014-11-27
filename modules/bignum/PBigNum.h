@@ -12,6 +12,7 @@
 #include "PBigInteger.h"
 #ifdef HAVE_MPFR
 #   include "PBigReal.h"
+#   define DEFAULT_RND MPFR_RNDN
 #endif
 
 #endif
