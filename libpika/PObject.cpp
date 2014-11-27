@@ -420,7 +420,7 @@ int Object_toString(Context* ctx, Value& self)
     return 1;
 }
 
-int Object_rawDotRead(Context* ctx, Value& self)
+int Object_getAttribute(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -433,7 +433,7 @@ int Object_rawDotRead(Context* ctx, Value& self)
     return 0;
 }
 
-int Object_rawDotWrite(Context* ctx, Value& self)
+int Object_setAttribute(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -445,7 +445,7 @@ int Object_rawDotWrite(Context* ctx, Value& self)
     return 0;
 }
 
-int Object_rawBracketRead(Context* ctx, Value& self)
+int Object_getElement(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -458,7 +458,7 @@ int Object_rawBracketRead(Context* ctx, Value& self)
     return 0;
 }
 
-int Object_rawBracketWrite(Context* ctx, Value& self)
+int Object_setElement(Context* ctx, Value& self)
 {
     Object* obj = ctx->GetObjectArg(0);
     Value   name = ctx->GetArg(1);
@@ -518,45 +518,45 @@ PIKA_DOC(Object_toString, "/()"
 "\n"
 "Returns a [String] representation of the object.")
 
-PIKA_DOC(Object_rawDotRead, "/(obj, key)"
+PIKA_DOC(Object_getAttribute, "/(obj, key)"
 "\n"
 "Returns the instance variable named |key| from |obj|. This is equivalent to the operation"
 " |obj|.|key| but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
 "  Typically this function will only be called from inside opGet."
 "[[[function opGet(key)\n"
-"  return Object.rawDotRead(self, key)\n"
+"  return Object.getAttribute(self, key)\n"
 "end]]]"
 )
 
-PIKA_DOC(Object_rawDotWrite, "/(obj, key, val)"
+PIKA_DOC(Object_setAttribute, "/(obj, key, val)"
 "\n"
 "Sets the instance variable in |obj| named |key| to the value |val|."
 " This is equivalent to the operation |obj|.|key| = |val| but avoids all overrides and [Property property] reads"
 " If the |key| doesn't exist it will be created."
 " Typically this function will only be called from inside opSet."
 "[[[function opSet(key, val)\n"
-"  Object.rawDotWrite(self, key, val)\n"
+"  Object.setAttribute(self, key, val)\n"
 "end]]]"
 )
 
-PIKA_DOC(Object_rawBracketRead, "/(obj, key)"
+PIKA_DOC(Object_getElement, "/(obj, key)"
 "\n\n"
 "Returns the element named |key| from |obj|. This is equivalent to the operation"
 " |obj|[|key|] but avoids all overrides and [Property property] reads. If |key| doesn't exist '''null''' will be returned"
 "  Typically this function will only be called from inside opGetAt."
 "[[[function opGetAt(key)\n"
-"  return Object.rawBracketRead(self, key)\n"
+"  return Object.getElement(self, key)\n"
 "end]]]"
 )
 
-PIKA_DOC(Object_rawBracketWrite, "/(obj, key, val)"
+PIKA_DOC(Object_setElement, "/(obj, key, val)"
 "\n"
 "Sets the element in |obj| named |key| to the value |val|."
 "This is equivalent to the operation |obj|[|key|] = |val| but avoids all overrides and [Property property] reads"
 " If the |key| doesn't exist it will be created."
 " Typically this function will only be called from inside opSetAt."
 "[[[function opSetAt(key, val)\n"
-"  Object.rawBracketWrite(self, key, val)\n"
+"  Object.setElement(self, key, val)\n"
 "end]]]"
 )
 
@@ -599,10 +599,10 @@ void Object::StaticInitType(Engine* eng)
     
     static RegisterFunction Object_ClassMethods[] =
     {
-        { "rawDotRead",      Object_rawDotRead,      2, DEF_STRICT, PIKA_GET_DOC(Object_rawDotRead) },
-        { "rawDotWrite",     Object_rawDotWrite,     3, DEF_STRICT, PIKA_GET_DOC(Object_rawDotWrite) },
-        { "rawBracketRead",  Object_rawBracketRead,  2, DEF_STRICT, PIKA_GET_DOC(Object_rawBracketRead) },
-        { "rawBracketWrite", Object_rawBracketWrite, 3, DEF_STRICT, PIKA_GET_DOC(Object_rawBracketWrite) },
+        { "getAttribute",   Object_getAttribute,    2, DEF_STRICT, PIKA_GET_DOC(Object_getAttribute) },
+        { "setAttribute",   Object_setAttribute,    3, DEF_STRICT, PIKA_GET_DOC(Object_setAttribute) },
+        { "getElement",     Object_getElement,      2, DEF_STRICT, PIKA_GET_DOC(Object_getElement) },
+        { "setElement",     Object_setElement,      3, DEF_STRICT, PIKA_GET_DOC(Object_setElement) },
     };
     
     eng->Object_Type->EnterMethods(ObjectFunctions, countof(ObjectFunctions));
