@@ -258,7 +258,7 @@ public:
     String* values_String;
     String* elements_String;
     String* keys_String;
-    String* indices_String;
+    String* attrs_String;
     String* Enumerator_String;
     String* Property_String;
     String* userdata_String;

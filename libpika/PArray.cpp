@@ -386,7 +386,7 @@ Iterator* Array::Iterate(String *iter_type)
     IterateKind kind = IK_default;
     if (iter_type == engine->elements_String) {
         kind = IK_values;
-    } else if (iter_type == engine->indices_String) {
+    } else if (iter_type == engine->keys_String) {
         kind = IK_keys;
     } else if (iter_type != engine->emptyString) {
         return ThisSuper::Iterate(iter_type);

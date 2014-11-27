@@ -844,7 +844,7 @@ void Engine::InitializeWorld()
         this->Property_String   = AllocString("Property");
         this->elements_String   = AllocString("elements");
         this->false_String      = AllocString("false");
-        this->indices_String    = AllocString("indices");
+        this->attrs_String      = AllocString("attrs");
         this->keys_String       = AllocString("keys");
         this->length_String     = AllocString("length");
         this->loading_String    = AllocString("loading");

@@ -211,7 +211,7 @@ Iterator* Object::Iterate(String* enumType)
     }
     
     IterateKind k = IK_default;
-    if (enumType == engine->values_String)
+    if (enumType == engine->attrs_String)
     {
         k = IK_values;
     }
