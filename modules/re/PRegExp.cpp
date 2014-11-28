@@ -226,7 +226,7 @@ public:
         GCPAUSE_NORUN(engine);
         Buffer<size_t> matches; // Buffer to store matches.
         
-        if (!DoExec(subj->GetBuffer(), subj->GetLength(), matches))
+        if (!DoExec(subj, matches))
             return 0;
         
         Array* res = Array::Create(engine, engine->Array_Type, 0, 0); // Resultant Array object.
@@ -248,7 +248,7 @@ public:
         if (!this->pattern)
             return false;
                 
-        if (!DoExec(subj->GetBuffer(), subj->GetLength(), matches))
+        if (!DoExec(subj, matches))
             return false;
         
         return true;
@@ -261,7 +261,7 @@ public:
                 
         Buffer<size_t> matches;
         
-        if (!DoExec(subj->GetBuffer(), subj->GetLength(), matches))
+        if (!DoExec(subj, matches))
             return false;
         
         if (matches.GetSize())
@@ -269,6 +269,11 @@ public:
             return true;
         }
         return false;
+    }
+    
+    void Reset()
+    {
+        this->last_index = 0;
     }
     
     bool    IsGlobal()      const { return is_global != 0; }    
@@ -301,9 +306,11 @@ public:
     }
     
 protected:        
-    bool DoExec(const char* subj, size_t subjLen, Buffer<size_t>& res)
+    bool DoExec(String* s, Buffer<size_t>& res)
     {
         Pika_regmatch ovector[NUM_MATCHES];
+        const char* subj = s->GetBuffer();
+        size_t subjLen = s->GetLength();
         
         if (subjLen < last_index)
             return false;
@@ -557,6 +564,8 @@ PIKA_DOC(RegExp_compile, "/(pattern)\
 Compile the |pattern| given. The options that this instance was initialized \
 with will be used.")
 
+PIKA_DOC(RegExp_reset, "For global regular expressions it resets the position of lastIndex.")
+
 PIKA_DOC(String_matchReplace, "/(re, fmt)\
 \n\
 Replaces every match from the [imports.RegExp.RegExp regular expression], |re|, using the format \
@@ -578,7 +587,8 @@ PIKA_MODULE(re, eng, re)
     .RegisterMethod(pika::RegExp_exec, "exec", 1, true, false, PIKA_GET_DOC(RegExp_exec))
     .Method(&RegExp::Test,     "test", PIKA_GET_DOC(RegExp_test))
     .Method(&RegExp::Compile,  "compile", PIKA_GET_DOC(RegExp_compile))
-    .MethodVA(&RegExp::Init,   "init", PIKA_GET_DOC(RegExp_init))
+    .Method(&RegExp::Reset,    "reset",   PIKA_GET_DOC(RegExp_reset))
+    .MethodVA(&RegExp::Init,   "init",    PIKA_GET_DOC(RegExp_init))
     .PropertyRW("lastIndex",    &RegExp::GetLastIndex, "getLastIndex", 
                                 &RegExp::SetLastIndex, "setLastIndex", 
                                                            PIKA_GET_DOC(RegExp_getLastIndex), 

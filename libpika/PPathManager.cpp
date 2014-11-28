@@ -43,9 +43,9 @@ PathManager::PathManager(Engine* eng, Type* type)
 
 PathManager::~PathManager() {}
 
-bool PathManager::IsValidFile(const char* path)
+bool PathManager::IsValidFile(const char* path, bool allowDirectories)
 {
-    return Pika_FileExists(path) && !Pika_IsDirectory(path);
+    return Pika_FileExists(path) && (allowDirectories || !Pika_IsDirectory(path));
 }
 
 bool PathManager::BracketRead(const Value& key, Value& res)
@@ -64,7 +64,7 @@ bool PathManager::BracketRead(const Value& key, Value& res)
     return ThisSuper::BracketRead(key, res);
 }
 
-String* PathManager::FindFile(String* file)
+String* PathManager::FindFile(String* file, bool allowDirectories)
 {
     // first determine the maximum length our path string can be
     size_t max_sz = 0;
@@ -99,7 +99,7 @@ String* PathManager::FindFile(String* file)
         }
         temp[BUFF_SZ] = '\0';
         
-        if (IsValidFile(temp))
+        if (IsValidFile(temp, allowDirectories))
         {
             String* res = engine->GetString(temp);
             Pika_free(temp);
@@ -109,7 +109,7 @@ String* PathManager::FindFile(String* file)
     }
     Pika_free(temp);
     
-    if (IsValidFile(file->GetBuffer()))
+    if (IsValidFile(file->GetBuffer(), allowDirectories))
     {
         return file;
     }
@@ -178,6 +178,31 @@ void PathManager::Constructor(Engine* eng, Type* type, Value& res)
     res.Set(p);
 }
 
+static int PathManager_findPathOf(Context* ctx, Value& self)
+{
+    u2 argc = ctx->GetArgCount();
+    bool dirs = false;
+    String* fileName = 0;
+    PathManager* pm = static_cast<PathManager*>(self.val.object);
+    switch(argc)
+    {
+    case 2:
+    dirs = ctx->GetBoolArg(1);
+    case 1:
+    fileName = ctx->GetStringArg(0);
+    break;
+    default:
+        ctx->WrongArgCount();
+    }
+    String* res = pm->FindFile(fileName, dirs);
+    if (res)
+    {
+        ctx->Push(res);
+        return 1;
+    }
+    return 0;
+}
+
 void PathManager::StaticInitType(Engine* eng)
 {
     GCPAUSE_NORUN(eng);
@@ -185,7 +210,7 @@ void PathManager::StaticInitType(Engine* eng)
     SlotBinder<PathManager>(eng, eng->PathManager_Type, eng->PathManager_Type)
     .Method(&PathManager::AddPath,      "addPath")
     .Method(&PathManager::AddEnvPath,   "addEnvPath")
-    .Method(&PathManager::FindFile,     "findPathOf")
+    .RegisterMethod(PathManager_findPathOf, "findPathOf", 1, true, false, 0)
     .PropertyR("length",
             &PathManager::GetSize,      "getLength")
     ;

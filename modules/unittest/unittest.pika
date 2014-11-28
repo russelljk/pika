@@ -1,0 +1,342 @@
+re = import 're'
+os = import 'os'
+
+REGEX_TEST_METHOD = re.RegExp.new($'^test')
+
+package helpers
+    REGEX_CAMEL_CASE = re.RegExp.new($'([A-Z][a-z]*|\d+)', 'g')
+    
+    package colors
+        class Color
+            function init(open, close)
+                self.open = open
+                self.close = close
+            end
+            
+            function opCall(text)
+                return '{self.open}{text}{self.close}'
+            end
+        end
+        
+        Bold = Color.new('\x1B[1m', '\x1B[22m')
+        Underline = Color.new('\x1B[4m', '\x1B[24m')
+        White = Color.new('\x1B[37m', '\x1B[39m')
+        Grey = Color.new('\x1B[30m', '\x1B[39m')
+        Black = Color.new('\x1B[90m', '\x1B[39m')
+        Red = Color.new('\x1B[31m', '\x1B[39m')
+        Yellow = Color.new('\x1B[33m', '\x1B[39m')
+        Green = Color.new('\x1B[32m', '\x1B[39m')
+        Cyan = Color.new('\x1B[36m', '\x1B[39m')
+        Blue = Color.new('\x1B[34m', '\x1B[39m')
+        Magenta = Color.new('\x1B[35m', '\x1B[39m')
+    end
+    
+    function toStringShort(*args)
+        MAX_LENGTH = 80
+        res = []
+        for arg in args
+            s = arg.toString()
+            if s.length > MAX_LENGTH
+                s = s[:MAX_LENGTH]..'...'
+            end
+            res.push s
+        end
+        return res
+    end
+    
+    function regexIterate(regex, name)
+        lastIndex = null
+        regex.reset()
+        
+        loop
+            value = regex.exec(name)
+            currIndex = regex.lastIndex
+            
+            # Just in case we are stuck in an inifinite loop.
+            
+            if lastIndex == null
+                lastIndex = regex.lastIndex
+            elseif currIndex == lastIndex or not regex.global?
+                return
+            else
+                lastIndex = currIndex
+            end
+            
+            if value == null or not (value is Array)
+                return
+            end
+            
+            yield value[0]
+        end
+    end
+    
+    function makeTestName(name)
+        try
+            a = [ x for x in regexIterate(REGEX_CAMEL_CASE, name)]
+        
+            if a.empty?()
+                return name
+            end
+        
+            return ' '.join(a)
+        catch e
+            return name
+        end
+    end
+end
+
+class TestCase
+    function init()
+        self.testMethods = []
+        
+        for var in self.type
+            if var is InstanceMethod
+                if REGEX_TEST_METHOD.test var.name
+                    self.testMethods.push(var)
+                end
+            end
+        end
+        self._hasFailed = false
+        self._currentTest = null
+        self.reports = []
+        self.failures = []
+    end
+    
+    function run()
+        for testMethod in self.testMethods
+            try
+                self._hasFailed = false
+                self._currentTest = testMethod
+                self=>testMethod()
+                
+                if not self._hasFailed
+                    self._reportPass()
+                end
+            catch e
+                self._reportFailure('Unhandled Exception Caught', e.toString())
+            finally
+                self._currentTest = null
+                self._hasFailed = false
+            end
+        end
+    end
+    
+    function _reportFailure(failure, msg=null)
+        self._hasFailed = true
+        name = helpers.colors.Bold(self._getCurrentTestName())
+        failureMessage = name ... failure
+        if msg
+            failureMessage = failureMessage ... msg
+        end
+        self.failures.push( failureMessage )
+    end
+    
+    function _reportPass()
+        name = helpers.colors.Bold(self._getCurrentTestName())
+        self.reports.push( name )
+    end
+    
+    function _getCurrentTestName()
+        return helpers.makeTestName(self._currentTest.name)
+    end
+    
+    function _getPassedCount()
+        return self.reports.length
+    end
+    
+    function _getFailedCount()
+        return self.failures.length
+    end
+    
+    function report()
+        typeName = helpers.colors.Bold(self.type.name)
+        PASS = helpers.colors.Bold(helpers.colors.Green("PASS"))
+        FAIL = helpers.colors.Bold(helpers.colors.Red("FAIL"))
+        
+        print "\n{typeName}:"
+        print '----------------------------------------------------'
+        
+        for report in self.reports
+            print PASS, report
+        end
+
+        for failure in self.failures
+            print FAIL, failure
+        end
+        passed = "{self.reports.length}/{self.testMethods.length}"
+        if self.reports.length == self.testMethods.length
+            passed = helpers.colors.Bold(passed)
+        else
+            passed = helpers.colors.Bold(helpers.colors.Red(passed))
+        end
+        
+        print "{passed} Tests Passed."
+        
+        print '----------------------------------------------------'
+    end
+    
+    function assertTrue(first, msg = null)
+        if not first
+            self._reportFailure(first .. ' is true', msg)
+        end
+    end
+    
+    function assertFalse(first, msg = null)
+        if first
+            self._reportFailure(first .. ' is false', msg)
+        end
+    end
+    
+    function assertEquals(first, second, msg = null)
+        if not (first == second)
+            self._reportFailure(first .. '==' .. second, msg)
+        end
+    end
+    
+    function assertNotEquals(first, second, msg = null)
+        if not (first != second)
+            self._reportFailure(first .. ' != ' .. second, msg)
+        end
+    end
+    
+    function assertSame(first, second, msg = null)
+        if not (first == second)
+            self._reportFailure(first .. ' === ' .. second, msg)
+        end
+    end
+    
+    function assertNotSame(first, second, msg = null)
+        if not (first != second)
+            self._reportFailure(first .. ' !== ' .. second, msg)
+        end
+    end
+    
+    function assertIs(first, second, msg = null)
+        {*
+         *  Checks the the first argument is an instance of the second argument.
+         *  
+         *  [[[first is second]]]
+         *}
+        if not (first is second)
+            self._reportFailure(first .. ' is ' .. second, msg)
+        end
+    end
+    
+    function assertRaises(block, type, msg = null)
+        try
+            block()
+        catch e is type
+            # As expected
+        else
+            self._reportFailure('raises ' .. type, msg)
+        end
+    end
+end
+
+class BaseTestRunner
+    function init()
+        self.passed = 0
+        self.failed = 0
+    end
+    
+    function updateTotals(test)
+        self.passed += test._getPassedCount()
+        self.failed += test._getFailedCount()
+    end
+    
+    function reportTotals()
+        total = self.passed + self.failed
+        print ''
+        print helpers.colors.Bold("Summary:")
+        print '----------------------------------------------------'
+        print "{total} Tests Run"
+        print helpers.colors.Green("{self.passed} Tests Passed")
+        if self.failed
+            print helpers.colors.Red("{self.failed} Tests Failed")
+        end
+        print '====================================================\n'
+    end
+end
+
+class TestRunner : BaseTestRunner
+    function init(testCases)
+        super()
+        self.testCases = testCases
+    end
+    
+    function run(summary=true)
+        for testCase in self.testCases
+            do
+                test = testCase.new()
+                test.run()
+                test.report()
+                self.updateTotals(test)
+            end
+        end
+        if summary
+            self.reportTotals()
+        end
+    end
+end
+
+class TestPackageRunner : TestRunner
+    function init(pkg)
+        self.pkg = pkg
+        super([
+            attr for attr in pkg 
+                    if attr is Type and TestCase.isSubtype( attr )
+        ])
+    end
+    
+    function run(summary=true)
+        print helpers.colors.Bold('\nTestPackageRunner "{self.pkg.__name}"...')
+        super(summary)
+    end
+end
+
+{* Runs tests from all files in the given directory name.
+ *
+ * The directory must lie with the either the system path or the PathManager passed to
+ * the constructor.
+ *
+ * Usage:
+ *   runner = TestDirectoryRunner("myDirectoryName")
+ *   runner.run()
+ *}
+class TestDirectoryRunner : BaseTestRunner
+    function init(dirName, pathManager = os.paths)
+        super()
+        self.dirName = dirName
+        # Find the directory.
+        self.directory = pathManager.findPathOf(dirName, true)
+        if not self.directory
+            raise RuntimeError.new("TestDirectoryRunner.init - Cannot find directory {dirName}")
+        end
+        self.packageRunners = []
+        
+        # Find each script in the directory. (Basically anything that ends with .pika or .pi)
+        for f in os.readdir(self.directory, true)
+            fileName = dirName .. os.sep .. f
+            if self.canImport(fileName)
+                pkg = import(fileName)
+                self.packageRunners.push(TestPackageRunner.new pkg)
+            end
+        end
+        
+    end
+    
+    function run()
+        print '\nTestDirectoryRunner "{self.dirName}"\n'
+        for runner in self.packageRunners
+            runner.run(false)
+            self.passed += runner.passed
+            self.failed += runner.failed
+        end
+        self.reportTotals()
+    end
+    
+    function canImport(f)
+        ext = os.extname(f)
+        return ext == 'pi' or ext == 'pika'
+    end
+end

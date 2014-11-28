@@ -29,7 +29,7 @@ public:
     
     virtual ~PathManager();
     
-    virtual String* FindFile(String* file);
+    virtual String* FindFile(String* file, bool allowDirectories=false);
     virtual void    MarkRefs(Collector* c);
     virtual bool    Finalize();
     virtual void    AddPath(String* path);
@@ -47,7 +47,7 @@ public:
     static void Constructor(Engine* eng, Type* type, Value& res);
     static void StaticInitType(Engine* eng);
 private:
-    bool IsValidFile(const char*); 
+    bool IsValidFile(const char*, bool allowDirectories=false); 
     
     Buffer<String*> searchPaths;
 };
