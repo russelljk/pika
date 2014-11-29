@@ -2820,7 +2820,7 @@ void Context::ArgumentTagError(u2 arg, ValueTag given, ValueTag expected)
     String* funname = GetFunctionName();
     String* dotname = GetPackageName(true);
     
-    RaiseException(Exception::ERROR_runtime,
+    RaiseException(Exception::ERROR_type,
                    "Incorrect type '%s' for function %s.%s, argument (%d). Expecting type '%s'.",
                    GetTypeString(given),
                    dotname->GetBuffer(),

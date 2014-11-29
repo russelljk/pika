@@ -31,11 +31,12 @@ PIKA_OPCODE(OP_eq)
             PIKA_NEXT()
         }
     }
+    
     if (b.tag == TAG_object)
     {
         Object* obj = b.val.object;
         bool ovr_called = false;
-        if (SetupOverrideRhs(obj, OVR_eq_r, &ovr_called))
+        if (SetupOverrideRhs(obj, OVR_eq, &ovr_called))
         {
             ++numcalls;
         }
@@ -45,15 +46,7 @@ PIKA_OPCODE(OP_eq)
             PIKA_NEXT()
         }
     }
-    
-    if (a.tag == TAG_object || b.tag == TAG_object)
-    {
-        if (OpComp(OP_eq))
-        {
-            PIKA_NEXT()
-        }
-    }
-    
+        
     if (a.tag == TAG_integer)
     {
         if (b.tag == TAG_integer)
@@ -108,12 +101,13 @@ PIKA_OPCODE(OP_ne)
             PIKA_NEXT()
         }
     }
+    
     if (b.tag == TAG_object)
     {
         Object* obj = b.val.object;
 
         bool ovr_called = false;
-        if (SetupOverrideRhs(obj, OVR_ne_r, &ovr_called)) 
+        if (SetupOverrideRhs(obj, OVR_ne, &ovr_called)) 
         {
             ++numcalls;
         }
@@ -123,15 +117,7 @@ PIKA_OPCODE(OP_ne)
             PIKA_NEXT()
         }
     }
-    
-    if (a.tag == TAG_object || b.tag == TAG_object)
-    {
-        if (OpComp(OP_ne))
-        {
-            PIKA_NEXT()
-        }
-    }
-    
+        
     if (a.tag == TAG_integer) 
     {
         if (b.tag == TAG_integer) 
