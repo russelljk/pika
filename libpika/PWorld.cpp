@@ -803,8 +803,8 @@ void Engine::InitializeWorld()
         "opIDiv_r",
         "opMod_r",
         "opPow_r",
-        "opEq_r",
-        "opNe_r",
+        "", // == right hand
+        "", // != right hand
         "opLt_r",
         "opGt_r",
         "opLte_r",
