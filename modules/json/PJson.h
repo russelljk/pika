@@ -1,0 +1,94 @@
+#ifndef PIKA_JSON_HEADER
+#define PIKA_JSON_HEADER
+
+#include "Pika.h"
+
+namespace pika {
+
+enum JsonTokenKind {
+    JsonTokMin = 257, 
+    JsonTokInteger,
+    JsonTokNumber,
+    JsonTokString,
+    JsonTokTrue,
+    JsonTokFalse,
+    JsonTokNull,
+    JsonTokBadIdentifier,
+    JsonTokMax
+};
+
+struct JsonToken {
+    int kind;
+    int line;
+    int col;
+    union {
+        struct {
+            char*  buffer;
+            size_t length;
+        } str;
+        s8  integer;
+        double number;
+        int ch;
+    } val;
+};
+
+struct JsonStringStream {
+    JsonStringStream(const char* cstr, size_t length);
+    
+    virtual ~JsonStringStream();
+    
+    virtual int  Get();
+    virtual int  Peek();
+    virtual bool IsEof();
+
+private:
+    Buffer<char> buffer;
+    size_t pos;
+};
+
+struct JsonTokenizer {
+    JsonTokenizer(String* str);
+    
+    virtual ~JsonTokenizer();
+    
+    void GetNext();
+    void GetLook();
+    bool IsEof();
+    void SyntaxError(const char* msg);
+    void AddStringToken(size_t start, size_t end, int kind);
+    void EatWhitespace();
+    int look;
+    int line;
+    int col;    
+    JsonStringStream stream;
+    Buffer<char> jsonBuffer;
+    Buffer<JsonToken> tokens;
+    JsonToken token;
+};
+
+struct JsonParser {
+    JsonParser(Engine* eng, JsonTokenizer* tokenizer);
+    virtual ~JsonParser();
+    
+    Value Parse();
+    
+    Array* DoArray();
+    Dictionary* DoObject();
+    String* DoString(bool optional=false);
+    Value DoValue();
+    Value DoNumber();
+    int GetTokenKind();
+    bool IsTokenKind(int x);
+    void Unexpected();
+    void Expected(int x, bool unexpected=false);
+    void Match(int);
+    bool Optional(int);
+    void GetNext();
+    
+    Engine* engine;
+    JsonTokenizer* tokenizer;
+};
+
+}// pika
+
+#endif
