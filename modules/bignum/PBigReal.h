@@ -39,6 +39,9 @@ namespace pika {
         }
         
         int Comp(Value const& right) const;
+        bool Equals(Value const& right) const;
+        bool NotEquals(Value const& right) const;
+                
         //
         BigReal* Add(Value const& right) const;
         BigReal* Sub(Value const& right) const;

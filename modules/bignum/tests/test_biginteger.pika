@@ -1,0 +1,55 @@
+{* Test conversion methods (int, str, bool -> test +, 0 and - integers, real).
+ * Test comparision between types.
+ * Test divide and modulo by zero.
+ * Test arithmetic operators.
+ * Test bit operators.
+ * Test constructor arguments.
+ *}
+
+class TestBigIntegerClass : unittest.TestCase
+    function testBigIntegerConstructorArguments()
+    end
+    
+    function testBigIntegerIsOperator()
+    end
+end
+
+class TestBigIntegerComparisonOperators : unittest.TestCase
+    function testBigIntegerEquality()
+    end
+    
+    function testBigIntegerInequality()
+    end
+    
+    function testBigIntegerLessThan()
+    end
+    
+    function testBigIntegerGreaterThan()
+    end
+    
+    function testBigIntegerLessThanEqualTo()
+    end
+    
+    function testBigIntegerGreaterThanEqualTo()
+    end    
+end
+
+class TestBigIntegerArithmeticOperators : unittest.TestCase
+    function testBigIntegerAdd()
+    end
+    
+    function testBigIntegerSub()
+    end
+    
+    function testBigIntegerMul()
+    end
+    
+    function testBigIntegerDiv()
+    end
+    
+    function testBigIntegerMod()
+    end
+    
+    function testBigIntegerNeg()
+    end
+end

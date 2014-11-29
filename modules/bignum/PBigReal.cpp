@@ -37,6 +37,15 @@ namespace pika {
                 pint_t n = arg.val.integer;
                 mpfr_set_si(this->number, n, DEFAULT_RND);
             }
+            else if (arg.IsString())
+            {
+                String* s = arg.val.str;
+                if (mpfr_set_str(this->number, s->GetBuffer(), 10, DEFAULT_RND) == -1)
+                {
+                    mpfr_init(this->number); // Our number might have changed.
+                    RaiseException(Exception::ERROR_type, "Attempt to initialize BigReal with String \"%s\".", s->GetBuffer());
+                }
+            }
             else if (arg.IsDerivedFrom(BigReal::StaticGetClass()))
             {
                 BigReal* br =  static_cast<BigReal*>(arg.val.object);
@@ -65,23 +74,34 @@ namespace pika {
     
     String* BigReal::ToString(pint_t radix)
     {
+        trace0("toString\n");
         if (radix < 2 or radix > 36)
         {
             RaiseException(Exception::ERROR_type, "Attempt to call BigReal.toString with an invalid radix "PINT_FMT". Radix must be >= 2 and <= 36.", radix);
         }
         
-        int sd = 10; // significant digits.
+        int sd = 0; // significant digits.
         String* res = 0;
-        char* mpfr_str = mpfr_get_str(0, 0, radix, sd, this->number, DEFAULT_RND);
-        if (mpfr_str)
+        // trace0("B\n");
+        // mp_exp_t exponent;
+        // char* mpfr_str = mpfr_get_str(0, &exponent, radix, sd, this->number, DEFAULT_RND);
+        // trace0("E\n");
+        // std::cout << "exponent " << exponent << std::endl;
+        // std::cout << "prec " << mpfr_get_prec(this->number) << std::endl;
+        if (true)
         {
-            res = engine->GetString(mpfr_str);
+            pint_t prec = mpfr_get_prec(this->number);
+            Buffer<char> buff(prec);
+            mpfr_snprintf(buff.GetAt(0), buff.GetSize(), "%.Rf", this->number);
+            buff.Push('\0');
+            res = engine->GetString(buff.GetAt(0));
+            // mpfr_free_str(mpfr_str);     
         }
         else
         {
             res = engine->emptyString;
         }
-        mpfr_free_str(mpfr_str);
+                    
         return res;
     }
     
@@ -142,6 +162,41 @@ namespace pika {
                 typestr->GetBuffer());
         }
         return res;
+    }
+    
+    bool BigReal::Equals(Value const& right) const
+    {
+        int res = 0;
+        if (right.IsDerivedFrom(BigReal::StaticGetClass()))
+        {
+            BigReal const* rhs = static_cast<BigReal const*>(right.val.object);
+            res = mpfr_cmp(this->number, rhs->number);
+            return res == 0;
+        }
+        else if (right.IsReal())
+        {
+            preal_t rhs = right.val.real;
+            res = mpfr_cmp_d(this->number, rhs);
+            return res == 0;
+        }
+        else if (right.IsInteger())
+        {
+            pint_t rhs = right.val.integer;
+            res = mpfr_cmp_si(this->number, rhs);
+            return res == 0;
+        }
+        else if (right.IsDerivedFrom(BigInteger::StaticGetClass()))
+        {
+            BigInteger const* rhs = static_cast<BigInteger const*>(right.val.object);
+            res = mpfr_cmp_z(this->number, rhs->number);
+            return res == 0;
+        }
+        return false;
+    }
+    
+    bool BigReal::NotEquals(Value const& right) const
+    {
+        return !this->Equals(right);
     }
     
     BigReal* BigReal::DoBinaryOp(Value const& right, 
@@ -322,18 +377,18 @@ using namespace pika;
 
 int BigReal_toString(Context* ctx, Value& self)
 {
-    BigReal* bigint = static_cast<BigReal*>(self.val.object);
+    BigReal* bigreal = static_cast<BigReal*>(self.val.object);
     String* res = 0;
     u2 argc = ctx->GetArgCount();
     
     if (argc == 1)
     {
         pint_t radix = ctx->GetIntArg(0);
-        res = bigint->ToString(radix);
+        res = bigreal->ToString(radix);
     }
     else if (argc == 0)
     {
-        res = bigint->ToString();   
+        res = bigreal->ToString();   
     }
     else
     {
@@ -365,6 +420,24 @@ int BigReal_opComp(Context* ctx, Value& self)
     Value& arg = ctx->GetArg(0);
     pint_t res = (pint_t)bn->Comp(arg);
     ctx->Push(res);
+    return 1;
+}
+
+int BigReal_opEq(Context* ctx, Value& self)
+{
+    BigReal* bn = static_cast<BigReal*>(self.val.object);
+    Value& arg = ctx->GetArg(0);
+    bool res = bn->Equals(arg);
+    ctx->PushBool(res);
+    return 1;
+}
+
+int BigReal_opNe(Context* ctx, Value& self)
+{
+    BigReal* bn = static_cast<BigReal*>(self.val.object);
+    Value& arg = ctx->GetArg(0);
+    bool res = bn->NotEquals(arg);
+    ctx->PushBool(res);
     return 1;
 }
 
@@ -439,6 +512,8 @@ void Initialize_BigReal(Package* bignum, Engine* eng)
         { "opSub_r",    BigReal_opSub_r,    1, DEF_STRICT, 0 },
         { "opPow",      BigReal_opPow,      1, DEF_STRICT, 0 },
         { "opNeg",      BigReal_opNeg,      0, DEF_STRICT, 0 },
+        { "opEq",       BigReal_opEq,       1, DEF_STRICT, 0 },
+        { "opNe",       BigReal_opNe,       1, DEF_STRICT, 0 },
         { "opComp",     BigReal_opComp,     1, DEF_STRICT, 0 },
         { "toInteger",  BigReal_toInteger,  0, DEF_STRICT, 0 },  
         { "toReal",     BigReal_toReal,     0, DEF_STRICT, 0 },

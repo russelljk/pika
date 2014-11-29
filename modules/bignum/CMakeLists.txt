@@ -38,6 +38,7 @@ if(MPFR_FOUND)
     
     set (bignum_LIB_SRCS    ${bignum_LIB_SRCS}    PBigReal.cpp)
     set (bignum_LIB_HEADERS ${bignum_LIB_HEADERS} PBigReal.h)
+    set (bignum_TESTS       ${bignum_TESTS}       tests/test_bigreal.pika)
     set (HAVE_MPFR 1)
     message(STATUS "Using mpfr library ${MPFR_LIBRARIES}")
 else(MPFR_FOUND)
@@ -49,6 +50,7 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake-bignum_config.h.in
 
 set (bignum_LIB_SRCS    ${bignum_LIB_SRCS}    PBigNum.cpp PBigInteger.cpp)
 set (bignum_LIB_HEADERS ${bignum_LIB_HEADERS} PBigNum.h PBigInteger.h bignum_config.h)
+set (bignum_TESTS       ${bignum_TESTS}       tests/test_biginteger.pika)
 
 source_group (include FILES ${bignum_LIB_HEADERS})
 source_group (source  FILES ${bignum_LIB_SRCS})
@@ -86,3 +88,5 @@ install (TARGETS        pikabignum
          LIBRARY        DESTINATION lib/pika
          ARCHIVE        DESTINATION lib/pika         
          FRAMEWORK      DESTINATION Library/Frameworks)
+
+install(FILES ${bignum_TESTS} DESTINATION lib/pika/tests)

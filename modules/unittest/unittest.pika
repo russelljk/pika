@@ -3,6 +3,12 @@ os = import 'os'
 
 REGEX_TEST_METHOD = re.RegExp.new($'^test')
 
+class TestError : RuntimeError
+end
+
+class AssertFailedError : TestError
+end
+
 package helpers
     REGEX_CAMEL_CASE = re.RegExp.new($'([A-Z][a-z]*|\d+)', 'g')
     
@@ -89,6 +95,7 @@ class TestCase
     function init()
         self.testMethods = []
         
+        # Find all instance methods that begin with "test"
         for var in self.type
             if var is InstanceMethod
                 if REGEX_TEST_METHOD.test var.name
@@ -96,10 +103,15 @@ class TestCase
                 end
             end
         end
+        
+        # Current state of the TestCase
         self._hasFailed = false
         self._currentTest = null
-        self.reports = []
-        self.failures = []
+        
+        # Book keeping
+        self._reports = []  # All passed test messages
+        self._failures = [] # Failed test messages
+        self._asserts = 0   # Number of asserts made over all tests.
     end
     
     function run()
@@ -112,28 +124,36 @@ class TestCase
                 if not self._hasFailed
                     self._reportPass()
                 end
+            catch e is AssertFailedError
+                # Already handled.
             catch e
-                self._reportFailure('Unhandled Exception Caught', e.toString())
+                # Treat unhandled exceptions as failures.
+                self._reportFailure('Unhandled Exception Caught', e.toString(), false)
             finally
+                # Reset our state after the test runs.
                 self._currentTest = null
                 self._hasFailed = false
             end
         end
     end
     
-    function _reportFailure(failure, msg=null)
+    function _reportFailure(failure, msg=null, assertFailed=true)
         self._hasFailed = true
         name = helpers.colors.Bold(self._getCurrentTestName())
         failureMessage = name ... failure
         if msg
-            failureMessage = failureMessage ... msg
+            failureMessage = failureMessage .. ', "' .. helpers.colors.Underline(msg) .. '"'
         end
-        self.failures.push( failureMessage )
+        self._failures.push( failureMessage )
+        
+        if assertFailed
+            raise AssertFailedError.new failureMessage
+        end
     end
     
     function _reportPass()
         name = helpers.colors.Bold(self._getCurrentTestName())
-        self.reports.push( name )
+        self._reports.push( name )
     end
     
     function _getCurrentTestName()
@@ -141,11 +161,11 @@ class TestCase
     end
     
     function _getPassedCount()
-        return self.reports.length
+        return self._reports.length
     end
     
     function _getFailedCount()
-        return self.failures.length
+        return self._failures.length
     end
     
     function report()
@@ -156,15 +176,15 @@ class TestCase
         print "\n{typeName}:"
         print '----------------------------------------------------'
         
-        for report in self.reports
+        for report in self._reports
             print PASS, report
         end
 
-        for failure in self.failures
+        for failure in self._failures
             print FAIL, failure
         end
-        passed = "{self.reports.length}/{self.testMethods.length}"
-        if self.reports.length == self.testMethods.length
+        passed = "{self._reports.length}/{self.testMethods.length}"
+        if self._reports.length == self.testMethods.length
             passed = helpers.colors.Bold(passed)
         else
             passed = helpers.colors.Bold(helpers.colors.Red(passed))
@@ -175,60 +195,68 @@ class TestCase
         print '----------------------------------------------------'
     end
     
-    function assertTrue(first, msg = null)
+    function assertTrue(first, msg=null, stop=true)
+        self._asserts++
         if not first
-            self._reportFailure(first .. ' is true', msg)
+            self._reportFailure(first .. ' is true', msg, stop)
         end
     end
     
-    function assertFalse(first, msg = null)
+    function assertFalse(first, msg=null, stop=true)
+        self._asserts++
         if first
-            self._reportFailure(first .. ' is false', msg)
+            self._reportFailure(first .. ' is false', msg, stop)
         end
     end
     
-    function assertEquals(first, second, msg = null)
+    function assertEquals(first, second, msg=null, stop=true)
+        self._asserts++
         if not (first == second)
-            self._reportFailure(first .. '==' .. second, msg)
+            self._reportFailure(first .. '==' .. second, msg, stop)
         end
     end
     
-    function assertNotEquals(first, second, msg = null)
+    function assertNotEquals(first, second, msg=null, stop=true)
+        self._asserts++
         if not (first != second)
-            self._reportFailure(first .. ' != ' .. second, msg)
+            self._reportFailure(first .. ' != ' .. second, msg, stop)
         end
     end
     
-    function assertSame(first, second, msg = null)
+    function assertSame(first, second, msg=null, stop=true)
+        self._asserts++
         if not (first == second)
-            self._reportFailure(first .. ' === ' .. second, msg)
+            self._reportFailure(first .. ' === ' .. second, msg, stop)
         end
     end
     
-    function assertNotSame(first, second, msg = null)
+    function assertNotSame(first, second, msg=null, stop=true)
+        self._asserts++
         if not (first != second)
-            self._reportFailure(first .. ' !== ' .. second, msg)
+            self._reportFailure(first .. ' !== ' .. second, msg, stop)
         end
     end
     
-    function assertIs(first, second, msg = null)
+    function assertIs(first, second, msg=null, stop=true)
+        self._asserts++
         {*
          *  Checks the the first argument is an instance of the second argument.
          *  
          *  [[[first is second]]]
          *}
         if not (first is second)
-            self._reportFailure(first .. ' is ' .. second, msg)
+            self._reportFailure(first .. ' is ' .. second, msg, stop)
         end
     end
     
-    function assertRaises(block, type, msg = null)
+    function assertRaises(block, type, msg=null, stop=true)
+        self._asserts++
         try
             block()
         catch e is type
             # As expected
         else
-            self._reportFailure('raises ' .. type, msg)
+            self._reportFailure('raises ' .. type, msg, stop)
         end
     end
 end
@@ -304,7 +332,7 @@ end
  *   runner.run()
  *}
 class TestDirectoryRunner : BaseTestRunner
-    function init(dirName, pathManager = os.paths)
+    function init(dirName, pathManager=os.paths)
         super()
         self.dirName = dirName
         # Find the directory.

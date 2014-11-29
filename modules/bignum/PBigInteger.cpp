@@ -43,6 +43,14 @@ namespace pika {
         return bigint;
     }
     
+    void BigInteger::FromString(String* s, int radix)
+    {
+        if (mpz_init_set_str(this->number, s->GetBuffer(), radix) == -1)
+        {
+            RaiseException(Exception::ERROR_type, "Attempt to convert string %s to type BigInteger.", s->GetBuffer());
+        }
+    }
+    
     void BigInteger::Init(Context* ctx)
     {
         u2 argc = ctx->GetArgCount();
@@ -58,6 +66,11 @@ namespace pika {
             {
                 preal_t n = arg.val.real;
                 mpz_init_set_d(this->number, n);  
+            }
+            else if (arg.IsString())
+            {
+                String* s = arg.val.str;
+                this->FromString(s, 10);
             }
             else if (arg.IsDerivedFrom(BigInteger::StaticGetClass()))
             {
@@ -75,6 +88,12 @@ namespace pika {
             {
                 ctx->GetIntArg(0);
             }
+        }
+        else if (argc == 2)
+        {  
+            String* s = ctx->GetStringArg(0);
+            pint_t radix = ctx->GetIntArg(1);
+            this->FromString(s, radix);
         }
         else if (argc != 0)
         {
@@ -321,6 +340,35 @@ namespace pika {
         return res;
     }
     
+    bool BigInteger::Equals(Value const& right) const
+    {
+        int res = 0;
+        if (right.IsDerivedFrom(BigInteger::StaticGetClass()))
+        {
+            BigInteger const* rhs = static_cast<BigInteger const*>(right.val.object);
+            res = mpz_cmp(this->number, rhs->number);
+            return res == 0;
+        }
+        else if (right.IsInteger())
+        {
+            pint_t rhs = right.val.integer;
+            res = mpz_cmp_si(this->number, rhs);
+            return res == 0;
+        }
+        else if (right.IsReal())
+        {
+            preal_t rhs = right.val.real;
+            res = mpz_cmp_d(this->number, rhs);
+            return res == 0;
+        }
+        return false;
+    }
+    
+    bool BigInteger::NotEquals(Value const& right) const
+    {
+        return !this->Equals(right);
+    }
+    
     BigInteger* BigInteger::BitAnd(Value const& right) const
     {
         BigInteger* res = BigInteger::Create(this->engine, this->GetType());
@@ -554,6 +602,24 @@ int BigInteger_opSub(Context* ctx, Value& self)
     return 1;
 }
 
+int BigInteger_opEq(Context* ctx, Value& self)
+{
+    BigInteger* lhs = static_cast<BigInteger*>(self.val.object);
+    Value& arg = ctx->GetArg(0);
+    bool res = lhs->Equals(arg);
+    ctx->PushBool(res);
+    return 1;
+}
+
+int BigInteger_opNe(Context* ctx, Value& self)
+{
+    BigInteger* lhs = static_cast<BigInteger*>(self.val.object);
+    Value& arg = ctx->GetArg(0);
+    bool res = lhs->NotEquals(arg);
+    ctx->PushBool(res);
+    return 1;
+}
+
 int BigInteger_opComp(Context* ctx, Value& self)
 {
     BigInteger* lhs = static_cast<BigInteger*>(self.val.object);
@@ -680,11 +746,13 @@ void Initialize_BigInteger(Package* bignum, Engine* eng)
         { "opBitXor",   BigInteger_opBitXor,      1, DEF_STRICT, 0 },
         { "opBitNot",   BigInteger_opBitNot,      0, DEF_STRICT, 0 },
         { "opNeg",      BigInteger_opNeg,         0, DEF_STRICT, 0 },
+        { "opEq",       BigInteger_opEq,          1, DEF_STRICT, 0 },
+        { "opNe",       BigInteger_opNe,          1, DEF_STRICT, 0 },
         { "opComp",     BigInteger_opComp,        1, DEF_STRICT, 0 },
         { "toInteger",  BigInteger_toInteger,     0, DEF_STRICT, 0 },  
         { "toReal",     BigInteger_toReal,        0, DEF_STRICT, 0 },
     };
-
+    
     static RegisterProperty BigInteger_Properties[] = {
        { "sign", BigInteger_sign, "getSign", 0, 0, false, 0, 0, 0 }, 
     };

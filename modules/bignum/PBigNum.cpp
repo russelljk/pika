@@ -2,9 +2,10 @@
 
 using namespace pika;
 extern void Initialize_BigInteger(Package*, Engine*);
+extern void Initialize_BigReal(Package*, Engine*);
+
 
 #if defined(PIKA_WIN)
-
 #include <windows.h>
 
 BOOL APIENTRY DllMain(HMODULE hModule,
@@ -33,6 +34,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 PIKA_MODULE(bignum, eng, bignum)
 {
     Initialize_BigInteger(bignum, eng);
+    Initialize_BigReal(bignum, eng);
     /*
     TODO: Add the following package methods:
     cos

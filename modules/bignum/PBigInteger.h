@@ -57,6 +57,8 @@ public:
     }
     
     int Comp(Value const& right) const;
+    bool Equals(Value const& right) const;
+    bool NotEquals(Value const& right) const;
     
     BigInteger* Add(Value const& right) const;
     BigInteger* Sub(Value const& right) const;
@@ -76,6 +78,7 @@ public:
     BigInteger* Neg()    const;
     pint_t      Sign()   const;
     void        FromInt(pint_t n);
+    void        FromString(String* s, int radix);
 };
 
 }
