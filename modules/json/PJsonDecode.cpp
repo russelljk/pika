@@ -25,7 +25,7 @@ const char* JsonTokenToString(int x)
     case JsonTokTrue:   return "true";
     case JsonTokFalse:  return "false";
     case JsonTokNull:   return "null";
-    case JsonTokBadIdentifier:       return "unknown keyword or identifier";
+    case JsonTokBadIdentifier: return "unknown keyword or identifier";
     };
     return "unkown";
 }
@@ -100,21 +100,6 @@ bool JsonTokenizer::IsEof()
     return this->look == EOF;
 }
 
-void JsonTokenizer::AddStringToken(size_t start, size_t end, int kind)
-{
-    const char* cstr = this->jsonBuffer.GetAt(start);
-    size_t length = end - start;
-    
-    token.kind = kind;
-    token.col = col;
-    token.line = line;
-    token.val.str.buffer = (char*)Pika_calloc(length + 1, sizeof(char));
-    token.val.str.length = length;
-    
-    Pika_memcpy(token.val.str.buffer, cstr, length);
-    tokens.Push(token);
-}
-
 void JsonTokenizer::SyntaxError(const char* msg)
 {
     RaiseException(Exception::ERROR_syntax, 
@@ -143,49 +128,131 @@ void JsonTokenizer::GetNext()
     {
         if (this->look == '\"')
         {
-            size_t start = this->jsonBuffer.GetSize();
+            /* A Double Quoted String (the only type of string allowed in JSON). */
+            Buffer<char> str;
             int kind = JsonTokString;
             do
             {
                 this->GetLook();
+                
                 if (this->IsEof())
                 {
+                    /* If we reached the end of stream, then the string literal was unclosed. */
                     this->SyntaxError("Unclosed string literal");
                     break;
                 }
                 else if (this->look == '\\')
                 {
+                    /* Make sure the escape code is valid. */
                     this->GetLook();
                     switch(this->look)
                     {
-                    case 'b':
-                    case 'f':
-                    case 'n':
-                    case 'r':
-                    case 't':
-                    case '\"':
-                    case '\\':
-                    case '/':
-                    // TODO hexidecimal digit \00ff \bbbb etc...
+                    case 'b':  str.Push('\b'); break;
+                    case 'f':  str.Push('\f'); break;
+                    case 'n':  str.Push('\n'); break;
+                    case 'r':  str.Push('\r'); break;
+                    case 't':  str.Push('\t'); break;
+                    case '\"': str.Push('\"'); break;
+                    case '\\': str.Push('\\'); break;
+                    case '/':  str.Push('/');  break;                        
+                    case 'u':
+                    {
+                        /* JSON Unicode literal
+                         * 
+                         * Always 4 characters long.
+                         * Represents a utf-32 character code.
+                         *
+                         * We want to turn it into a utf-8 sequence so that it is compatilible with
+                         * Pika's string format.
+                         */
+                        size_t u = 0;
+                        size_t digits = 0;
+                        do
+                        {
+                            this->GetLook();
+                            if (this->IsEof())
+                            {
+                                this->SyntaxError("Bad unicode literal in string literal.");
+                            }
+                            if (IsDigit(this->look))
+                            {
+                                digits = digits * 16 + (this->look - '0');
+                            }
+                            else if (IsLetter(this->look))
+                            {
+                                int lower = ToLower(this->look);
+                                digits = digits * 16 + (lower - 'a' + 10);
+                            }
+                            else
+                            {
+                                this->SyntaxError("Bad unicode literal in string literal.");
+                            }
+                        }
+                        while(++u < 4);
+                        
+                        // Convert the 32 bit unicode char to utf-8.
+                        if (digits < 0x80)
+                        {
+                            str.Push(digits);
+                        }
+                        else if (digits <= 0x7FF)
+                        {
+                            str.Push((digits >> 6)   + 0xC0);
+                            str.Push((digits & 0x3F) + 0x80);
+                        }
+                        else if (digits <= 0xFFFF)
+                        {
+                            str.Push((digits  >> 12)  + 0xE0);
+                            str.Push(((digits >> 6)   & 0x3F) + 0x80);
+                            str.Push((digits  & 0x3F) + 0x80);
+                        }
+                        else if (digits <= 0x10FFFF)
+                        {
+                            str.Push((digits  >> 18) + 0xF0);
+                            str.Push(((digits >> 12) & 0x3F) + 0x80);
+                            str.Push(((digits >> 6)  & 0x3F) + 0x80);
+                            str.Push((digits & 0x3F) + 0x80);
+                        }
+                        else
+                        {
+                            this->SyntaxError("Bad unicode literal in string literal.");
+                        }
                         break;
+                    }
                     default: 
                         this->SyntaxError("Bad escape code.");
                     };
                 }
+                else if (this->look == '\"')
+                {
+                    break;
+                }
+                else
+                {
+                    str.Push((char)this->look);
+                }
             }
-            while (this->look != '\"');
-            
-            size_t end = this->jsonBuffer.GetSize() - 1;
-                    
+            while (true);
+                                
             // Move past the closing quote.
             if (this->look == '\"')
             {
                 this->GetLook();
-            }   
-            this->AddStringToken(start, end, kind);
+            }
+            size_t length = str.GetSize();
+            str.Push('\0');
+            
+            token.kind = JsonTokString;
+            token.col = col;
+            token.line = line;
+            token.val.str.buffer = (char*)Pika_calloc(length + 1, sizeof(char));
+            token.val.str.length = length;
+            Pika_memcpy(token.val.str.buffer, str.GetAt(0), length);
+            tokens.Push(token);
         }
         else if (IsDigit(this->look) || this->look == '-')
         {
+            /* A Number. */
             u8 digits = 0;
             u8 integer = 0;
             bool isfraction = false;
@@ -218,6 +285,11 @@ void JsonTokenizer::GetNext()
                 }
                 else if (this->look == '.')
                 {
+                    if (isexp)
+                    {
+                        /* Fraction part cannot come after the exponent. */
+                        this->SyntaxError("Bad number.");
+                    }
                     integer = digits;
                     isfraction = true;
                     
@@ -237,6 +309,8 @@ void JsonTokenizer::GetNext()
                     expsign = 1;
                     kind = JsonTokNumber;
                     isexp = true;
+                    
+                    /* Look for the exponent sign. */
                     if (this->look == '+')
                     {
                         this->GetLook();
@@ -247,6 +321,7 @@ void JsonTokenizer::GetNext()
                         this->GetLook();
                     }
                     
+                    /* Make sure a digit comes after the exponent. */
                     if (!IsDigit(this->look))
                     {
                         this->SyntaxError("Bad exponent.");
@@ -261,10 +336,12 @@ void JsonTokenizer::GetNext()
             
             if (kind == JsonTokInteger)
             {
+                /* Add the sign to the integer. */
                 token.val.integer = digits * sign;
             } 
             else if (kind == JsonTokNumber)
             {
+                /* Build the JSON Number from the specified parts.. */
                 s8 exp_part = 0;
                 if (isexp)
                 {
@@ -272,17 +349,22 @@ void JsonTokenizer::GetNext()
                     digits = integer;
                 }
                 
-                double val = (double)digits * sign;                
+                double number = (double)digits * sign;                
                 s8 exponent = (s8)exp_part * expsign;
                 exponent -= fract_part;
                 
-                val *= pow(10.0, (double)exponent);  
-                token.val.number = val;              
+                number *= pow(10.0, (double)exponent);  
+                token.val.number = number;              
             }
             tokens.Push(token);
         }
         else if (IsLetter(this->look))
         {
+            /* The JSON specification doesn't allow identifiers, all object properties must be
+             * double quoted strings.
+             * 
+             * Instead we are looking for the 3 keywords: null, true and false. 
+             */
             size_t start = this->jsonBuffer.GetSize() - 1;
             do
             {
@@ -312,7 +394,12 @@ void JsonTokenizer::GetNext()
                 }
             }
             
-            this->AddStringToken(start, end, kind);
+            token.kind = kind;
+            token.col = col;
+            token.line = line;
+            token.val.str.buffer = 0;
+            token.val.str.length = 0;
+            tokens.Push(token);
         }
         else
         {
