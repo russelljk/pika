@@ -28,8 +28,8 @@ set (pikajson_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.$
 
 # --------------------- Source + Header Files ----------------------
     
-set (json_LIB_SRCS    PJson.cpp)
-set (json_LIB_HEADERS PJson.h)
+set (json_LIB_SRCS    PJsonEncode.cpp PJsonDecode.cpp PJson.cpp)
+set (json_LIB_HEADERS PJsonEncode.h PJsonDecode.h PJson.h)
 set (json_TESTS       tests/test_json.pika)
 
 source_group (include FILES ${json_LIB_HEADERS})
@@ -49,11 +49,11 @@ target_link_libraries (pikajson ${ADD_LIBS} pika)
 
 if (APPLE)
     set_target_properties( 
-                pikajson 
-                PROPERTIES 
-                MACOSX_RPATH        TRUE
-                INSTALL_RPATH       "${CMAKE_INSTALL_PREFIX}/lib"
-                INSTALL_NAME_DIR    "${CMAKE_INSTALL_PREFIX}/lib"
+        pikajson 
+        PROPERTIES 
+        MACOSX_RPATH        TRUE
+        INSTALL_RPATH       "${CMAKE_INSTALL_PREFIX}/lib"
+        INSTALL_NAME_DIR    "${CMAKE_INSTALL_PREFIX}/lib"
     )
 endif (APPLE)
 
