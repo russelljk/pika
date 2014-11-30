@@ -249,14 +249,24 @@ class TestCase
         end
     end
     
-    function assertRaises(block, type, msg=null, stop=true)
+    function assertRaises(block, type=null, msg=null, stop=true)
         self._asserts++
-        try
-            block()
-        catch e is type
-            # As expected
+        if type == null
+            try
+                block()
+            catch e
+                # As expected
+            else
+                self._reportFailure('raises an exception', msg, stop)
+            end
         else
-            self._reportFailure('raises ' .. type, msg, stop)
+            try
+                block()
+            catch e is type
+                # As expected
+            else
+                self._reportFailure('raises an exception of type ' .. type, msg, stop)
+            end
         end
     end
 end

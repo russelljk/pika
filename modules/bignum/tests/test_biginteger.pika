@@ -1,3 +1,7 @@
+unittest = import "unittest"
+bignum   = import "bignum"
+BigInteger, BigReal = bignum.BigInteger, bignum.BigReal
+
 {* Test conversion methods (int, str, bool -> test +, 0 and - integers, real).
  * Test comparision between types.
  * Test divide and modulo by zero.
@@ -8,17 +12,89 @@
 
 class TestBigIntegerClass : unittest.TestCase
     function testBigIntegerConstructorArguments()
+        a = BigInteger.new(400)
+        self.assertIs(a, BigInteger, "BigInteger initialized from an Integer")
+        
+        b = BigInteger.new(a)
+        self.assertIs(a, BigInteger, "BigInteger initialized from a BigInteger")
+        
+        c = BigInteger.new()
+        self.assertIs(a, BigInteger, "BigInteger initialized no arguments.")
+        
+        d = BigInteger.new()
+        self.assertIs(d, BigInteger, "BigInteger initialized from a Real.")
+                
+        self.assertRaises(
+            function()
+                BigInteger.new(5, 4, 3, 2, 1)
+            end,
+            RuntimeError,
+            "Test too many arguments."
+        )
     end
     
-    function testBigIntegerIsOperator()
+    function testBigIntegerFromString()
+        
+        BigInteger.new("-400244234345333442278232244561")
+        
+        a = BigInteger.new("24456")
+        b = BigInteger.new("5F88", 16)
+        
+        self.assertEquals(a, b, "Test Base 16 conversion.")
+        
+        self.assertRaises(
+            function()
+                BigInteger.new("Hello World")
+            end,
+            TypeError
+        )
+        
+        {* TODO: Test Invalid Bases. *}
+        
+        self.assertRaises(
+            function()
+                BigInteger.new("50002eret")
+            end,
+            TypeError
+        )
     end
 end
 
 class TestBigIntegerComparisonOperators : unittest.TestCase
     function testBigIntegerEquality()
+        a = BigInteger.new(400)
+        b = BigInteger.new(400)
+        c = BigInteger.new(-400)
+        
+        self.assertEquals(a, b,     "Test equality between 2 BigIntegers")
+        self.assertEquals(a, 400,   "Test equality with an Integer")
+        self.assertEquals(a, -c,    "Test equality after changing sign.")
+        self.assertEquals(a, 400.0, "Test equality with a Real.")
+                
+        self.assertEquals(400,   a, "Test right hand equality with an Integer")
+        self.assertEquals(400.0, b, "Test right hand equality with a Real.")
     end
     
     function testBigIntegerInequality()
+        a = BigInteger.new(400)
+        b = BigInteger.new(-23345356)        
+        c = BigInteger.new(1400)
+        d = BigInteger.new(-400)
+        
+        self.assertNotEquals(a, b, "Test inequality between 2 BigIntegers")
+        self.assertNotEquals(c, b, "Test inequality between 2 BigIntegers")
+        self.assertNotEquals(a, -a, "Test inequality between 2 BigIntegers of equal value with different signs")
+        
+        self.assertNotEquals(a, 9123, "Test inequality with an Integer")
+        self.assertNotEquals(9123, a, "Test inequality with an Integer")
+        
+        self.assertNotEquals(a, -400, "Test inequality with an Integer of the same value but different sign.")
+        self.assertNotEquals(-400, a, "Test right hand inequality with an Integer of the same value but different sign.")
+        
+        self.assertNotEquals(a, -400.00,  "Test inequality with an Real of the same value but different sign.")
+        self.assertNotEquals(-400.00, a, "Test right hand inequality with an Real of the same value but different sign.")
+                
+        self.assertNotEquals(d, "-400", "Test inequality with a String.")
     end
     
     function testBigIntegerLessThan()

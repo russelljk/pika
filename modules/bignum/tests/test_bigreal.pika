@@ -1,3 +1,7 @@
+unittest = import "unittest"
+bignum   = import "bignum"
+BigInteger, BigReal = bignum.BigInteger, bignum.BigReal
+
 {* Test conversion methods (int, str, bool -> test +, 0 and - integers, real).
  * Test comparision between types.
  * Test divide and modulo by zero.
@@ -8,5 +12,11 @@
 
 class TestBigRealClass : unittest.TestCase
     function testBigRealConstructorArguments()
+        BigReal.new()
+        BigReal.new(123.456)
+        BigReal.new(-0.0234456)
+        BigReal.new("-34434540.0234456")
+        
+        
     end
 end
