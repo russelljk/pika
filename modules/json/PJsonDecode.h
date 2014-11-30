@@ -16,18 +16,18 @@ enum JsonTokenKind {
 };
 
 struct JsonToken {
-    int kind;
-    int line;
-    int col;
     union {
         struct {
             char*  buffer;
             size_t length;
-        } str;
-        s8  integer;
+        }      str;
+        s8     integer;
         double number;
-        int ch;
-    } val;
+        int    ch;
+    }   val;
+    int kind;
+    int line;
+    int col;
 };
 
 struct JsonStringStream {
@@ -53,7 +53,6 @@ struct JsonTokenizer {
     void GetLook();
     bool IsEof();
     void SyntaxError(const char* msg);
-    void AddStringToken(size_t start, size_t end, int kind);
     void EatWhitespace();
     
     int look;

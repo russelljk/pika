@@ -89,8 +89,8 @@ char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout, bool raw
             {
                 // Convert decimal number to a single character.                
                 u4 x = 0;
-                for (int i = 0; (i < 3) && (*s) && (isdigit(*s)); ++i)
-                {              
+                for (int i = 0; (s < slim) && (i < 3) && (*s) && (isdigit(*s)); ++i)
+                {
                     x = x * 10 + (*s - '0');
                     ++s;
                 }
@@ -102,7 +102,7 @@ char* Pika_TransformString(const char* s, size_t lenin, size_t* lenout, bool raw
                 ++s;
                 u4 x = 0;
                 
-                for (int i = 0 ; i < 2 ; ++i)
+                for (int i = 0 ; i < 2 && s < slim; ++i)
                 {
                     char ch = tolower(*s);
                     if (!ch) break;
