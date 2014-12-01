@@ -13,7 +13,7 @@ void RaiseExceptionFromErrno(Exception::Kind errKind, const char* errMsg, int er
     if (errorMessage)
     {
         RaiseException(errKind, "%s with message \"%s\".", errMsg, errorMessage);
-        Pika_FreeErrorMessage(errorMessage);
+        Pika_FreeSocketString(errorMessage);
     }
     else
     {

@@ -64,3 +64,13 @@ void Socket::Constructor(Engine* eng, Type* obj_type, Value& res)
 PIKA_IMPL(Socket)
 
 }// pika
+
+using namespace pika;
+
+void Initialize_Socket(Package* socket, Engine* eng)
+{
+    String* Socket_String = eng->AllocString("Socket");
+    Type*   Socket_Type   = Type::Create(eng, Socket_String, eng->Object_Type, Socket::Constructor, socket);
+    socket->SetSlot(Socket_String, Socket_Type);
+    eng->AddBaseType(Socket_String, Socket_Type);
+}

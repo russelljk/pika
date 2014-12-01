@@ -19,7 +19,7 @@ char* Pika_ErrorMessage(int err)
     return errorMessage;
 }
 
-void Pika_FreeErrorMessage(char* message)
+void Pika_FreeSocketString(char* message)
 {
     if (message)
     {

@@ -14,6 +14,7 @@ struct Pika_address
 {
     enum Kind {
         ADDR_ip,
+        ADDR_ip6,
         ADDR_unix,
     };
     
@@ -43,7 +44,13 @@ enum SocketType {
 bool    Pika_Socket(Pika_socket* sock_ptr, int domain, int type, int protocol);
 bool    Pika_Connect(Pika_socket*, Pika_address*);
 
-char*   Pika_ErrorMessage(int);
-void    Pika_FreeErrorMessage(char*);
+char*           Pika_ntop(Pika_address* paddr);
+
+Pika_address*   Pika_GetAddrInfo(const char* addrStr, const char* extra, int& status);
+char*           Pika_GetAddrInfoError(int);
+
+char*           Pika_ErrorMessage(int);
+
+void            Pika_FreeSocketString(char*);
 
 #endif

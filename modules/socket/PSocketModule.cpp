@@ -2,13 +2,73 @@
 
 using namespace pika;
 
+extern void Initialize_Socket(Package*, Engine*);
+extern void Initialize_SocketAddress(Package*, Engine*);
+
+struct AutoFreeErrorString {
+    AutoFreeErrorString(char* str): str(str)
+    {        
+    }
+    
+    ~AutoFreeErrorString()
+    {
+        Pika_FreeSocketString(str);
+    }
+    char* str;
+};
+
+int socket_getaddrinfo(Context* ctx, Value&)
+{
+    u2 argc = ctx->GetArgCount();
+    if (argc == 0 || argc > 2) {
+        ctx->WrongArgCount();
+    }
+    const char* extra = 0;
+    const char* addr = 0;
+    switch(argc)
+    {
+    case 2:
+        extra = ctx->GetStringArg(1)->GetBuffer();
+        //
+        // Fall through |
+        //              |
+        //              V
+    case 1:
+        addr = ctx->GetStringArg(0)->GetBuffer();
+        break;
+    }
+    
+    int error = 0;
+    Pika_address* paddr = Pika_GetAddrInfo(addr, extra, error);
+    
+    if (paddr)
+    {
+        Engine* eng = ctx->GetEngine();
+        SocketAddress* sa = SocketAddress::StaticNew(eng, SocketAddress::StaticGetType(eng), paddr);
+        ctx->Push(sa);
+        return 1;
+    }
+    else
+    {
+        if (error != 0)
+        {
+            char* str = Pika_GetAddrInfoError(error);
+            AutoFreeErrorString afes(str);
+            RaiseException(Exception::ERROR_runtime, "Attempt to get address resulted in error '%s'", str);
+        }
+        RaiseException(Exception::ERROR_runtime, "Attempt to get address information for '%s' failed.", addr);    
+    }
+    return 0;
+}
+
 PIKA_MODULE(socket, eng, socket)
 {
     GCPAUSE(eng);
-        
-    String* Socket_String = eng->AllocString("Socket");
-    Type*   Socket_Type   = Type::Create(eng, Socket_String, eng->Object_Type, Socket::Constructor, socket);
-        
+    
+    static RegisterFunction socket_Functions[] = {
+        { "getaddrinfo", socket_getaddrinfo, 0, DEF_VAR_ARGS, 0 },  
+    };
+    
     static NamedConstant addressFamily_Constants[] = {
         { "AF_UNSPEC", AF_unspec },
         { "AF_UNIX",   AF_unix   },
@@ -21,8 +81,13 @@ PIKA_MODULE(socket, eng, socket)
         { "SOCK_RAW",        SOCK_raw },
     };
     
-    Basic::EnterConstants(socket, addressFamily_Constants, sizeof(addressFamily_Constants));
-    Basic::EnterConstants(socket, socketType_Constants,    sizeof(socketType_Constants));    
+    socket->EnterFunctions(socket_Functions, countof(socket_Functions));
+    
+    Basic::EnterConstants(socket, addressFamily_Constants, countof(addressFamily_Constants));
+    Basic::EnterConstants(socket, socketType_Constants,    countof(socketType_Constants));    
+    
+    Initialize_Socket(socket, eng);
+    Initialize_SocketAddress(socket, eng);
     
     return socket;
 }
