@@ -2,7 +2,12 @@
 #define PIKA_JSONENCODE_HEADER
 
 namespace pika {
-
+    /*
+        TODO: Options {
+            Dont Escape Forward Slash,
+            Sort Keys,
+        }
+    */    
 struct JsonEncoder {
     JsonEncoder(Engine*);
     virtual ~JsonEncoder();
@@ -19,12 +24,20 @@ protected:
     void EncodeFalse();
     void EncodeKey(Value& key);
     void EncodeElement(Value& elem);
-    void BadUnicodeLiteral();
+        
     void EncodeCString(const char* str, size_t len, bool escape=false);
     size_t ConvertFromUTF8(const char* utf8, size_t length);
+    
+    void BadUnicodeLiteral();
     void InvalidKey(Value& key);
     void InvalidElement(Value& elem);
+    
     void MarkCollection(Object*);
+    
+    void Newline();
+    
+    unsigned int depth;
+    unsigned int tabsize;
     
     Engine* engine;
     Table marked;

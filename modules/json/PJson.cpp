@@ -52,7 +52,8 @@ int json_encode(Context* ctx, Value&)
 PIKA_MODULE(json, eng, json)
 {
     static RegisterFunction json_Functions[] = {
-        { "decode",  json_decode,  1, DEF_STRICT,   0 },        
+        { "decode",  json_decode,  1, DEF_STRICT,   0 },    
+        { "encode",  json_encode,  1, DEF_STRICT,   0 },
     };
     
     json->EnterFunctions(json_Functions, countof(json_Functions));

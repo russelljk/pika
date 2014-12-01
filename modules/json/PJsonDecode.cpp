@@ -44,12 +44,12 @@ JsonStringStream::~JsonStringStream()
 
 int JsonStringStream::Get()
 { 
-    return pos <= buffer.GetSize() ? buffer[pos++] : EOF; 
+    return pos < buffer.GetSize() ? buffer[pos++] : EOF; 
 }
 
 int JsonStringStream::Peek()
 {
-    return pos <= buffer.GetSize() ? buffer[pos] : EOF;
+    return pos < buffer.GetSize() ? buffer[pos] : EOF;
 }
 
 bool JsonStringStream::IsEof()

@@ -3,7 +3,7 @@
 
 namespace pika {
     
-JsonEncoder::JsonEncoder(Engine* eng) : engine(eng)
+JsonEncoder::JsonEncoder(Engine* eng) : engine(eng), depth(0), tabsize(4)
 {
 }
 
@@ -24,9 +24,10 @@ void JsonEncoder::MarkCollection(Object* obj)
 void JsonEncoder::EncodeArray(Array* array)
 {
     buffer.Push('[');
+    ++depth;
+    this->Newline();    
     Buffer<Value>& elements = array->GetElements();
     Buffer<Value>::Iterator iter = elements.Begin();
-    
     while(iter != elements.End())
     {
         this->EncodeElement(*iter);
@@ -34,31 +35,44 @@ void JsonEncoder::EncodeArray(Array* array)
         if (iter != elements.End())
         {
             buffer.Push(',');
-            buffer.Push('\n');
+            this->Newline();
         }
     }
+    --depth;
+    this->Newline();
     buffer.Push(']'); 
 }
 
 void JsonEncoder::EncodeDictionary(Dictionary* dict)
 {
     buffer.Push('{');
-    buffer.Push('\n');
-    
+    ++depth;
+    this->Newline();
     Table& elements = dict->Elements();
     for (Table::Iterator iter = elements.GetIterator(); iter; )
     {
         this->EncodeKey(iter->key);
-        buffer.Push(':');
+        buffer.Push(':'); buffer.Push(' ');
         this->EncodeElement(iter->val);
                 
         if (++iter)
         {
             buffer.Push(',');
-            buffer.Push('\n');
+            this->Newline();
         }
     }
+    --depth;
+    this->Newline();
     buffer.Push('}');
+}
+
+void JsonEncoder::Newline()
+{
+    buffer.Push('\n');
+    for (size_t i =0; i < depth * tabsize; ++i)
+    {
+        buffer.Push(' ');
+    }
 }
 
 void JsonEncoder::EncodeKey(Value& key)
@@ -66,6 +80,7 @@ void JsonEncoder::EncodeKey(Value& key)
     if (key.IsString())
     {
         this->EncodeString(key.val.str);
+        return;
     }
     this->InvalidKey(key);
 }
@@ -77,6 +92,7 @@ void JsonEncoder::EncodeElement(Value& elem)
     case TAG_null:
         this->EncodeNull();
         return;
+   
     case TAG_boolean:
         if (elem.val.index)
         {
@@ -87,17 +103,21 @@ void JsonEncoder::EncodeElement(Value& elem)
             this->EncodeFalse();
         }
         return;
+    
     case TAG_integer:
         this->EncodeInteger(elem.val.integer);
         return;
+    
     case TAG_real:
         this->EncodeReal(elem.val.real);
         return;
+    
     case TAG_string:
         this->EncodeString(elem.val.str);
         return;
     // case TAG_property:
     // TODO: call property
+    
     case TAG_object:
         if (elem.IsDerivedFrom(Array::StaticGetClass()))
         {
@@ -163,13 +183,14 @@ void JsonEncoder::EncodeCString(const char* str, size_t len, bool escape)
          * before writing the string.
          */
         buffer.SetCapacity(newSize);
-        for (size_t i = idx; i < newSize; ++i)
+        for (size_t i = 0; i < len; ++i)
         {
             int x = str[i];
             static const char* HEX_TO_CHAR = "0123456789ABCDEF";
             
             if (x >= 0x80)
             {
+                trace0("utf8");
                 /* Not an ascii character.
                  * This means it's either a utf-8 sequence or the string contains
                  * arbitrary data.
@@ -198,17 +219,41 @@ void JsonEncoder::EncodeCString(const char* str, size_t len, bool escape)
                 switch(x)
                 {
                 case '\b':
+                    buffer.Push('\\');
+                    buffer.Push('b');
+                    break;
                 case '\f':
+                    buffer.Push('\\');
+                    buffer.Push('f');
+                    break;
                 case '\n':
+                    buffer.Push('\\');
+                    buffer.Push('n');
+                    break;
                 case '\r':
+                    buffer.Push('\\');
+                    buffer.Push('r');
+                    break;
                 case '\t':
+                    buffer.Push('\\');
+                    buffer.Push('t');
+                    break;
                 case '\"':
+                    buffer.Push('\\');
+                    buffer.Push('\"');
+                    break;
                 case '\\':
+                    buffer.Push('\\');
+                    buffer.Push('\\');
+                    break;                
                 case '/':
                     buffer.Push('\\');
+                    buffer.Push('/');
                     break;
-                }            
-                buffer.Push(x);
+                default:
+                    buffer.Push(x);
+                }
+
             }
         }
     }
