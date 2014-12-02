@@ -12,7 +12,7 @@ struct AutoFreeErrorString {
     
     ~AutoFreeErrorString()
     {
-        Pika_FreeSocketString(str);
+        Pika_FreeString(str);
     }
     char* str;
 };
@@ -39,7 +39,7 @@ int socket_getaddrinfo(Context* ctx, Value&)
     }
     
     int error = 0;
-    Pika_address* paddr = Pika_GetAddrInfo(addr, extra, error);
+    Pika_address* paddr = Pika_GetAddressInfo(addr, extra, error);
     
     if (paddr)
     {
@@ -52,7 +52,7 @@ int socket_getaddrinfo(Context* ctx, Value&)
     {
         if (error != 0)
         {
-            char* str = Pika_GetAddrInfoError(error);
+            char* str = Pika_GetAddressInfoError(error);
             AutoFreeErrorString afes(str);
             RaiseException(Exception::ERROR_runtime, "Attempt to get address resulted in error '%s'", str);
         }
@@ -69,23 +69,40 @@ PIKA_MODULE(socket, eng, socket)
         { "getaddrinfo", socket_getaddrinfo, 0, DEF_VAR_ARGS, 0 },  
     };
     
-    static NamedConstant addressFamily_Constants[] = {
+    static NamedConstant AddressFamily_Constants[] = {
         { "AF_UNSPEC", AF_unspec },
         { "AF_UNIX",   AF_unix   },
         { "AF_INET",   AF_inet   },
     };
     
-    static NamedConstant socketType_Constants[] = {
+    static NamedConstant SocketType_Constants[] = {
         { "SOCK_STREAM",     SOCK_stream },
-        { "SOCK_DATAGRAM",   SOCK_datagram },
+        { "SOCK_DGRAM",      SOCK_dgram },
         { "SOCK_RAW",        SOCK_raw },
+    };
+    
+    static NamedConstant ShutdownType_Constants[] = {
+        { "SHUT_RD",    SHUT_rd   },
+        { "SHUT_WR",    SHUT_wr   },
+        { "SHUT_RDWR",  SHUT_rdwr },
+    };
+    
+    static NamedConstant SocketOption_Constants[] = {
+        { "SO_LINGER",      SO_linger    },
+        { "SO_KEEPALIVE",   SO_keepalive },
+        { "SO_DEBUG",       SO_debug     },
+        { "SO_REUSEADDR",   SO_reuseaddr },
+        { "SO_SNDBUF",      SO_sndbuf    },
+        { "SO_RCVBUF",      SO_rcvbuf    },
     };
     
     socket->EnterFunctions(socket_Functions, countof(socket_Functions));
     
-    Basic::EnterConstants(socket, addressFamily_Constants, countof(addressFamily_Constants));
-    Basic::EnterConstants(socket, socketType_Constants,    countof(socketType_Constants));    
-    
+    Basic::EnterConstants(socket, AddressFamily_Constants, countof(AddressFamily_Constants));
+    Basic::EnterConstants(socket, SocketType_Constants,    countof(SocketType_Constants));    
+    Basic::EnterConstants(socket, ShutdownType_Constants,  countof(ShutdownType_Constants));
+    Basic::EnterConstants(socket, SocketOption_Constants,  countof(SocketOption_Constants));
+            
     Initialize_Socket(socket, eng);
     Initialize_SocketAddress(socket, eng);
     

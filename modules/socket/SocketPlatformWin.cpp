@@ -28,3 +28,4 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 }
 
 
+// Pika_Close => closesocket

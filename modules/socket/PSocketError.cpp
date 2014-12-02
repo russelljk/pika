@@ -9,11 +9,11 @@ void RaiseExceptionFromErrno(Exception::Kind errKind, const char* errMsg, int er
         errorNum = errno;
     }
     
-    char* errorMessage = Pika_ErrorMessage(errorNum);
+    char* errorMessage = Pika_GetError(errorNum);
     if (errorMessage)
     {
         RaiseException(errKind, "%s with message \"%s\".", errMsg, errorMessage);
-        Pika_FreeSocketString(errorMessage);
+        Pika_FreeString(errorMessage);
     }
     else
     {

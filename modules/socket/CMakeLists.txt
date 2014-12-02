@@ -19,6 +19,11 @@ check_include_files (sys/un.h       HAVE_SYS_UN_H)
 check_include_files (arpa/inet.h    HAVE_ARPA_INET_H)
 check_include_files (netdb.h        HAVE_NETDB_H)
 
+set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
+set (CPACK_PACKAGE_VERSION_MINOR ${pika_LIB_VERSION_MINOR})
+set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
+
+set (pikasocket_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-socket_config.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/socket_config.h)

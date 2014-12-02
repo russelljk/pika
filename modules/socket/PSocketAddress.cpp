@@ -3,8 +3,7 @@
 namespace pika {
 SocketAddress::SocketAddress(Engine* engine, Type* type, Pika_address* addr)
      : Object(engine, type), addr(addr)
-{
-    
+{    
 }
 
 SocketAddress::~SocketAddress()
@@ -15,6 +14,32 @@ SocketAddress::~SocketAddress()
 void SocketAddress::Init(Context* ctx)
 {
     u2 argc = ctx->GetArgCount();
+    bool ip6 = false;
+    String* ip = 0;
+    switch(argc)
+    {
+    case 2:
+        ip6 = ctx->GetBoolArg(1);
+    case 1:
+        ip = ctx->GetStringArg(0);
+        break;
+    default:
+        ctx->WrongArgCount();
+    }
+    
+    this->addr = Pika_StringToNetwork(ip->GetBuffer(), ip6);
+    
+    if (!this->addr) {
+        RaiseException(Exception::ERROR_runtime, "SocketAddress.init invalid argument 1 of '%s' specified. Excepted valid ip address. If DNS lookups are required use socket.getaddrinfo instead.", ip->GetBuffer());
+    }
+}
+
+Pika_address* SocketAddress::GetAddress()
+{
+    if (!this->addr) {
+        RaiseException(Exception::ERROR_runtime, "Attempt to use uninitialized SocketAddress.");
+    }
+    return this->addr;
 }
 
 Type* SocketAddress::StaticGetType(Engine* eng)
@@ -35,9 +60,9 @@ void SocketAddress::Constructor(Engine* eng, Type* obj_type, Value& res)
     res.Set(addr);
 }
 
-String* SocketAddress::GetAddress()
+String* SocketAddress::GetAddressString()
 {
-    char* s = Pika_ntop(this->addr);
+    char* s = Pika_NetworkToString(this->addr);
     return this->engine->GetString(s);
 }
 
@@ -55,6 +80,6 @@ void Initialize_SocketAddress(Package* socket, Engine* eng)
     eng->AddBaseType(SocketAddress_String, SocketAddress_Type);
     
     SlotBinder<SocketAddress>(eng, SocketAddress_Type)
-    .Method(&SocketAddress::GetAddress,   "getAddress", 0)
+    .Method(&SocketAddress::GetAddressString,   "getAddressString", 0)
     ;
 }

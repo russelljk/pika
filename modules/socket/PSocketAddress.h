@@ -15,7 +15,9 @@ public:
     static SocketAddress* StaticNew(Engine* eng, Type* type, Pika_address* addr = 0);
     static Type* StaticGetType(Engine* eng);
     
-    String* GetAddress();
+    String* GetAddressString();
+    Pika_address* GetAddress();
+protected:
     Pika_address* addr;
 };
 

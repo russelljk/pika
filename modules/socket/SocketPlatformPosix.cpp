@@ -1,5 +1,5 @@
 #include "SocketPlatform.h"
-
+#include <unistd.h>
 #if defined(HAVE_SYS_SOCKET_H)
 #   include <sys/socket.h>
 #endif
@@ -20,10 +20,26 @@
 #   include <netdb.h>
 #endif
 
-struct Pika_socket
+INLINE int ConvertAddressFamily(int fam)
 {
-    int fd;
-};
+    switch(fam) {
+    case AF_unspec: return AF_UNSPEC;
+    case AF_unix:   return AF_UNIX;
+    case AF_inet:   return AF_INET; }
+    return fam;
+}
+
+INLINE int ConvertSocketOption(int opt)
+{
+    switch(opt) {
+    case SO_linger:       return SO_LINGER;
+    case SO_keepalive:    return SO_KEEPALIVE;
+    case SO_debug:        return SO_DEBUG;
+    case SO_reuseaddr:    return SO_REUSEADDR;
+    case SO_sndbuf:       return SO_SNDBUF;
+    case SO_rcvbuf:       return SO_RCVBUF; }
+    return opt;
+}
 
 Pika_address::~Pika_address() {}
 
@@ -87,7 +103,7 @@ inet_pton -> connect
 
 bool Pika_Socket(Pika_socket* sock_ptr, int domain, int type, int protocol)
 {
-    int fd = socket(domain, type, protocol);
+    int fd = socket(ConvertAddressFamily(domain), type, protocol);
     if (fd < 0) {
         return false;
     }
@@ -95,20 +111,125 @@ bool Pika_Socket(Pika_socket* sock_ptr, int domain, int type, int protocol)
     return true;
 }
 
-bool Pika_Connect(Pika_socket* sock_ptr, Pika_address* addr)
+void Pika_Close(Pika_socket* sock_ptr)
 {
-    connect(sock_ptr->fd, (struct sockaddr*)addr->GetAddress(), addr->GetLength());
+    if (sock_ptr && sock_ptr->fd)
+    {
+        close(sock_ptr->fd);
+        sock_ptr->fd = 0;
+    }
+}
+
+bool Pika_Shutdown(Pika_socket* sock_ptr, int what)
+{
+    if (shutdown(sock_ptr->fd, what) < 0)
+    {
+        return false;
+    }
     return true;
 }
 
-char* Pika_GetAddrInfoError(int error)
+ssize_t Pika_Send(Pika_socket* sock_ptr, void* buff, size_t length, int flags)
+{
+    ssize_t res = send(sock_ptr->fd, buff, length, flags);
+    return res;
+}
+
+ssize_t Pika_Recv(Pika_socket* sock_ptr, void* buff, size_t length, int flags)
+{
+    ssize_t res = recv(sock_ptr->fd, buff, length, flags);
+    return res;
+}
+
+ssize_t Pika_SendTo(Pika_socket* sock_ptr, void* buff, size_t length, int flags, Pika_address* addr)
+{
+    ssize_t res = sendto(sock_ptr->fd, buff, length, flags, (sockaddr*)addr->GetAddress(), addr->GetLength());
+    return res;
+}
+
+ssize_t Pika_RecvFrom(Pika_socket* sock_ptr, void* buff, size_t length, int flags, Pika_address** paddr)
+{
+    socklen_t addr_size = sizeof(sockaddr_in);
+    sockaddr_in addr;
+    Pika_memzero(&addr, addr_size);
+    ssize_t res = recvfrom(sock_ptr->fd, buff, length, flags, (sockaddr*)&addr, &addr_size);
+    if (res >= 0) {
+        Pika_address* ipaddr = 0;
+        PIKA_NEW(Pika_ipaddress, ipaddr, (&addr));
+        *paddr = ipaddr;
+    }
+    return res;
+}
+
+bool Pika_SetSockOpt(Pika_socket* sock_ptr, int opt, int optval)
+{
+    if (setsockopt(sock_ptr->fd, SOL_SOCKET, ConvertSocketOption(opt), (void*)&optval, sizeof(int)) < 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Pika_GetSockOpt(Pika_socket* sock_ptr, int opt, int* optval)
+{
+    socklen_t sz = 0;
+    if (getsockopt(sock_ptr->fd, SOL_SOCKET, ConvertSocketOption(opt), (void*)optval, &sz) < 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+Pika_address* Pika_Accept(Pika_socket* sock_ptr, int& fd)
+{
+    socklen_t addr_size = sizeof(sockaddr_in);
+    sockaddr_in addr;
+    Pika_memzero(&addr, addr_size);
+    
+    if ((fd = accept(sock_ptr->fd, (sockaddr*)&addr, &addr_size)) < 0)
+    {
+        return 0;
+    }
+    Pika_address* ipaddr = 0;
+    PIKA_NEW(Pika_ipaddress, ipaddr, (&addr));
+    return ipaddr;
+}
+
+bool Pika_Listen(Pika_socket* sock_ptr, int back_log)
+{
+    if (listen(sock_ptr->fd, back_log) < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Pika_Bind(Pika_socket* sock_ptr, Pika_address* addr)
+{
+    if (bind(sock_ptr->fd, (sockaddr*)addr->GetAddress(), addr->GetLength()) < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Pika_Connect(Pika_socket* sock_ptr, Pika_address* addr)
+{
+    if (connect(sock_ptr->fd, (sockaddr*)addr->GetAddress(), addr->GetLength()) < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+char* Pika_GetAddressInfoError(int error)
 {
     const char* errorMessage = gai_strerror(error);
     char* s = (char*)Pika_strdup(errorMessage);
     return s;
 }
 
-Pika_address* Pika_GetAddrInfo(const char* addrStr, const char* extra, int& status)
+Pika_address* Pika_GetAddressInfo(const char* addrStr, const char* extra, int& status)
 {
     addrinfo* res = 0;
     // void* addr = 0;
@@ -133,7 +254,7 @@ Pika_address* Pika_GetAddrInfo(const char* addrStr, const char* extra, int& stat
             // addr = &(ipv4->sin_addr);
             // found = true;
             PIKA_NEW(Pika_ipaddress, addrres, (ipv4));
-            return addrres;
+            break;
         }
         else if (curr->ai_family == AF_INET6)
         {
@@ -141,7 +262,7 @@ Pika_address* Pika_GetAddrInfo(const char* addrStr, const char* extra, int& stat
             // addr = &(ipv6->sin6_addr);
             // found = true;
             PIKA_NEW(Pika_ipaddress6, addrres, (ipv6));
-            return addrres;
+            break;
         }
         
         // if (found)
@@ -151,11 +272,12 @@ Pika_address* Pika_GetAddrInfo(const char* addrStr, const char* extra, int& stat
         //     inet_ntop(curr->ai_family, addr, ipstr, IPSTR_LENGTH);
         //     return ipstr;
         // }
-    }    
+    }
+    if (res) freeaddrinfo(res);
     return addrres;
 }
 
-char* Pika_ntop(Pika_address* paddr)
+char* Pika_NetworkToString(Pika_address* paddr)
 {
     void* address_struct = paddr->GetAddress();
     void* addr = 0;
@@ -177,4 +299,25 @@ char* Pika_ntop(Pika_address* paddr)
     char* ipstr = (char*)Pika_malloc(IPSTR_LENGTH);
     inet_ntop(family, addr, ipstr, IPSTR_LENGTH);
     return ipstr;
+}
+
+Pika_address* Pika_StringToNetwork(const char* addr, bool ip6)
+{
+    Pika_address* pikaaddr = 0;
+    if (ip6) {
+        sockaddr_in in4;
+        Pika_memzero(&in4, sizeof(in4));
+        if (inet_pton(AF_INET6, addr, &in4) < 0) {
+            return 0;
+        }
+        PIKA_NEW(Pika_ipaddress, pikaaddr, (&in4));
+    } else {
+        sockaddr_in6 in6;
+        Pika_memzero(&in6, sizeof(in6));
+        if (inet_pton(AF_INET, addr, &in6) < 0) {
+            return 0;
+        }
+        PIKA_NEW(Pika_ipaddress6, pikaaddr, (&in6));
+    }
+    return pikaaddr;
 }

@@ -4,7 +4,7 @@
  */
 #include "SocketPlatform.h"
 
-char* Pika_ErrorMessage(int err)
+char* Pika_GetError(int err)
 {
     size_t ERROR_SIZE = 1024;
     char* errorMessage = (char*)Pika_malloc(ERROR_SIZE);
@@ -19,7 +19,7 @@ char* Pika_ErrorMessage(int err)
     return errorMessage;
 }
 
-void Pika_FreeSocketString(char* message)
+void Pika_FreeString(char* message)
 {
     if (message)
     {
