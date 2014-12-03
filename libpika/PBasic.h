@@ -147,6 +147,8 @@ public:
         return BracketWrite(vkey, v, attr);
     }
     
+    bool GetSlot(const char* key, Value& result);    
+    bool BracketRead(const char* key, Value& result);
     bool BracketWrite(const char* key, Value& value, u4 attr = 0);
 protected:
     Engine* engine;

@@ -15,11 +15,25 @@ namespace pika {
 
 PIKA_IMPL(Basic)
 
+bool Basic::GetSlot(const char* key, Value& result)
+{
+    String* strKey = engine->GetString(key);
+    Value vkey(strKey);
+    return GetSlot(vkey, result);
+}
+
 bool Basic::SetSlot(const char* key, Value& value, u4 attr)
 {
     String* strKey = engine->GetString(key);
     Value vkey(strKey);
     return SetSlot(vkey, value, attr);
+}
+
+bool Basic::BracketRead(const char* key, Value& result)
+{
+    String* strKey = engine->GetString(key);
+    Value vkey(strKey);
+    return BracketRead(vkey, result);
 }
 
 bool Basic::BracketWrite(const char* key, Value& value, u4 attr)
