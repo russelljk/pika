@@ -68,6 +68,11 @@ String* SocketAddress::GetAddressString()
 
 PIKA_IMPL(SocketAddress)
 
+pint_t SocketAddress::GetPort()
+{
+    return addr ? addr->GetPort() : 0;
+}
+
 }// pika
 
 using namespace pika;
@@ -80,6 +85,9 @@ void Initialize_SocketAddress(Package* socket, Engine* eng)
     eng->AddBaseType(SocketAddress_String, SocketAddress_Type);
     
     SlotBinder<SocketAddress>(eng, SocketAddress_Type)
-    .Method(&SocketAddress::GetAddressString,   "getAddressString", 0)
+    .PropertyR("address",
+            &SocketAddress::GetAddressString, "getAddress")
+    .PropertyR("port",
+            &SocketAddress::GetPort,          "getPort")
     ;
 }

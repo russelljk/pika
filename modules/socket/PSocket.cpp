@@ -58,13 +58,32 @@ Value Socket::GetSockOpt(pint_t opt)
 void Socket::Init(Context* ctx)
 {
     u2 argc = ctx->GetArgCount();
-    if (argc != 2)
+    if (argc != 2 && argc != 3)
     {
         ctx->WrongArgCount();
     }
     
-    int domain = ctx->GetIntArg(0);
-    int type = ctx->GetIntArg(1);
+    int domain = AF_inet;
+    int type = SOCK_stream;
+    bool nonblocking = false;
+    
+    if (argc == 3) {
+        nonblocking = ctx->GetBoolArg(2);
+    }
+    
+    switch(argc) {
+    case 3:
+        nonblocking = ctx->GetBoolArg(2);
+    case 2:
+        type = ctx->GetIntArg(1);
+    case 1:
+        domain = ctx->GetIntArg(0);
+        break;
+    default:
+        if (argc != 0) {
+            ctx->WrongArgCount();
+        }
+    };
     
     if (domain < AF_min || domain > AF_max)
     {
@@ -78,6 +97,14 @@ void Socket::Init(Context* ctx)
     if (!Pika_Socket(this->socket, domain, type, 0))
     {
         RaiseExceptionFromErrno(Exception::ERROR_type, "Attempt to create socket failed", errno);
+    }
+    
+    if (nonblocking)
+    {
+        if (!Pika_NonBlocking(this->socket))
+        {
+            RaiseExceptionFromErrno(Exception::ERROR_type, "Attempt to create non-blocking socket failed", errno);
+        }
     }
 }
 
@@ -132,10 +159,11 @@ void Socket::Bind(Value& addr)
 
 bool Socket::Accept(Socket** sock, SocketAddress** sockaddr)
 {    
+    GCPAUSE_NORUN(engine);
     int fd = 0;
     Pika_address* addr = Pika_Accept(this->socket, fd);
     
-    if (fd < 0)
+    if (fd < 0) // Not a file descriptor but an error.
     {
         RaiseExceptionFromErrno(Exception::ERROR_runtime, "Attempt to accept socket failed", fd);
     }
@@ -156,6 +184,7 @@ void Socket::Send(String* buff)
     size_t amt = 0;
     size_t length = buff->GetLength();
     int flags = 0;
+    
     while ((sent = Pika_Send(this->socket, (void*)(buff->GetBuffer() + sent), length - amt, flags)) > 0)
     {
         amt += sent;
@@ -178,6 +207,7 @@ void Socket::SendTo(String* buff, Value& addr)
     size_t length = buff->GetLength();
     int flags = 0;
     Pika_address* sockaddr = 0;
+    
     if (addr.IsDerivedFrom(SocketAddress::StaticGetClass()))
     {
         sockaddr = static_cast<SocketAddress*>(addr.val.object)->GetAddress(); 
@@ -204,7 +234,10 @@ void Socket::SendTo(String* buff, Value& addr)
 
 String* Socket::RecvFrom(pint_t buffsize, SocketAddress** fromAddr)
 {
-    if (buffsize <= 0) {
+    GCPAUSE_NORUN(engine);
+    
+    if (buffsize <= 0)
+    {
         RaiseException(Exception::ERROR_runtime, "Socket.recvfrom argument 1 must be greater than zero.");
     }
     Buffer<char> buff(buffsize);
@@ -212,16 +245,20 @@ String* Socket::RecvFrom(pint_t buffsize, SocketAddress** fromAddr)
     Pika_address* addr = 0;
     ssize_t amt = Pika_RecvFrom(this->socket, (void*)buff.GetAt(0), buff.GetSize(), flags, &addr);
     
-    if (addr) {
+    if (addr)
+    {
         *fromAddr = SocketAddress::StaticNew(this->engine, SocketAddress::StaticGetType(this->engine), addr);
         delete addr;
     }
     // std::cout << "Recv: " << amt << std::endl;
-    if (amt > 0) {
+    if (amt > 0)
+    {
         ssize_t sbuffsize = (ssize_t)(buffsize);
         ssize_t len = Min<ssize_t>(amt, sbuffsize);
         return engine->GetString(buff.GetAt(0), len);
-    } else if (amt < 0) {
+    }
+    else if (amt < 0)
+    {
         RaiseExceptionFromErrno(Exception::ERROR_runtime, "Attempt to recvfrom from socket failed", errno);
     }
     return engine->emptyString; 
@@ -229,19 +266,24 @@ String* Socket::RecvFrom(pint_t buffsize, SocketAddress** fromAddr)
 
 String* Socket::Recv(pint_t buffsize)
 {
-    if (buffsize <= 0) {
+    if (buffsize <= 0)
+    {
         RaiseException(Exception::ERROR_runtime, "Socket.recv argument 1 must be greater than zero.");
     }
+    
     Buffer<char> buff(buffsize);
     int flags = 0;
     ssize_t amt = Pika_Recv(this->socket, (void*)buff.GetAt(0), buff.GetSize(), flags);
     
     // std::cout << "Recv: " << amt << std::endl;
-    if (amt > 0) {
+    if (amt > 0)
+    {
         ssize_t sbuffsize = (ssize_t)(buffsize);
         ssize_t len = Min<ssize_t>(amt, sbuffsize);
         return engine->GetString(buff.GetAt(0), len);
-    } else if (amt < 0) {
+    }
+    else if (amt < 0)
+    {
         RaiseExceptionFromErrno(Exception::ERROR_runtime, "Attempt to recv from socket failed", errno);
     }
     return engine->emptyString;

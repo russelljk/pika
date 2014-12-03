@@ -14,6 +14,7 @@ public:
     static void Constructor(Engine* eng, Type* obj_type, Value& res);
     static SocketAddress* StaticNew(Engine* eng, Type* type, Pika_address* addr = 0);
     static Type* StaticGetType(Engine* eng);
+    pint_t GetPort();
     
     String* GetAddressString();
     Pika_address* GetAddress();

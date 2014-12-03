@@ -1,5 +1,6 @@
 #include "SocketPlatform.h"
 #include <unistd.h>
+#include <fcntl.h>
 #if defined(HAVE_SYS_SOCKET_H)
 #   include <sys/socket.h>
 #endif
@@ -57,6 +58,11 @@ struct Pika_ipaddress : Pika_address
     
     virtual size_t GetLength() const { return sizeof(this->addr); }
     
+    u2 GetPort() const
+    {
+        return ntohs(this->addr.sin_port);
+    }
+    
     sockaddr_in addr;
 };
 
@@ -74,6 +80,11 @@ struct Pika_ipaddress6 : Pika_address
     
     virtual size_t GetLength() const { return sizeof(this->addr); }
     
+    u2 GetPort() const
+    {
+        return ntohs(this->addr.sin6_port);
+    }
+    
     sockaddr_in6 addr;
 };
 
@@ -86,6 +97,8 @@ struct Pika_unaddress : Pika_address
     virtual void*  GetAddress() const { return (void*)&this->addr; }
     
     virtual size_t GetLength() const { return sizeof(this->addr); }
+    
+    u2 GetPort() const { return 0; }
     
     sockaddr_un addr;
 };
@@ -321,3 +334,9 @@ Pika_address* Pika_StringToNetwork(const char* addr, bool ip6)
     }
     return pikaaddr;
 }
+
+bool Pika_NonBlocking(Pika_socket* sock_ptr)
+{
+    return (fcntl(sock_ptr->fd, F_SETFL, O_NONBLOCK) < 0);    
+}
+

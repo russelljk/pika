@@ -6,6 +6,7 @@
 #define SOCKET_PLATFORM_HEADER
 
 #include "PMemory.h"
+#include "PByteOrder.h"
 #include "socket_config.h"
 
 struct Pika_socket
@@ -23,9 +24,10 @@ struct Pika_address
     
     virtual ~Pika_address() = 0;
     
-    virtual Kind   GetKind()    const = 0;
-    virtual void*  GetAddress() const = 0;
-    virtual size_t GetLength()  const = 0;
+    virtual u2     GetPort()  const = 0;
+    virtual Kind   GetKind()        const = 0;
+    virtual void*  GetAddress()     const = 0;
+    virtual size_t GetLength()      const = 0;
 };
 
 enum AddressFamily {
@@ -81,6 +83,7 @@ bool    Pika_Connect(Pika_socket*, Pika_address*);
 bool    Pika_Listen(Pika_socket* sock_ptr, int back_log);
 
 bool    Pika_Shutdown(Pika_socket*, int);
+bool    Pika_NonBlocking(Pika_socket*);
 
 char*           Pika_NetworkToString(Pika_address* paddr);
 Pika_address*   Pika_StringToNetwork(const char* addr, bool ip6);
