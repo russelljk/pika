@@ -201,6 +201,11 @@ Pika_address* Pika_Accept(Pika_socket* sock_ptr, int& fd)
     
     if ((fd = accept(sock_ptr->fd, (sockaddr*)&addr, &addr_size)) < 0)
     {
+        if (fd == EAGAIN || fd == EWOULDBLOCK) {
+            fd = 0;
+        } else {
+            fd = errno;
+        }
         return 0;
     }
     Pika_address* ipaddr = 0;
@@ -337,6 +342,6 @@ Pika_address* Pika_StringToNetwork(const char* addr, bool ip6)
 
 bool Pika_NonBlocking(Pika_socket* sock_ptr)
 {
-    return (fcntl(sock_ptr->fd, F_SETFL, O_NONBLOCK) < 0);    
+    return (fcntl(sock_ptr->fd, F_SETFL, O_NONBLOCK) >= 0);    
 }
 

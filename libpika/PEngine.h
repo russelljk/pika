@@ -195,7 +195,8 @@ public:
     String* GetTypenameOf(Value const&);
         
     INLINE String* GetOverrideString(OpOverride ovr) { return override_strings[ovr]; }
-    
+    bool GetFieldFromValue(Value& v, String* method, Value& res);
+        
     void CallConversionFunction(Context* ctx, String* name, Object* c, Value& res);
             
     /** Convert a value to boolean. If the context is null then only implicit conversions will be performed. */

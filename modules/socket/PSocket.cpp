@@ -232,6 +232,13 @@ void Socket::SendTo(String* buff, Value& addr)
     }
 }
 
+pint_t Socket::Fileno()
+{
+    if (!this->socket)
+        return 0;
+    return this->socket->fd;
+}
+
 String* Socket::RecvFrom(pint_t buffsize, SocketAddress** fromAddr)
 {
     GCPAUSE_NORUN(engine);
@@ -250,7 +257,7 @@ String* Socket::RecvFrom(pint_t buffsize, SocketAddress** fromAddr)
         *fromAddr = SocketAddress::StaticNew(this->engine, SocketAddress::StaticGetType(this->engine), addr);
         delete addr;
     }
-    // std::cout << "Recv: " << amt << std::endl;
+    
     if (amt > 0)
     {
         ssize_t sbuffsize = (ssize_t)(buffsize);
@@ -371,5 +378,6 @@ void Initialize_Socket(Package* socket, Engine* eng)
     .Method(&Socket::Recv,      "recv",     0)
     .Method(&Socket::GetSockOpt, "getsockopt", 0)
     .Method(&Socket::SetSockOpt, "setsockopt", 0)
+    .Method(&Socket::Fileno,     "fileno")
     ;
 }

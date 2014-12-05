@@ -969,6 +969,13 @@ String* Engine::GetTypenameOf(Value const& v)
     return this->emptyString;
 }
 
+bool Engine::GetFieldFromValue(Value& v, String* method, Value& res)
+{
+    Type* type = this->GetTypeOf(v);
+    Value vwhat(method);
+    return type->GetField(vwhat, res);
+}
+
 Context* Engine::AllocContext()
 {
     Context* c = Context::Create(this, this->Context_Type);

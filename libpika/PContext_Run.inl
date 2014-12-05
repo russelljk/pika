@@ -404,7 +404,7 @@ void Context::Run()
                             }
                             
                             Value vnew(NULL_VALUE);
-                            if (GetFieldFromValue(engine, vmeta, engine->GetString(NEW_CSTR), vnew))
+                            if (engine->GetFieldFromValue(vmeta, engine->GetString(NEW_CSTR), vnew))
                             {
                                 CheckStackSpace(2); // For meta and meta.new
                                 Push(vmeta);

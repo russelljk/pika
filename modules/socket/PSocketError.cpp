@@ -8,7 +8,7 @@ void RaiseExceptionFromErrno(Exception::Kind errKind, const char* errMsg, int er
     {
         errorNum = errno;
     }
-    
+        
     char* errorMessage = Pika_GetError(errorNum);
     if (errorMessage)
     {

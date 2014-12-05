@@ -32,9 +32,10 @@ public:
     virtual String* ReadLine();
     virtual Array*  ReadLines();
     virtual String* Read(Context* ctx);
-
+    
     virtual bool    Write(Context* ctx);
-
+    virtual pint_t  Fileno();
+    
     virtual pint_t      Seek(pint_t, pint_t);
     virtual void        Flush();
     virtual void        Rewind();

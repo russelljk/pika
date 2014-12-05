@@ -222,6 +222,14 @@ void File::Close()
     filename = 0;
 }
 
+pint_t File::Fileno()
+{
+    if (handle) {
+        return fileno(handle);
+    }
+    return 0;
+}
+
 PIKA_DOC(File_eof, "/()\
 \n\
 Returns '''true''' if the file is open and has reached the end of the file. \
@@ -546,6 +554,7 @@ void File::StaticInitType(Engine* eng)
     .Method(&File::IsOpen,      "opened?",   PIKA_GET_DOC(File_opened))
     .Method(&File::Rewind,      "rewind",    PIKA_GET_DOC(File_rewind))
     .MethodVA(&File::Init,      "init",      PIKA_GET_DOC(File_init))
+    .Method(&File::Fileno,      "fileno")
     .Constant((pint_t)SEEK_SET, "SEEK_BEG")
     .Constant((pint_t)SEEK_CUR, "SEEK_CUR")
     .Constant((pint_t)SEEK_END, "SEEK_END")
