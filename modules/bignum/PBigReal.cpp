@@ -82,20 +82,14 @@ namespace pika {
         
         int sd = 0; // significant digits.
         String* res = 0;
-        // trace0("B\n");
-        // mp_exp_t exponent;
-        // char* mpfr_str = mpfr_get_str(0, &exponent, radix, sd, this->number, DEFAULT_RND);
-        // trace0("E\n");
-        // std::cout << "exponent " << exponent << std::endl;
-        // std::cout << "prec " << mpfr_get_prec(this->number) << std::endl;
+        
         if (true)
         {
             pint_t prec = mpfr_get_prec(this->number);
             Buffer<char> buff(prec);
             mpfr_snprintf(buff.GetAt(0), buff.GetSize(), "%.Rf", this->number);
             buff.Push('\0');
-            res = engine->GetString(buff.GetAt(0));
-            // mpfr_free_str(mpfr_str);     
+            res = engine->GetString(buff.GetAt(0)); 
         }
         else
         {
