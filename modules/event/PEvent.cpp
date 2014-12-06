@@ -16,7 +16,7 @@ Event::Event(Engine* engine, Type* type):
     inRoots(false), 
     callback(NULL_VALUE),
     file(NULL_VALUE),
-    fd(0),
+    fd(-1),
     event(0)
 {
 }
