@@ -4,26 +4,26 @@ Pika is a dynamic, multi-paradigm programming language.
 
 ## Features Include
 
-* First class functions and Closures.
-* Class based object system.
-* Automatic memory managment through an incremental, mark and sweep, garbage collector.
-* Packages.
-* Properties with get and set accessor functions.
-* Native API for binding with C/C++.
-* Unified import system works with scripts and native C/C++ modules.
-* Exception handling.
-* Block finalizers.
-* Lambda expressions.
-* Anonymous function expressions.
-* Default values for functions.
-* Variable argument functions.
-* Keyword arguments.
-* Multiple return and yield values.
-* Coroutines (*aka cooperative threads*).
-* Generators (*light weight coroutines*).
-* Annotations for functions, classes and packages.
-* Array comprehension.
-* Mersenne Twister based pseudorandom number generator.
+ * First class functions and Closures.
+ * Class based object system.
+ * Automatic memory managment through an incremental, mark and sweep, garbage collector.
+ * Packages.
+ * Properties with get and set accessor functions.
+ * Native API for binding with C/C++.
+ * Unified import system works with scripts and native C/C++ modules.
+ * Exception handling.
+ * Block finalizers.
+ * Lambda expressions.
+ * Anonymous function expressions.
+ * Default values for functions.
+ * Variable argument functions.
+ * Keyword arguments.
+ * Lexically scoped.
+ * Multiple return and yield values.
+ * Coroutines (*aka cooperative threads*).
+ * Generators (*light weight coroutines*).
+ * Annotations for functions, classes and packages.
+ * Array comprehension. `[ i for x = 1 to 20 if x mod 2 ]`
 
 ## Some Examples
 
@@ -90,7 +90,7 @@ Or run them from the command line:
     print fibIterator()
     print fibIterator()
     
-    (* Generators can also created from instance methods. *)
+    {* Generators can also created from instance methods. *}
     class RangeMultiplier
         function init(scalar)
             self.scalar = scalar
@@ -102,8 +102,11 @@ Or run them from the command line:
             end
         end
     end
-
-    rangeMultiplier = RangeMultiplier.new(scalar:2)
+    
+    # Create a RangeMultiplier instance
+    rangeMultiplier = RangeMultiplier.new(scalar=2)
+    
+    # Create the generator bound to the instance
     multIter = rangeMultiplier.range(1, 6)
 
     while multIter
@@ -149,6 +152,46 @@ To build without modules use the following
 
     cmake -DPIKA_NO_MODULES=1 ../../pika
 
-### Module Dependencies
+### Modules
 
-re - Depends on PCRE which is now included in the code base. The project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version compatible with that release should work. Specify `RE_USE_EXTERNAL_PCRE` to search for the system's PCRE.
+**random**
+ 
+ * Pseudorandom number generator based on Mersenne Twister (included).
+
+**re**
+
+ * Regular expressions module.
+ * Depends on PCRE which is now included in the code base. The project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version compatible with that release should work. Specify `RE_USE_EXTERNAL_PCRE` to search for the system's PCRE.
+
+**unittest**
+
+ * Unittest module. 
+ * Depends on the `re` module.
+ 
+**json**
+ 
+ * JSON encoder and decoder.
+  
+**base64**
+
+ * A base 64 encoder and decoder, meant to be an example module.
+ 
+**bignum**
+
+ * Arbitrary precision arithmetic for integers and real numbers (*floating point numbers*).
+ * Depends on GMP and MPRF for the BigInteger and BigReal classes respectively.
+
+**curses**
+
+ * Bindings for curses/ncurses library.
+ * Depends on curses/ncurses, no support for pdcurses at this time.
+ 
+**socket**
+
+ * Berkley Sockets library.
+ * Depends on Posix Socket support, not ported to Winsock yet.
+
+**event**
+
+ * Bindings for LibEvent for use with the Socket and File classes.
+ * Depends on LibEvent version `2.0.1 alpha` and up.

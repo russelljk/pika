@@ -228,12 +228,14 @@ PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)    { return atan(x); }
 PIKA_FORCE_INLINE preal_t ArcTan2(preal_t x,
                                   preal_t y)   { return atan2(x, y); }
 PIKA_FORCE_INLINE preal_t Ceil(preal_t x)   { return ceil(x); }
+PIKA_FORCE_INLINE pint_t  IntCeil(preal_t x)  { return (pint_t)ceil(x); }
 PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
                                    preal_t y)  { return copysign(x, y); }
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return cos(x); }
 PIKA_FORCE_INLINE preal_t Cosh(preal_t x)   { return cosh(x); }
 PIKA_FORCE_INLINE preal_t Exp(preal_t x)    { return exp(x); }
 PIKA_FORCE_INLINE preal_t Floor(preal_t x)  { return floor(x); }
+PIKA_FORCE_INLINE pint_t  IntFloor(preal_t x)  { return (pint_t)floor(x); }
 PIKA_FORCE_INLINE preal_t Mod(preal_t x,
                               preal_t y)    { return fmod(x, y); }
 PIKA_FORCE_INLINE preal_t Log(preal_t x)    { return log(x); }
@@ -256,12 +258,14 @@ PIKA_FORCE_INLINE preal_t ArcTan(preal_t x)    { return (preal_t)atanf(x); }
 PIKA_FORCE_INLINE preal_t ArcTan2(preal_t x,
                                   preal_t y)   { return (preal_t)atan2f(x, y);}
 PIKA_FORCE_INLINE preal_t Ceil(preal_t x)      { return (preal_t)ceilf(x); }
+PIKA_FORCE_INLINE pint_t  IntCeil(preal_t x)  { return (pint_t)ceilf(x); }
 PIKA_FORCE_INLINE preal_t CopySign(preal_t x,
                                    preal_t y)  { return (preal_t)copysignf(x, y);}
 PIKA_FORCE_INLINE preal_t Cos(preal_t x)    { return (preal_t)cosf(x); }
 PIKA_FORCE_INLINE preal_t Cosh(preal_t x)   { return (preal_t)coshf(x); }
 PIKA_FORCE_INLINE preal_t Exp(preal_t x)    { return (preal_t)expf(x); }
 PIKA_FORCE_INLINE preal_t Floor(preal_t x)  { return (preal_t)floorf(x); }
+PIKA_FORCE_INLINE pint_t  IntFloor(preal_t x)  { return (pint_t)floorf(x); }
 PIKA_FORCE_INLINE preal_t Mod(preal_t x, 
                               preal_t y)    { return (preal_t)fmodf(x, y);}
 PIKA_FORCE_INLINE preal_t Log(preal_t x)    { return (preal_t)logf(x); }

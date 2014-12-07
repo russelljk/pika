@@ -2300,7 +2300,7 @@ Expr* Parser::DoPostfixExpression()
             return expr;
         }
         //
-        // Call or new expression.
+        // Call expression.
         //
         case '(':
         {
@@ -2337,6 +2337,7 @@ Expr* Parser::DoPostfixExpression()
                 /* expr[:expr] */
                 Expr* toexpr = DoExpression();
                 int line = tstream.GetLineNumber();
+                                
                 Match(']');
                 
                 PIKA_NEWNODE(SliceExpr, expr, (state, lhs, 0, toexpr));
@@ -2861,8 +2862,10 @@ ExprList* Parser::DoOptionalExpressionList(const int* terms, bool is_call, bool 
         {
             Match(',');
             BufferCurrent();
-            if (IsTerm(terms, tstream.GetType()))
-                Unexpected(terms[0]);
+            if (IsTerm(terms, tstream.GetType())) {
+                // Allow trailing comma for function params, call args and array literals.
+                return firstel;
+            }
         }
     }    
     return firstel;
