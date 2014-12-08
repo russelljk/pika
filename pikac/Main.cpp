@@ -320,8 +320,17 @@ int main(int argc, char* argv[])
             }
             else
             {
+                // Depending on the size of the script, arguments might be collected
+                // before Compile returns.
+                //
+                // So we add them to the roots to prevent collection.
                 
+                eng->AddToRoots(arguments);
+                
+                // Add paths defined in $PIKA_PATH to our PathManager.
                 eng->AddEnvPath("PIKA_PATH");
+                
+                // Compile the script.
                 Script* script = eng->Compile(fileName);
                 
                 if (script)

@@ -1,18 +1,18 @@
 /*
- *  PDate.h
+ *  PTime.h
  *  See Copyright Notice in Pika.h
  */
-#ifndef PDATE_HEADER
-#define PDATE_HEADER
+#ifndef PTIME_HEADER
+#define PTIME_HEADER
 
 namespace pika {
 
-class PIKA_API Date : public Object {
-    PIKA_DECL(Date, Object)
+class PIKA_API CTime : public Object {
+    PIKA_DECL(CTime, Object)
 public:
-    Date(Engine* eng, Type* t);
+    CTime(Engine* eng, Type* t);
 
-    virtual ~Date();
+    virtual ~CTime();
     void LocalTime();
     void GmTime();
     
@@ -27,8 +27,7 @@ public:
     void SetWDay(pint_t x);
     void SetYDay(pint_t x);
     void SetIsDst(bool x);
-    void SetGmtOff(pint_t x);
-    
+        
     pint_t GetSec() { return the_time.tm_sec; }
     pint_t GetMin() { return the_time.tm_min; }
     pint_t GetHour() { return the_time.tm_hour; }
@@ -37,17 +36,19 @@ public:
     pint_t GetYear() { return the_time.tm_year + 1900; }
     pint_t GetWDay() { return the_time.tm_wday; }
     pint_t GetYDay() { return the_time.tm_yday; }
+    pint_t GetGmtOff() { return the_time.tm_gmtoff; }
     bool   GetIsDst() { return the_time.tm_isdst != 0; }
+    String* GetTimezone();
     
     time_t MkTime();
-    preal_t Diff(Date* rhs);
+    preal_t Diff(CTime* rhs);
     static void Constructor(Engine* eng, Type* type, Value& res);
     static void StaticInitType(Package* pkg, Engine* eng);
 protected:
     tm the_time;
 };
 
-DECLARE_BINDING(Date);
+DECLARE_BINDING(CTime);
 }// pika
 
 #endif

@@ -6,7 +6,7 @@
 #include "PNativeBind.h"
 #include "PPlatform.h"
 #include "PRandom.h"
-#include "PDate.h"
+#include "PTime.h"
 
 #include <cmath>
 #include <cfloat>
@@ -853,24 +853,24 @@ int os_lib_load(Context* ctx, Value&)
     .Constant    (eng->GetString(PIKA_PATH_SEP), "sep")
     ;
     
-    Date::StaticInitType(os_Package, eng);
+    CTime::StaticInitType(os_Package, eng);
     
     eng->PutImport(os_String, os_Package);
     ctx->Push(os_Package);
     return 1;
 }
 
-int date_lib_load(Context* ctx, Value&)
+int ctime_lib_load(Context* ctx, Value&)
 {
     Engine* eng = ctx->GetEngine();
     GCPAUSE(eng);
     
     Package* world_Package = eng->GetWorld();
-    String*  date_String     = eng->AllocString("date");
-    Package* date_Package    = Package::Create(eng, date_String, world_Package);
-    Date::StaticInitType(date_Package, eng);
-    eng->PutImport(date_String, date_Package);
-    ctx->Push(date_Package);
+    String*  ctime_String     = eng->AllocString("ctime");
+    Package* ctime_Package    = Package::Create(eng, ctime_String, world_Package);
+    CTime::StaticInitType(ctime_Package, eng);
+    eng->PutImport(ctime_String, ctime_Package);
+    ctx->Push(ctime_Package);
     return 1;
 }
 
@@ -894,11 +894,11 @@ void InitSystemLIB(Engine* eng)
         eng->PutImport(os_String, osfn);
     }
     { 
-        // Setup 'date' package as an import.
-        String*  date_String = eng->AllocString("date");
-        static RegisterFunction date_FuncDef = { "date", date_lib_load, 0, 0, 0 };    
-        Value date_fn(Function::Create(eng, &date_FuncDef, World_Package));
-        eng->PutImport(date_String, date_fn);
+        // Setup 'ctime' package as an import.
+        String*  ctime_String = eng->AllocString("ctime");
+        static RegisterFunction ctime_FuncDef = { "ctime", ctime_lib_load, 0, 0, 0 };    
+        Value ctime_fn(Function::Create(eng, &ctime_FuncDef, World_Package));
+        eng->PutImport(ctime_String, ctime_fn);
     }
 }
 

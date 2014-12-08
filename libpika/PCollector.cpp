@@ -399,7 +399,7 @@ bool Collector::IncrementalScan(bool b)
     
     while ((scan->gccolor == grays->gccolor) && // Loop while there are still objs in the gray list
             STILL_ITERATING())                  // and while we still have some iterations left.
-    {
+    {        
         GCObject* next = scan->gcnext; // Save the next object.
         scan->MarkRefs(this);          // Mark it.
         scan->Unlink();                // Remove it from the gray list.

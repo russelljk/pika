@@ -133,7 +133,6 @@ Package* Package::Create(Engine* eng, String* name, Package* superPkg)
 void Package::MarkRefs(Collector* c)
 {
     ThisSuper::MarkRefs(c);
-    
     if (name) name->Mark(c);
     if (dotName) dotName->Mark(c);
     if (superPackage) superPackage->Mark(c);

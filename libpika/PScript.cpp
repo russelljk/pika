@@ -172,6 +172,7 @@ bool Script::Run(Array* args)
         running = true;    
         context->Run();
     }
+    
     running = false;
 #if defined(PIKA_DEBUG_OUTPUT)
     t.End();
@@ -179,9 +180,9 @@ bool Script::Run(Array* args)
     printf("\t%g", t.Val());
     puts("\n******************");
 #endif
-    engine->PutImport(name, Value(this->GetImportResult()));
     
-    firstRun = true;
+    engine->PutImport(name, Value(this->GetImportResult()));    
+    firstRun = true;    
     
     engine->GetGC()->IncrementalRun();
     

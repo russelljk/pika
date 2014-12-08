@@ -324,6 +324,8 @@ Array* Array::Reverse()
     return this;
 }
 
+Array::~Array() {}
+
 Value Array::Pop()
 {
     size_t len = elements.GetSize();

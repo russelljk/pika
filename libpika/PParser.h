@@ -175,6 +175,7 @@ private:
     
     Id*             DoIdentifier();
     IdExpr*         DoIdExpression();
+    Expr*           DoLiteralExpression();
     Expr*           DoRealLiteralExpression();
     Expr*           DoStringLiteralExpression();
     Expr*           DoIntegerLiteralExpression();

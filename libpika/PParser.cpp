@@ -2604,6 +2604,21 @@ Expr* Parser::DoRealLiteralExpression()
     return expr;
 }
 
+Expr* Parser::DoLiteralExpression()
+{
+    Expr* expr = 0;
+    int lextok = tstream.GetType();
+    int line = tstream.GetLineNumber();
+    
+    switch (lextok) {
+    case TOK_stringliteral:  expr = DoStringLiteralExpression();  break;
+    case TOK_integerliteral: expr = DoIntegerLiteralExpression(); break;
+    case TOK_realliteral:    expr = DoRealLiteralExpression();    break;
+    default: Unexpected(lextok);
+    }
+    return expr;
+}
+
 Expr* Parser::DoStringLiteralExpression()
 {
     Expr* expr = 0;
@@ -3014,13 +3029,13 @@ FieldList* Parser::DoDictionaryExpressionFields()
         
         name = (tstream.GetType() == TOK_identifier) ?
                 DoFieldName() :
-                DoStringLiteralExpression();
+                DoLiteralExpression();
                
         Match(':');
         BufferCurrent();
         value = DoExpression();
         BufferCurrent();
-                
+        
         BufferCurrent();
         if (!DoCommaOrNewline())
         {
