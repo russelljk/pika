@@ -154,6 +154,33 @@ To build without modules use the following
 
 ### Modules
 
+**base64**
+
+ * A base 64 encoder and decoder, meant to be an example module.
+ 
+**bignum**
+
+ * Arbitrary precision arithmetic for integers and real numbers (*floating point numbers*).
+ * Depends on GMP and MPRF for the BigInteger and BigReal classes respectively.
+ 
+**curses**
+
+ * Bindings for curses/ncurses library.
+ * Depends on curses/ncurses, no support for pdcurses at this time.
+
+**datetime**
+
+ * Provides Date, DateTime, Time, Timezone and TimeSpan classes and date manipulation.
+ 
+**event**
+
+ * Bindings for LibEvent for use with the Socket and File classes.
+ * Depends on LibEvent version `2.0.1 alpha` and up.
+ 
+**json**
+ 
+ * JSON encoder and decoder.
+ 
 **random**
  
  * Pseudorandom number generator based on Mersenne Twister (included).
@@ -163,35 +190,12 @@ To build without modules use the following
  * Regular expressions module.
  * Depends on PCRE which is now included in the code base. The project's home page is http://www.pcre.org/. I use PCRE version 8.10, so any version compatible with that release should work. Specify `RE_USE_EXTERNAL_PCRE` to search for the system's PCRE.
 
-**unittest**
-
- * Unittest module. 
- * Depends on the `re` module.
- 
-**json**
- 
- * JSON encoder and decoder.
-  
-**base64**
-
- * A base 64 encoder and decoder, meant to be an example module.
- 
-**bignum**
-
- * Arbitrary precision arithmetic for integers and real numbers (*floating point numbers*).
- * Depends on GMP and MPRF for the BigInteger and BigReal classes respectively.
-
-**curses**
-
- * Bindings for curses/ncurses library.
- * Depends on curses/ncurses, no support for pdcurses at this time.
- 
 **socket**
 
  * Berkley Sockets library.
  * Depends on Posix Socket support, not ported to Winsock yet.
 
-**event**
+**unittest**
 
- * Bindings for LibEvent for use with the Socket and File classes.
- * Depends on LibEvent version `2.0.1 alpha` and up.
+ * Unittest module. 
+ * Depends on the `re` module.
