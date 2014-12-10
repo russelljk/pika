@@ -853,7 +853,7 @@ int os_lib_load(Context* ctx, Value&)
     .Constant    (eng->GetString(PIKA_PATH_SEP), "sep")
     ;
     
-    CTime::StaticInitType(os_Package, eng);
+    // CTime::StaticInitType(os_Package, eng);
     
     eng->PutImport(os_String, os_Package);
     ctx->Push(os_Package);

@@ -4,7 +4,7 @@
  */
 #include "Pika.h"
 #include "PTime.h"
-
+#include "PPlatform.h"
 namespace pika {
 namespace {
 
@@ -20,7 +20,7 @@ void RangeCheck(pint_t x, pint_t const lo, pint_t const hi, const char* val)
 
 PIKA_IMPL(CTime)
 
-CTime::CTime(Engine* eng, Type* typ) : ThisSuper(eng, typ) {
+CTime::CTime(Engine* eng, Type* typ) : ThisSuper(eng, typ), microseconds(0) {
     LocalTime();
 }
 
@@ -37,6 +37,7 @@ void CTime::LocalTime()
     t = time(NULL);
     tm* lt = localtime(&t);	
     Pika_memcpy(&the_time, lt, sizeof(tm));
+    SetMicroseconds();
 }
 
 void CTime::GmTime()
@@ -45,6 +46,7 @@ void CTime::GmTime()
     t = time(NULL);
     tm* lt = gmtime(&t);	
     Pika_memcpy(&the_time, lt, sizeof(tm));
+    SetMicroseconds();
 }
 
 void CTime::SetSec(pint_t x)
@@ -136,6 +138,13 @@ String* CTime::GetTimezone()
     return engine->emptyString;
 }
 
+void CTime::SetMicroseconds()
+{
+    Pika_timeval tv;
+    Pika_gettimeofday(&tv, 0);
+    this->microseconds = tv.tv_usec;
+}
+
 namespace {
     int CTime_mktime(Context* ctx, Value& res)
     {
@@ -145,6 +154,18 @@ namespace {
         ctx->Push((pint_t)i);
         return 1;
     }
+}
+
+int ctime_gettimeofday(Context* ctx, Value&)
+{
+    Pika_timeval tv;
+    Pika_timezone tz;
+    Pika_gettimeofday(&tv, &tz);
+    ctx->Push((pint_t)tv.tv_sec);
+    ctx->Push((pint_t)tv.tv_usec);
+    ctx->Push((pint_t)tz.tz_minuteswest);
+    ctx->Push((pint_t)tz.tz_dsttime);
+    return 4;
 }
 
 void CTime::StaticInitType(Package* pkg, Engine* eng)
@@ -183,6 +204,8 @@ void CTime::StaticInitType(Package* pkg, Engine* eng)
             &CTime::SetIsDst,    0)
     .PropertyR("gmtoff",
             &CTime::GetGmtOff,   0)
+    .PropertyR("microseconds",
+            &CTime::GetMicroseconds, 0)
     .RegisterMethod(CTime_mktime, "mktime", 0, false, true)
     .Method(&CTime::LocalTime,   "localtime")
     .Method(&CTime::GmTime,      "gmtime")
@@ -190,6 +213,12 @@ void CTime::StaticInitType(Package* pkg, Engine* eng)
     .Method(&CTime::Diff,        "opSub")
     .Alias("diff",              "opSub")
     ;
+            
+    static RegisterFunction ctime_Functions[] = {
+        { "gettimeofday", ctime_gettimeofday, 0, DEF_STRICT, 0 },
+    };
+    
+    pkg->EnterFunctions(ctime_Functions, countof(ctime_Functions));
 }
 
 }// pika

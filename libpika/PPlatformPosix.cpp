@@ -19,6 +19,24 @@
 #include <fcntl.h>
 #include <dirent.h>
 
+int Pika_gettimeofday(Pika_timeval* ptv, Pika_timezone* ptz)
+{
+    struct timeval tv;
+    struct timezone tz;
+    int res = gettimeofday(&tv, &tz);
+    
+    if (ptv) {
+        ptv->tv_sec = tv.tv_sec;
+        ptv->tv_usec = tv.tv_usec;
+    }
+    
+    if (ptz) {
+        ptz->tz_minuteswest = tz.tz_minuteswest;
+        ptz->tz_dsttime = tz.tz_dsttime;
+    }
+    return res;
+}
+
 void Pika_Sleep(u4 msecs)
 {
     if (msecs)

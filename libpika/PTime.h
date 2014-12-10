@@ -37,6 +37,7 @@ public:
     pint_t GetWDay() { return the_time.tm_wday; }
     pint_t GetYDay() { return the_time.tm_yday; }
     pint_t GetGmtOff() { return the_time.tm_gmtoff; }
+    pint_t GetMicroseconds() { return microseconds; }
     bool   GetIsDst() { return the_time.tm_isdst != 0; }
     String* GetTimezone();
     
@@ -45,6 +46,8 @@ public:
     static void Constructor(Engine* eng, Type* type, Value& res);
     static void StaticInitType(Package* pkg, Engine* eng);
 protected:
+    void SetMicroseconds();
+    pint_t microseconds;
     tm the_time;
 };
 

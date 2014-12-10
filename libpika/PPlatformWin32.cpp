@@ -37,6 +37,46 @@ void Pika_Sleep(u4 msecs)
     Sleep(msecs);
 }
 
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+#   define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#else
+#   define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#endif
+
+int Pika_gettimeofday(Pika_timeval* tv, Pika_timezone* tz)
+{
+    FILETIME ft;
+    unsigned __int64 tmpres = 0;
+    static int tzflag = 0;
+    
+    if (tv)
+    {
+        GetSystemTimeAsFileTime(&ft);
+
+        tmpres |= ft.dwHighDateTime;
+        tmpres <<= 32;
+        tmpres |= ft.dwLowDateTime;
+
+        /*converting file time to unix epoch*/
+        tmpres -= DELTA_EPOCH_IN_MICROSECS; 
+        tmpres /= 10;  /*convert into microseconds*/
+        tv->tv_sec = (s8)(tmpres / 1000000UL);
+        tv->tv_usec = (s8)(tmpres % 1000000UL);
+    }
+    
+    if (tz)
+    {
+        if (!tzflag)
+        {
+            _tzset();
+            tzflag++;
+        }
+        tz->tz_minuteswest = _timezone / 60;
+        tz->tz_dsttime = _daylight;
+    }
+    return 0;
+}
+
 struct TimePeriod
 {
     TimePeriod() 

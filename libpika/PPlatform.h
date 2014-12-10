@@ -4,6 +4,7 @@
  */
 #ifndef PIKA_PLATFORM_HEADER
 #define PIKA_PLATFORM_HEADER
+
 extern const char* Pika_readline(const char* prompt);
 extern void Pika_addhistory(const char* ln);
 
@@ -22,6 +23,20 @@ extern const char* Pika_rindex(const char* str, int x);
 // ===== Platform Specific ====
 
 // ---- Timing Functions ----
+
+struct Pika_timeval
+{
+    s8 tv_sec;
+    s8 tv_usec;
+};
+
+struct Pika_timezone 
+{
+    s4  tz_minuteswest; /* minutes W of Greenwich */
+    s4  tz_dsttime;     /* type of dst correction */
+};
+
+extern int Pika_gettimeofday(Pika_timeval*, Pika_timezone*);
 
 extern void          Pika_Sleep(u4 msecs);
 extern unsigned long Pika_Milliseconds();

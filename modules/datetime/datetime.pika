@@ -1,0 +1,919 @@
+{*
+    Pika programing language
+    Copyright (c) 2008, Russell J. Kyle <russell.j.kyle@gmail.com>
+    
+    This software is provided 'as-is', without any express or implied
+    warranty. In no event will the authors be held liable for any damages
+    arising from the use of this software.
+    
+    Permission is granted to anyone to use this software for any purpose,
+    including commercial applications, and to alter it and redistribute it
+    freely, subject to the following restrictions:
+    
+    1. The origin of this software must not be misrepresented; you must not
+    claim that you wrote the original software. If you use this software
+    in a product, an acknowledgment in the product documentation would be
+    appreciated but is not required.
+    
+    2. Altered source versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+    
+    3. This notice may not be removed or altered from any source distribution.
+    ----------------------------------------------------------------------------
+    TODO: 
+    This module is currently development. The following tasks remain, (among others.)
+    
+     * Handle Daylight savings time.
+     * Initialize all Timezones currently in use by their common names ie CST for UTC-06:00.
+     * Added unittests.
+     * Time string formatter function.
+     * Finish adding operators to all the classes.
+     * Add Calendar class - Since we have the calculation for finding the nth Thursday.
+     * Interface with users locale for Month names, Weekday names.
+    
+    ----------------------------------------------------------------------------
+    
+    The calculations used can be found in the book appropriately titled:
+        
+    Calendrical Calculations, Third Edition
+        by Edward M. Reingold (http://emr.cs.iit.edu/~reingold) and 
+           Nachum Dershowitz (http://www.cs.tau.ac.il/~nachumd/)
+
+*}
+math = import "math"
+ctime = import "ctime"
+CTime = ctime.CTime
+
+{*  We use a:
+ *  1 based index for months,
+ *  0 based index for weekdays
+ *}
+monthLengths = [
+    0,
+    31, # Jan
+    28, # Feb
+    31, # Mar
+    30, # Apr
+    31, # May
+    30, # Jun
+    31, # Jul
+    31, # Aug
+    30, # Sep
+    31, # Oct
+    30, # Nov
+    31, # Dec
+]
+
+January, Febuary, March, April, 
+May, June, July, August, September, 
+October, November, December = [ i for i = 1 to 13 ]
+
+Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday = [ i for i = 0 to 7 ]
+
+package Gregorian    
+    function amod(x, y)
+        m = x mod y
+        if m == 0
+            return y
+        end
+        return m
+    end
+    
+    function leapYear?(year)
+        return year mod 4 == 0 and (year mod 100 != 0 or year mod 400 == 0)
+    end
+    
+    function daysBeforeYear(year)
+        lastYear = year - 1
+        return 365 * lastYear + lastYear//4 - lastYear//100 + lastYear//400
+    end
+    
+    function daysBeforeMonth(year, month)
+        days = daysBeforeYear(year) + math.ifloor(1/12 * (367 * month - 362))
+        if month <= 2
+            return days
+        elseif leapYear?(year)
+            return days - 1
+        else
+            return days - 2
+        end
+    end
+        
+    function dateToFixed(year, month, day)
+        return daysBeforeMonth(year, month) + day
+    end
+    
+    daysPer400Years = 146_097
+    daysPer100Years = 36_524
+    daysPer4Years = 1_461
+    daysPerYear = 365
+    
+    
+    function yearRange(year)
+        return dateToFixed(year, 1, 1) - dateToFixed(year, 12, 31)
+    end
+    
+    function yearFromFixed(date)
+        d0 = date - 1
+        
+        n400 = d0 // daysPer400Years
+        d1 = d0 mod daysPer400Years
+        
+        n100 = d1 // daysPer100Years
+        d2 = d1 mod daysPer100Years
+        
+        n4 = d2 // daysPer4Years
+        d3 = d2 mod daysPer4Years
+        
+        n1 = d3 // daysPerYear
+        year = 400 * n400 + 100 * n100 + 4 * n4 + n1
+        
+        if n100 == 4 or n1 == 4
+            return year
+        end
+        
+        return year + 1
+    end
+    
+    function dateFromFixed(date)
+        {*
+            Converts RD date to year, month, day.            
+            date - The number of days since the beginning of the calendar.
+        *}
+        year = yearFromFixed(date)
+        priorDays = date - dateToFixed(year, 1, 1)
+        dd = dateToFixed(year, 1, 1)
+                
+        correction = 2
+        if date < dateToFixed(year, March, 1)
+            correction = 0
+        elseif leapYear?(year)
+            correction = 1
+        end
+        
+        month = math.ifloor((1/367) * (12 * (priorDays + correction) + 373))
+        day = 1 + date - dateToFixed(year, month, 1)
+        return year, month, day
+    end
+    
+    function dayOfWeek(date)
+        return date mod 7
+    end
+    
+    function weekdayOnOrBefore(k, date)
+        return date - ((date - k) mod 7)
+    end
+            
+    function getWeekday(n, k, date) 
+        if n < 0
+            return 7 * n + weekdayOnOrBefore(k, date - 1)
+        else
+            return 7 * n + weekdayOnOrBefore(k, date + 7)
+        end
+    end
+    
+    Sunday = 0
+    
+    function fixedFromIso(year, week, day)
+        return getWeekday(week, Sunday, dateToFixed(year - 1, December, 28)) + day
+    end
+    
+    function isoFromFixed(date)
+        year = ((date-4) // (daysPer400Years/400)) + 1 
+        
+        if date >= dateToFixed(year + 1, 1, 1)
+            year += 1
+        end
+        week = 1 + math.ifloor((1/7)* (date - dateToFixed(year, 1, 1)))
+        day = amod(date, 7)
+        return year, week, day
+    end
+end
+
+Calendar = Gregorian
+
+class DateError: RuntimeError
+end
+
+SECONDS_PER_DAY = 60*60*24
+US_PER_SECONDS = 1000000
+SECONDS_PER_HOUR = 60*60
+
+MAX_FIXED_DAYS = 365*4000
+
+class TimeSpan
+    function init(days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0, weeks=0)    
+        self._days = days + weeks * 7
+        
+        minutes = minutes + hours * 60
+        seconds = seconds + minutes * 60
+        microseconds += milliseconds * 1000
+        
+        if seconds >= SECONDS_PER_DAY
+            self._days += seconds // SECONDS_PER_DAY
+            self._seconds = seconds mod SECONDS_PER_DAY
+        elseif seconds <= -SECONDS_PER_DAY
+            seconds = math.abs(seconds)
+            self._days -= seconds // SECONDS_PER_DAY
+            self._seconds = -(seconds mod SECONDS_PER_DAY)
+        else
+            self._seconds = seconds
+        end
+        
+        if milliseconds >= US_PER_SECONDS
+            seconds += microseconds // US_PER_SECONDS
+            microseconds = microseconds mod US_PER_SECONDS
+        elseif milliseconds <= -US_PER_SECONDS
+            microseconds = math.abs(seconds)
+            seconds -= microseconds // US_PER_SECONDS
+            microseconds = -(microseconds mod US_PER_SECONDS)
+        end
+        
+        if self._days >= MAX_FIXED_DAYS or self._days <= -MAX_FIXED_DAYS
+            raise DateError.new "Timespan.init - Maximum number of days {MAX_FIXED_DAYS} exceeded."
+        end
+        
+        self._microseconds = microseconds
+    end
+    
+    function toString()
+        return 'TimeSpan {self._days} days, {self._seconds} seconds, and {self._microseconds} microseconds'
+    end
+    
+    property days
+        get: function()
+            return self._days
+        end
+    end
+    
+    property microseconds
+        get: function()
+            return self._microseconds
+        end
+    end
+    
+    function opNeg()
+        return TimeSpan.new(days=-self._days, seconds=-self._seconds, microseconds=-self._microseconds)
+    end
+    
+    function opAdd(rhs)
+        if rhs is TimeSpan
+            return TimeSpan.new(
+                days = self._days + rhs._days,
+                seconds = self._seconds + rhs._seconds,
+                microseconds = self._microseconds + rhs._microseconds,
+            )
+        else
+            raise ArithmeticError.new "Operator TimeSpan.opAdd not defined between types {self.type.name} and {rhs.type.name}"
+        end
+    end
+    
+    function opAdd_r(rhs)
+        return self.opAdd(rhs)
+    end
+    
+    function opSub(rhs)
+        if rhs is TimeSpan
+            return TimeSpan.new(
+                days = self._days - rhs._days,
+                seconds = self._seconds - rhs._seconds,
+                microseconds = self._microseconds - rhs._microseconds,
+            )
+        else
+            raise ArithmeticError.new "Operator TimeSpan.opSub not defined between types {self.type.name} and {rhs.type.name}"
+        end
+    end
+end
+
+class Date
+    function init(year, month, day)
+        if year < 0
+            raise DateError.new "Invalid year {year}. Year must be a positive Integer."
+        end
+        
+        if not (month >= 1 and month <= 12)
+            raise DateError.new "Invalid month {month}. Month must be from 1 to 12."
+        end
+        
+        expectedDays = monthLengths[month]
+        if month == 2
+            if Calendar.leapYear?(year)
+                expectedDays += 1
+            end
+        end
+        
+        if day < 0 or day > expectedDays
+            raise DateError.new "Invalid day specified {day}. Day should be from 1 to {expectedDays} for the given month."
+        end
+        self._day = day
+        self._month = month
+        self._year = year
+    end
+    
+    function clone()
+        return Date.new(self._year, self._month, self._day)
+    end
+    
+    function toString()
+        return "Date {self._year}-{self._month}-{self._day}"
+    end
+    
+    function opEq(rhs)
+        if rhs is Date
+            return self._year == rhs._year and self._month == rhs._month and self._day == rhs._day
+        else
+            return false
+        end
+    end
+    
+    function opNe(rhs)
+        return not self.opEq(rhs)
+    end
+        
+    function opComp(rhs)        
+        if rhs is Date            
+            if self._year > rhs._year
+                return 1
+            elseif self._year < rhs._year
+                return -1
+            else
+                if self._month > rhs._month
+                    return 1
+                elseif self._month < rhs._month
+                    return -1
+                else
+                    if self._day > rhs._day
+                        return 1
+                    elseif self._day < rhs._day
+                        return -1
+                    end
+                end
+            end
+            return 1
+        end
+        raise TypeError.new "Operator Date.opComp not defined for argument of type {rhs.type.name}"
+    end
+    
+    property year
+        get: function()
+            return self._year
+        end
+    end
+    
+    property month
+        get: function()
+            return self._month
+        end
+    end
+    
+    property day
+        get: function()
+            return self._day
+        end
+    end
+    
+    function opAdd_r(rhs)
+        return self.opAdd(rhs)
+    end
+    
+    function opAdd(rhs)
+        if rhs is TimeSpan
+            x = TimeSpan.new(
+                days = self.toFixed())            
+            x += rhs
+            y, m, d = Calendar.dateFromFixed(x.days)
+            return Date.new(y, m, d)
+        else
+            TypeError.new "Operator Date.opAdd not defined for argument of type {rhs.type.name}"
+        end
+    end
+    
+    function opSub(rhs)
+        if rhs is Date
+            return TimeSpan.new(days= self.toFixed() - rhs.toFixed())
+        elseif rhs is TimeSpan
+            return (-rhs).opAdd self
+        else
+            raise ArithmeticError.new "Operator Date.opSub not defined for argument of type {rhs.type.name}"
+        end
+    end
+    
+    function toFixed()
+        return Calendar.dateToFixed(self._year, self._month, self._day)
+    end
+    
+    function isoWeek()
+        null, w, null = self.isoCalendar()
+        return w
+    end
+    
+    function isoYear()
+        y, null, null = self.isoCalendar()
+        return y
+    end
+    
+    function isoDay()
+        null, null, d = self.isoCalendar()
+        return d
+    end
+    
+    function isoCalendar()
+        return Calendar.isoFromFixed(self.toFixed())
+    end
+    
+    function leapYear?()
+        return Calendar.leapYear?(self._year)
+    end
+    
+    function getWeekdayBefore(weekday, nth=1, inclusive=false)
+        if weekday < 0 or weekday >= 7
+            raise DateError.new "Date.getWeekdayBefore expects a valid weekday of 0 to 6."
+        end
+        
+        offset = 1
+        if inclusive
+            offset = 0
+        end
+        
+        date = self.toFixed() - offset
+        d = Calendar.weekdayOnOrBefore(weekday, date + ((nth-1)*-7)) 
+        y, m, d = Calendar.dateFromFixed(d)       
+        return Date.new(y, m, d)
+    end
+    
+    function getWeekdayAfter(weekday, nth=1, inclusive=false)
+        if weekday < 0 or weekday >= 7
+            raise DateError.new "Date.getWeekdayAfter expects a valid weekday of 0 to 6."
+        end
+        date = self.toFixed()
+        if inclusive
+            date -= 1
+        end
+        d = Calendar.weekdayOnOrBefore(weekday, date + (nth*7))
+        y, m, d = Calendar.dateFromFixed(d)
+        return Date.new(y, m, d)
+    end
+    
+    function Date.getFirstDayOf(year, month)
+        return Date.new(year, month, 1)
+    end
+    
+    function Date.getLastDayOf(year, month)
+        lastDay = monthLengths[month]
+        if month == 2
+            if Calendar.leapYear?(year)
+                lastDay += 1
+            end
+        end
+        return Date.new(year, month, lastDay)
+    end
+end
+
+class Timezone
+    function init(offset=0, isdst=false, name='')
+        {* offset - This Timezone's offset in seconds. For example Central Time North America is -06:00 so
+                    the offset would be -6*60*60 = -21600.
+        
+            name -  The name, usually formatted UTC(+|-)HH:MM
+        *}
+        self._isdst = false
+        self._offset = offset
+        self._name = name
+    end
+    UTC = Timezone.new(0, false, 'UTC')
+    
+    zones = {
+        '0:false': UTC
+    }
+    
+    function toString()
+        return 'Timezone {self._name}'
+    end
+    
+    property offset
+        get: function()
+            if self._isdst and self._offset
+                return self._offset
+            else
+                return self._offset - 1
+            end
+        end
+    end
+    
+    function opEq(rhs)
+        if rhs is Timezone
+            return self._offset == rhs._offset
+        else
+            return false
+        end
+    end
+    
+    function opNe(rhs)
+        return not self.opEq(rhs)
+    end
+    
+    function opComp(rhs)
+        if rhs is Timezone
+            if self._offset > rhs._offset
+                return 1
+            elseif self._offset < rhs._offset
+                return -1
+            else
+                return 1
+            end
+        end
+        raise TypeError.new "Operator Timezone.opComp not defined for argument of type {rhs.type.name}"
+    end
+    
+    function getOffset()
+        {* Returns an offset that can be added a DateTime or Time instance to convert to UTC. *}        
+        return TimeSpan.new(seconds=-self.offset)
+    end
+    
+    function Timezone.fromOffset(offset, isdst)
+        key = '{offset}:{isdst}'
+        if not (zones has key)
+            name = "UTC"
+            if offset < 0
+                name ..= '-'
+            else
+                name ..= '+'
+            end
+            seconds = math.abs(offset)
+            hours = seconds//3600
+            minutes = (seconds mod 3600)//60
+            if hours < 10
+                name ..= '0'
+            end
+            name ..= hours .. ':'
+            if minutes < 10
+                name ..= '0'
+            end
+            name ..= minutes
+            zones[key] = Timezone.new(offset, isdst, name)
+        end
+        return zones[key]
+    end    
+end
+
+class Time
+    function init(hour=0, minute=0, second=0, microsecond=0, timezone=null)
+        self._hour = hour
+        self._minute = minute
+        self._second = second
+        self._microsecond = microsecond
+        self._timezone = timezone if timezone else Timezone.UTC
+    end
+    
+    function clone()
+        return Time.new(self._hour, self._minute, self._second, self._microsecond, self._timezone)
+    end
+    
+    function toTimezone(tz)
+        offset = -(self._timezone._offset - tz._offset)
+        span = TimeSpan.new(seconds=offset)
+        res = (self + span)
+        res._timezone = tz
+        return res
+    end
+    
+    function getTimezoneOffset()
+        return self._timezone.getOffset()
+    end
+    
+    function toUTC()
+        res = (self + self.getTimezoneOffset())
+        res._timezone = Timezone.UTC
+        return res
+    end
+    
+    function opAdd_r(rhs)
+        return self.opAdd(rhs)
+    end
+    
+    function Time.normalize(secs, us, timezone)
+        microsecond = us
+        
+        if secs < 0 or us < 0
+            raise "Cannot create Time instance with negative units."
+        end
+        
+        if us >= US_PER_SECONDS
+            secs += us // US_PER_SECONDS
+            microsecond = us mod US_PER_SECONDS
+        end
+        
+        if secs >= SECONDS_PER_DAY
+            secs = secs mod SECONDS_PER_DAY
+        end
+        
+        hour = secs // SECONDS_PER_HOUR
+        secs = secs mod SECONDS_PER_HOUR
+        
+        minute = secs // 60
+        second = secs mod 60
+        
+        return Time.new(hour, minute, second, microsecond, timezone)
+    end
+    
+    function opAdd(rhs)
+        if rhs is TimeSpan
+            x = TimeSpan.new(
+                hours = self._time._hour,
+                minutes = self._time._minute,
+                seconds = self._time._second,
+                microseconds = self._time._microsecond,
+            )
+            x += rhs
+            return Time.normalize(x._seconds, x._microseconds, self.timezone)
+        else
+            TypeError.new "Operator Time.opAdd not defined for argument of type {rhs.type.name}"
+        end
+    end
+    
+    function opEq(rhs)
+        if rhs is Time
+            return self._hour == rhs._hour and self._minute == rhs._minute and 
+                self._second == rhs._second and self._microsecond == rhs._microsecond and self._timezone == rhs._timezone
+        else
+            return false
+        end
+    end
+    
+    function opNe(rhs)
+        return not self.opEq(rhs)
+    end
+    
+    function opComp(rhs)        
+        if rhs is Time
+            if rhs.timezone != self.timezone
+                rhs = rhs.toTimezone(self.timezone)
+            end
+            
+            if self._hour > rhs._hour
+                return 1
+            elseif self._hour < rhs._hour
+                return -1
+            else
+                if self._minute > rhs._minute
+                    return 1
+                elseif self._minute < rhs._minute
+                    return -1
+                else
+                    if self._second > rhs._second
+                        return 1
+                    elseif self._second < rhs._second
+                        return -1
+                    else
+                        if self._microsecond > rhs._microsecond
+                            return 1
+                        elseif self._microsecond < rhs._microsecond
+                            return -1
+                        end
+                    end
+                end
+            end
+            return 1
+        end
+        raise TypeError.new "Operator Time.opComp not defined for argument of type {rhs.type.name}"
+    end
+    
+    function opSub(rhs)
+        if rhs is Time
+            lhsTime = self._time
+            
+            if rhs.timezone != self.timezone
+                rhs = rhs.toTimezone(self.timezone)
+            end
+            
+            rhsTime = rhs._time
+            
+            return TimeSpan.new(
+                hours = lhsTime._hour - rhsTime._hour, 
+                minutes = lhsTime._minute - rhsTime._minute, 
+                seconds = lhsTime._second - rhsTime._second, 
+                microseconds = lhsTime._microsecond - rhsTime._microsecond, 
+            )
+        elseif rhs is TimeSpan
+            return self.opAdd(-rhs)
+        else
+            raise TypeError.new "Operator Time.opSub not defined for argument of type {rhs.type.name}"
+        end
+    end
+    
+    function Time.utcnow()
+        return self.now(true)
+    end
+    
+    function Time.now(utc=false)
+        ts = CTime.new() 
+        if utc
+            ts.gmtime()
+        end
+        return Time.new(hour=ts.hour, minute=ts.min, second=ts.sec, 
+            microsecond=ts.microseconds, timezone=Timezone.fromOffset(ts.gmtoff))
+    end
+    
+    function toString()
+        return "Time {self._hour}:{self._minute}:{self._second} {self._timezone._name}"
+    end
+end
+
+class DateTime : Date
+    function init(year, month, day, 
+                  hour=0, minute=0, second=0, microsecond=0, 
+                  timezone=null, time=null)
+        super(year, month, day)
+        if time == null
+            self._time = Time.new(hour, minute, second, microsecond, timezone)
+        else
+            self._time = time.clone()
+        end
+    end
+    
+    function clone()
+        return DateTime.new(self._year, self._month, self._day, time=self._time)
+    end
+    
+    function opEq(rhs)
+        if not (rhs is DateTime)
+            return false
+        end
+        return self._year == rhs._year and self._month == rhs._month and 
+               self._day == rhs._day and self._time == rhs._time
+    end
+    
+    function opNe(rhs)
+        return not self.opEq(rhs)
+    end
+    
+    function opComp(rhs)        
+        if rhs is DateTime
+            if rhs.timezone != self.timezone
+                rhs = rhs.toTimezone(self.timezone)
+            end
+            
+            comp = super(rhs)
+            if comp == 0 
+                return self._time.opComp(rhs._time)
+            end
+            return comp
+        end
+        raise TypeError.new "Operator DateTime.opComp not defined for argument of type {rhs.type.name}"
+    end
+    
+    function DateTime.normalize(days, secs, us, timezone)        
+        microsecond = us
+        
+        if days < 0 or secs < 0 or us < 0
+            raise "Cannot create DateTime instance with negative units."
+        end
+        
+        if us >= US_PER_SECONDS
+            secs += us // US_PER_SECONDS
+            microsecond = us mod US_PER_SECONDS
+        end
+    
+        if secs >= SECONDS_PER_DAY
+            days += secs //  SECONDS_PER_DAY
+            secs  = secs mod SECONDS_PER_DAY
+        end
+        
+        hour = secs // SECONDS_PER_HOUR
+        secs = secs mod SECONDS_PER_HOUR
+        
+        minute = secs // 60
+        second = secs mod 60
+        
+        year, month, day = Calendar.dateFromFixed(days)
+        
+        return DateTime.new(year, month, day, hour, minute, second, microsecond, timezone)
+    end
+    
+    function opAdd_r(rhs)
+        return self.opAdd(rhs)
+    end
+    
+    function opAdd(rhs)
+        if rhs is TimeSpan
+            x = TimeSpan.new(
+                days = self.toFixed(),
+                hours = self._time._hour,
+                minutes = self._time._minute,
+                seconds = self._time._second,
+                microseconds = self._time._microsecond,
+            )            
+            x += rhs            
+            return DateTime.normalize(x.days, x._seconds, x._microseconds, self.timezone)
+        else
+            TypeError.new "Operator DateTime.opAdd not defined for argument of type {rhs.type.name}"
+        end
+    end
+    
+    function opSub(rhs)
+        if rhs is DateTime
+            lhsTime = self._time
+            
+            if rhs.timezone != self.timezone
+                rhs = rhs.toTimezone(self.timezone)
+            end
+            
+            rhsTime = rhs._time
+            
+            return TimeSpan.new(
+                days = self.toFixed() - rhs.toFixed(), 
+                hours = lhsTime._hour - rhsTime._hour, 
+                minutes = lhsTime._minute - rhsTime._minute, 
+                seconds = lhsTime._second - rhsTime._second, 
+                microseconds = lhsTime._microsecond - rhsTime._microsecond, 
+            )
+        elseif rhs is TimeSpan
+            return self.opAdd(-rhs)
+        else
+            raise TypeError.new "Operator DateTime.opSub not defined for argument of type {rhs.type.name}"
+        end
+    end
+    
+    function toString()
+        us = self._time._microsecond
+        return "DateTime {self._year}-{self._month}-{self._day} \
+{self._time._hour}:{self._time._minute}:{self._time._second}.{us} \
+{self._time._timezone._name}"
+    end
+    
+    function getTimezoneOffset()
+        return self._time.getTimezoneOffset()
+    end
+    
+    function toTimezone(tz)
+        span = self.getTimezoneOffset() - tz.getOffset()
+        res = (self + span)
+        res._time._timezone = tz
+        return res
+    end
+    
+    function toUTC()
+        res = (self + self.getTimezoneOffset())
+        res._time._timezone = Timezone.UTC
+        return res
+    end
+    
+    function toDate()
+        return Date.new(self._year, self._month, self._day)
+    end
+    
+    function toTime()
+        return self._time.clone()
+    end
+    
+    property hour
+        get: function()
+            return self._time._hour
+        end
+    end
+    
+    property minute
+        get: function()
+            return self._time._minute
+        end
+    end
+    
+    property second
+        get: function()
+            return self._time._second
+        end
+    end
+    
+    property microsecond
+        get: function()
+            return self._time._microsecond
+        end
+    end
+    
+    property time
+        get: function()
+            return self._time
+        end
+    end
+
+    property timezone
+        get: function()
+            return self._time._timezone
+        end
+    end
+    
+    function DateTime.utcnow()
+        return self.now(true)
+    end
+    
+    function DateTime.now(utc=false)
+        ts = CTime.new() 
+        if utc
+            ts.gmtime()
+        end
+                    
+        return DateTime.new(year=ts.year, month=ts.mon, day=ts.mday, hour=ts.hour, 
+            minute=ts.min, second=ts.sec, microsecond=ts.microseconds, 
+            timezone=Timezone.fromOffset(ts.gmtoff, ts.isdst))
+    end
+end
