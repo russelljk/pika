@@ -189,7 +189,7 @@ int OpArguments(Context* ctx, const Opcode op, const OpOverride ovr, const OpOve
     return 1;
 }
 
-PIKA_DOC(math_sum, "/(:va)\
+PIKA_DOC(math_sum, "/(*va)\
 \n\
 Returns the summation of all the arguments given. If two values cannot be \
 added an exception will be raised. All arguments should implement '''opAdd''' and '''opAdd_r''' \
@@ -245,7 +245,7 @@ int CompareArguments(Context* ctx, const Opcode op, const OpOverride ovr, const 
     return 1;
 }
 
-PIKA_DOC(math_min, "/(:va)\
+PIKA_DOC(math_min, "/(*va)\
 \n\
 Returns the minimum value from the arguments given. If two values cannot be \
 compared an exception will be raised. All arguments should implement '''opLt''' and '''opLt_r''' \
@@ -256,7 +256,7 @@ int math_min(Context* ctx, Value&)
     return CompareArguments(ctx, OP_lt, OVR_lt, OVR_lt_r);
 }
 
-PIKA_DOC(math_max, "/(:va)\
+PIKA_DOC(math_max, "/(*va)\
 \n\
 Returns the maximum value from the arguments given. If two values cannot be \
 compared an exception will be raised. All arguments should implement '''opGt''' and '''opGt_r''' \

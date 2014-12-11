@@ -24,12 +24,11 @@
     This module is currently development. The following tasks remain, (among others.)
     
      * Handle Daylight savings time.
-     * Initialize all Timezones currently in use by their common names ie CST for UTC-06:00.
      * Added unittests.
      * Time string formatter function.
      * Finish adding operators to all the classes.
      * Add Calendar class - Since we have the calculation for finding the nth Thursday.
-     * Interface with users locale for Month names, Weekday names.
+     * Add locale names for Months and Weekdays.
     
     ----------------------------------------------------------------------------
     
@@ -64,11 +63,11 @@ monthLengths = [
     31, # Dec
 ]
 
-January, Febuary, March, April, 
+global January, Febuary, March, April, 
 May, June, July, August, September, 
 October, November, December = [ i for i = 1 to 13 ]
 
-Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday = [ i for i = 0 to 7 ]
+global Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday = [ i for i = 0 to 7 ]
 
 package Gregorian    
     function amod(x, y)
@@ -171,9 +170,7 @@ package Gregorian
             return 7 * n + weekdayOnOrBefore(k, date + 7)
         end
     end
-    
-    Sunday = 0
-    
+        
     function fixedFromIso(year, week, day)
         return getWeekday(week, Sunday, dateToFixed(year - 1, December, 28)) + day
     end
@@ -349,7 +346,7 @@ class Date
                     end
                 end
             end
-            return 1
+            return 0
         end
         raise TypeError.new "Operator Date.opComp not defined for argument of type {rhs.type.name}"
     end
@@ -502,7 +499,7 @@ class Timezone
     
     function opEq(rhs)
         if rhs is Timezone
-            return self._offset == rhs._offset
+            return self._offset == rhs._offset and self._isdst == rhs._isdst
         else
             return false
         end
@@ -514,12 +511,14 @@ class Timezone
     
     function opComp(rhs)
         if rhs is Timezone
-            if self._offset > rhs._offset
+            lhsOffset = self.offset
+            rhsOffset = rhs.offset
+            if lhsOffset > rhsOffset
                 return 1
-            elseif self._offset < rhs._offset
+            elseif lhsOffset < rhsOffset
                 return -1
             else
-                return 1
+                return 0
             end
         end
         raise TypeError.new "Operator Timezone.opComp not defined for argument of type {rhs.type.name}"
@@ -673,7 +672,7 @@ class Time
                     end
                 end
             end
-            return 1
+            return 0
         end
         raise TypeError.new "Operator Time.opComp not defined for argument of type {rhs.type.name}"
     end

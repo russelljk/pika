@@ -1,6 +1,6 @@
 /*
  *  SockeyPlatform.h
- *  See Copyright Notice in PSocketModule.h
+ *  See Copyright Notice in Pika.h
  */
 #ifndef SOCKET_PLATFORM_HEADER
 #define SOCKET_PLATFORM_HEADER

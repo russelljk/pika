@@ -25,7 +25,7 @@
  */
 #include "Pika.h"
 using namespace pika;
-// TODO: Specifiy arguments.
+
 void Pika_DisplayUsage(const char* name)
 {
     std::cerr << '\n' << PIKA_BANNER_STR", "PIKA_COPYRIGHT_STR << '\n';

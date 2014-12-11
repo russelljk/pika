@@ -1,3 +1,7 @@
+/*
+ *  PBigNum.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PBigNum.h"
 
 using namespace pika;

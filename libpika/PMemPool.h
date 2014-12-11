@@ -15,7 +15,6 @@ class MemPool;
 struct AllocBlock { size_t     Size; };
 struct FreeBlock  { FreeBlock* Next; };
 
-#if 1
 // MemPoolMixed, MemObjPoolMixed and PoolObject are untested and unused!
 
 // MemPoolMixed /////////////////////////////////////////////////////////////////////////
@@ -87,9 +86,8 @@ struct PoolObject
     void            operator delete[](void*, MemObjPoolMixed<PoolObject>&) {}
     
     void            operator delete(void*, size_t) {}
-    void            operator delete[](void*) {}};
-    
-#endif
+    void            operator delete[](void*) {}
+};
     
 /** An arena class.
   * @note All blocks are align to the value of PIKA_ALIGN.

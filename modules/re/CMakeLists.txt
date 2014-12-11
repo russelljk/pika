@@ -1,6 +1,5 @@
 #
 # CMakeLists.txt for pikare
-# TODO: Install library and headers
 #
 message (STATUS "********* Starting pikare library *********")
 

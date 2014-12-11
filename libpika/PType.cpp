@@ -497,7 +497,7 @@ Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Pac
     return type;
 }
 
-PIKA_DOC(Type_new, "/(:varg, ::kwarg)"
+PIKA_DOC(Type_new, "/(*varg, **kwarg)"
 "\n\n"
 "This function is responsible for creating and initializing new instances."
 " The [Type Type's] '''init''' function will be called with same arguments. The \

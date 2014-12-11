@@ -1,3 +1,7 @@
+/*
+ *  PJsonDecode.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_JSONDECODE_HEADER
 #define PIKA_JSONDECODE_HEADER
 

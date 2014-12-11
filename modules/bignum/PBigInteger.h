@@ -1,3 +1,7 @@
+/*
+ *  PBigInteger.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_BIGINTEGER_HEADER
 #define PIKA_BIGINTEGER_HEADER
 

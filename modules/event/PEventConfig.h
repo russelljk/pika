@@ -1,3 +1,7 @@
+/*
+ *  PEventConfig.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_EVENTCONFIG_HEADER
 #define PIKA_EVENTCONFIG_HEADER
 

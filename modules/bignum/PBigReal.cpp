@@ -1,3 +1,7 @@
+/*
+ *  PBigReal.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PBigNum.h"
 
 #define BIGREAL_TYPENAME "BigReal"

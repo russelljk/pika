@@ -1,3 +1,7 @@
+/*
+ *  PSocketPlatformPosix.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "SocketPlatform.h"
 #include <unistd.h>
 #include <fcntl.h>

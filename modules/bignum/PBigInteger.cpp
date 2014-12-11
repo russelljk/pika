@@ -1,3 +1,7 @@
+/*
+ *  PBigInteger.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PBigNum.h"
 
 #if defined(PIKA_WIN)

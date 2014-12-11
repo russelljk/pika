@@ -1,3 +1,7 @@
+/*
+ *  PEventModule.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_EVENT_MODULE_HEADER
 #define PIKA_EVENT_MODULE_HEADER
 

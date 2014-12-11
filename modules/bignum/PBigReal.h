@@ -1,3 +1,7 @@
+/*
+ *  PBigReal.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_BIGREAL_HEADER
 #define PIKA_BIGREAL_HEADER
 

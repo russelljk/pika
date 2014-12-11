@@ -1,3 +1,7 @@
+/*
+ *  PJsonDecode.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PJson.h"
 #include "PJsonDecode.h"
 

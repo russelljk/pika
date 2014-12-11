@@ -289,7 +289,7 @@ String* File::Read(Context* ctx)
     return engine->emptyString;
 }
 
-PIKA_DOC(File_write, "/(:va)\
+PIKA_DOC(File_write, "/(*va)\
 \n\
 Write each argument to the file. Each argument will be converted to a [String] \
 if not already one. If the file is invalid or closed and exception will be raised.\

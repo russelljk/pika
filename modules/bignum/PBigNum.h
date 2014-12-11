@@ -1,5 +1,9 @@
-#ifndef PIKA_MP_HEADER
-#define PIKA_MP_HEADER
+/*
+ *  PBigNum.h
+ *  See Copyright Notice in Pika.h
+ */
+#ifndef PIKA_BIGNUM_HEADER
+#define PIKA_BIGNUM_HEADER
 
 #include "bignum_config.h"
 #include <gmp.h>

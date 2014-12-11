@@ -1,3 +1,7 @@
+/*
+ *  PJsonEncode.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PJson.h"
 #include "PJsonEncode.h"
 

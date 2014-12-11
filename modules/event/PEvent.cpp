@@ -1,3 +1,7 @@
+/*
+ *  PEvent.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PEventModule.h"
 
 namespace pika {

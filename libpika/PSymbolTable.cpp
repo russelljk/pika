@@ -2,7 +2,6 @@
  *  PSymboltable.cpp
  *  See Copyright Notice in Pika.h
  */
-
 #include "Pika.h"                // TODO: remove me?
 #include "PSymbolTable.h"
 #include "PAst.h"

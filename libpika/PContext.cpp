@@ -50,7 +50,7 @@ int Context_next(Context* ctx, Value& self)
     return retc;
 }
 
-PIKA_DOC(Context_setup, "/(:va)\
+PIKA_DOC(Context_setup, "/(*va)\
 \n\
 Setup this Context so that it can be [next called]. The arguments given will be passed to the [Function function] it was initialized with. This should be a newly created Context.")
 

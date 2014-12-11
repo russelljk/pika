@@ -1,3 +1,7 @@
+/*
+ *  PSocketAddress.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_SOCKETADDRESS_HEADER
 #define PIKA_SOCKETADDRESS_HEADER
 

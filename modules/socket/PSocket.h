@@ -1,3 +1,7 @@
+/*
+ *  PSocket.h
+ *  See Copyright Notice in Pika.h
+ */
 #ifndef PIKA_SOCKET_HEADER
 #define PIKA_SOCKET_HEADER
 

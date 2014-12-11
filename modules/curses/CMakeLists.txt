@@ -1,6 +1,5 @@
 #
 # CMakeLists.txt for pikacurses
-# TODO: Install library and headers
 # TODO: support pdcurses
 #
 message (STATUS "********* Starting pikacurses library *********")

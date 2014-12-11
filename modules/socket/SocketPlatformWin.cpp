@@ -1,3 +1,7 @@
+/*
+ *  PSocketPlatformWin.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PSocket.h"
 
 #include <windows.h>

@@ -1,6 +1,6 @@
 /*
  *  SockeyPlatform.cpp
- *  See Copyright Notice in PSocketModule.h
+ *  See Copyright Notice in Pika.h
  */
 #include "SocketPlatform.h"
 

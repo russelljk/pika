@@ -1,3 +1,7 @@
+/*
+ *  PSocketAddress.cpp
+ *  See Copyright Notice in Pika.h
+ */
 #include "PSocketModule.h"
 
 namespace pika {

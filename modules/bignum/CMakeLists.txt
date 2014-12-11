@@ -1,6 +1,5 @@
 #
 # CMakeLists.txt for pikabignum
-# TODO: Install library and headers
 #
 message (STATUS "********* Starting pikabignum library *********")
 
