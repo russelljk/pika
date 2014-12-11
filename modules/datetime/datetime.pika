@@ -645,7 +645,7 @@ class Time
     
     function opComp(rhs)        
         if rhs is Time
-            if rhs.timezone != self.timezone
+            if rhs._timezone != self._timezone
                 rhs = rhs.toTimezone(self.timezone)
             end
             
