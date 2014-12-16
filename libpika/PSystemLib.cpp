@@ -267,6 +267,23 @@ int math_max(Context* ctx, Value&)
     return CompareArguments(ctx, OP_gt, OVR_gt, OVR_gt_r);
 }
 
+int math_clamp(Context* ctx, Value&)
+{
+    Value& val = ctx->GetArg(0);
+    if (val.IsInteger()) {
+        pint_t ival = val.val.integer;
+        pint_t minVal = ctx->GetIntArg(1);
+        pint_t maxVal = ctx->GetIntArg(2);
+        ctx->Push(Min<pint_t>(Max<pint_t>(ival, minVal), maxVal));
+    } else {
+        preal_t rval = ctx->GetRealArg(0);
+        preal_t minVal = ctx->GetRealArg(1);
+        preal_t maxVal = ctx->GetRealArg(2);
+        ctx->Push(Min<preal_t>(Max<preal_t>(rval, minVal), maxVal));
+    }
+    return 1;
+}
+
 PIKA_DOC(os_fullpath, "/(path)"
 "\n"
 "Returns the full or absolute path for |path|. If the path does not exist then \
@@ -752,6 +769,7 @@ int math_lib_load(Context* ctx, Value&)
     .StaticMethod( Floor,        "floor",   PIKA_GET_DOC(math_floor))
     .StaticMethod( Ceil,         "ceiling", PIKA_GET_DOC(math_ceiling))
     .StaticMethod( Exp,          "exp",     PIKA_GET_DOC(math_exp))
+    .Register    ( math_clamp,   "clamp", 3, false, true, 0 )
     .Register    ( math_sum,     "sum", 0, true, false, PIKA_GET_DOC(math_sum))
     .Register    ( math_max,     "max", 0, true, false, PIKA_GET_DOC(math_max))
     .Register    ( math_min,     "min", 0, true, false, PIKA_GET_DOC(math_min))

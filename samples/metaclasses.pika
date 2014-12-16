@@ -1,15 +1,43 @@
+{*
+
+If classes are considered blueprints for objects then meta-classes can be considered 
+blueprints for other classes.
+
+You can specify a meta-class by adding after the base class, seperated by a comma.
+
+For example:
+
+    class MyType: BaseType, MetaType
+
+A meta-class should be derived from Type or a subclass of Type.
+
+*}
 class AType: Type
-    function init(name, pkg, baseType, metaType, *args, **kwargs)
-        print 'AType.init', self, self.type, self.base
+    {*
+     * When a new type is create the meta-types init method is called. 
+     *
+     * You can also override new, but doing so means you must create, initialize and return
+     * the Type instance.
+     *}
+    function init(name,         # (String) - The name of the type being created.
+                  pkg,          # (Package) - The package the type is defined in.
+                  baseType,     # (Type) - The base or super type.
+                  metaType,     # (Type) - The meta type.
+                  *args, **kwargs)
+        
+        # It's a good idea to call Type.init(...) to properly initialize everything.
         super(name, pkg, baseType, metaType, *args, **kwargs)
-        print 'AType.init', self, self.type, self.base
+        
+        print 'AType.init:', name, self.type, self.base
     end
+
 end
 
 class BType: AType
 end
 
-class A: Object, AType
+class A: Object, # base type
+         AType   # meta-type - Determines how A is constructed and behaves.
     function init(a, b)
         print "A.init {a} {b}"
         self.a = a

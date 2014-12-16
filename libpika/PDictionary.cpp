@@ -177,6 +177,44 @@ namespace {
         ctx->Push(vals);
         return 2;
     }
+    
+    int Dictionary_get(Context* ctx, Value& self)
+    {
+        Engine* engine = ctx->GetEngine();
+        Dictionary* dict = (Dictionary*)self.val.object;
+        Value& key = ctx->GetArg(0);
+        u2 argc = ctx->GetArgCount();
+        Value res(NULL_VALUE);
+        
+        if (!dict->BracketRead(key, res)) {
+            if (argc == 2) {
+                ctx->Push(ctx->GetArg(1));
+                return 1;
+            }
+            GCPAUSE(engine);
+            RaiseException(Exception::ERROR_index, "Dictionary.get - attempt to read element '%s'.",
+                engine->SafeToString(ctx, key)->GetBuffer()
+            ); 
+        }
+        ctx->Push(res);
+        return 1;
+    }
+    
+    int Dictionary_set(Context* ctx, Value& self)
+    {
+        Engine* engine = ctx->GetEngine();
+        Dictionary* dict = (Dictionary*)self.val.object;
+        Value& key = ctx->GetArg(0);
+        Value& val = ctx->GetArg(1);
+        
+        if (!dict->BracketWrite(key, val)) {
+            GCPAUSE(engine);
+            RaiseException(Exception::ERROR_index, "Dictionary.set - Attempt to write to element '%s'.",
+                engine->SafeToString(ctx, key)->GetBuffer()
+            ); 
+        }
+        return 0;
+    }
 }// namespace
 
 void Dictionary::StaticInitType(Engine* eng)
@@ -190,6 +228,8 @@ void Dictionary::StaticInitType(Engine* eng)
     .Method(&Dictionary::HasSlot,    "hasKey")
     .Method(&Dictionary::ToBoolean,  "toBoolean")
     .RegisterMethod(Dictionary_unzip, "unzip", 0, false, true)
+    .RegisterMethod(Dictionary_get, "get", 1, true, false)
+    .RegisterMethod(Dictionary_set, "set", 2, false, true)
     .PropertyR("length", &Dictionary::GetLength, "getLength")
     ;
     

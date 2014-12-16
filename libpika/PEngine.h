@@ -269,6 +269,7 @@ public:
     String* message_String;
     String* dot_String;
     String* OpDispose_String;
+    String* OpSubclass_String;
     String* OpUse_String;
     String* loading_String;
     

@@ -143,8 +143,8 @@ public:
     virtual void SetDoc(const char*);
     
     /** Adds a type method. */
-    void AddMethod(Function*);
-    void AddClassMethod(Function*);
+    Function* AddMethod(Function* f, String* name=0);
+    Function* AddClassMethod(Function* f, String* name=0);
     
     Type_NewFn  GetNewFn() const { return newfn; }
     

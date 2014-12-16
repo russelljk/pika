@@ -13,6 +13,7 @@
 #include "PTokenizer.h"
 #include "PPackage.h"
 #include "PNativeBind.h"
+
 namespace pika {
 
 //////////////////////////////////////////StringIterator//////////////////////////////////////////
@@ -492,12 +493,36 @@ String* String::Reverse()
     return engine->AllocString(begDst, length);
 }
 
+String* String::Strip(StringDirection sd, const char* what)
+{
+    if (!this->GetLength())
+        return this;
+    
+    const char* start = this->GetBuffer();
+    const char* end = this->GetBuffer() + (this->GetLength() - 1);
+        
+    if (sd != SD_right) {
+        while (strchr(what, *start) && start < end) {
+            start++;
+        }
+        
+        if (start >= end)
+            return engine->emptyString;
+    }
+    
+    if (sd != SD_left) {
+        while (end > start && strchr(what, *end)) {
+            end--;
+        }
+    }
+    return engine->AllocString(start, end - start + 1);
+}
+
 String* String::Chomp(String* c)
 {
-    if (!c || 
-        this->GetLength() == 0 || 
-        c->GetLength() == 0)
-    return this;
+    if (!c || this->GetLength() == 0 || c->GetLength() == 0) {
+        return this;
+    }
     const char* buff = this->GetBuffer();
     const char* cbuff = c->GetBuffer();
     for (size_t i = 0; i < this->GetLength(); ++i)
@@ -509,6 +534,117 @@ String* String::Chomp(String* c)
         }
     }
     return engine->emptyString;
+}
+
+INLINE void BufferAddCString(Buffer<char>& buff, const char* str, size_t amt)
+{
+    if (!amt) return;
+    size_t const pos = buff.GetSize();
+    buff.Resize(buff.GetSize() + amt);
+    Pika_memcpy(buff.GetAt(pos), str, amt);
+}
+
+INLINE void BufferAddString(Buffer<char>& buff, String* str)
+{
+    return BufferAddCString(buff, str->GetBuffer(), str->GetLength());
+}
+
+String* String::Escape(Array* entities, Array* replacements)
+{
+    size_t const num_replacements = replacements->GetLength();
+    if (entities->GetLength() != num_replacements)
+    {
+        RaiseException(Exception::ERROR_type, "String.escape - The entities String and the replacement Array must be the same size.");
+    }
+        
+    typedef std::pair<String*, String*> ReplacementPair;
+    
+    Buffer<ReplacementPair> lookups(num_replacements);
+    
+    for (size_t i=0; i < num_replacements; ++i)
+    {
+        Value& e = (*entities)[i];
+        Value& r = (*replacements)[i];
+        
+        if (!(e.IsString() && r.IsString()))
+        {
+            RaiseException(Exception::ERROR_type, "String.escape - All elements in both arguments must be of type String.");
+        }
+        lookups[i].first = e.val.str;
+        lookups[i].second = r.val.str;
+    }
+    
+    Buffer<char> buff;
+    buff.SetCapacity(this->GetLength());    
+    const char* curr = this->GetBuffer();
+    const char* end = curr + this->GetLength();
+    
+    while (curr < end) {        
+        for (size_t i = 0; i < lookups.GetSize(); ++i) {
+            ReplacementPair& p = lookups[i];
+            String* ent = p.first;
+            size_t const amt = ent->GetLength();
+            
+            if (strncmp(curr, ent->GetBuffer(), amt) == 0) {
+                curr += amt;
+                BufferAddString(buff, p.second);
+                continue;
+            }
+        }
+    
+        buff.Push(*curr++);
+    }
+    
+    ptrdiff_t amt = curr - end;
+    BufferAddCString(buff, curr, amt);
+    return engine->GetString(buff.GetAt(0), buff.GetSize());
+}
+
+String* String::Escape(String* entities, Array* replacements)
+{
+    if (entities->GetLength() != replacements->GetLength())
+    {
+        RaiseException(Exception::ERROR_type, "String.escape - The entities String and the replacement Array must be the same size.");
+    }
+    size_t num_replacements = replacements->GetLength();
+    Buffer<String*> cached(num_replacements);
+    Pika_memzero(cached.GetAt(0), num_replacements * sizeof(String*));
+    Buffer<char> buff;
+    buff.SetCapacity(this->GetLength());
+    size_t num_ents = entities->GetLength();
+    const char* curr = this->GetBuffer();
+    const char* end = curr + this->GetLength();
+    const char* ent_start = entities->GetBuffer();
+    
+    while (curr < end) 
+    {
+        const char* ent_ptr = strchr(ent_start, *curr);        
+        if (!ent_ptr) 
+        {
+            buff.Push(*curr);
+        } 
+        else 
+        {
+            ptrdiff_t ent_idx = ent_ptr - ent_start;
+            String* rep = cached[ent_idx];
+            assert(ent_idx < num_ents);
+            
+            if (!rep) 
+            {
+                Value& v = (*replacements)[ent_idx];
+                if (!v.IsString()) 
+                {
+                    RaiseException(Exception::ERROR_type, "String.escape replacement Array element %d. Excepted type String.", (pint_t)ent_idx);
+                }
+                cached[ent_idx] = rep = v.val.str;
+            }
+            BufferAddString(buff, rep);
+        }
+        ++curr;
+    }
+    ptrdiff_t amt = curr - end;
+    BufferAddCString(buff, curr, amt);
+    return engine->GetString(buff.GetAt(0), buff.GetSize());
 }
 
 String* String::sprintp(Engine*  eng,    // context
@@ -1149,7 +1285,7 @@ public:
         String* vstr = self.val.str;
         String* other = (ctx->GetArgCount() == 1 && !ctx->IsArgNull(0)) ?
                     ctx->GetStringArg(0) : 
-                    ctx->GetEngine()->AllocString(" \r\n\t\v\f"); // space,cr,nl,tab,vtab,formfeed
+                    ctx->GetEngine()->AllocString(WHITESPACE_CSTRING); // space,cr,nl,tab,vtab,formfeed
         
         String* res = vstr->Chomp(other);
         if (res)
@@ -1158,6 +1294,76 @@ public:
             ctx->Push(ctx->GetEngine()->emptyString);
         return 1;
     }    
+    
+    static int escape(Context* ctx, Value& self)
+    {
+        String* vstr = self.val.str;
+        Array* reps = ctx->GetArgT<Array>(1);
+        String* res = 0;
+        Value& vent = ctx->GetArg(0);
+        
+        if (vent.IsString()) {
+            String* ents = vent.val.str;
+            res = vstr->Escape(ents, reps);
+        } else {
+            Array* aents = ctx->GetArgT<Array>(0);
+            res = vstr->Escape(aents, reps);
+        }       
+        
+        ctx->Push(res);
+        return 1;
+    }
+    
+    static int strip(Context* ctx, Value& self)
+    {
+        u2 argc = ctx->GetArgCount();
+        String* src = self.val.str;
+        String* res = 0;
+        const char* what = WHITESPACE_CSTRING;
+        if (argc == 1) {
+            String* arg = ctx->GetStringArg(0);
+            what = arg->GetBuffer();
+        } else if (argc != 0) {
+            ctx->WrongArgCount();
+        }
+        res = src->Strip(SD_both, what);
+        ctx->Push(res);
+        return 1;
+    }
+    
+    static int stripLeft(Context* ctx, Value& self)
+    {
+        u2 argc = ctx->GetArgCount();
+        String* src = self.val.str;
+        String* res = 0;
+        const char* what = WHITESPACE_CSTRING;
+        if (argc == 1) {
+            String* arg = ctx->GetStringArg(0);
+            what = arg->GetBuffer();
+        } else if (argc != 0) {
+            ctx->WrongArgCount();
+        }
+        res = src->Strip(SD_left, what);
+        ctx->Push(res);
+        return 1;
+    }
+    
+    static int stripRight(Context* ctx, Value& self)
+    {
+        u2 argc = ctx->GetArgCount();
+        String* src = self.val.str;
+        String* res = 0;
+        const char* what = WHITESPACE_CSTRING;
+        if (argc == 1) {
+            String* arg = ctx->GetStringArg(0);
+            what = arg->GetBuffer();
+        } else if (argc != 0) {
+            ctx->WrongArgCount();
+        }
+        res = src->Strip(SD_right, what);
+        ctx->Push(res);
+        return 1;
+    }
     
     static int times(Context* ctx, Value& self)
     {
@@ -1315,7 +1521,7 @@ public:
         ctx->Top().Set(strresult); // Overwrite the iterator
         return 1;
     }
-    
+        
     static int search(Context* ctx, Value& self)
     {
         Engine* eng = ctx->GetEngine();
@@ -1540,6 +1746,12 @@ void String::StaticInitType(Engine* eng)
         { "join",           StringApi::join,                0, DEF_VAR_ARGS, PIKA_GET_DOC(String_join) },
         { "search",         StringApi::search,              0, DEF_VAR_ARGS, 0 },
         { "getLength",      StringApi::getLength,           0, DEF_STRICT,   0 },
+
+        { "strip",          StringApi::strip,               0, DEF_VAR_ARGS, 0 },
+        { "stripLeft",      StringApi::stripLeft,           0, DEF_VAR_ARGS, 0 },
+        { "stripRight",     StringApi::stripRight,          0, DEF_VAR_ARGS, 0 },
+
+        { "escape",         StringApi::escape,              2, DEF_STRICT,   0 },
     };
     
     static RegisterFunction String_ClassMethods[] =

@@ -839,6 +839,7 @@ void Engine::InitializeWorld()
         this->Array_String      = AllocString("Array");
         this->Enumerator_String = AllocString("Enumerator");
         this->Object_String     = AllocString("Object");
+        this->OpSubclass_String = AllocString("onSubclass");
         this->OpDispose_String  = AllocString("onDispose");
         this->OpUse_String      = AllocString("onUse");
         this->Property_String   = AllocString("Property");

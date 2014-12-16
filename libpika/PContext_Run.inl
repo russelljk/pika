@@ -389,8 +389,10 @@ void Context::Run()
                                            super->GetName()->GetBuffer());
                     }          
                     else
-                    {
-                        if (nullmeta) // No meta class
+                    {                        
+                        Type* superMeta = super->GetType();
+                            
+                        if (nullmeta && superMeta->GetType() == engine->Type_Type->GetType()) // No meta class
                         {
                             newtype = super->NewType(name, superPkg);
                             Pop(3);
@@ -398,6 +400,12 @@ void Context::Run()
                         }
                         else
                         {
+                            if (nullmeta)
+                            {
+                                String* metaName = String::Concat(name, engine->GetString("Type"));
+                                Type* meta = superMeta->NewType(metaName, superPkg);
+                                vmeta.Set(meta);
+                            }
                             if (!specified_pkg)
                             {
                                 vpkg.Set(superPkg);
@@ -731,8 +739,11 @@ void Context::Run()
                             }
                             else 
                             {
+                                GCPAUSE(engine);
+                                String* typeName = engine->GetTypenameOf(result);
                                 ReportRuntimeError(Exception::ERROR_type,
-                                           "For each set kind must be a function generator.");
+                                           "For each set kind must be a function generator. Instead got type '%s'",
+                                           typeName->GetBuffer());
                             }
                         }
                         else
@@ -1001,7 +1012,23 @@ void Context::Run()
             
             PIKA_OPCODE(OP_poppkg)
             {
+                Package* oldpackage = this->package;
                 PopPackageScope();
+                if (oldpackage)
+                {
+                    Value res(NULL_VALUE);
+                    if (oldpackage->GetType()->GetField(engine->OpSubclass_String, res))
+                    {
+                        Push(oldpackage);
+                        Push(res);
+                        
+                        if (SetupCall(0))
+                        {
+                            Run();
+                        }
+                        Pop(); // result & exitwith string
+                    }
+                }
             }
             PIKA_NEXT()
             

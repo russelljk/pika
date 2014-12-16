@@ -17,6 +17,15 @@ class StringApi;
 class StringEnumerator;
 class Array;
 class Iterator;
+
+enum StringDirection {
+    SD_left,
+    SD_right,
+    SD_both,
+};
+
+static const char* WHITESPACE_CSTRING = " \r\n\t\v\f";
+
 /** @brief String is a immutable array of characters.
   * Unlike C strings in Pika strings can contain arbitrary data including null characters.
   * To create a string call Engine::AllocString or one of its variants.
@@ -88,7 +97,7 @@ public:
     
     /** Returns a String with all letters converted to upper-case. */    
     String* ToUpper();
-    
+        
     /** Converts the String into a real or an integer. 
       * If the number cannot be converted null is returned. */
     Value ToNumber();
@@ -108,6 +117,11 @@ public:
     String* Reverse();
     
     String* Chomp(String* c);
+    
+    String* Strip(StringDirection sd = SD_both, const char* what = WHITESPACE_CSTRING);
+    
+    String* Escape(Array* entities, Array* replacements);
+    String* Escape(String* entities, Array* replacements);
     // ------------------------------------------------------------------------
     
     /** Determines if the String has embedded '\0' characters. */

@@ -303,7 +303,7 @@ Type* Type::Create(Engine* eng, String* name, Type* base, Type_NewFn fn, Package
     Type*   meta_obj   = 0;
     String* meta_name  = String::Concat(name, eng->AllocString("-Type"));
     Type*   meta_super = base ? base->GetType() : eng->Type_Type;
-    Type*   meta_type  = eng->Type_Type->GetType();
+    Type*   meta_type  = meta_super->GetType();
     
     // Create the metatype
     GCNEW(eng, Type, meta_obj, (eng, meta_type, meta_name, meta_super, meta_type ? meta_type->newfn : 0, location));
@@ -411,20 +411,17 @@ contain the same name as |func|. However, if the |func| is a native function it 
 will instead be added as a regular function.\
 ")
 
-void Type::AddMethod(Function* f)
+Function* Type::AddMethod(Function* f, String* name)
 {
-    if (f->IsNative())
-    {
-        // Native C++ functions/methods do have dynamic binding to instance variables/methods so
-        // we cannot create an InstanceMethod from this function.
-        AddFunction(f);
-    }
-    else
+    Function* res = f;
+    if (!f->IsNative())
     {
         // Script functions are OK since properties are dynamically bound.
-        Function* im = InstanceMethod::Create(engine, 0, f, this);
-        AddFunction(im);
+        res = InstanceMethod::Create(engine, 0, f, this);
     }
+    name = name ? name : res->GetName();
+    SetSlot(name, res);
+    return res;
 }
 
 PIKA_DOC(Type_addClassMethod, "/(func)\
@@ -434,20 +431,17 @@ contain the same name as |func|. However, if the |func| is a native function it 
 will instead be added as a regular function.\
 ")
 
-void Type::AddClassMethod(Function* f)
+Function* Type::AddClassMethod(Function* f, String* name)
 {
-    if (f->IsNative())
-    {
-        // Native C++ functions/methods do not have dynamic binding to instance variables & methods so
-        // we cannot create an InstanceMethod from this function.
-        AddFunction(f);
-    }
-    else
+    Function* res = f;
+    if (!f->IsNative())
     {
         // Script functions are OK since properties are dynamically bound.
-        Function* im = ClassMethod::Create(engine, 0, f, this);
-        AddFunction(im);
+        res = ClassMethod::Create(engine, 0, f, this);
     }
+    name = name ? name : res->GetName();
+    SetSlot(name, res);
+    return res;
 }
 
 Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Package* pkg)
@@ -687,6 +681,38 @@ PIKA_DOC(Type_location, "The package this type is located in.")
 PIKA_DOC(Type_subtypes, "An [Array array] containing all derived types. Will be \
 null if no types inherit from this type.")
 
+int Type_addMethod(Context* ctx, Value& self)
+{
+    Type* type = static_cast<Type*>(self.val.object);
+    Function* f = ctx->GetArgT<Function>(0);
+    u2 argc = ctx->GetArgCount();
+    String* name = 0;
+    if (argc == 2) {
+        name = ctx->GetStringArg(1);
+    } else if (argc != 1) {
+        ctx->WrongArgCount();
+    }
+    Function* res = type->AddMethod(f, name);
+    ctx->Push(res);
+    return 1;
+}
+
+int Type_addClassMethod(Context* ctx, Value& self)
+{
+    Type* type = static_cast<Type*>(self.val.object);
+    Function* f = ctx->GetArgT<Function>(0);
+    u2 argc = ctx->GetArgCount();
+    String* name = 0;
+    if (argc == 2) {
+        name = ctx->GetStringArg(1);
+    } else if (argc != 1) {
+        ctx->WrongArgCount();
+    }
+    Function* res = type->AddClassMethod(f, name);
+    ctx->Push(res);
+    return 1;
+}
+
 void Type::StaticInitType(Engine* eng)
 {
     Package* Pkg_World = eng->GetWorld();
@@ -698,8 +724,8 @@ void Type::StaticInitType(Engine* eng)
     .PropertyR("location", &Type::GetLocation, "getLocation", PIKA_GET_DOC(Type_getLocation), PIKA_GET_DOC(Type_location))
     .PropertyR("subtypes", &Type::GetSubtypes, "getSubtypes", PIKA_GET_DOC(Type_getSubtypes), PIKA_GET_DOC(Type_subtypes))
     .Method(&Type::IsSubtype,       "isSubtype",        PIKA_GET_DOC(Type_isSubtype))
-    .Method(&Type::AddMethod,       "addMethod",        PIKA_GET_DOC(Type_addMethod))
-    .Method(&Type::AddClassMethod,  "addClassMethod",   PIKA_GET_DOC(Type_addClassMethod))
+    .Register(Type_addMethod, "addMethod", 1, true, false, PIKA_GET_DOC(Type_addMethod))
+    .Register(Type_addClassMethod, "addClassMethod", 1, true, false, PIKA_GET_DOC(Type_addClassMethod))
     ;
     
     static RegisterFunction TypeFunctions[] =

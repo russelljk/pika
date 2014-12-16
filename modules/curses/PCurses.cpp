@@ -426,6 +426,51 @@ pint_t Curses_pair_number(pint_t ch)
 #define DEFINE_KEY(K) \
     { #K, K },
 
+
+pint_t Curses_mousemask(pint_t newmask)
+{
+    return (pint_t)mousemask(newmask, 0);
+}
+
+// bool Curses_has_mouse()
+// {
+//     return (bool)has_mouse();
+// }
+
+int Curses_getmouse(Context* ctx, Value&)
+{
+    MEVENT event;
+    if (getmouse(&event) == OK) {
+        ctx->Push((pint_t)event.id);
+        ctx->Push((pint_t)event.x);
+        ctx->Push((pint_t)event.y);
+        ctx->Push((pint_t)event.z);
+        ctx->Push((pint_t)event.bstate);
+    } else {
+        for (size_t i=0; i < 5; ++i) {
+            ctx->PushNull();
+        }
+    }
+    return 5;
+}
+
+int Curses_ungetmouse(Context* ctx, Value&)
+{
+    MEVENT event;
+    event.id = ctx->GetIntArg(0);
+    event.x = ctx->GetIntArg(1);
+    event.y = ctx->GetIntArg(2);
+    event.z = ctx->GetIntArg(3);
+    event.bstate = ctx->GetIntArg(4);
+    
+    if (ungetmouse(&event) == OK) {
+        ctx->PushTrue();
+    } else {
+        ctx->PushFalse();
+    }
+    return 1;
+}
+
 PIKA_MODULE(curses, eng, curses)
 {
     GCPAUSE(eng);
@@ -444,13 +489,18 @@ PIKA_MODULE(curses, eng, curses)
     .StaticMethod(init_color,         "init_color")
     .StaticMethod(Curses_color_pair,  "color_pair")
     .StaticMethod(Curses_pair_number, "pair_number")
+    // .StaticMethod(Curses_has_mouse,   "has_mouse")
+    .StaticMethod(Curses_mousemask,   "mousemask")
     .StaticMethod(nl,                 "nl")
     .StaticMethod(nonl,               "nonl")
     .StaticMethod(noecho,             "noecho")
+    .StaticMethod(curs_set,           "curs_set")
     .StaticMethod(echo,               "echo")
     .StaticMethod(cbreak,             "cbreak")
     .StaticMethod(nocbreak,           "nocbreak")
-    .StaticMethod(noraw,              "noraw")    
+    .StaticMethod(noraw,              "noraw")
+    .Register(Curses_getmouse, "getmouse", 0, false, true, 0)
+    .Register(Curses_getmouse, "ungetmouse", 5, false, true, 0)
     .Constant((pint_t)ERR,            "ERROR")
     .Constant((pint_t)OK,             "OK")
     ;
@@ -629,10 +679,35 @@ PIKA_MODULE(curses, eng, curses)
     DEFINE_KEY( KEY_RESIZE	)
     DEFINE_KEY( KEY_EVENT	)
     DEFINE_KEY( KEY_MAX		)
+    DEFINE_KEY( BUTTON1_PRESSED )
+    DEFINE_KEY( BUTTON1_RELEASED )
+    DEFINE_KEY( BUTTON1_CLICKED )
+    DEFINE_KEY( BUTTON1_DOUBLE_CLICKED )
+    DEFINE_KEY( BUTTON1_TRIPLE_CLICKED )
+    DEFINE_KEY( BUTTON2_PRESSED )
+    DEFINE_KEY( BUTTON2_RELEASED )
+    DEFINE_KEY( BUTTON2_CLICKED )
+    DEFINE_KEY( BUTTON2_DOUBLE_CLICKED )
+    DEFINE_KEY( BUTTON2_TRIPLE_CLICKED )
+    DEFINE_KEY( BUTTON3_PRESSED )
+    DEFINE_KEY( BUTTON3_RELEASED )
+    DEFINE_KEY( BUTTON3_CLICKED )
+    DEFINE_KEY( BUTTON3_DOUBLE_CLICKED )
+    DEFINE_KEY( BUTTON3_TRIPLE_CLICKED )
+    DEFINE_KEY( BUTTON4_PRESSED )
+    DEFINE_KEY( BUTTON4_RELEASED )
+    DEFINE_KEY( BUTTON4_CLICKED )
+    DEFINE_KEY( BUTTON4_DOUBLE_CLICKED )
+    DEFINE_KEY( BUTTON4_TRIPLE_CLICKED )
+    DEFINE_KEY( BUTTON_SHIFT )
+    DEFINE_KEY( BUTTON_CTRL )
+    DEFINE_KEY( BUTTON_ALT )
+    DEFINE_KEY( ALL_MOUSE_EVENTS )
+    DEFINE_KEY( REPORT_MOUSE_POSITION )
     };
-
+    
     Basic::EnterConstants(curses, CursesKeys, countof(CursesKeys));
-
+    
     // Curses.Colors ///////////////////////////////////////////////////////////////////////////////
     
     static NamedConstant CursesColors[] = {
@@ -645,7 +720,7 @@ PIKA_MODULE(curses, eng, curses)
     { "CYAN",       COLOR_CYAN    },
     { "WHITE",      COLOR_WHITE   },
     }; 
-       
+    
     Package* color_Pkg = eng->OpenPackage(eng->AllocString("Color"), curses, true); 
     Basic::EnterConstants(color_Pkg, CursesColors, countof(CursesColors));
     
