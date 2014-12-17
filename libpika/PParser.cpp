@@ -1641,34 +1641,67 @@ Stmt* Parser::DoExpressionStatement()
 {
     Stmt* stmt = 0;
     ExprList* expr = DoExpressionList();
+        
+    // Assignment line # should always be the first line of the
+    // statement.
     
-    if (IsAssignment(tstream.GetType()))
+    int line = tstream.GetLineNumber();
+    
+    // Chain together assignment statements.
+    
+    while (IsAssignment(tstream.GetType()))
     {
-    
+        Stmt* nxtstmt = 0;
+        
         AssignmentStmt::AssignKind akind = GetAssignmentKind(tstream.GetType());
         BufferNext();
         tstream.Advance();
         
         ExprList* lhs = expr;
         ExprList* rhs = DoExpressionList();
-        
-        DoEndOfStatement();
-        PIKA_NEWNODE(AssignmentStmt, stmt, (state, lhs, rhs));
+                
+        PIKA_NEWNODE(AssignmentStmt, nxtstmt, (state, lhs, rhs));
+        nxtstmt->line = line;
         
         if (akind != AssignmentStmt::ASSIGN_STMT)
         {
-            ((AssignmentStmt*)stmt)->kind = akind;
-            ((AssignmentStmt*)stmt)->isBinaryOp = true;
+            ((AssignmentStmt*)nxtstmt)->kind = akind;
+            ((AssignmentStmt*)nxtstmt)->isBinaryOp = true;
         }
+        
+        if (stmt) // It's a sequence (a,b,c = d,e,f = 1,2,3)
+        {
+            Stmt* stmtseq = 0;
+            
+            // Create the statement list in reverse order
+            // The reason being, we need to rhs evaluated
+            // before we can assign them to the lhs.
+            
+            PIKA_NEWNODE(StmtList, stmtseq, (state, nxtstmt, stmt));
+            stmtseq->line = line;
+            
+            stmt = stmtseq;
+        }
+        else
+        {
+            stmt = nxtstmt;
+        }
+        
+        // If chained our rhs will be the lhs for the next assignment
+        // statement.
+        
+        expr = rhs;
     }
-    else
+    
+    if (!stmt)
     {
         DoEndOfStatement();
         PIKA_NEWNODE(ExprStmt, stmt, (state, expr));
+        stmt->line = line;
+    }    
+    else {
+        DoEndOfStatement();
     }
-    
-    stmt->line = expr->line;
-    
     return stmt;
 }
 

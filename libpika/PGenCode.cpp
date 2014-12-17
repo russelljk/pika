@@ -1936,6 +1936,8 @@ Instr* PropertyDecl::GenerateCode()
 Instr* AssignmentStmt::DoStmtCodeGen()
 {
     Instr*    assgn = state->CreateOp(OP_nop);
+    ReverseExprList(&right); // Reverse the list so everything is in the correct order for assignment.
+    
     ExprList* curr  = right;
     if (isUnpack && !isCall)
     {
@@ -1954,7 +1956,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
     }
     else
     {
-        if (isBinaryOp)
+        if (isBinaryOp && isEven)
         {
             ReverseExprList(&left);
             
@@ -1974,6 +1976,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
                 curr  = curr->next;
                 lcurr = lcurr->next;
             }
+            
             ReverseExprList(&left);
         }
         else
@@ -1993,7 +1996,7 @@ Instr* AssignmentStmt::DoStmtCodeGen()
     }
     curr = left;
     
-    if (isUnpack && isBinaryOp)
+    if (!isEven && isBinaryOp)
     {
         Opcode oc = GetOpcode();
         while (curr)
@@ -2004,9 +2007,11 @@ Instr* AssignmentStmt::DoStmtCodeGen()
                 IdExpr* ide  = (IdExpr*)curr->expr;
                 Instr*  iget = ide->GenerateCode();
                 Instr*  iop  = state->CreateOp(oc);
+                Instr*  iswap  = state->CreateOp(OP_swap);
                 Instr*  irep = ide->GenerateCodeSet();
                 
                 iget->
+                Attach(iswap)->
                 Attach(iop)->
                 Attach(irep)
                 ;
@@ -2015,12 +2020,13 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             }
             else if (k == Expr::EXPR_dot)
             {
-                DotExpr* ide  = (DotExpr*)curr->expr;
-                Instr*   iget = ide->GenerateCode();
-                Instr*   iop  = state->CreateOp(oc);
-                Instr*   irep = ide->GenerateCodeSet();
+                DotExpr*ide  = (DotExpr*)curr->expr;
+                Instr*  iget = ide->GenerateCode();
+                Instr*  iswap  = state->CreateOp(OP_swap);
+                Instr*  iop  = state->CreateOp(oc);
+                Instr*  irep = ide->GenerateCodeSet();
                 
-                iget->Attach(iop)->Attach(irep);
+                iget->Attach(iswap)->Attach(iop)->Attach(irep);
                 assgn->Attach(iget);
             }
             else if (k == Expr::EXPR_load)
@@ -2064,6 +2070,16 @@ Instr* AssignmentStmt::DoStmtCodeGen()
             curr = curr->next;
         }
     }
+    
+    // Undo any reversals, this matters if we are chained with another
+    // assignment operator.
+    
+    if (isUnpack || isCall)
+    {
+        ReverseExprList(&left);
+    }
+    
+    ReverseExprList(&right);
     return assgn;
 }
 

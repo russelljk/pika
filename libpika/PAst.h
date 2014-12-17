@@ -1717,6 +1717,7 @@ struct AssignmentStmt : Stmt
     bool        isBinaryOp;
     bool        isUnpack;
     bool        isCall;
+    bool        isEven;
     u2          unpackCount;
 };
 

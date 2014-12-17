@@ -896,6 +896,8 @@ void BinaryExpr::CalculateResources(SymbolTable* st)
 
 void IdExpr::CalculateResources(SymbolTable* st)
 {
+    if (symbol)
+        return;
     symbol = st->Get(id->name);
     
     inWithBlock = st->IsWithBlock();
@@ -1317,6 +1319,7 @@ AssignmentStmt::AssignmentStmt(CompileState* s, ExprList* l, ExprList* r)
         isBinaryOp(false),
         isUnpack(false),
         isCall(false),
+        isEven(true),
     unpackCount(0) {}
     
 void AssignmentStmt::DoStmtResources(SymbolTable* st)
@@ -1329,7 +1332,8 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st)
     
     if (right)
     {
-        ReverseExprList(&right);
+        // We only need this reverses when generating the code?
+        //ReverseExprList(&right);
         curr = right;
         
         while (curr)
@@ -1338,6 +1342,7 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st)
             curr->expr->CalculateResources(st);
             curr = curr->next;
         }
+        //ReverseExprList(&right);
     }
     //
     // then do the lhs so that the rhs does not reference and lhs values.
@@ -1405,6 +1410,8 @@ void AssignmentStmt::DoStmtResources(SymbolTable* st)
     }
     if (num_lhs != num_rhs)
     {
+        isEven = false;
+        
         if (num_rhs == 1)
         {
             Expr* the_expr = right->expr;
