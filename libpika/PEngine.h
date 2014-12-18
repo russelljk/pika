@@ -22,7 +22,7 @@
 #   include "PObject.h"
 #endif
 
-#if defined(PIKA_USE_TABLE_POOL)
+#if defined(PIKA_USE_TABLE_POOL) || defined(PIKA_USE_ARRAY_POOL)
 #   ifndef PIKA_MEMPOOL_HEADER
 #       include "PMemPool.h"
 #   endif
@@ -47,7 +47,10 @@ template class PIKA_API Buffer<Module*>;
 template class PIKA_API Buffer<Script*>;
 template class PIKA_API Buffer<Value>;
 #   if defined(PIKA_USE_TABLE_POOL)
-        template class PIKA_API  MemObjPool<Table>;
+template class PIKA_API  MemObjPool<Table>;
+#   endif
+#   if defined(PIKA_USE_ARRAY_POOL)
+template class PIKA_API  MemObjPool<Array>;
 #   endif
 #endif
 
@@ -328,6 +331,13 @@ public:
     void    DelTable(Table*);
 private:
     MemObjPool<Table> Table_Pool;
+#endif
+#if defined(PIKA_USE_ARRAY_POOL)
+public:
+    void*   ArrayRawAlloc();
+    void    DelArray(Array*);
+private:
+    MemObjPool<Array> Array_Pool;
 #endif
 
 private:

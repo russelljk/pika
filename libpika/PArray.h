@@ -50,6 +50,7 @@ protected:
     bool GetIndexOf(const Value& key, size_t &index);
 public:
     virtual ~Array();
+    virtual bool Finalize();
     
     virtual bool BracketRead(const Value&, Value&);
     virtual bool BracketWrite(const Value&, Value&, u4 attr = 0);

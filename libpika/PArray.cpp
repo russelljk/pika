@@ -204,9 +204,10 @@ Array* Array::Create(Engine* eng, Type* type, size_t length, Value const* elems)
     if (length > GetMax()) {
         RaiseException("Attempt to create an Array larger than the maximum size allowed "SIZE_T_FMT".", GetMax());
     }
-    Array* v = 0;
+    
+    void* sp = eng->ArrayRawAlloc();
     type = type ? type : eng->Array_Type;
-    PIKA_NEW(Array, v, (eng, type, length, elems));
+    Array* v = new (sp) Array(eng, type, length, elems);
     eng->AddToGC(v);
     return v;
 }
@@ -325,6 +326,12 @@ Array* Array::Reverse()
 }
 
 Array::~Array() {}
+
+bool Array::Finalize()
+{
+    engine->DelArray(this);
+    return false;
+}
 
 Value Array::Pop()
 {

@@ -124,6 +124,20 @@ void Engine::DelTable(Table* t)
 
 #endif
 
+#if defined(PIKA_USE_ARRAY_POOL)
+
+void* Engine::ArrayRawAlloc()
+{
+    return Array_Pool.RawAlloc();
+}
+
+void Engine::DelArray(Array* t)
+{
+    Array_Pool.Delete(t);
+}
+
+#endif
+
 bool Engine::RemoveHook(HookEvent he, hook_t h)
 {
     HookEntry** pointerTo = &(hooks[he]);
@@ -165,6 +179,9 @@ Engine::Engine()
         null_Function(0),
 #if defined(PIKA_USE_TABLE_POOL)
         Table_Pool(TABLE_POOL_SIZE),
+#endif
+#if defined(PIKA_USE_ARRAY_POOL)
+        Array_Pool(ARRAY_POOL_SIZE),
 #endif
         paths(0),
         string_table(0),

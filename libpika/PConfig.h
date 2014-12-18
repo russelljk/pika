@@ -65,12 +65,13 @@
 
 /* Member Tables are created from mem-pools instead of new/delete. */
 #define PIKA_USE_TABLE_POOL
+#define PIKA_USE_ARRAY_POOL
 
 /* Size of each mempool block or arena. By default there are <100 Object that 
  * need a table before any script is executed. Its recommended that you do not
  * lower it below 256 unless you are pressed for memory. */
 #define TABLE_POOL_SIZE 1024
-
+#define ARRAY_POOL_SIZE
 // Shared library configuration ////////////////////////////////////////////////////////////////////
 
 #if defined(_MSC_VER)//         Visual Studio
