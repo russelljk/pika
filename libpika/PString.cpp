@@ -554,7 +554,7 @@ String* String::Escape(Array* entities, Array* replacements)
     size_t const num_replacements = replacements->GetLength();
     if (entities->GetLength() != num_replacements)
     {
-        RaiseException(Exception::ERROR_type, "String.escape - The entities String and the replacement Array must be the same size.");
+        RaiseException(Exception::ERROR_runtime, "String.escape - The entities String and the replacement Array must be the same size.");
     }
         
     typedef std::pair<String*, String*> ReplacementPair;
@@ -578,25 +578,34 @@ String* String::Escape(Array* entities, Array* replacements)
     buff.SetCapacity(this->GetLength());    
     const char* curr = this->GetBuffer();
     const char* end = curr + this->GetLength();
+    bool ismatched = false;
     
     while (curr < end) {        
+        ismatched = false;
+        
         for (size_t i = 0; i < lookups.GetSize(); ++i) {
             ReplacementPair& p = lookups[i];
             String* ent = p.first;
             size_t const amt = ent->GetLength();
             
             if (strncmp(curr, ent->GetBuffer(), amt) == 0) {
-                curr += amt;
+                curr += amt;                
                 BufferAddString(buff, p.second);
-                continue;
+                ismatched = true;
+                break;
             }
         }
-    
+        
+        if (ismatched) 
+            continue;
+
         buff.Push(*curr++);
     }
     
     ptrdiff_t amt = curr - end;
-    BufferAddCString(buff, curr, amt);
+    if (amt > 0) {
+        BufferAddCString(buff, curr, amt);
+    }
     return engine->GetString(buff.GetAt(0), buff.GetSize());
 }
 
@@ -604,7 +613,7 @@ String* String::Escape(String* entities, Array* replacements)
 {
     if (entities->GetLength() != replacements->GetLength())
     {
-        RaiseException(Exception::ERROR_type, "String.escape - The entities String and the replacement Array must be the same size.");
+        RaiseException(Exception::ERROR_runtime, "String.escape - The entities String and the replacement Array must be the same size.");
     }
     size_t num_replacements = replacements->GetLength();
     Buffer<String*> cached(num_replacements);
@@ -819,10 +828,21 @@ public:
     {
         u2 argc = ctx->GetArgCount();
         Value* argv = ctx->GetArgs();
-        
-        if ((argc > 0) && argv[0].IsString())
+        String* searchStr = 0;
+        if (argc == 1)
         {
-            Array* v = self.val.str->Split(argv[0].val.str);
+            searchStr = ctx->GetStringArg(0);
+        }
+        else if (argc == 0)
+        {
+            searchStr = ctx->GetEngine()->GetString(WHITESPACE_CSTRING);
+        }
+        else
+        {
+            ctx->WrongArgCount();
+        }
+        Array* v = self.val.str->Split(searchStr);
+        if (v) {
             ctx->Push(v);
             return 1;
         }
@@ -1724,7 +1744,7 @@ void String::StaticInitType(Engine* eng)
         { "toLower",        StringApi::toLower,             0, 0,            PIKA_GET_DOC(String_toLower) },
         { "toUpper",        StringApi::toUpper,             0, 0,            PIKA_GET_DOC(String_toUpper) },
         { "charAt",         StringApi::charAt,              1, DEF_STRICT,   PIKA_GET_DOC(String_charAt) },
-        { "split",          StringApi::split,               1, 0,            PIKA_GET_DOC(String_split) },
+        { "split",          StringApi::split,               0, DEF_VAR_ARGS, PIKA_GET_DOC(String_split) },
         { "splitAt",        StringApi::splitAt,             1, 0,            PIKA_GET_DOC(String_splitAt) },
         { "byteAt",     	StringApi::byteAt,              1, 0,            PIKA_GET_DOC(String_byteAt) },
         { "firstOf",        StringApi::firstOf,             1, DEF_VAR_ARGS, PIKA_GET_DOC(String_firstOf) },

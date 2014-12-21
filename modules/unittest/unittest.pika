@@ -217,6 +217,10 @@ class TestCase
         print '----------------------------------------------------'
     end
     
+    function fail(msg, stop=true)
+        self._reportFailure('fail()', msg, stop)
+    end
+    
     function assertTrue(first, msg=null, stop=true)
         self._asserts++
         if not first
@@ -286,6 +290,8 @@ class TestCase
                 block()
             catch e is type
                 # As expected
+            catch e
+                self._reportFailure('raises an exception of type ' .. type .. ', instead got ' .. e.type, msg, stop)
             else
                 self._reportFailure('raises an exception of type ' .. type, msg, stop)
             end

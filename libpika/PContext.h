@@ -638,7 +638,7 @@ INLINE T* Context::GetArgT(u2 arg)
     
     if (!v.IsDerivedFrom(T::StaticGetClass()))
     {
-        RaiseException("excepted %s for argument %d.\n", T::StaticGetClass()->GetName() , arg);
+        RaiseException(Exception::ERROR_type, "excepted %s for argument %d.\n", T::StaticGetClass()->GetName() , arg);
     }
     return (T*)v.val.index;
 }

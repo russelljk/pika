@@ -761,7 +761,7 @@ INLINE void Context::OpBitBinary(const Opcode op, const OpOverride ovr, const Op
             return;
     }
     
-    ReportRuntimeError(Exception::ERROR_runtime,
+    ReportRuntimeError(Exception::ERROR_type,
                        "Operator %s not defined for between objects of type %s and %s.",
                        engine->GetOverrideString(ovr)->GetBuffer(),
                        engine->GetTypenameOf(a)->GetBuffer(),
@@ -951,7 +951,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
     // We do not reach this point unless the operation is undefined between the
     // lhs and rhs operands.
     
-    ReportRuntimeError(Exception::ERROR_runtime,
+    ReportRuntimeError(Exception::ERROR_type,
                        "Operator %s not defined between types %s and %s.",
                        engine->GetOverrideString(ovr)->GetBuffer(),
                        engine->GetTypenameOf(a)->GetBuffer(),
@@ -1111,7 +1111,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
         if (argdiff > 0)
         {
             String* dotname = fun->GetLocation()->GetDotName();
-            RaiseException(Exception::ERROR_runtime,
+            RaiseException(Exception::ERROR_type,
                            "Too many arguments for function '%s.%s'. Expected exactly %d %s but was given %d.",
                            dotname->GetBuffer(),
                            def->name->GetBuffer(),
@@ -1122,7 +1122,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
         else
         {
             String* dotname = fun->GetLocation()->GetDotName();
-            RaiseException(Exception::ERROR_runtime,
+            RaiseException(Exception::ERROR_type,
                            "Too few arguments for function '%s.%s'. Expected exactly %d %s but was given %d.",
                            dotname->GetBuffer(),
                            def->name->GetBuffer(),
@@ -1150,7 +1150,7 @@ int Context::AdjustArgs(Function* fun, Def* def, int const param_count,
             else
             {
                 String* dotname = fun->GetLocation()->GetDotName();
-                RaiseException(Exception::ERROR_runtime,
+                RaiseException(Exception::ERROR_type,
                            "Too many arguments for function '%s.%s'. Expected exactly %d %s but was given %d.",
                            dotname->GetBuffer(),
                            def->name->GetBuffer(),
@@ -1359,7 +1359,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
                     {
                         LocalVarInfo& linfo = def->localsInfo[args_info_start + index];
                         String* name = linfo.name;
-                        RaiseException(Exception::ERROR_runtime,
+                        RaiseException(Exception::ERROR_type,
                             "Argument '%s' not specified when calling function '%s.%s'",
                             name->GetBuffer(),
                             dotname->GetBuffer(),
@@ -1368,7 +1368,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
                     }
                     else
                     {
-                        RaiseException(Exception::ERROR_runtime,
+                        RaiseException(Exception::ERROR_type,
                             "Positional argument '%d' not specified when calling function '%s.%s'",
                             index,
                             dotname->GetBuffer(),
@@ -1542,7 +1542,7 @@ bool Context::SetupCall(u2 argc, u2 retc, u2 kwargc, bool tailcall)
         }
         else
         {
-            ReportRuntimeError(Exception::ERROR_runtime,
+            ReportRuntimeError(Exception::ERROR_type,
                                "Attempt to invoke object of type %s.",
                                engine->GetTypenameOf(frameVar)->GetBuffer());
         }
@@ -1588,7 +1588,7 @@ bool Context::SetupOverride(u2 argc, u2 retc, u2 kwargc, bool tailcall, Basic* o
     else if (!res)
     {
         String* strname = obj->GetType()->GetName();
-        ReportRuntimeError(Exception::ERROR_runtime,
+        ReportRuntimeError(Exception::ERROR_type,
                            "Operator %s not defined for object of type %s.",
                            engine->GetOverrideString(ovr)->GetBuffer(),
                            strname->GetBuffer());
@@ -1624,7 +1624,7 @@ bool Context::SetupOverrideRhs(Basic* obj, OpOverride ovr, bool* res)
     else if (!res)
     {
         String* strname = obj->GetType()->GetName();
-        ReportRuntimeError(Exception::ERROR_runtime,
+        ReportRuntimeError(Exception::ERROR_type,
                            "Operator %s not defined for object of type %s.",
                            engine->GetOverrideString(ovr)->GetBuffer(),
                            strname->GetBuffer());
@@ -1664,7 +1664,7 @@ bool Context::SetupOverrideLhs(Basic* obj, OpOverride ovr, bool* res)
     else if (!res)
     {
         String* strname = obj->GetType()->GetName();
-        ReportRuntimeError(Exception::ERROR_runtime,
+        ReportRuntimeError(Exception::ERROR_type,
                            "Operator %s not defined for object of type %s.",
                            engine->GetOverrideString(ovr)->GetBuffer(),
                            strname->GetBuffer());
@@ -1698,7 +1698,7 @@ bool Context::SetupOverrideUnary(Basic* obj, OpOverride ovr, bool* res)
     else if (!res)
     {
         String* strname = obj->GetType()->GetName();
-        ReportRuntimeError(Exception::ERROR_runtime,
+        ReportRuntimeError(Exception::ERROR_type,
                            "Operator %s not defined for object of type %s.",
                            engine->GetOverrideString(ovr)->GetBuffer(),
                            strname->GetBuffer());
@@ -1864,7 +1864,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
             if (!(success = obj.val.basic->BracketWrite(prop, val)))
             {
                 //  Member cannot be written.
-                ReportRuntimeError(Exception::ERROR_runtime,
+                ReportRuntimeError(Exception::ERROR_index,
                                    "Attempt to set [ '%s' ] of '%s'.",
                                    engine->SafeToString(this, prop)->GetBuffer(),
                                    engine->GetTypenameOf(obj)->GetBuffer());
@@ -1917,7 +1917,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
                 else
                 {
                     //  Property is read only
-                    ReportRuntimeError(Exception::ERROR_runtime,
+                    ReportRuntimeError(Exception::ERROR_type,
                                        "Attempt to set property '%s' of '%s'. Property does not support writing.",
                                        engine->SafeToString(this, prop)->GetBuffer(),
                                        engine->GetTypenameOf(obj)->GetBuffer());
@@ -1927,7 +1927,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
             else
             {
                 //  Member cannot be written.
-                ReportRuntimeError(Exception::ERROR_runtime,
+                ReportRuntimeError(Exception::ERROR_type,
                                    "Attempt to set member '%s' of '%s'.",
                                    engine->SafeToString(this, prop)->GetBuffer(),
                                    engine->GetTypenameOf(obj)->GetBuffer());
@@ -1943,7 +1943,7 @@ void Context::OpDotSet(Opcode oc, OpOverride ovr)
     }
     else
     {
-        ReportRuntimeError(Exception::ERROR_runtime,
+        ReportRuntimeError(Exception::ERROR_type,
                            "Attempt to set member '%s' of '%s'.",
                            engine->SafeToString(this, prop)->GetBuffer(),
                            engine->GetTypenameOf(obj)->GetBuffer());
@@ -1977,7 +1977,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         case TAG_real:    value_type = engine->Real_Type;    break;
         default:
         {
-            ReportRuntimeError(Exception::ERROR_runtime,
+            ReportRuntimeError(Exception::ERROR_type,
                                "Attempt to read member '%s' from object of type '%s'.",
                                engine->SafeToString(this, prop)->GetBuffer(),
                                engine->GetTypenameOf(obj)->GetBuffer());
@@ -2029,7 +2029,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
                 res.SetNull();
 #   else
 
-                ReportRuntimeError(Exception::ERROR_runtime,
+                ReportRuntimeError(Exception::ERROR_type,
                                    "Attempt to read member '%s' of '%s'.",
                                    engine->SafeToString(this, prop)->GetBuffer(),
                                    engine->SafeToString(this, obj)->GetBuffer());
@@ -2075,10 +2075,18 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
 #   if defined( PIKA_ALLOW_MISSING_SLOTS )
             res.SetNull();
 #   else
-            ReportRuntimeError(Exception::ERROR_runtime,
-                               "Attempt to read missing member '%s' of '%s'.",
-                               engine->SafeToString(this, prop)->GetBuffer(),
-                               engine->SafeToString(this, obj)->GetBuffer());
+            if (oc == OP_subget) {
+                ReportRuntimeError(Exception::ERROR_index,
+                                   "Attempt to get [ '%s' ] of '%s'.",
+                                   engine->SafeToString(this, prop)->GetBuffer(),
+                                   engine->SafeToString(this, obj)->GetBuffer());
+            }
+            else {
+                ReportRuntimeError(Exception::ERROR_type,
+                                   "Attempt to read missing member '%s' of '%s'.",
+                                   engine->SafeToString(this, prop)->GetBuffer(),
+                                   engine->SafeToString(this, obj)->GetBuffer());
+            }
 #   endif
             return;
         }
@@ -2121,7 +2129,7 @@ void Context::OpDotGet(int& numcalls, Opcode oc, OpOverride ovr)
         else
         {
             // Property is write only.
-            ReportRuntimeError(Exception::ERROR_runtime,
+            ReportRuntimeError(Exception::ERROR_type,
                                "Attempt to get property '%s' from '%s'. Property does not support reading.",
                                property->Name()->GetBuffer(),
                                engine->SafeToString(this, obj)->GetBuffer());
@@ -2201,7 +2209,7 @@ void Context::OpReturn(u4 retc)
             const size_t top = this->GetStackSize();
             size_t amt_returned = top > btm ? top - btm : 0;
             if (amt_returned != expectedRetc) {
-                ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but %u values were returned.", expectedRetc, amt_returned);
+                ReportRuntimeError(Exception::ERROR_type, "Expected %u return values but %u values were returned.", expectedRetc, amt_returned);
             }
         }
         retc = expectedRetc;
@@ -2229,7 +2237,7 @@ void Context::OpYield(u4 yldc)
             const size_t top = this->GetStackSize();
             size_t amt_yielded = top > btm ? top - btm : 0;
             if (amt_yielded != expectedRetc) {
-                ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but %u values were yielded.", expectedRetc, amt_yielded);
+                ReportRuntimeError(Exception::ERROR_type, "Expected %u return values but %u values were yielded.", expectedRetc, amt_yielded);
             }
         }
         yldc = expectedRetc;
@@ -2263,7 +2271,7 @@ void Context::CopyReturnValues(u4 const expectedRetc, u4 const retc, Value const
         }
         else
         {
-            ReportRuntimeError(Exception::ERROR_runtime, "Expected %u return values but received %u.", expectedRetc, retc);
+            ReportRuntimeError(Exception::ERROR_type, "Expected %u return values but received %u.", expectedRetc, retc);
         }
     }
     else
@@ -2304,13 +2312,13 @@ bool Context::OpUnpack(u4 expected)
         
         if (expected != v->GetLength())
         {
-            ReportRuntimeError(Exception::ERROR_runtime, "Expected %u unpacked values but received %u.", expected, v->GetLength());
+            ReportRuntimeError(Exception::ERROR_type, "Expected %u unpacked values but received %u.", expected, v->GetLength());
         }
         
         Pika_memcpy(start, v->GetAt(0), expected * sizeof(Value));
         return false;
     }
-    ReportRuntimeError(Exception::ERROR_runtime,
+    ReportRuntimeError(Exception::ERROR_type,
                        "Attempt to unpack %u elements from object of type '%s'.",
                        expected,
                        engine->GetTypenameOf(t)->GetBuffer());
@@ -2366,7 +2374,7 @@ bool Context::OpBind()
             return false;
         }
     }
-    ReportRuntimeError(Exception::ERROR_runtime,
+    ReportRuntimeError(Exception::ERROR_type,
                        "Unsupported operands for bind operator; types '%s' and '%s' used.",
                        engine->GetTypenameOf(a)->GetBuffer(),
                        engine->GetTypenameOf(b)->GetBuffer());
@@ -2775,7 +2783,7 @@ void Context::CheckArgCount(u2 amt)
         
         if (argCount > amt)
         {
-            RaiseException(Exception::ERROR_runtime,
+            RaiseException(Exception::ERROR_type,
                            "Too many arguments for function '%s.%s'. Expected %d %s but was given %d.",
                            dotname->GetBuffer(),
                            funname->GetBuffer(),
@@ -2785,7 +2793,7 @@ void Context::CheckArgCount(u2 amt)
         }
         else
         {
-            RaiseException(Exception::ERROR_runtime,
+            RaiseException(Exception::ERROR_type,
                            "Too few arguments for function '%s.%s'. Expected %d %s but was given %d.",
                            dotname->GetBuffer(),
                            funname->GetBuffer(),
@@ -2801,7 +2809,7 @@ void Context::WrongArgCount()
     String* funname = GetFunctionName();
     String* dotname = GetPackageName(true);
     
-    RaiseException(Exception::ERROR_runtime,
+    RaiseException(Exception::ERROR_type,
                    "Incorrect number of arguments (%d) given for function '%s.%s'.",
                    argCount,
                    dotname->GetBuffer(),
