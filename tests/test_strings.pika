@@ -1,0 +1,269 @@
+unittest = import "unittest"
+
+class StringTestCase: unittest.TestCase
+    function testStringInterpolation()
+        {*
+            String interpolation can contain
+            an indentifier, dot expression and index[]
+        *}
+        # Test standard string interpolation
+        
+        a, b, c = 'a', 'b', 'c'        
+        self.assertEquals('{a}', 'a')
+        self.assertEquals("{a}", 'a')
+        
+        # Test interpolation next to each other.
+        
+        self.assertEquals('{a}{b}{c}', 'abc')
+        self.assertEquals("{a}{b}{c}", 'abc')
+        
+        # Test string interpolation at start of string
+        
+        self.assertEquals('{a} 123', 'a 123')
+        self.assertEquals("{a} 123", 'a 123')
+        
+        self.assertEquals('{a}{b}{c} 123', 'abc 123')
+        self.assertEquals("{a}{b}{c} 123", 'abc 123')
+        
+        # Test string interpolation at ebd of string
+        
+        self.assertEquals('123 {b}', '123 b')
+        self.assertEquals("123 {b}", '123 b')
+        
+        self.assertEquals('123 {a}{b}{c}', '123 abc')
+        self.assertEquals("123 {a}{b}{c}", '123 abc')
+                
+        # Test that raw strings aren't interpolated
+        
+        self.assertEquals($'123 {c}', '123 \{c\}')
+        self.assertEquals($"123 {c}", '123 \{c\}')
+        
+        # Test properties
+        
+        class StringProp
+            function init()
+            end
+            
+            property abc
+                get: function()
+                    return 'abc'
+                end
+            end
+        end
+        
+        sp = StringProp.new()
+        
+        self.assertEquals('{sp.abc}', 'abc')
+        self.assertEquals('123{sp.abc}456', '123abc456')
+                
+        # Test indexing
+        a = ['1234', 'acdefgh']
+        obj = Object.new()
+        obj.a = a
+        
+        self.assertEquals('{a[1]}', 'acdefgh')
+        self.assertEquals('123{ a[1] }456', '123acdefgh456')
+        self.assertEquals('123{ obj.a[0] }456', '1231234456')
+        
+        # Test that white space is ignored
+        self.assertEquals('123{            a   [   1   ]                 }456', '123acdefgh456')
+        self.assertEquals('123{            
+            a[1]                 }456{ obj . a [ 0 ] }', '123acdefgh4561234')        
+    end
+    
+    function testStringSlice()
+        self.assertEquals('123456'[1:],  '23456')
+        self.assertEquals('123456'[:2],  '12')
+        self.assertEquals('123456'[1:5], '2345')
+        
+        s = '123456'
+        self.assertEquals(s[0 : s.length], s)
+    end
+    
+    function testStringConcat()
+        self.assertEquals(0..1, '01')
+        self.assertEquals(0..'abc', '0abc')
+        self.assertEquals(0..1.5, '01.5')
+        self.assertEquals(0..false, '0false')
+        self.assertEquals('abc'..'123', 'abc123')
+        self.assertEquals('abc'...'123', 'abc 123')
+    end
+end
+
+class StringMethodsTestCase: unittest.TestCase
+    function testStringMethodSplitat()
+        a, b = 'abc123'.splitAt(3)
+        self.assertEquals(a, 'abc')
+        self.assertEquals(b, '123')
+        {* *}
+        self.assertRaises(
+            function()
+                ''.splitAt(100)
+            end,
+            IndexError
+        )
+        
+        self.assertRaises(
+            function()
+                ''.splitAt(0)
+            end,
+            IndexError
+        )
+        
+        self.assertRaises(
+            function()
+                ''.splitAt(-1)
+            end,
+            IndexError
+        )
+    end
+    
+    function testStringMethodEscape()
+        escapeCodes = [ '&amp;', '&lt;', '&gt;', '&quot;' ]
+        
+        html = $'<strong>Lorem ipsum</strong> dolor sit & amet, consectetur "adipiscing" elis.'
+        escapedHtml = $"&lt;strong&gt;Lorem ipsum&lt;/strong&gt; dolor sit &amp; amet, consectetur &quot;adipiscing&quot; elis."
+        
+        self.assertEquals(html.escape('&<>"', escapeCodes), escapedHtml)
+        self.assertEquals(html.escape(['&', '<', '>', '"', ], escapeCodes), escapedHtml)
+        
+        res = 'abc123bb'.escape(['abc', 'ab', 'bb', 'c', ], ['1', '2', '3', '4'])
+        print res, res.type, res.length
+        print '11233', '11233'.length
+        self.assertEquals(res, '11233')
+        
+        # Test unbalanced arguments length.
+        
+        self.assertRaises(
+            function()
+                'abc'.escape('abc', [1, 2])
+            end,
+            RuntimeError
+        )
+        self.assertRaises(
+            function()
+                'abc'.escape('abc', [ 1, 2, 3, 4 ])
+            end,
+            RuntimeError
+        )
+        
+        # Test incorrect argument counts 
+        
+        self.assertRaises(
+            function()
+                'abc'.escape('abc')
+            end,
+            TypeError
+        )
+        self.assertRaises(
+            function()
+                'abc'.escape('abc', ['1', '2', '3'], 'extra')
+            end,
+            TypeError
+        )
+        
+        # Test invalid argument types
+        self.assertRaises(
+            function()
+                'abc'.escape('abc', [1, 2, 3]) #=> Second argument array must contain strings.
+            end,
+            TypeError
+        )
+        
+        self.assertRaises(
+            function()
+                'abc'.escape('abc', '123') #=> Second argument must be an array.
+            end,
+            TypeError
+        )
+        
+        self.assertRaises(
+            function()
+                'abc'.escape('abc', ['1', '2', 3]) #=> Test mixed array.
+            end,
+            TypeError
+        )
+    end
+    
+    function testStringMethodStrip()
+        self.assertEquals('a b c'.strip(), 'a b c')
+        self.assertEquals('  b c'.strip(), 'b c')
+        self.assertEquals('  b  '.strip(), 'b')
+        self.assertEquals('  abc 123  '.stripLeft(), 'abc 123  ')
+        self.assertEquals('abc 123  '.stripLeft(), 'abc 123  ')
+        
+        self.assertEquals('  abc 123  '.stripRight(), '  abc 123')
+        self.assertEquals('  abc 123'.stripRight(), '  abc 123')
+        
+        self.assertEquals('abc123'.strip('cba'), '123') #=> Test mixed array.
+        
+        # Incorrect argument type
+        
+        self.assertRaises(
+            function()
+                'abc123'.stripLeft(4)
+            end,
+            TypeError
+        )
+        self.assertRaises(
+            function()
+                'abc123'.stripRight(4)
+            end,
+            TypeError
+        )
+        self.assertRaises(
+            function()
+                'abc123'.strip(4)
+            end,
+            TypeError
+        )
+        
+        {* Incorrect Argument Count *}
+        
+        self.assertRaises(
+            function()
+                'abc123'.stripLeft(' \n\t', ' \n\t')
+            end,
+            TypeError
+        )
+        self.assertRaises(
+            function()
+                'abc123'.stripRight(' \n\t', ' \n\t')
+            end,
+            TypeError
+        )
+        self.assertRaises(
+            function()
+                'abc123'.strip(' \n\t', ' \n\t')
+            end,
+            TypeError
+        )
+    end
+    
+    function testStringMethodSplit()
+        self.assertEquals('a b c'.split().length, 3)
+        self.assertEquals('  b c'.split().length, 2)
+        self.assertEquals('   '.split(), null)
+        
+        self.assertEquals('a, b, c'.split(', ').length, 3)
+        self.assertEquals('a, b, c'.split(' ,').length, 3)
+        
+        res = '  \n\tabcdefghijk \n1234567890-+[]\n'.split()
+        
+        self.assertEquals(res.length, 2)
+        
+        {* Ensure no characters get cut from the result. *}
+        
+        self.assertEquals(res[0], 'abcdefghijk')
+        self.assertEquals(res[1], '1234567890-+[]')
+        
+        {* Incorrect Argument Count *}
+        
+        self.assertRaises(
+            function()
+                'abc:123'.split(' \n\t', ',;:')
+            end,
+            TypeError
+        )
+    end
+end

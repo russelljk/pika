@@ -1,0 +1,7 @@
+os = import "os"
+unittest = import "unittest"
+
+BASE_DIR = os.basename(__FILE)
+
+runner = unittest.TestDirectoryRunner.new(BASE_DIR)
+runner.run()

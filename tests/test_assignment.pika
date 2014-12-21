@@ -1,0 +1,149 @@
+unittest = import "unittest"
+
+function returnsN(n)
+    return [ i for i = 1 to n+1 ]
+end
+
+function returnsNull()
+end
+
+class AssignmentTestCase: unittest.TestCase
+    function testLocalAssignment()
+        local unassigned
+        self.assertEquals(unassigned, null, 'Single local variable assignment.')
+        
+        local a = 'a'
+        local b, c = 'b', 'c'
+        self.assertEquals(a, 'a', 'Single local variable assignment.')
+        self.assertEquals(b, 'b', 'Single local variable assignment.')
+        self.assertEquals(c, 'c', 'Single local variable assignment.')
+        
+        local x, y, z = returnsN(3)
+        self.assertEquals(x, 1, 'Multi local variable to function assignment.')
+        self.assertEquals(y, 2, 'Multi local variable to function assignment.')
+        self.assertEquals(z, 3, 'Multi local variable to function assignment.')
+        
+        self.assertRaises(    
+            function()
+                local nx, ny, nz = returnsNull()
+            end,
+            TypeError,
+            "Multi local variable to function assignment raises when it returns an incorrect number of values."
+        )
+    end
+    
+    function testShadowedVariableAssignemnt()
+        local a = 'a'
+        self.assertEquals(a, 'a', 'Single local variable assignment.')
+        
+        a = 'local'
+        self.assertEquals(a, 'local', 'Test variable re-assignment.')
+        
+        global a = 'global'
+        self.assertEquals(a, 'global', 'Shadowed global variable assignment.')
+        
+        local a
+        self.assertEquals(a, null, 'Redefine shadowed variable.')
+    end
+    
+    function testChainedAssignmentOrder()
+        x, y, z = 'x', 'y', 'z'
+        a, b, c = 'a', 'b', 'c'
+        a, b, c ..= x, y, z ..= '1', '2', '3'
+        self.assertEquals(x, 'x1')
+        self.assertEquals(y, 'y2')
+        self.assertEquals(z, 'z3')
+        
+        self.assertEquals(a, 'ax1')
+        self.assertEquals(b, 'by2')
+        self.assertEquals(c, 'cz3')
+        
+        a, b, c = 'a', 'b', 'c'
+        a, b, c ..= x, y, z = '1', '2', '3'
+        self.assertEquals(a, 'a1')
+        self.assertEquals(b, 'b2')
+        self.assertEquals(c, 'c3')
+        
+        self.assertEquals(x, '1')
+        self.assertEquals(y, '2')
+        self.assertEquals(z, '3')
+    end
+    
+    function testChainedAssignmentUnpackOrder()
+        class Unpacker
+            function opUnpack(n)
+                return returnsN(n)
+            end
+        end
+        unpacker = Unpacker.new()
+        
+        x, y, z = 'x', 'y', 'z'
+        a, b, c = 'a', 'b', 'c'
+        a, b, c ..= x, y, z ..= unpacker
+        self.assertEquals(a, 'ax1')
+        self.assertEquals(b, 'by2')
+        self.assertEquals(c, 'cz3')
+        
+        self.assertEquals(x, 'x1')
+        self.assertEquals(y, 'y2')
+        self.assertEquals(z, 'z3')
+    end
+    
+    function testChainedAssignmentFunctionCallOrder()
+        x, y, z = 'x', 'y', 'z'
+        a, b, c = 'a', 'b', 'c'
+        a, b, c ..= x, y, z ..= returnsN(3)
+        
+        self.assertEquals(a, 'ax1')
+        self.assertEquals(b, 'by2')
+        self.assertEquals(c, 'cz3')
+        
+        self.assertEquals(x, 'x1')
+        self.assertEquals(y, 'y2')
+        self.assertEquals(z, 'z3')
+    end
+    
+    function testBinopOverrideAssignment()
+        class OvrTest
+            function opAdd(rhs)
+                return "opAdd"
+            end
+            
+            function opAdd_r(rhs)
+                return "opAdd_r"
+            end
+        end
+        
+        ovr = OvrTest.new()
+        i, f, b, o, s = 5, 6.5, false, Object.new(), "str"
+        
+        i += ovr
+        f += ovr
+        b += ovr
+        o += ovr
+        s += ovr
+        
+        self.assertEquals(i, "opAdd_r")
+        self.assertEquals(f, "opAdd_r")
+        self.assertEquals(b, "opAdd_r")
+        self.assertEquals(o, "opAdd_r")
+        self.assertEquals(s, "opAdd_r")
+        
+        i, f, b, o, s = 5, 6.5, false, Object.new(), "str"
+        ovri, ovrf, ovrb, ovro, ovrs = OvrTest.new(), OvrTest.new(), OvrTest.new(), OvrTest.new(), OvrTest.new()
+        ovri += i
+        ovrf += f
+        ovrb += b
+        ovro += o
+        ovrs += s
+        
+        self.assertEquals(ovri, "opAdd")
+        self.assertEquals(ovrf, "opAdd")
+        self.assertEquals(ovrb, "opAdd")
+        self.assertEquals(ovro, "opAdd")
+        self.assertEquals(ovrs, "opAdd")
+    end
+    
+    function testBinaryOpAssignment()
+    end
+end

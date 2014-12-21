@@ -1,0 +1,97 @@
+unittest = import "unittest"
+
+class ClosureTestError: RuntimeError
+    function init(msg, modifier)
+        super(msg)
+        self.modifier = modifier
+    end
+end
+
+class ClosureTestCase: unittest.TestCase
+    function testSimpleClosure()
+        local a, b, c = 'a', 'b', 'c'
+        function inner(x, y, z)
+            return a..x, b..y, c..z 
+        end
+        
+        ret1, ret2, ret3 = inner('x', 'y', 'z')
+        self.assertEquals(ret1, 'ax')
+        self.assertEquals(ret2, 'by')
+        self.assertEquals(ret3, 'cz')
+    end
+    
+    function testClosureAssignment()
+        local a, b, c = 'a', 'b', 'c'
+        function inner(x, y, z)
+            a, b, c = a..x, b..y, c..z
+        end
+        inner('x', 'y', 'z')
+        self.assertEquals(a, 'ax')
+        self.assertEquals(b, 'by')
+        self.assertEquals(c, 'cz')
+    end
+    
+    function testLocalsObject()
+        local a, b, c = 'a', 'b', 'c'
+        function inner(x, y)
+            local z, w = 1, 2
+            return locals
+        end
+        
+        _locals = inner('x', 'y')
+        self.assertEquals(_locals.length,  4) 
+        self.assertEquals(_locals.parent.length, 3)
+        self.assertEquals(_locals['x'], 'x')
+        self.assertEquals(_locals['y'], 'y')
+        
+        self.assertEquals(_locals.parent['a'], 'a')
+        self.assertEquals(_locals.parent['b'], 'b')
+        self.assertEquals(_locals.parent['c'], 'c')
+        
+        self.assertEquals(_locals.closure, inner)
+    end
+    
+    function testClosureSelf()
+        function inner()
+            return self
+        end
+        innerSelf = inner()
+        self.assertEquals(innerSelf, null)
+    end
+    
+    function testClosureExceptionScope()
+        _self = self
+        local a, b, c = 'a', 'b', 'c'
+        function outer(x, y)
+            try
+                function inner(z)
+                    function modifyScope()
+                        a ..= b ..= c ..= z
+                    end
+                    raise ClosureTestError.new("Inner Exception", modifyScope)
+                end
+                return inner
+            catch e
+                return _self.fail("Exception should be handled by the scope that called it.")
+            end
+        end
+        
+        self.assertRaises(
+            function()
+                try
+                    inner = outer('x', 'y')
+                    inner('z')
+                catch e
+                    e.modifier()
+                    raise
+                end
+            end,
+            ClosureTestError
+        )
+        
+        self.assertEquals(a, "abcz")
+        self.assertEquals(b, "bcz")
+        self.assertEquals(c, "cz")
+    end
+    
+end
