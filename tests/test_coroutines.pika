@@ -1,0 +1,83 @@
+unittest = import "unittest"
+
+function generateN(n)
+    for i = 1 to n
+        Context.suspend(i)
+    end
+end
+
+function suspendN(i)
+    Context.suspend(i)
+end
+
+function reboundN(n)
+    for i = 1 to n
+        suspendN.apply(i)
+    end
+end
+
+class CoroutineTestCase: unittest.TestCase
+    function testCoroutineCreate()
+        ctx = Context.new(generateN)
+        self.assertEquals(ctx.state, Context.UNUSED)
+        
+        ctx.setup(3)
+        self.assertEquals(ctx.state, Context.SUSPENDED)
+        self.assertEquals(ctx.next(), 1)
+        self.assertEquals(ctx.next(), 2)
+        
+        self.assertEquals(ctx.next(), null)
+        self.assertEquals(ctx.state, Context.DEAD)
+        
+        self.assertRaises(
+            function()
+                ctx.next()
+            end,
+            RuntimeError,
+            "A dead context should raise an exception when next is called."
+        )
+        
+        {* Test coroutines and closures. *}
+
+        
+        {* Test coroutines and generators. *}
+    end
+    
+    function testCoroutineIterator()
+    end
+    
+    {* TODO: This generates a traceback, even when it passes. We need to fix
+    this by redirecting stderr or by a flag in the context itself. *}
+    function testCoroutineSuspend()
+        {* Test suspending across a native boundary. *}
+        ctx = Context.new(reboundN)
+        self.assertEquals(ctx.state, Context.UNUSED)
+        
+        ctx.setup(3)
+        self.assertEquals(ctx.state, Context.SUSPENDED)
+                
+        self.assertRaises(
+            function()
+                ctx.next()
+            end,
+            RuntimeError,
+            "Attempt to raise across native call boundary should raise a RuntimeError."
+        )        
+    end
+    
+    function testCoroutineExceptions()
+        {* Test raising inside an active coro. *}
+        {* Test raising across a native boundary. *}
+    end
+    
+    function testCoroutineResume()
+        {* Test resuming a coroutine *}
+    end
+    
+    function testCoroutineStates()
+    end
+    
+    function testCoroutineRecreate()
+        {* Test that a coro can be re-created no matter the circumstances. *}
+    end
+end

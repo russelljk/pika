@@ -846,10 +846,32 @@ void Function::SetDoc(const char* cstr)
     }
 }
 
+int Function_apply(Context* ctx, Value& self)
+{
+    u2 argc = ctx->GetArgCount();
+    u2 retc = ctx->GetRetCount();
+    ctx->CheckStackSpace(argc + 2 + retc);
+        
+    const Value* btm  = ctx->GetArgs();
+    const Value* top  = btm + argc;
+    
+    for (const Value* v = btm; v < top; ++v)
+        ctx->Push(*v);
+    
+    ctx->PushNull();
+    ctx->Push(self);
+    
+    if (ctx->SetupCall(argc, retc)) {
+        ctx->Run();
+    }
+    return retc;
+}
+
 void Function::StaticInitType(Engine* eng)
 {
     SlotBinder<Function>(eng, eng->Function_Type)
     .Method(&Function::BindWith, "bindto")
+    .RegisterMethod(Function_apply,         "apply")
     .RegisterMethod(Function_getBytecode,   "getBytecode")
     .RegisterMethod(Function_getText,       "getText")
     .RegisterMethod(Function_getLocal,      "getLocal")
