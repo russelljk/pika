@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
         }
         catch (Exception& e)
         {
-            std::cerr << "Uncaught " << e.GetErrorKind() << ": " << e.GetMessage() << std::endl;
+            std::cerr << "Uncaught " << e.GetErrorKind(eng) << ": " << e.GetMessage() << std::endl;
         }
         catch (...)
         {

@@ -829,6 +829,28 @@ void Engine::AddBaseType(String* name, Type* btype)
     Pkg_Types->SetSlot(key, res);
 }
 
+Type* Engine::GetTypeFor(ClassInfo* ci)
+{
+    size_t idx = (size_t)ci;
+    Value key(idx);
+    Value res(NULL_VALUE);
+    
+    if (types_table.Get(key, res)) {
+        return res.val.type;
+    }
+    return 0;
+}
+
+void Engine::SetTypeFor(ClassInfo* ci, Type* type)
+{
+    size_t idx = (size_t)ci;
+    Value key(idx);
+    Value val(type);
+    
+    types_table.Set(key, val);
+    AddToRoots(type);
+}
+
 void Engine::CreateRoots()
 {
     AddToRoots(Pkg_World);
@@ -862,17 +884,30 @@ void Engine::CreateRoots()
     AddToRoots(Real_Type);
     AddToRoots(Enumerator_Type);
     AddToRoots(Property_Type);
-    AddToRoots(Error_Type);
-    AddToRoots(RuntimeError_Type);
-    AddToRoots(TypeError_Type);
-    AddToRoots(ArithmeticError_Type);
-    AddToRoots(IndexError_Type);
-    AddToRoots(SystemError_Type);
-    AddToRoots(AssertError_Type);
-    AddToRoots(OverflowError_Type);
-    AddToRoots(UnderflowError_Type);
-    AddToRoots(DivideByZeroError_Type);    
-    AddToRoots(SyntaxError_Type);
+    
+    SetTypeFor(ErrorClass::StaticGetClass(),        Error_Type);
+    SetTypeFor(RuntimeError::StaticGetClass(),      RuntimeError_Type);
+    SetTypeFor(TypeError::StaticGetClass(),         TypeError_Type);
+    SetTypeFor(ArithmeticError::StaticGetClass(),   ArithmeticError_Type);
+    SetTypeFor(OverflowError::StaticGetClass(),     OverflowError_Type);
+    SetTypeFor(UnderflowError::StaticGetClass(),    UnderflowError_Type);
+    SetTypeFor(DivideByZeroError::StaticGetClass(), DivideByZeroError_Type);
+    SetTypeFor(IndexError::StaticGetClass(),        IndexError_Type);
+    SetTypeFor(SystemError::StaticGetClass(),       SyntaxError_Type);
+    SetTypeFor(AssertError::StaticGetClass(),       AssertError_Type);
+    
+    // AddToRoots(Error_Type);
+    // AddToRoots(RuntimeError_Type);
+    // AddToRoots(TypeError_Type);
+    // AddToRoots(ArithmeticError_Type);
+    // AddToRoots(IndexError_Type);
+    // AddToRoots(SystemError_Type);
+    // AddToRoots(AssertError_Type);
+    // AddToRoots(OverflowError_Type);
+    // AddToRoots(UnderflowError_Type);
+    // AddToRoots(DivideByZeroError_Type);
+    // AddToRoots(SyntaxError_Type);
+    
     AddToRoots(Type_Type);
     AddToRoots(emptyString);
     AddToRoots(dot_String);

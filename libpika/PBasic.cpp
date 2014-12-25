@@ -11,8 +11,9 @@
 #include "PFunction.h"
 #include "PProperty.h"
 #include "PContext.h"
-namespace pika {
 
+namespace pika {
+    
 PIKA_IMPL(Basic)
 
 bool Basic::GetSlot(const char* key, Value& result)

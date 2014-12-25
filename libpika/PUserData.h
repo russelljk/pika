@@ -113,6 +113,12 @@ INLINE void* Value::GetUserDataFast() const
     return val.userdata->GetData();
 }
 
+// Used for registering Type's for UserData classes.
+struct PIKA_API UserDataClass {
+    static ClassInfo* StaticCreateClass();
+    PIKA_REG(UserDataClass)
+};
+
 }// pika
 
 #endif

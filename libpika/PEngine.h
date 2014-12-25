@@ -339,7 +339,9 @@ public:
 private:
     MemObjPool<Array> Array_Pool;
 #endif
-
+public:
+    Type*           GetTypeFor(ClassInfo*);
+    void            SetTypeFor(ClassInfo*, Type*);
 private:
     HookEntry*      hooks[HE_max];  //!< Debug hooks into the interpreter
     PathManager*    paths;          //!< Paths used for importing
@@ -353,6 +355,7 @@ private:
     Collector*      gc;             //!< The Garbage Collector
     Buffer<Module*> modules;        //!< All The Modules imported
     Buffer<Script*> scripts;        //!< All The Scripts imported
+    Table           types_table;
 };
 
 }// pika

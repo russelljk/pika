@@ -70,6 +70,7 @@ class Table;
 #include "PMemPool.h"
 #include "PBuffer.h"
 
+#include "PClassInfo.h"
 #include "PError.h"
 #include "PValue.h"
 #include "PCollector.h"
@@ -82,7 +83,6 @@ class Table;
 #include "PString.h"
 #include "PProperty.h"
 #include "PUserData.h"
-#include "PClassInfo.h"
 #include "PObject.h"
 #include "PPathManager.h"
 #include "PIterator.h"
