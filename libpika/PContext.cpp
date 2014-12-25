@@ -3412,7 +3412,7 @@ Context::EErrRes Context::OpException(Exception& e, bool caught)
             {
                 Object* error_obj = thrown.val.object;
                 error_obj->SetSlot(engine->message_String, errorStr);
-                error_obj->SetSlot(engine->GetString("name"), engine->GetString(e.GetErrorKind()));
+                error_obj->SetSlot(engine->GetString("name"), engine->GetString(e.GetErrorKind(engine)));
             }
             else
             {
@@ -3570,7 +3570,7 @@ Context::EErrRes Context::OpException(Exception& e, bool caught)
                 }
                 else
                 {
-                    std::cerr << e.GetErrorKind() << " -- " << msg << std::endl;
+                    std::cerr << e.GetErrorKind(engine) << " -- " << msg << std::endl;
                 }
             }
             else

@@ -20,7 +20,7 @@ void JsonEncoder::MarkCollection(Object* obj)
     Value val(obj);
     if (marked.Exists(val))
     {
-        RaiseException(Exception::ERROR_runtime, "Attempt to encode Object more than once.");
+        RaiseException(JsonEncodeError::StaticGetClass(), "Attempt to encode an Object more than once.");
     }
     marked.Set(val, val);
 }
@@ -174,7 +174,7 @@ void JsonEncoder::EncodeString(String* str)
 
 void JsonEncoder::BadUnicodeLiteral()
 {
-    RaiseException(Exception::ERROR_type, "Attempt to encode string with an invalid utf-8 character sequence or non-ascii characters.");
+    RaiseException(JsonEncodeError::StaticGetClass(), "Attempt to encode string with an invalid utf-8 character sequence or non-ascii characters.");
 }
 
 void JsonEncoder::EncodeCString(const char* str, size_t len, bool escape)

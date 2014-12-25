@@ -106,7 +106,7 @@ bool JsonTokenizer::IsEof()
 
 void JsonTokenizer::SyntaxError(const char* msg)
 {
-    RaiseException(Exception::ERROR_syntax, 
+    RaiseException(JsonSyntaxError::StaticGetClass(), 
         "%s at line %d col %d, while parsing JSON.", 
         msg, line, col);
 }
@@ -573,21 +573,21 @@ void JsonParser::Expected(int x, bool unexpected)
     if (x > JsonTokMin && x <= JsonTokMax)
     {
         const char* tokenName = JsonTokenToString(x);
-        RaiseException(Exception::ERROR_syntax, 
+        RaiseException(JsonSyntaxError::StaticGetClass(), 
             "%s token '%s', at line %d col %d, while parsing JSON.", 
             expected,
             tokenName, line, col);        
     }
     else if (x < JsonTokMin)
     {
-        RaiseException(Exception::ERROR_syntax, 
+        RaiseException(JsonSyntaxError::StaticGetClass(), 
             "%s token '%c', at line %d col %d, while parsing JSON.", 
             expected,
             (char)x, line, col);
     }
     else
     {
-        RaiseException(Exception::ERROR_syntax, 
+        RaiseException(JsonSyntaxError::StaticGetClass(), 
             "%s token %d, at line %d col %d, while parsing JSON.", 
             expected,
             x, line, col);

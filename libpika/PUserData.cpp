@@ -87,4 +87,13 @@ UserData* UserData::CreateManaged(Engine* eng, Type* obj_type, size_t length, Us
     return ud;
 }
 
+ClassInfo* UserDataClass::StaticCreateClass()
+{
+    if (!UserDataClassClassInfo)    
+        UserDataClassClassInfo = ClassInfo::Create("UserData", 0);    
+    return UserDataClassClassInfo;
+}
+
+PIKA_IMPL(UserDataClass)
+
 }// pika
