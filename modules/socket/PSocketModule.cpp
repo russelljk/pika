@@ -16,7 +16,7 @@ struct AutoFreeErrorString {
     
     ~AutoFreeErrorString()
     {
-        Pika_FreeString(str);
+        Pika_FreeErrorString(str);
     }
     char* str;
 };

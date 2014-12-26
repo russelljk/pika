@@ -8,6 +8,7 @@
 #include <errno.h>
 #include "SocketPlatform.h"
 #include "Pika.h"
+#include "PPlatform.h"
 #include "PSocketError.h"
 #include "PSocketAddress.h"
 #include "PSocket.h"

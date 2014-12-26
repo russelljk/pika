@@ -7,7 +7,7 @@
 
 namespace pika {
 
-void RaiseExceptionFromErrno(Exception::Kind errKind, const char * errMsg, int errNum=0);
+void RaiseExceptionFromErrno(Exception::Kind errKind, const char* errMsg, int errNum=0);
 
 }// pika
 

@@ -7,8 +7,10 @@
 
 #include <zlib.h>
 #include "Pika.h"
+#include "PPlatform.h"
+#include "PZError.h"
 #include "PZStream.h"
-#include "PZInflater.h"
-#include "PZDeflater.h"
+#include "PZCompressor.h"
+#include "PZDecompressor.h"
 
 #endif

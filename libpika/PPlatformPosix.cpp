@@ -19,6 +19,21 @@
 #include <fcntl.h>
 #include <dirent.h>
 
+char* Pika_GetError(int err)
+{
+    size_t ERROR_SIZE = 1024;
+    char* errorMessage = (char*)Pika_malloc(ERROR_SIZE);
+    
+    while (strerror_r(err, errorMessage, ERROR_SIZE) == -1 && errno == ERANGE)
+    {
+        ERROR_SIZE *= 2;
+        errorMessage = (char*)Pika_realloc(errorMessage, ERROR_SIZE);
+        if (!errorMessage)
+            return 0;
+    }
+    return errorMessage;
+}
+
 int Pika_gettimeofday(Pika_timeval* ptv, Pika_timezone* ptz)
 {
     struct timeval tv;

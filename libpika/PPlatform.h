@@ -41,6 +41,24 @@ extern int Pika_gettimeofday(Pika_timeval*, Pika_timezone*);
 extern void          Pika_Sleep(u4 msecs);
 extern unsigned long Pika_Milliseconds();
 
+extern char*  Pika_GetError(int);
+extern void   Pika_FreeErrorString(char*);
+
+struct PIKA_API ErrorStringHandler
+{
+    ErrorStringHandler(int err);
+    
+    ~ErrorStringHandler();
+    
+    operator bool() const;
+    
+    const char* GetBuffer();
+    const char* GetBuffer() const;
+
+private:
+    char* buffer;
+};
+
 // ---- File/Directory Functions ----
 
 extern bool     Pika_CreateDirectory(const char* pathName);

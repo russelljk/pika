@@ -29,15 +29,65 @@ using namespace pika;
 PIKA_MODULE(zlib, eng, zlib)
 {
     GCPAUSE(eng);
-    String* Deflater_String = eng->AllocString("Deflater");
-    Type*   Deflater_Type   = Type::Create(eng, Deflater_String, eng->Object_Type, Deflater::Constructor, zlib);
-    zlib->SetSlot(Deflater_String, Deflater_Type);
+    /*
+        Class Hierarchy:
+        
+        (Object) +--->  ZStream  +---> Compressor
+                 |               |
+                 |               +---> Decompressor
+                 |
+                 +--->  (Error) +---> (RuntimeError) --->  ZlibError  +---> CompressError
+                                                                      |
+                                                                      +---> DecompressError
+    */
+    String* ZStream_String = eng->AllocString("ZStream");
+    Type*   ZStream_Type   = Type::Create(eng, ZStream_String, eng->Object_Type, 0, zlib);
+    ZStream_Type->SetAbstract(true);
     
-    String* Inflater_String = eng->AllocString("Inflater");
-    Type*   Inflater_Type   = Type::Create(eng, Inflater_String, eng->Object_Type, Inflater::Constructor, zlib);
-    zlib->SetSlot(Inflater_String, Inflater_Type);
+    String* Compressor_String = eng->AllocString("Compressor");
+    Type*   Compressor_Type   = Type::Create(eng, Compressor_String, ZStream_Type, Compressor::Constructor, zlib);
+    zlib->SetSlot(Compressor_String, Compressor_Type);
     
-    //eng->AddBaseType(Deflater_String, Deflater_Type);
-    //eng->AddBaseType(Inflater_String, Inflater_Type);
+    String* Decompressor_String = eng->AllocString("Decompressor");
+    Type*   Decompressor_Type   = Type::Create(eng, Decompressor_String, ZStream_Type, Decompressor::Constructor, zlib);
+    zlib->SetSlot(Decompressor_String, Decompressor_Type);
+    
+    SlotBinder<ZStream>(eng, ZStream_Type)
+    .Method(&ZStream::Process, "process")
+    ;
+    
+    SlotBinder<Compressor>(eng, Compressor_Type)
+    .PropertyRW("level",
+        &Compressor::GetLevel, "getLevel",
+        &Compressor::SetLevel, "setLevel")
+    ;
+    
+    static NamedConstant Zlib_Constants[] = {
+        { "Z_NO_COMPRESSION",   Z_NO_COMPRESSION },
+        { "Z_BEST_SPEED",       Z_BEST_SPEED },
+        { "Z_BEST_COMPRESSION", Z_DEFAULT_COMPRESSION },
+    };
+    
+    Basic::EnterConstants(zlib, Zlib_Constants, countof(Zlib_Constants));
+    
+    String* ZlibError_String = eng->GetString("ZlibError");
+    Type*   ZlibError_Type   = Type::Create(eng, ZlibError_String, eng->RuntimeError_Type, 0, zlib);
+    
+    String* CompressError_String = eng->GetString("CompressError");
+    Type*   CompressError_Type   = Type::Create(eng, CompressError_String, ZlibError_Type, 0, zlib);
+    
+    String* DecompressError_String = eng->GetString("DecompressError");
+    Type*   DecompressError_Type   = Type::Create(eng, DecompressError_String, ZlibError_Type, 0, zlib);
+    
+    zlib->SetSlot(       ZlibError_String,         ZlibError_Type);
+    zlib->SetSlot(CompressError_String,  CompressError_Type);
+    zlib->SetSlot(DecompressError_String,  DecompressError_Type);
+    
+    eng->SetTypeFor(       ZlibError::StaticGetClass(),        ZlibError_Type);
+    eng->SetTypeFor(CompressError::StaticGetClass(), CompressError_Type);
+    eng->SetTypeFor(DecompressError::StaticGetClass(), DecompressError_Type);
+    
+    //eng->AddBaseType(Compressor_String, Compressor_Type);
+    //eng->AddBaseType(Decompressor_String, Decompressor_Type);
     return zlib;
 }

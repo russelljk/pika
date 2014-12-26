@@ -91,8 +91,4 @@ Pika_address*   Pika_StringToNetwork(const char* addr, bool ip6);
 Pika_address*   Pika_GetAddressInfo(const char* addrStr, const char* extra, int& status);
 char*           Pika_GetAddressInfoError(int);
 
-char*           Pika_GetError(int);
-
-void            Pika_FreeString(char*);
-
 #endif

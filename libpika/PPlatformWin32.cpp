@@ -358,3 +358,18 @@ void* Pika_GetSymbolAddress(intptr_t handle, const char* symbol)
 {
     return (void*)GetProcAddress((HMODULE)handle, symbol);
 }
+
+char* Pika_GetError(int err)
+{
+    size_t ERROR_SIZE = 1024;
+    char* errorMessage = (char*)Pika_malloc(ERROR_SIZE);
+    
+    while (strerror_s(errorMessage, ERROR_SIZE, err) == -1 && errno == ERANGE)
+    {
+        ERROR_SIZE *= 2;
+        errorMessage = (char*)Pika_realloc(errorMessage, ERROR_SIZE);
+        if (!errorMessage)
+            return 0;
+    }
+    return errorMessage;
+}

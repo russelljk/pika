@@ -1,0 +1,13 @@
+zlib = import "zlib"
+unittest = import "unittest"
+
+class ZlibTestCase : unittest.TestCase
+    {*
+    test Hierarchy of all classes.
+    test Deflating
+        test compression levels
+    test Infalting
+        
+        test uncompressed strings
+    *}
+end

@@ -13,11 +13,10 @@ void RaiseExceptionFromErrno(Exception::Kind errKind, const char* errMsg, int er
         errorNum = errno;
     }
         
-    char* errorMessage = Pika_GetError(errorNum);
-    if (errorMessage)
+    ErrorStringHandler handler(errorNum);
+    if (handler)
     {
-        RaiseException(errKind, "%s with message \"%s\".", errMsg, errorMessage);
-        Pika_FreeString(errorMessage);
+        RaiseException(errKind, "%s with message \"%s\".", errMsg, handler.GetBuffer());
     }
     else
     {

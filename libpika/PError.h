@@ -134,39 +134,39 @@ struct PIKA_API ErrorClass {
     PIKA_REG(ErrorClass)
 };
 
-struct RuntimeError: ErrorClass {
+struct PIKA_API RuntimeError: ErrorClass {
     PIKA_DECL(RuntimeError, ErrorClass)
 };
 
-struct TypeError: ErrorClass {
+struct PIKA_API TypeError: ErrorClass {
     PIKA_DECL(TypeError, ErrorClass)
 };
 
-struct ArithmeticError: ErrorClass {
+struct PIKA_API ArithmeticError: ErrorClass {
     PIKA_DECL(ArithmeticError, ErrorClass)
 };
 
-struct OverflowError: ArithmeticError {
+struct PIKA_API OverflowError: ArithmeticError {
     PIKA_DECL(OverflowError, ArithmeticError)
 };
 
-struct UnderflowError: ArithmeticError {
+struct PIKA_API UnderflowError: ArithmeticError {
     PIKA_DECL(UnderflowError, ArithmeticError)
 };
 
-struct DivideByZeroError: ArithmeticError {
+struct PIKA_API DivideByZeroError: ArithmeticError {
     PIKA_DECL(DivideByZeroError, ArithmeticError)
 };
 
-struct IndexError: ErrorClass {
+struct PIKA_API IndexError: ErrorClass {
     PIKA_DECL(IndexError, ErrorClass)
 };
 
-struct SystemError: ErrorClass {
+struct PIKA_API SystemError: ErrorClass {
     PIKA_DECL(SystemError, ErrorClass)
 };
 
-struct AssertError: ErrorClass {
+struct PIKA_API AssertError: ErrorClass {
     PIKA_DECL(AssertError, ErrorClass)
 };
 

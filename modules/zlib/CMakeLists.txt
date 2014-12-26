@@ -30,8 +30,8 @@ set (pikazlib_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.$
 # configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake-zlib_config.h.in
 #                ${CMAKE_CURRENT_SOURCE_DIR}/zlib_config.h)
 
-set (zlib_LIB_SRCS ${zlib_LIB_SRCS} PZlib.cpp PZStream.cpp PZInflater.cpp PZDeflater.cpp)
-set (zlib_LIB_HEADERS ${zlib_LIB_HEADERS} PZlib.h PZStream.h PZInflater.h PZDeflater.h)
+set (zlib_LIB_SRCS ${zlib_LIB_SRCS} PZlib.cpp PZError.cpp PZStream.cpp PZDecompressor.cpp PZCompressor.cpp)
+set (zlib_LIB_HEADERS ${zlib_LIB_HEADERS} PZlib.h PZError.h PZStream.h PZDecompressor.h PZCompressor.h)
 
 source_group (include FILES ${zlib_LIB_HEADERS})
 source_group (source  FILES ${zlib_LIB_SRCS})

@@ -11,6 +11,31 @@
 #include <readline/history.h>
 #endif
 
+ErrorStringHandler::ErrorStringHandler(int err) : buffer(Pika_GetError(err))
+{        
+}
+
+ErrorStringHandler::~ErrorStringHandler()
+{
+    if (buffer)
+    {
+        Pika_FreeErrorString(buffer);
+    }
+}
+
+ErrorStringHandler::operator bool() const { return buffer != 0; }
+
+const char* ErrorStringHandler::GetBuffer()       { return buffer; }    
+const char* ErrorStringHandler::GetBuffer() const { return buffer; }
+
+void Pika_FreeErrorString(char* message)
+{
+    if (message)
+    {
+        Pika_free(message);
+    }
+}
+
 const char* Pika_readline(const char* prompt)
 {
 #if defined(HAVE_READLINE) 
