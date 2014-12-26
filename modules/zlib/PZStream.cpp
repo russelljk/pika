@@ -52,17 +52,16 @@ void ZStream::DoProcess(const u1* in, size_t in_length, Buffer<u1>& out)
     
     const u1* in_curr = in;
     // const u1* in_end = in + in_length;
-    
-    u1 buff[CHUNK_SIZE];
-    
+    Buffer<u1> buff(CHUNK_SIZE);
+        
     int flush = Z_FINISH;
     
     stream.next_in = const_cast<u1*>(in_curr); // next_in isn't modified by zlib (why don't they make it const?)
     stream.avail_in = in_length;
     errno = 0;
     do {        
-        stream.avail_out = CHUNK_SIZE;
-        stream.next_out = &buff[0];
+        stream.avail_out = buff.GetSize();
+        stream.next_out = buff.GetAt(0);
         
         int ret = this->Call(flush);
         
@@ -79,7 +78,7 @@ void ZStream::DoProcess(const u1* in, size_t in_length, Buffer<u1>& out)
         if (out_amt > 0) {
             size_t pos = out.GetSize();
             out.Resize(pos + out_amt);
-            Pika_memcpy(out.GetAt(pos), buff, out_amt);
+            Pika_memcpy(out.GetAt(pos), buff.GetAt(0), Min<size_t>(out_amt, buff.GetSize()));
         }        
         // flush = Z_FINISH;
         
