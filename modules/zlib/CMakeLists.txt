@@ -31,7 +31,7 @@ if (NOT ZLIB_FOUND)
     set (SKIP_INSTALL_HEADERS   TRUE)
     add_subdirectory (zlib)
     include_directories (${PROJECT_BINARY_DIR})
-    set (ADD_LIBS ${ADD_LIBS} zlibstatic)
+    set (ADD_LIBS ${ADD_LIBS} zlib)
 endif (NOT ZLIB_FOUND)
 
 set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})
