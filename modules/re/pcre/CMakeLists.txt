@@ -183,11 +183,11 @@ ENDIF(PCRE_NO_RECURSE)
 
 # Output files
 CONFIGURE_FILE(config-cmake.h.in
-               ${PROJECT_BINARY_DIR}/config.h
+               ${PROJECT_BINARY_DIR}/modules/re/pcre/config.h
                @ONLY)
 
 CONFIGURE_FILE(pcre.h.generic
-               ${PROJECT_BINARY_DIR}/pcre.h
+               ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre.h
                COPYONLY)
 
 # Character table generation
@@ -202,23 +202,23 @@ IF(PCRE_REBUILD_CHARTABLES)
     COMMENT "Generating character tables (pcre_chartables.c) for current locale"
     DEPENDS dftables
     COMMAND ${DFTABLES_EXE}
-    ARGS        ${PROJECT_BINARY_DIR}/pcre_chartables.c
-    OUTPUT      ${PROJECT_BINARY_DIR}/pcre_chartables.c
+    ARGS        ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre_chartables.c
+    OUTPUT      ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre_chartables.c
   )
 ELSE(PCRE_REBUILD_CHARTABLES)
   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/pcre_chartables.c.dist
-                    ${PROJECT_BINARY_DIR}/pcre_chartables.c
+                    ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre_chartables.c
                     COPYONLY)
 ENDIF(PCRE_REBUILD_CHARTABLES)
 
 # Source code
 
-SET(PCRE_HEADERS ${PROJECT_BINARY_DIR}/pcre.h)
+SET(PCRE_HEADERS ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre.h)
 
-include_directories (${PROJECT_BINARY_DIR})
+include_directories (${PROJECT_BINARY_DIR}/modules/re/pcre)
 
 SET(PCRE_SOURCES
-  ${PROJECT_BINARY_DIR}/pcre_chartables.c
+  ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre_chartables.c
   pcre_compile.c
   pcre_config.c
   pcre_dfa_exec.c
@@ -247,8 +247,8 @@ SET(PCREPOSIX_SOURCES pcreposix.c)
 SET(PCRECPP_HEADERS
   pcrecpp.h
   pcre_scanner.h
-  ${PROJECT_BINARY_DIR}/pcrecpparg.h
-  ${PROJECT_BINARY_DIR}/pcre_stringpiece.h
+  ${PROJECT_BINARY_DIR}/modules/re/pcre/pcrecpparg.h
+  ${PROJECT_BINARY_DIR}/modules/re/pcre/pcre_stringpiece.h
 )
 
 SET(PCRECPP_SOURCES
@@ -276,7 +276,7 @@ SET(targets)
 
 # Libraries
 # pcre
-ADD_LIBRARY(pcre ${PCRE_HEADERS} ${PCRE_SOURCES} ${PROJECT_BINARY_DIR}/config.h)
+ADD_LIBRARY(pcre ${PCRE_HEADERS} ${PCRE_SOURCES} ${PROJECT_BINARY_DIR}/modules/re/pcre/config.h)
 
 SET(targets ${targets} pcre)
 

@@ -40,6 +40,7 @@ PIKA_MODULE(zlib, eng, zlib)
                                                                       |
                                                                       +---> DecompressError
     */
+    z_crc_t foo = 0;
     String* ZStream_String = eng->AllocString("ZStream");
     Type*   ZStream_Type   = Type::Create(eng, ZStream_String, eng->Object_Type, 0, zlib);
     ZStream_Type->SetAbstract(true);

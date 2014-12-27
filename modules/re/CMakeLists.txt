@@ -56,7 +56,7 @@ set (pikare_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${p
 
 if (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)
     add_subdirectory(pcre)
-    include_directories (${PROJECT_BINARY_DIR})
+    include_directories (${PROJECT_BINARY_DIR}/modules/re/pcre ${PROJECT_SOURCE_DIR}/modules/re/pcre)
     set (HAVE_PCRE 1)
     message (STATUS "RegExp: Using internal PCRE library.")
 endif (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)

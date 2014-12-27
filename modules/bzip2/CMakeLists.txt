@@ -15,7 +15,7 @@ message (STATUS "bzip2: Using internal bz2.")
 set (SKIP_INSTALL_FILES     TRUE)
 set (SKIP_INSTALL_HEADERS   TRUE)
 add_subdirectory (bzip2)
-include_directories (${PROJECT_BINARY_DIR})
+include_directories (${Pika_SOURCE_DIR}/modules/zlib/bzip2)
 set (ADD_LIBS ${ADD_LIBS} bz2)
 
 set (CPACK_PACKAGE_VERSION_MAJOR ${pika_LIB_VERSION_MAJOR})

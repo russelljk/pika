@@ -5,7 +5,7 @@
 #ifndef PIKA_ZLIB_HEADER
 #define PIKA_ZLIB_HEADER
 
-#include <zlib.h>
+#include "zlib.h"
 #include "Pika.h"
 #include "PPlatform.h"
 #include "PZError.h"
