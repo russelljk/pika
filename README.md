@@ -1,6 +1,6 @@
 # Pika
 
-Pika is a dynamic, multi-paradigm programming language. 
+Pika is a dynamic, multi-paradigm programming language.
 
 ## Features Include
 
@@ -154,6 +154,20 @@ To build without modules use the following
 
 ### Modules
 
+In addition to the builtin modules: `os`, `math` and `ctime`; the following can
+be built and installed.
+
+You can import them by calling the `import` method with one or more module names.
+
+For example:
+
+
+    math, datetime, os = import "math", "datetime", "os"
+
+Will load and store the math, datetime and os modules in variables of the same name.
+
+#### Additional Modules
+
 **base64**
 
  * A base 64 encoder and decoder, meant to be an example module.
@@ -162,6 +176,10 @@ To build without modules use the following
 
  * Arbitrary precision arithmetic for integers and real numbers (*floating point numbers*).
  * Depends on GMP and MPRF for the BigInteger and BigReal classes respectively.
+
+**bzip2**
+
+ * Compression and decompression of data using bzip2 (*included*).
  
 **curses**
 
@@ -184,6 +202,7 @@ To build without modules use the following
 **random**
  
  * Pseudorandom number generator based on Mersenne Twister (included).
+ * Currently part of the math module.
 
 **re**
 
@@ -199,3 +218,7 @@ To build without modules use the following
 
  * Unittest module. 
  * Depends on the `re` module.
+ 
+**zlib**
+
+ * Compression and decompression of data using zlib (*included*).
