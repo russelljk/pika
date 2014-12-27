@@ -45,12 +45,11 @@ class CoroutineTestCase: unittest.TestCase
     
     function testCoroutineIterator()
     end
-    
-    {* TODO: This generates a traceback, even when it passes. We need to fix
-    this by redirecting stderr or by a flag in the context itself. *}
+        
     function testCoroutineSuspend()
         {* Test suspending across a native boundary. *}
         ctx = Context.new(reboundN)
+        ctx.quiet? = true
         self.assertEquals(ctx.state, Context.UNUSED)
         
         ctx.setup(3)

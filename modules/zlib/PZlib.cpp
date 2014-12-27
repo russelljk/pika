@@ -43,7 +43,7 @@ PIKA_MODULE(zlib, eng, zlib)
     String* ZStream_String = eng->AllocString("ZStream");
     Type*   ZStream_Type   = Type::Create(eng, ZStream_String, eng->Object_Type, 0, zlib);
     ZStream_Type->SetAbstract(true);
-    
+    zlib->SetSlot(ZStream_String, ZStream_Type);
     String* Compressor_String = eng->AllocString("Compressor");
     Type*   Compressor_Type   = Type::Create(eng, Compressor_String, ZStream_Type, Compressor::Constructor, zlib);
     zlib->SetSlot(Compressor_String, Compressor_Type);

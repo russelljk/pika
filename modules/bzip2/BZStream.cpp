@@ -6,6 +6,23 @@
 
 namespace pika {
 
+const char* Pika_GetBZErrorMessage(int err)
+{
+    switch(err) {            
+        case BZ_SEQUENCE_ERROR:     return "Sequence Error";
+        case BZ_PARAM_ERROR:        return "Param Error";
+        case BZ_MEM_ERROR:          return "Mem Error";
+        case BZ_DATA_ERROR:         return "Data Error";
+        case BZ_DATA_ERROR_MAGIC:   return "Data Error";
+        case BZ_IO_ERROR:           return "IO Error";
+        case BZ_UNEXPECTED_EOF:     return "Unexpected EOF";
+        case BZ_OUTBUFF_FULL:       return "Output Full";
+        case BZ_CONFIG_ERROR:       return "Config Error";
+    }
+    
+    return "Unkown Error";
+}
+    
 BZStream::BZStream(Engine* engine, Type* type) : ThisSuper(engine, type)
 {
     this->Reset();
@@ -64,13 +81,12 @@ void BZStream::DoProcess(const char* in, size_t in_length, Buffer<char>& out)
         stream.next_out = buff.GetAt(0);
         
         int ret = this->Call(flush);
-        
-        if (errno)
-        {
-            ErrorStringHandler handler(errno);
+                
+        if (ret < 0)
+        {            
             this->End();
             this->Reset();
-            RaiseException(GetErrorClass(), "Attempt to process stream failed with message \"%s\".", handler.GetBuffer());
+            RaiseException(GetErrorClass(), "Attempt to process stream failed with error message: \"%s\".", Pika_GetBZErrorMessage(ret));
         }
         
         size_t out_amt = CHUNK_SIZE - stream.avail_out;
@@ -79,9 +95,8 @@ void BZStream::DoProcess(const char* in, size_t in_length, Buffer<char>& out)
             size_t pos = out.GetSize();
             out.Resize(pos + out_amt);
             Pika_memcpy(out.GetAt(pos), buff.GetAt(0), Min<size_t>(out_amt, buff.GetSize()));
-        }        
-        // flush = BZ_FINISH;
-        
+        }
+                
     } while (stream.avail_out == 0);
     this->Reset();
 }

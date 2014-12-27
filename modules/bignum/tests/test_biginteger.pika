@@ -28,7 +28,7 @@ class TestBigIntegerClass : unittest.TestCase
             function()
                 BigInteger.new(5, 4, 3, 2, 1)
             end,
-            RuntimeError,
+            TypeError,
             "Test too many arguments."
         )
     end

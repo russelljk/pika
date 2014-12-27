@@ -136,6 +136,10 @@ public:
 
     /** Reset the Context to a used state. Slots are not reset. */
     void Reset();
+    
+    
+    bool IsQuiet()          { return this->quiet; }
+    void SetQuiet(bool q)   { this->quiet = q;    }
 protected:   
     int AdjustArgs(Function* fun, Def* def, int const param_count, u4 const argc, int const argdiff, bool const nativecall);
     Buffer<Value>  keywords;
@@ -165,6 +169,7 @@ protected:
     int            nativeCallDepth; //!< Number of native calls currently in the scopes stack.
     u4             callsCount;      //!< The number of inlined calls for a suspended context.
     Value          acc;             //!< The Value of the last expression executed. Used for implicit returns (ie a return with no specified expression).
+    bool           quiet;           //!< No traceback on unhandled exceptions.
 protected:
     void    CreateEnv();
     

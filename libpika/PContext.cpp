@@ -100,7 +100,11 @@ void Context::StaticInitType(Engine* eng)
     .Constant((pint_t)Context::DEAD,                "DEAD")
     .Constant((pint_t)Context::UNUSED,              "UNUSED")
     .StaticMethodVA(&Context::Suspend,              "suspend")
-    .Method(&Context::ToBoolean,                    "toBoolean")    
+    .Method(&Context::ToBoolean,                    "toBoolean")
+    .PropertyRW("quiet?",
+                &Context::IsQuiet,  "isQuiet",
+                &Context::SetQuiet, "setQuiet", 
+                0, 0,  0)
     .PropertyR("suspended?", &Context::IsSuspended, 0)
     .PropertyR("running?",   &Context::IsRunning,   0)
     .PropertyR("dead?",      &Context::IsDead,      0)
@@ -352,7 +356,8 @@ Context::Context(Engine* eng, Type* obj_type)
       numTailCalls(0),
       numRuns(0),
       nativeCallDepth(0),
-      acc(NULL_VALUE)
+      acc(NULL_VALUE),
+      quiet(false)
 {
     scopes.Resize(PIKA_INIT_SCOPE_STACK);
     scopesTop = scopes.Begin();
@@ -3318,7 +3323,7 @@ void Context::Traceback()
 {
     GCPAUSE_NORUN(this->engine);
     
-    if (!this->closure)
+    if (!this->closure || this->quiet)
         return;
     this->PushCallScope();
     std::cout << "Traceback for context " << "<0x"<< (size_t)(this) << ">" << " (most recent call first):" << std::endl;

@@ -78,6 +78,8 @@ class StringTestCase: unittest.TestCase
         
         s = '123456'
         self.assertEquals(s[0 : s.length], s)
+        
+        self.assertEquals(s[s.length : 0], '654321', "Test slice reversal")
     end
     
     function testStringConcat()

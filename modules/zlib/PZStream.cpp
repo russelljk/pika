@@ -48,15 +48,14 @@ String* ZStream::Process(String* in)
 void ZStream::DoProcess(const u1* in, size_t in_length, Buffer<u1>& out)
 {
     this->Begin();        
-    size_t const CHUNK_SIZE = 2048;
+    size_t const CHUNK_SIZE = 8;
     
     const u1* in_curr = in;
-    // const u1* in_end = in + in_length;
     Buffer<u1> buff(CHUNK_SIZE);
         
     int flush = Z_FINISH;
     
-    stream.next_in = const_cast<u1*>(in_curr); // next_in isn't modified by zlib (why don't they make it const?)
+    stream.next_in = const_cast<u1*>(in_curr);
     stream.avail_in = in_length;
     errno = 0;
     do {        
@@ -65,12 +64,17 @@ void ZStream::DoProcess(const u1* in, size_t in_length, Buffer<u1>& out)
         
         int ret = this->Call(flush);
         
-        if (errno)
+        if (ret < 0 && ret != Z_BUF_ERROR)
         {
-            ErrorStringHandler handler(errno);
             this->End();
             this->Reset();
-            RaiseException(GetErrorClass(), "Attempt to process stream failed with message \"%s\".", handler.GetBuffer());
+            if (ret == Z_ERRNO && errno) {
+                ErrorStringHandler handler(errno);
+                RaiseException(GetErrorClass(), "Attempt to process stream failed with error message: \"%s\".", handler.GetBuffer());
+            } else {
+                const char* err = zError(ret);
+                RaiseException(GetErrorClass(), "Attempt to process stream failed with error message: \"%s\".", err);
+            }
         }
         
         size_t out_amt = CHUNK_SIZE - stream.avail_out;
@@ -80,7 +84,6 @@ void ZStream::DoProcess(const u1* in, size_t in_length, Buffer<u1>& out)
             out.Resize(pos + out_amt);
             Pika_memcpy(out.GetAt(pos), buff.GetAt(0), Min<size_t>(out_amt, buff.GetSize()));
         }        
-        // flush = Z_FINISH;
         
     } while (stream.avail_out == 0);
     this->Reset();

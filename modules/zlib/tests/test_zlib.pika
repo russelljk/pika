@@ -1,13 +1,85 @@
 zlib = import "zlib"
 unittest = import "unittest"
+math = import "math"
+
+function makeByte()
+    return math.random.next() % 256
+end
+
+function makeByteString(len)
+    a = [ makeByte() for i = 0 to len ]
+    
+    return a.fold(
+        "", 
+        function(x, v)
+            return x..String.fromByte(v)
+        end
+    )
+end
 
 class ZlibTestCase : unittest.TestCase
-    {*
-    test Hierarchy of all classes.
-    test Deflating
-        test compression levels
-    test Infalting
+    function setUp()
+        math.random.seed = 49977321
+    end
         
-        test uncompressed strings
-    *}
+    function testZlibClassHierarchy()
+        self.assertSame(zlib.ZStream.base,      Object)
+        self.assertSame(zlib.Decompressor.base, zlib.ZStream)
+        self.assertSame(zlib.Compressor.base,   zlib.ZStream)
+        
+        self.assertSame(zlib.ZlibError.base,       RuntimeError)        
+        self.assertSame(zlib.DecompressError.base, zlib.ZlibError)
+        self.assertSame(zlib.CompressError.base,   zlib.ZlibError)
+        
+        compressor = zlib.Compressor.new()        
+        self.assertIs(compressor, zlib.Compressor)
+        self.assertIs(compressor, zlib.ZStream)
+        
+        decompressor = zlib.Decompressor.new()        
+        self.assertIs(decompressor, zlib.Decompressor)
+        self.assertIs(decompressor, zlib.ZStream)
+    end
+    
+    function testStandardCompressionCycle()
+        msg = "The quick brown fox jumped of the lazy dog."
+        msg2 = msg[msg.length:0]
+        compressor = zlib.Compressor.new()
+        res = compressor.process(msg)
+        self.assertTrue(res.length > 0)
+
+        decompressor = zlib.Decompressor.new()
+        dres = decompressor.process(res)
+        self.assertSame(msg, dres, "Decompression a compressed text string should produce the original string.")
+        
+        # Test resusing a valid compressor/decompressor
+        res2 = compressor.process(msg2)
+        dres2 = decompressor.process(res2)
+        self.assertSame(msg2, dres2, "resusing a valid compressor/decompressor")
+    end
+    
+    function testLargeBinaryStringCompressionCycle()
+        compressor, decompressor = zlib.Compressor.new(), zlib.Decompressor.new()
+        
+        bytes = makeByteString(2048*4)  # Large enough it can't be done in one pass.       
+        bres = compressor.process(bytes)
+        dbres = decompressor.process(bres)
+        self.assertSame(bytes, dbres)
+    end
+    
+    function testDecompressionFailure()
+        bytes = makeByteString(100)
+        decompressor = zlib.Decompressor.new()
+        self.assertRaises(
+            function()
+                decompressor.process(bytes)
+            end,
+            zlib.DecompressError,
+            "Decompress an invalid compression stream."
+        )
+        
+        msg = "The quick brown fox jumped of the lazy dog."
+        compressor = zlib.Compressor.new()        
+        res = compressor.process(msg)
+        self.assertSame(decompressor.process(res), msg, "Resuse a decompressor after failure.")
+    end
 end
