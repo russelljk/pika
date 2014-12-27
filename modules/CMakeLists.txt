@@ -11,3 +11,4 @@ add_subdirectory(event)
 add_subdirectory(datetime)
 add_subdirectory(zlib)
 add_subdirectory(bzip2)
+add_subdirectory(zipfile) # Keep this after zlib and bzip2
