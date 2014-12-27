@@ -1541,7 +1541,63 @@ public:
         ctx->Top().Set(strresult); // Overwrite the iterator
         return 1;
     }
+    
+    static int asBytes(Context* ctx, Value& self)
+    {
+        const char* digits = "0123456789abcdef";
+        Engine* engine = ctx->GetEngine();
+        String* src_str = self.val.str;
+        u2 const argc = ctx->GetArgCount();        
+        size_t const src_size = src_str->GetLength();
+        const char* orig_buff = src_str->GetBuffer();
+        pint_t start_pos = 0;
+        pint_t end_pos = src_size;
         
+        switch(argc) {
+        case 2: {
+            end_pos = ctx->GetIntArg(1);
+        }
+        case 1: {
+            start_pos = ctx->GetIntArg(0);
+        }        
+        break;        
+        default:
+            if (argc != 0) {
+                ctx->WrongArgCount();
+            }
+        }
+        
+        if (end_pos < 0 || start_pos < 0 || end_pos > src_size || start_pos > src_size || start_pos > end_pos) {
+            RaiseException(Exception::ERROR_type, "Invalid range of %d to %d passed to String.asBytes", start_pos, end_pos);
+        }
+        
+        if (end_pos == start_pos) {
+            ctx->Push(engine->emptyString);
+            return 1;
+        }
+        
+        size_t total_size = (end_pos - start_pos) * 4;
+        engine->string_buff.Resize(total_size);
+        size_t pos = 0;
+        for (size_t i = start_pos; i < end_pos; ++i)
+        {
+            u1 byte = orig_buff[i];
+            size_t b1 = byte % 16;
+            size_t b2 = (byte / 16);
+            if (b2)
+            {
+                b2 = b2 % 16;
+            }            
+            engine->string_buff[pos++] = '\\';
+            engine->string_buff[pos++] = 'x';
+            engine->string_buff[pos++] = digits[b2];
+            engine->string_buff[pos++] = digits[b1];
+        }
+        String* str = engine->GetString(engine->string_buff.GetAt(0), engine->string_buff.GetSize());
+        ctx->Push(str);
+        return 1;
+    }
+    
     static int search(Context* ctx, Value& self)
     {
         Engine* eng = ctx->GetEngine();
@@ -1770,7 +1826,7 @@ void String::StaticInitType(Engine* eng)
         { "strip",          StringApi::strip,               0, DEF_VAR_ARGS, 0 },
         { "stripLeft",      StringApi::stripLeft,           0, DEF_VAR_ARGS, 0 },
         { "stripRight",     StringApi::stripRight,          0, DEF_VAR_ARGS, 0 },
-
+        { "asBytes",        StringApi::asBytes,             0, DEF_VAR_ARGS, 0 },
         { "escape",         StringApi::escape,              2, DEF_STRICT,   0 },
     };
     
