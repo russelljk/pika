@@ -24,8 +24,8 @@ set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
 
 set (pikazipfile_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
 
-set (zipfile_LIB_SRCS ${zipfile_LIB_SRCS} PZipFile.cpp)
-set (zipfile_LIB_HEADERS ${zipfile_LIB_HEADERS} PZipFile.h)
+set (zipfile_LIB_SRCS    ${zipfile_LIB_SRCS}    PZipFile.cpp PZipReader.cpp)
+set (zipfile_LIB_HEADERS ${zipfile_LIB_HEADERS} PZipFile.h   PZipReader.h)
 
 source_group (include FILES ${zipfile_LIB_HEADERS})
 source_group (source  FILES ${zipfile_LIB_SRCS})
