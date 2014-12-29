@@ -19,7 +19,8 @@ struct StaticMethod0 : NativeMethodBase
     {
         RetType<TRet>(ctx, (*function)());
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 0; }
 };
 
@@ -60,7 +61,8 @@ struct StaticMethod1 : NativeMethodBase
         TRet ret = (*function)(param0);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 1; }
 };
 
@@ -82,6 +84,7 @@ struct StaticMethod1<void, TParam0> : NativeMethodBase
         VarType<TParam0> param0(ctx, (u2)0);
         (*function)(param0);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 1; }
 };
@@ -104,7 +107,8 @@ struct StaticMethodVA : NativeMethodBase
         TRet ret = (*function)(ctx);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 0; }
 };
 
@@ -123,6 +127,7 @@ struct StaticMethodVA<void> : NativeMethodBase
     {
         (*function)(ctx);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 0; }
 };
@@ -151,7 +156,8 @@ struct StaticMethod2 : NativeMethodBase
         TRet ret = (*function)(param0, param1);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 2; }
 };
 
@@ -175,6 +181,7 @@ struct StaticMethod2<void, TParam0, TParam1> : NativeMethodBase
         VarType<TParam1> param1(ctx, (u2)1);
         (*function)(param0, param1);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 2; }
 };
@@ -204,7 +211,8 @@ struct StaticMethod3 : NativeMethodBase
         TRet ret = (*function)(param0, param1, param2);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 3; }
 };
 
@@ -230,6 +238,7 @@ struct StaticMethod3<void, TParam0, TParam1, TParam2> : NativeMethodBase
         VarType<TParam2> param2(ctx, (u2)2);
         (*function)(param0, param1, param2);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 3; }
 };
@@ -266,6 +275,7 @@ struct StaticMethod4 : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 4; }
 };
 
@@ -297,6 +307,7 @@ struct StaticMethod4<void, TParam0, TParam1, TParam2, TParam3> : NativeMethodBas
 
         (*function)(param0, param1, param2, param3);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 4; }
 };
@@ -335,6 +346,7 @@ struct StaticMethod5 : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 5; }
 };
 
@@ -368,6 +380,7 @@ struct StaticMethod5<void, TParam0, TParam1, TParam2, TParam3, TParam4> : Native
 
         (*function)(param0, param1, param2, param3, param4);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 5; }
 };
@@ -409,6 +422,7 @@ struct StaticMethod6 : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 6; }
 };
 
@@ -445,6 +459,7 @@ struct StaticMethod6<void, TParam0, TParam1, TParam2, TParam3, TParam4, TParam5>
         (*function)(param0, param1, param2, param3,
                      param4, param5);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 6; }
 };
@@ -488,6 +503,7 @@ struct StaticMethod7 : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 7; }
 };
 
@@ -526,6 +542,7 @@ struct StaticMethod7<void, TParam0, TParam1, TParam2, TParam3, TParam4, TParam5,
         (*function)(param0, param1, param2, param3,
                      param4, param5, param6);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 7; }
 };
@@ -572,6 +589,7 @@ struct StaticMethod8 : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 8; }
 };
 
@@ -613,6 +631,7 @@ struct StaticMethod8<void, TParam0, TParam1, TParam2, TParam3, TParam4, TParam5,
                      param4, param5, param6,
                      param7);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 8; }
 };
@@ -660,7 +679,8 @@ struct StaticMethod9 : NativeMethodBase
                                 param7, param8);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 9; }
 };
 
@@ -704,6 +724,7 @@ struct StaticMethod9<void, TParam0, TParam1, TParam2, TParam3, TParam4, TParam5,
                      param4, param5, param6,
                      param7, param8);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 9; }
 };
@@ -752,7 +773,8 @@ struct StaticMethod10 : NativeMethodBase
                                 param7, param8, param9);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 10; }
 };
 
@@ -798,6 +820,7 @@ struct StaticMethod10<void, TParam0, TParam1, TParam2, TParam3, TParam4, TParam5
                      param4, param5, param6,
                      param7, param8, param9);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 10; }
 };

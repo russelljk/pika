@@ -254,6 +254,9 @@ struct RetType
 template<>
 struct RetType<Value>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, Value v)
     {
         ctx->Push(v);
@@ -263,6 +266,9 @@ struct RetType<Value>
 template<>
 struct RetType<Value&>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, Value& v)
     {
         ctx->Push(v);
@@ -272,6 +278,9 @@ struct RetType<Value&>
 template<>
 struct RetType<float>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, float f)
     {
         ctx->Push((preal_t)f);
@@ -281,6 +290,9 @@ struct RetType<float>
 template<>
 struct RetType<double>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, double f)
     {
         ctx->Push((preal_t)f);
@@ -290,6 +302,9 @@ struct RetType<double>
 template<>
 struct RetType<bool>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, bool b)
     {
         ctx->PushBool(b);
@@ -299,6 +314,9 @@ struct RetType<bool>
 template<>
 struct RetType<const char*>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, const char* s)
     {
         Engine* eng = ctx->GetEngine();
@@ -310,6 +328,9 @@ struct RetType<const char*>
 template<>
 struct RetType<char*>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, char* s)
     {
         Engine* eng = ctx->GetEngine();
@@ -321,6 +342,9 @@ struct RetType<char*>
 template<>
 struct RetType<String*>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, String* str)
     {
         if (str)
@@ -337,6 +361,9 @@ struct RetType<String*>
 template<>
 struct RetType<Object*>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, Object* o)
     {
         if (o)
@@ -353,6 +380,9 @@ struct RetType<Object*>
 template<>
 struct RetType<Array*>
 {
+    enum {
+        ReturnCount = 1, 
+    };
     INLINE RetType(Context* ctx, Array* v)
     {
         if (v)
@@ -363,6 +393,20 @@ struct RetType<Array*>
         {
             ctx->PushNull();
         }        
+    }
+};
+
+template<typename U, typename V>
+struct RetType< std::pair<U, V> >
+{
+    enum {
+        ReturnCount = 2, 
+    };
+    
+    INLINE RetType(Context* ctx, std::pair<U, V> ret)
+    {
+        RetType<U>(ctx, ret.first);
+        RetType<V>(ctx, ret.second);
     }
 };
 
@@ -662,6 +706,9 @@ NativeMethodBase* MakeStaticMethod(TRet(*func)(TParam0, TParam1, TParam2, TParam
     };                                                                                             \
     template<> struct RetType<TYPE>                                                                \
     {                                                                                              \
+        enum {                                                                                     \
+            ReturnCount = 1,                                                                       \
+        };                                                                                         \
         INLINE RetType(Context* ctx, TYPE i)                                                       \
         {                                                                                          \
             ctx->Push((pint_t)i);                                                                  \
@@ -736,6 +783,9 @@ struct VarType<TCLASS&>                                                         
 template<>                                                                                      \
 struct RetType<TCLASS*>                                                                         \
 {                                                                                               \
+    enum {                                                                                      \
+        ReturnCount = 1,                                                                        \
+    };                                                                                          \
     INLINE RetType(Context* ctx, TCLASS* v)                                                     \
     {                                                                                           \
         if (v) ctx->Push(v);                                                                    \
@@ -839,6 +889,9 @@ struct VarType<Function*>
 template<>
 struct RetType<Function*>
 {
+    enum {
+        ReturnCount = 1,
+    };
     INLINE RetType(Context* ctx, Function* v)
     {
         if (v) ctx->Push(v);

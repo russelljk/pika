@@ -13,7 +13,6 @@ template<typename TClass, typename TRet>
 struct Method0 : NativeMethodBase
 {
     typedef TRet(TClass::*TMETHOD)();
-
     TMETHOD function;
 
     Method0(TMETHOD m) : function(m) { }
@@ -21,9 +20,10 @@ struct Method0 : NativeMethodBase
     virtual void Invoke(void* obj, Context* ctx)
     {
         TClass* ptr = (TClass*)obj;
-        RetType<TRet>(ctx, (ptr->*function)());
+        RetType<TRet> retv(ctx, (ptr->*function)());
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 0; }
 };
 
@@ -66,7 +66,8 @@ struct Method1 : NativeMethodBase
         TRet ret = (ptr->*function)(param0);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 1; }
 };
 
@@ -89,6 +90,7 @@ struct Method1<TClass, void, TParam0> : NativeMethodBase
         VarType<TParam0> param0(ctx, (u2)0);
         (ptr->*function)(param0);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 1; }
 };
@@ -113,6 +115,7 @@ struct MethodVA : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 0; }
 };
 
@@ -132,6 +135,7 @@ struct MethodVA<TClass, void> : NativeMethodBase
         TClass* ptr = (TClass*)obj;
         (ptr->*function)(ctx);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 0; }
 };
@@ -160,7 +164,8 @@ struct Method2 : NativeMethodBase
         TRet ret = (ptr->*function)(param0, param1);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 2; }
 };
 
@@ -185,6 +190,7 @@ struct Method2<TClass, void, TParam0, TParam1> : NativeMethodBase
         VarType<TParam1> param1(ctx, (u2)1);
         (ptr->*function)(param0, param1);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 2; }
 };
@@ -216,6 +222,7 @@ struct Method3 : NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 3; }
 };
 
@@ -242,6 +249,7 @@ struct Method3<TClass, void, TParam0, TParam1, TParam2>: NativeMethodBase
         VarType<TParam2> param2(ctx, (u2)2);
         (ptr->*function)(param0, param1, param2);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 3; }
 };
@@ -279,7 +287,8 @@ struct Method4 : NativeMethodBase
         TRet ret = (ptr->*function)(param0, param1, param2, param3);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 4; }
 };
 
@@ -313,6 +322,7 @@ struct Method4<TClass, void, TParam0, TParam1, TParam2, TParam3> : NativeMethodB
 
         (ptr->*function)(param0, param1, param2, param3);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 4; }
 };
@@ -352,7 +362,8 @@ struct Method5 : NativeMethodBase
         TRet ret = (ptr->*function)(param0, param1, param2, param3, param4);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 5; }
 };
 
@@ -388,6 +399,7 @@ struct Method5<TClass, void, TParam0, TParam1, TParam2, TParam3, TParam4> : Nati
 
         (ptr->*function)(param0, param1, param2, param3, param4);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 5; }
 };
@@ -432,7 +444,8 @@ struct Method6: NativeMethodBase
                                     param4, param5);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 6; }
 };
 
@@ -475,6 +488,7 @@ struct Method6 < TClass,  void,    TParam0, TParam1, TParam2,
         (ptr->*function)(param0, param1, param2, param3,
                          param4, param5);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 6; }
 };
@@ -521,7 +535,8 @@ struct Method7 : NativeMethodBase
                                     param4, param5, param6);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 7; }
 };
 
@@ -566,6 +581,7 @@ struct Method7 < TClass,  void,    TParam0, TParam1, TParam2,
         (ptr->*function)(param0, param1, param2, param3,
                          param4, param5, param6);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 7; }
 };
@@ -615,7 +631,8 @@ struct Method8 : NativeMethodBase
                                     param7);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 8; }
 };
 
@@ -662,6 +679,7 @@ struct Method8 < TClass,  void,    TParam0, TParam1, TParam2, TParam3,
         (ptr->*function)(param0, param1, param2, param3,
                          param4, param5, param6, param7);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 8; }
 };
@@ -715,7 +733,8 @@ struct Method9: NativeMethodBase
                                     param8);
         RetType<TRet>(ctx, ret);
     }
-
+    
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 9; }
 };
 
@@ -768,6 +787,7 @@ struct Method9 < TClass,  void,    TParam0, TParam1, TParam2,
                          param4, param5, param6, param7, 
                          param8);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 9; }
 };
@@ -823,6 +843,7 @@ struct Method10: NativeMethodBase
         RetType<TRet>(ctx, ret);
     }
 
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
     virtual int GetArgCount() const { return 10; }
 };
 
@@ -877,6 +898,7 @@ struct Method10 < TClass,  void,    TParam0, TParam1, TParam2,
                          param4, param5, param6, param7, 
                          param8, param9);
     }
+    
     virtual int GetRetCount() const { return 0; }
     virtual int GetArgCount() const { return 10; }
 };
