@@ -1,0 +1,21 @@
+{* 
+Convert to C using:
+     xxd -i ZipWriter_OpenFile.pika ZipWriter_OpenFile.h 
+*}
+local datetime = import 'datetime'
+
+local function _openFile(name, date=null, extra='', globalExtra='', comment='', method=8, level=-1)
+    if date == null
+        date = datetime.DateTime.now()
+    end
+    
+    self._openFileLong(name, 
+        date.year, date.month, date.day, date.hour, date.minute, date.second,
+        extra,
+        globalExtra,
+        comment,
+        method,
+        level)
+end
+
+ZipWriter.addMethod(_openFile, 'openFile')

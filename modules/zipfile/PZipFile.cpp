@@ -26,10 +26,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 using namespace pika;
 
 extern void Init_ZipReader(Engine*, Package*);
+extern void Init_ZipWriter(Engine*, Package*);
 
 PIKA_MODULE(zipfile, eng, zipfile)
 {
     GCPAUSE(eng);
     Init_ZipReader(eng, zipfile);
+    Init_ZipWriter(eng, zipfile);
     return zipfile;
 }

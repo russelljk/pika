@@ -26,10 +26,10 @@ namespace pika {
         virtual void MarkRefs(Collector*);
         static ZipReaderFile* StaticNew(Engine*, Type*, ZipReader*);
         
-        size_t GetFileSize();
-        size_t GetCompressedSize();
-        String* GetFileName();
-        ZipReader* GetReader() { return this->zipfile; }
+        size_t      GetFileSize();
+        size_t      GetCompressedSize();
+        String*     GetFileName();
+        ZipReader*  GetReader();
         
         unz_file_info file_info;
         String* filename;
@@ -62,23 +62,54 @@ namespace pika {
         static void Constructor(Engine* eng, Type* obj_type, Value& res);
         static ZipReader* StaticNew(Engine* eng, Type* type);
         
+        /** Returns the total number of files in the central directory. 
+          * 
+          * Zip files may contain undocumented entries that are deleted
+          * but their file data remains. In practice you won't run into
+          * any trouble with these deleted files, since they are skipped
+          * by the reader.
+          */
         pint_t GetFileCount();
         
+        /** Go to the first file in this zip archive. Returns true if successful. */
         bool FirstFile();
+
+        /** Go to the first file in this zip archive. 
+          * Returns true if successful. False is there are no more files. 
+          */
         bool NextFile();
+
+        /** Go to the first file in this zip archive. Returns true if successful. */
         bool FindFile(String* name, bool caseSensitive);
         
-        bool SetFilePos(pint_t, pint_t);        
+        /** Sets the file pos to the given byte in the zip archive and the to the given file number. */
+        bool SetFilePos(pint_t nbyte, pint_t nfile);
+        
+        /** Returns the current position the zip archive and the current file number. */
         std::pair<pint_t, pint_t> GetFilePos();
-                
+        
+        /** Opens the current file. Returns true if successful. */
         bool OpenCurrentFile();
+        
+        /** Opens the current file with the given password. Returns true if successful. */
         bool OpenCurrentFilePassword(String*);
-                
-        ZipReaderFile* GetCurrentFile();        
+        
+        /** Returns the current file information via the ZipReaderFile class or 
+          * null if no file is selected. */
+        ZipReaderFile* GetCurrentFile();
+        
+        /** Closes the current file for reading. */
         void CloseCurrentFile();
+        
+        /** Reads the entire current file. */
         String* ReadAllCurrentFile();
+
+        /** Reads the given number of bytes from the file. 
+          * If -1 is provided then the entire file is read.
+          */
         String* ReadCurrentFile(pint_t);
         
+        String* GetFileName();
     protected:
         /** Sets or clears the currentFile based on the result of a method call. */
         bool HandleResult(int res);

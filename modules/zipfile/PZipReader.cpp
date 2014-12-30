@@ -34,6 +34,11 @@ namespace pika {
         return this->filename;
     }
     
+    ZipReader* ZipReaderFile::GetReader()
+    {
+        return this->zipfile;
+    }
+    
     void ZipReaderFile::MarkRefs(Collector* c)
     {
         ThisSuper::MarkRefs(c);
@@ -59,6 +64,11 @@ namespace pika {
     ZipReader::~ZipReader()
     {
         Close();
+    }
+    
+    String* ZipReader::GetFileName()
+    {
+        return this->filename;
     }
     
     String* ZipReader::ReadAllCurrentFile()
@@ -114,9 +124,7 @@ namespace pika {
     {
         return unzOpenCurrentFilePassword(this->file, pass->GetBuffer()) == UNZ_OK;        
     }
-    
-
-    
+        
     void ZipReader::CloseCurrentFile()
     {
         unzCloseCurrentFile(this->file);
@@ -377,6 +385,8 @@ void Init_ZipReader(Engine* engine, Package* zipfile)
         &ZipReader::GetCurrentFile, "getCurrentFile")
     .PropertyR("fileCount",
         &ZipReader::GetFileCount, "getFileCount")
+    .PropertyR("fileName",
+        &ZipReader::GetFileName, "getFileName")
     .Alias("onDispose", "close")
     ;
         
