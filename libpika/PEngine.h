@@ -157,6 +157,26 @@ public:
     Script* Compile(String* name, Context* parent = 0);
     void    ReadExecutePrintLoop();
     
+    /** Compiles and executes a pika script in the given buffer. 
+      *
+      * @param buff             [in] The script buffer
+      * @param buff_sz          [in] The size of the buffer or 0 if not known.
+      * @param ctx              [in] The Context to execute from, if NULL then the active context is used.
+      * @param globalScope      [in] The global scope for variables. If NULL then 
+      *                              Pkg_World is used.
+      */
+    void Exec(const char* buff, size_t buff_sz=0, Context* ctx=0, Package* globalScope=0);
+    
+    /** Compiles the given pika script into a Function that can be run from any Context. 
+      *
+      * @param buff             [in] The script buffer
+      * @param buff_sz          [in] The size of the buffer or 0 if not known.
+      * @param globalScope      [in] The global scope for variables. If NULL then 
+      *                              Pkg_World is used. 
+      * @result The package located at the destination of the dot-path.
+      */
+    Function* CompileString(const char* buff, size_t buff_sz=0, Package* globalScope=0);
+    
     INLINE Package*   GetWorld() { return Pkg_World; }
     INLINE Collector* GetGC()    { return gc; }
     

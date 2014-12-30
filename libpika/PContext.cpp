@@ -1757,7 +1757,8 @@ void Context::OpUsing()
     if (v.tag >= TAG_basic)
     {
         Value res(NULL_VALUE);
-        if (v.val.basic->GetSlot(engine->OpUse_String, res))
+        Type* basicType = engine->GetTypeOf(v);
+        if (basicType->GetField(engine->OpUse_String, res))
         {
             Push(v);
             Push(res);

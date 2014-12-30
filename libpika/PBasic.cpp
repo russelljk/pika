@@ -44,6 +44,20 @@ bool Basic::BracketWrite(const char* key, Value& value, u4 attr)
     return BracketWrite(vkey, value, attr);
 }
 
+bool Basic::GetAttr(Context* ctx, const char* key, Value& result)
+{
+    String* strKey = engine->GetString(key);
+    Value vkey(strKey);
+    return GetAttr(ctx, vkey, result);
+}
+
+bool Basic::SetAttr(Context* ctx, const char* key, Value& value, u4 attr)
+{
+    String* strKey = engine->GetString(key);
+    Value vkey(strKey);
+    return SetAttr(ctx, vkey, value, attr);
+}
+
 bool Basic::GetAttr(Context* ctx, const Value& key, Value& result)
 {
     if (GetSlot(key, result))

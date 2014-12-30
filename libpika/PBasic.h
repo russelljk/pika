@@ -74,6 +74,23 @@ public:
     virtual bool GetAttr(Context* ctx, const Value& key, Value& result);
     virtual bool SetAttr(Context* ctx, const Value& key, Value& value, u4 attr = 0);
     
+    virtual bool GetAttr(Context* ctx, const char* key, Value& result);
+    virtual bool SetAttr(Context* ctx, const char* key, Value& value, u4 attr = 0);
+    
+    template<typename TK>
+    INLINE bool GetAttr(Context* ctx, TK key, Value& result)
+    {
+        Value vkey(key);
+        return GetAttr(ctx, vkey, result);
+    }
+    
+    template<typename T>
+    INLINE bool SetAttr(Context* ctx, const char* key, T t, u4 attr = 0)
+    {
+        Value v(t);
+        return SetAttr(ctx, key, v, attr);
+    }
+    
     // BracketRead & BracketWrite read and write elements. It is the equivalent
     // of a [] braket read, ie indexing.
     

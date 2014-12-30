@@ -900,7 +900,8 @@ void Context::Run()
                 if (oldself.tag >= TAG_basic)
                 {
                     Value res(NULL_VALUE);
-                    if (oldself.val.basic->GetSlot(engine->OpDispose_String, res))
+                    Type* basicType = engine->GetTypeOf(oldself);
+                    if (basicType->GetField(engine->OpDispose_String, res))
                     {
                         Push(oldself);
                         Push(res);

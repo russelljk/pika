@@ -903,3 +903,239 @@ struct Method10 < TClass,  void,    TParam0, TParam1, TParam2,
     virtual int GetArgCount() const { return 10; }
 };
 
+// Method11 ////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename TClass,  typename TRet,    typename TParam0, typename TParam1, typename TParam2,
+         typename TParam3, typename TParam4, typename TParam5, typename TParam6, typename TParam7,
+         typename TParam8, typename TParam9, typename TParam10>
+struct Method11: NativeMethodBase
+{
+    typedef TRet(TClass::*TMETHOD)(TParam0, TParam1, TParam2, TParam3,
+                                   TParam4, TParam5, TParam6,
+                                   TParam7, TParam8, TParam9, TParam10);
+
+    TMETHOD function;
+    char signature[11];
+
+    Method11(TMETHOD m): function(m)
+    {
+        signature[0] = VarType<TParam0>::eSig;
+        signature[1] = VarType<TParam1>::eSig;
+        signature[2] = VarType<TParam2>::eSig;
+        signature[3] = VarType<TParam3>::eSig;
+        signature[4] = VarType<TParam4>::eSig;
+        signature[5] = VarType<TParam5>::eSig;
+        signature[6] = VarType<TParam6>::eSig;
+        signature[7] = VarType<TParam7>::eSig;
+        signature[8] = VarType<TParam8>::eSig;
+        signature[9] = VarType<TParam9>::eSig;
+        signature[10] = VarType<TParam10>::eSig;
+    }
+
+    virtual void Invoke(void* obj, Context* ctx)
+    {
+        TClass* ptr = (TClass*)obj;
+
+        ctx->ParseArgsInPlace(&signature[0], GetArgCount());
+        Value* args = ctx->GetArgs();
+
+        VarType<TParam0> param0(args, (u2)0);
+        VarType<TParam1> param1(args, (u2)1);
+        VarType<TParam2> param2(args, (u2)2);
+        VarType<TParam3> param3(args, (u2)3);
+        VarType<TParam4> param4(args, (u2)4);
+        VarType<TParam5> param5(args, (u2)5);
+        VarType<TParam6> param6(args, (u2)6);
+        VarType<TParam7> param7(args, (u2)7);
+        VarType<TParam8> param8(args, (u2)8);
+        VarType<TParam9> param9(args, (u2)9);
+        VarType<TParam10> param10(args, (u2)10);
+        
+        TRet ret = (ptr->*function)(param0, param1, param2, param3,
+                                    param4, param5, param6, param7, 
+                                    param8, param9, param10);
+        RetType<TRet>(ctx, ret);
+    }
+
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
+    virtual int GetArgCount() const { return 11; }
+};
+
+template<typename TClass,  typename TParam0, typename TParam1, typename TParam2,
+         typename TParam3, typename TParam4, typename TParam5, typename TParam6,
+         typename TParam7, typename TParam8, typename TParam9, typename TParam10>
+struct Method11 < TClass,  void,    TParam0, TParam1, TParam2,
+                  TParam3, TParam4, TParam5, TParam6, TParam7, 
+                  TParam8, TParam9, TParam10 > 
+        : NativeMethodBase
+{
+    typedef void(TClass::*TMETHOD)(TParam0, TParam1, TParam2, TParam3,
+                                   TParam4, TParam5, TParam6, TParam7,
+                                   TParam8, TParam9, TParam10);
+
+    TMETHOD function;
+    char signature[11];
+
+    Method11(TMETHOD m): function(m)
+    {
+        signature[0] = VarType<TParam0>::eSig;
+        signature[1] = VarType<TParam1>::eSig;
+        signature[2] = VarType<TParam2>::eSig;
+        signature[3] = VarType<TParam3>::eSig;
+        signature[4] = VarType<TParam4>::eSig;
+        signature[5] = VarType<TParam5>::eSig;
+        signature[6] = VarType<TParam6>::eSig;
+        signature[7] = VarType<TParam7>::eSig;
+        signature[8] = VarType<TParam8>::eSig;
+        signature[9] = VarType<TParam9>::eSig;
+        signature[10] = VarType<TParam10>::eSig;
+    }
+
+    virtual void Invoke(void* obj, Context* ctx)
+    {
+        TClass* ptr = (TClass*)obj;
+
+        ctx->ParseArgsInPlace(&signature[0], GetArgCount());
+        Value* args = ctx->GetArgs();
+
+        VarType<TParam0> param0(args, (u2)0);
+        VarType<TParam1> param1(args, (u2)1);
+        VarType<TParam2> param2(args, (u2)2);
+        VarType<TParam3> param3(args, (u2)3);
+        VarType<TParam4> param4(args, (u2)4);
+        VarType<TParam5> param5(args, (u2)5);
+        VarType<TParam6> param6(args, (u2)6);
+        VarType<TParam7> param7(args, (u2)7);
+        VarType<TParam8> param8(args, (u2)8);
+        VarType<TParam9> param9(args, (u2)9);
+        VarType<TParam10> param10(args, (u2)10);
+        
+        (ptr->*function)(param0, param1, param2, param3,
+                         param4, param5, param6, param7, 
+                         param8, param9, param10);
+    }
+    
+    virtual int GetRetCount() const { return 0; }
+    virtual int GetArgCount() const { return 11; }
+};
+
+
+// Method12 ////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename TClass,  typename TRet,    typename TParam0, typename TParam1, typename TParam2,
+         typename TParam3, typename TParam4, typename TParam5, typename TParam6, typename TParam7,
+         typename TParam8, typename TParam9, typename TParam10, typename TParam11>
+struct Method12: NativeMethodBase
+{
+    typedef TRet(TClass::*TMETHOD)(TParam0, TParam1, TParam2, TParam3,
+                                   TParam4, TParam5, TParam6,
+                                   TParam7, TParam8, TParam9, TParam10, TParam11);
+
+    TMETHOD function;
+    char signature[12];
+
+    Method12(TMETHOD m): function(m)
+    {
+        signature[0] = VarType<TParam0>::eSig;
+        signature[1] = VarType<TParam1>::eSig;
+        signature[2] = VarType<TParam2>::eSig;
+        signature[3] = VarType<TParam3>::eSig;
+        signature[4] = VarType<TParam4>::eSig;
+        signature[5] = VarType<TParam5>::eSig;
+        signature[6] = VarType<TParam6>::eSig;
+        signature[7] = VarType<TParam7>::eSig;
+        signature[8] = VarType<TParam8>::eSig;
+        signature[9] = VarType<TParam9>::eSig;
+        signature[10] = VarType<TParam10>::eSig;
+        signature[11] = VarType<TParam11>::eSig;
+    }
+
+    virtual void Invoke(void* obj, Context* ctx)
+    {
+        TClass* ptr = (TClass*)obj;
+
+        ctx->ParseArgsInPlace(&signature[0], GetArgCount());
+        Value* args = ctx->GetArgs();
+
+        VarType<TParam0> param0(args, (u2)0);
+        VarType<TParam1> param1(args, (u2)1);
+        VarType<TParam2> param2(args, (u2)2);
+        VarType<TParam3> param3(args, (u2)3);
+        VarType<TParam4> param4(args, (u2)4);
+        VarType<TParam5> param5(args, (u2)5);
+        VarType<TParam6> param6(args, (u2)6);
+        VarType<TParam7> param7(args, (u2)7);
+        VarType<TParam8> param8(args, (u2)8);
+        VarType<TParam9> param9(args, (u2)9);
+        VarType<TParam10> param10(args, (u2)10);
+        VarType<TParam11> param11(args, (u2)11);
+                
+        TRet ret = (ptr->*function)(param0, param1, param2, param3,
+                                    param4, param5, param6, param7, 
+                                    param8, param9, param10, param11);
+        RetType<TRet>(ctx, ret);
+    }
+
+    virtual int GetRetCount() const { return RetType<TRet>::ReturnCount; }
+    virtual int GetArgCount() const { return 12; }
+};
+
+template<typename TClass,  typename TParam0, typename TParam1, typename TParam2,
+         typename TParam3, typename TParam4, typename TParam5, typename TParam6,
+         typename TParam7, typename TParam8, typename TParam9, typename TParam10, typename TParam11>
+struct Method12 < TClass,  void,    TParam0, TParam1, TParam2,
+                  TParam3, TParam4, TParam5, TParam6, TParam7, 
+                  TParam8, TParam9, TParam10, TParam11 > 
+        : NativeMethodBase
+{
+    typedef void(TClass::*TMETHOD)(TParam0, TParam1, TParam2, TParam3,
+                                   TParam4, TParam5, TParam6, TParam7,
+                                   TParam8, TParam9, TParam10, TParam11);
+
+    TMETHOD function;
+    char signature[12];
+
+    Method12(TMETHOD m): function(m)
+    {
+        signature[0] = VarType<TParam0>::eSig;
+        signature[1] = VarType<TParam1>::eSig;
+        signature[2] = VarType<TParam2>::eSig;
+        signature[3] = VarType<TParam3>::eSig;
+        signature[4] = VarType<TParam4>::eSig;
+        signature[5] = VarType<TParam5>::eSig;
+        signature[6] = VarType<TParam6>::eSig;
+        signature[7] = VarType<TParam7>::eSig;
+        signature[8] = VarType<TParam8>::eSig;
+        signature[9] = VarType<TParam9>::eSig;
+        signature[10] = VarType<TParam10>::eSig;
+        signature[11] = VarType<TParam11>::eSig;
+    }
+
+    virtual void Invoke(void* obj, Context* ctx)
+    {
+        TClass* ptr = (TClass*)obj;
+
+        ctx->ParseArgsInPlace(&signature[0], GetArgCount());
+        Value* args = ctx->GetArgs();
+
+        VarType<TParam0> param0(args, (u2)0);
+        VarType<TParam1> param1(args, (u2)1);
+        VarType<TParam2> param2(args, (u2)2);
+        VarType<TParam3> param3(args, (u2)3);
+        VarType<TParam4> param4(args, (u2)4);
+        VarType<TParam5> param5(args, (u2)5);
+        VarType<TParam6> param6(args, (u2)6);
+        VarType<TParam7> param7(args, (u2)7);
+        VarType<TParam8> param8(args, (u2)8);
+        VarType<TParam9> param9(args, (u2)9);
+        VarType<TParam10> param10(args, (u2)10);
+        VarType<TParam11> param11(args, (u2)11);
+        
+        (ptr->*function)(param0, param1, param2, param3,
+                         param4, param5, param6, param7, 
+                         param8, param9, param10, param11);
+    }
+    
+    virtual int GetRetCount() const { return 0; }
+    virtual int GetArgCount() const { return 12; }
+};

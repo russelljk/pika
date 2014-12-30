@@ -547,6 +547,34 @@ MakeMethod(TRet(AClass::*func)(TParam0, TParam1, TParam2, TParam3,
            TParam7, TParam8, TParam9 > (func);
 }
 
+template <class AClass, typename TRet, typename TParam0, typename TParam1, typename TParam2,
+typename TParam3, typename TParam4, typename TParam5,
+typename TParam6, typename TParam7, typename TParam8,
+typename TParam9, typename TParam10>
+NativeMethodBase* 
+MakeMethod(TRet(AClass::*func)(TParam0, TParam1, TParam2, TParam3,
+                            TParam4, TParam5, TParam6,
+                            TParam7, TParam8, TParam9, TParam10))
+{
+    return new Method11 < AClass, TRet, TParam0, TParam1, TParam2, TParam3,
+           TParam4, TParam5, TParam6,
+           TParam7, TParam8, TParam9, TParam10 > (func);
+}
+
+template <class AClass, typename TRet, typename TParam0, typename TParam1, typename TParam2,
+typename TParam3, typename TParam4, typename TParam5,
+typename TParam6, typename TParam7, typename TParam8,
+typename TParam9, typename TParam10, typename TParam11>
+NativeMethodBase* 
+MakeMethod(TRet(AClass::*func)(TParam0, TParam1, TParam2, TParam3,
+                            TParam4, TParam5, TParam6,
+                            TParam7, TParam8, TParam9, TParam10, TParam11))
+{
+    return new Method12 < AClass, TRet, TParam0, TParam1, TParam2, TParam3,
+           TParam4, TParam5, TParam6,
+           TParam7, TParam8, TParam9, TParam10, TParam11 > (func);
+}
+
 // MakeFunctionVA (const) //////////////////////////////////////////////////////////////////////////
 
 template <class AClass, typename TRet>
@@ -639,6 +667,34 @@ NativeMethodBase* MakeMethod(TRet(AClass::*func)(TParam0, TParam1, TParam2, TPar
     return new ConstMethod10 < AClass, TRet, TParam0, TParam1, TParam2, TParam3,
            TParam4, TParam5, TParam6,
            TParam7, TParam8, TParam9 > (func);
+}
+
+template <class AClass, typename TRet, typename TParam0, typename TParam1, typename TParam2,
+typename TParam3, typename TParam4, typename TParam5,
+typename TParam6, typename TParam7, typename TParam8,
+typename TParam9, typename TParam10>
+NativeMethodBase* 
+MakeMethod(TRet(AClass::*func)(TParam0, TParam1, TParam2, TParam3,
+                            TParam4, TParam5, TParam6,
+                            TParam7, TParam8, TParam9, TParam10) const)
+{
+    return new ConstMethod11 < AClass, TRet, TParam0, TParam1, TParam2, TParam3,
+           TParam4, TParam5, TParam6,
+           TParam7, TParam8, TParam9, TParam10 > (func);
+}
+
+template <class AClass, typename TRet, typename TParam0, typename TParam1, typename TParam2,
+typename TParam3, typename TParam4, typename TParam5,
+typename TParam6, typename TParam7, typename TParam8,
+typename TParam9, typename TParam10, typename TParam11>
+NativeMethodBase* 
+MakeMethod(TRet(AClass::*func)(TParam0, TParam1, TParam2, TParam3,
+                            TParam4, TParam5, TParam6,
+                            TParam7, TParam8, TParam9, TParam10, TParam11) const)
+{
+    return new ConstMethod12 < AClass, TRet, TParam0, TParam1, TParam2, TParam3,
+           TParam4, TParam5, TParam6,
+           TParam7, TParam8, TParam9, TParam10, TParam11 > (func);
 }
 
 // MakeStaticMethod //////////////////////////////////////////////////////////////////////////

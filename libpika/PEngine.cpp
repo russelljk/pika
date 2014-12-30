@@ -564,6 +564,56 @@ Script* Engine::Compile(const char* name)
     return script;
 }
 
+Function* Engine::CompileString(const char* buff, size_t buff_sz, Package* globalScope)
+{    
+    GCPAUSE_NORUN(this);
+    
+    if (buff_sz == 0)
+    {
+        buff_sz = strlen(buff);
+    }
+    
+    // Create the CompileStste and Parser.
+    std::auto_ptr<CompileState> comp_state(new CompileState(this));   
+    std::auto_ptr<Parser>       parser(new Parser(comp_state.get(), buff, buff_sz));
+    
+    // Try to compile the script.
+
+    Program* tree = parser->DoParse();
+    tree->CalculateResources(0);
+    
+    if (comp_state->HasErrors())
+    {
+        RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");
+    }
+    
+    tree->GenerateCode();
+    
+    if (comp_state->HasErrors())
+    {
+        RaiseException(Exception::ERROR_syntax, "Attempt to generate code for script failed.\n");
+    }
+    globalScope = globalScope ? globalScope : this->Pkg_World;
+    
+    Def* entry_def = tree->def;
+    Function* closure = Function::Create(this, entry_def, globalScope);
+    return closure;
+}
+
+void Engine::Exec(const char* buff, size_t buff_sz, Context* ctx, Package* globalScope)
+{
+    ctx = ctx ? ctx : this->GetActiveContext();
+    Function* entryPoint = this->CompileString(buff, buff_sz, globalScope);
+    
+    ctx->PushNull();
+    ctx->Push(entryPoint);
+    
+    if (ctx->SetupCall(0))
+    {
+        ctx->Run();
+    }
+}
+
 String* Engine::AllocString(const char* str)
 {
     return string_table->Get(str);
