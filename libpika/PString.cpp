@@ -1017,7 +1017,7 @@ public:
             start = ctx->GetIntArg(1);\
             if (start < 0 || ((size_t)start) >= str->GetLength())\
             {\
-                ctx->Push((pint_t)str->GetLength());\
+                return 0;\
             }\
         }
 
@@ -1030,8 +1030,10 @@ public:
         STARTING_POS()
                 
         size_t pos = strcspn(str->GetBuffer() + start, setStr->GetBuffer());
-        
-        ctx->Push((pint_t)pos+start);
+        pos += start;
+        if (pos >= str->GetLength())
+            return 0;
+        ctx->Push((pint_t)pos);
         return 1;
     }
     
@@ -1044,6 +1046,9 @@ public:
         STARTING_POS()
         
         size_t pos = strspn(str->GetBuffer() + start, setStr->GetBuffer());
+        pos += start;
+        if (pos >= str->GetLength())
+            return 0;
         ctx->Push((pint_t)pos);
         return 1;
     }
@@ -1067,7 +1072,7 @@ public:
                 }
             }
         }
-        ctx->Push((pint_t)0);
+        ctx->PushNull();
         return 1;
     }
     
@@ -1097,7 +1102,7 @@ public:
                 }
             }
         }
-        ctx->Push((pint_t)0);
+        ctx->PushNull();
         return 1;
     }
     

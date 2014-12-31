@@ -70,7 +70,7 @@ class StringTestCase: unittest.TestCase
         self.assertEquals('123{            
             a[1]                 }456{ obj . a [ 0 ] }', '123acdefgh4561234')        
     end
-    
+        
     function testStringSlice()
         self.assertEquals('123456'[1:],  '23456')
         self.assertEquals('123456'[:2],  '12')
@@ -266,5 +266,14 @@ class StringMethodsTestCase: unittest.TestCase
             end,
             TypeError
         )
+    end
+    
+    function testStringFirstOf()
+        self.assertEquals('abc/123/'.firstOf('/'), 3)
+        self.assertEquals('/'.firstOf('/'), 0)
+        self.assertEquals('xyz.123.abc'.firstOf('/'), null)
+        self.assertEquals('xyz.123.abc'.firstOf('.', 4), 7)
+        self.assertEquals('xyz.123_abc'.firstOf('.', 4), null)
+        self.assertEquals('xyz.123_abc'.firstOf('.', 3), 3)
     end
 end
