@@ -1,0 +1,55 @@
+unittest = import "unittest"
+
+class MetaClassTestCase: unittest.TestCase
+    function testMetaClassDecl()
+        class AType : Type
+        end
+        
+        class A : Object, AType
+        end
+        
+        self.assertIs(A, AType)
+        self.assertIs(A, Type)
+        self.assertIs(AType, Type)
+        self.assertSame(A.type, AType)
+        
+        a = A.new()
+        
+        self.assertIs(a, A)
+    end
+    
+    function testInheritance()
+        class AType : Type
+        end
+        
+        class A : Object, AType
+        end
+        
+        class B : A
+        end
+        
+        self.assertIs(B, AType)
+        self.assertIs(B, Type)
+        self.assertIs(B.type, Type)
+        self.assertSame(B.type.base, AType)
+        
+        b = B.new()
+        
+        self.assertIs(b, B)
+        self.assertIs(b, Object)
+        self.assertIsNot(b, Type)
+    end
+    
+    function testInvalidMetaClassDecl()
+        class BadAType: Object # Not Type
+        end
+        
+        self.assertRaises(
+            function()
+                class BadA: Object, BadAType
+                end
+            end,
+            TypeError, "Invalid Meta Class Declaration."
+        )
+    end
+end

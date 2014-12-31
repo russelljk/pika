@@ -275,6 +275,18 @@ class TestCase
         end
     end
     
+    function assertIsNot(first, second, msg=null, stop=true)
+        self._asserts++
+        {*
+         *  Checks the the first argument is an instance of the second argument.
+         *  
+         *  [[[first is second]]]
+         *}
+        if first is second
+            self._reportFailure(first .. ' is not ' .. second, msg, stop)
+        end
+    end
+    
     function assertRaises(block, type=null, msg=null, stop=true)
         self._asserts++
         if type == null
