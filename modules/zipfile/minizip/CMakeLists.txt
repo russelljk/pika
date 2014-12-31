@@ -25,13 +25,13 @@ target_link_libraries(minizip ${ADD_LIBS})
 
 install(TARGETS minizip
     RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pika"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pika" )
 
 if (APPLE)
    set_target_properties( minizip 
                PROPERTIES 
                MACOSX_RPATH TRUE
-               INSTALL_RPATH       "${CMAKE_INSTALL_PREFIX}/lib"
-               INSTALL_NAME_DIR    "${CMAKE_INSTALL_PREFIX}/lib" )
+               INSTALL_RPATH       "${CMAKE_INSTALL_PREFIX}/lib/pika"
+               INSTALL_NAME_DIR    "${CMAKE_INSTALL_PREFIX}/lib/pika" )
 endif (APPLE)

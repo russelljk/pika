@@ -419,13 +419,27 @@ void Engine::ReadExecutePrintLoop()
                 // Make sure we don't get GC sweeped the first time around.
                 gc->ForceToGray(script);
             }
-            script->Run(args);
-            Context* ctx     = script->GetContext();
-            Value&   res     = ctx->PopTop();                
-            String*  str_res = ToString(ctx, res);
-            if (str_res)
+            
+            Context* ctx = script->GetContext();
+            size_t sp = ctx->GetStackPtr() - ctx->GetBasePtr();
+            
+            script->Run(args);            
+            
+            // bsp **might** change so we call GetBasePtr again.
+            size_t newsp = ctx->GetStackPtr() - ctx->GetBasePtr(); 
+            
+            if (newsp > sp)
             {
-                std::cout << '(' << str_res->GetBuffer() << ')' << std::endl;
+                Value& res = ctx->PopTop();
+            
+                if (!res.IsNull())
+                {
+                    String*  str_res = ToString(ctx, res);
+                    if (str_res)
+                    {
+                        std::cout << '(' << str_res->GetBuffer() << ')' << std::endl;
+                    }
+                }
             }
         }
         catch (Exception& e)
@@ -604,7 +618,7 @@ void Engine::Exec(const char* buff, size_t buff_sz, Context* ctx, Package* globa
 {
     ctx = ctx ? ctx : this->GetActiveContext();
     Function* entryPoint = this->CompileString(buff, buff_sz, globalScope);
-    
+        
     ctx->PushNull();
     ctx->Push(entryPoint);
     
@@ -612,6 +626,9 @@ void Engine::Exec(const char* buff, size_t buff_sz, Context* ctx, Package* globa
     {
         ctx->Run();
     }
+    
+    ctx->ClearAcc();
+    ctx->PopTop();
 }
 
 String* Engine::AllocString(const char* str)

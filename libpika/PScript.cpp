@@ -183,7 +183,7 @@ bool Script::Run(Array* args)
     
     engine->PutImport(name, Value(this->GetImportResult()));    
     firstRun = true;    
-    
+    context->ClearAcc();
     engine->GetGC()->IncrementalRun();
     
     return context->GetState() == Context::DEAD || context->GetState() == Context::SUSPENDED;

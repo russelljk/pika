@@ -869,6 +869,13 @@ int os_lib_load(Context* ctx, Value&)
     .Register    ( os_basename,                  "basename", 1, false, true, PIKA_GET_DOC(os_basename))
     .Constant    (eng->Paths(),                  "paths")
     .Constant    (eng->GetString(PIKA_PATH_SEP), "sep")
+#if defined(PIKA_WIN)
+    .Constant    (eng->GetString("system"),      "windows")
+#elif defined(PIKA_MAC)
+    .Constant    (eng->GetString("system"),      "mac")
+#else
+    .Constant    (eng->GetString("system"),      "posix")
+#endif
     ;
     
     // CTime::StaticInitType(os_Package, eng);

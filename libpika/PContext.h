@@ -137,7 +137,7 @@ public:
     /** Reset the Context to a used state. Slots are not reset. */
     void Reset();
     
-    
+    void ClearAcc()         { acc.SetNull(); }
     bool IsQuiet()          { return this->quiet; }
     void SetQuiet(bool q)   { this->quiet = q;    }
 protected:   
