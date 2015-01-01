@@ -7,6 +7,74 @@ class ClosureTestError: RuntimeError
     end
 end
 
+class ReturnValueTestCase: unittest.TestCase
+    function testAccumulator()
+        {* Literals *}
+        
+        function accLiteral()
+            5
+        end
+        
+        self.assertEquals(accLiteral(), 5, "Test acc for literals")
+        
+        {* Annonymous Functions *}
+        
+        function accFunction()
+            function()
+                "accFunction"
+            end
+        end
+                
+        fn = accFunction()
+        
+        self.assertIs(fn, Function, "Test acc for annonymous functions")
+        self.assertEquals(fn(), "accFunction", "Test acc for annonymous functions")
+        
+        {* Lambda Expressions *}
+                        
+        function accLambda()
+            \(x, y) => x * y
+        end
+        
+        l = accLambda()
+        
+        self.assertIs(l, Function, "Test acc for lambda expressions")
+        self.assertEquals(l(3, 4), 12, "Test acc for lambda expressions")
+        
+        {* Variables *}
+        
+        function accParam(a, b, c)
+            b
+        end
+        
+        self.assertEquals(accParam(1, 2, 3), 2, "Test acc for variables")
+        
+        {* Expressions *}
+            
+        function accExpr(a, b)
+            a * b
+        end
+        
+        self.assertEquals(accExpr(2, 3), 6, "Test acc for expressions")
+        
+        function accCall(a, b)
+            accParam(a+1, b+1, a+b)
+        end
+        
+        self.assertEquals(accCall(2, 3), 4, "Test acc for function calls")
+        
+        {* For loop *}
+                
+        function accForLoop(n, x)
+            for i = 0 to n
+                n * x
+            end
+        end
+        
+        self.assertEquals(accForLoop(5, 2), 10, "Test acc inside for loops")
+    end
+end
+
 class ClosureTestCase: unittest.TestCase
     function testSimpleClosure()
         local a, b, c = 'a', 'b', 'c'

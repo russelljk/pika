@@ -2207,6 +2207,8 @@ void Context::OpReturn(u4 retc)
 {
     u4 const expectedRetc = retCount;
     
+    ClearAcc();
+    
     if (expectedRetc > 1 && retc == 1)
     {
         const size_t btm  = this->GetStackSize();
@@ -2234,6 +2236,8 @@ void Context::OpReturn(u4 retc)
 void Context::OpYield(u4 yldc)
 {
     u4 const expectedRetc = retCount;
+    
+    ClearAcc();
     
     if (expectedRetc > 1 &&  yldc == 1)
     {
