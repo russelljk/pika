@@ -130,7 +130,7 @@ String* StringTable::Get(const char* cstr, size_t len, bool norun)
 {
     if ( len > PIKA_STRING_MAX_LEN )
     {
-        RaiseException("Attempt to create a string of length "SIZE_T_FMT" (max string length %d).", len, PIKA_STRING_MAX_LEN);
+        RaiseException("Attempt to create a string of length " SIZE_T_FMT " (max string length %d).", len, PIKA_STRING_MAX_LEN);
     }
     size_t strhash = Pika_StringHash(cstr, len);
     size_t hashcode = strhash & (size - 1);

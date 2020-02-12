@@ -202,7 +202,7 @@ void Array::MarkRefs(Collector* c)
 Array* Array::Create(Engine* eng, Type* type, size_t length, Value const* elems)
 {
     if (length > GetMax()) {
-        RaiseException("Attempt to create an Array larger than the maximum size allowed "SIZE_T_FMT".", GetMax());
+        RaiseException("Attempt to create an Array larger than the maximum size allowed " SIZE_T_FMT ".", GetMax());
     }
     
     void* sp = eng->ArrayRawAlloc();
@@ -233,7 +233,7 @@ void Array::SetLength(ssize_t slen)
     size_t len = static_cast<size_t>(slen);
     if (len >= GetMax())
     {
-        RaiseException("Attempt to create an Array larger than the maximum size allowed "SIZE_T_FMT".", GetMax());
+        RaiseException("Attempt to create an Array larger than the maximum size allowed " SIZE_T_FMT ".", GetMax());
     }
     size_t oldlen = elements.GetSize();
     size_t amt    = (oldlen < len) ? (len - oldlen) : 0;
@@ -248,7 +248,7 @@ Array* Array::Unshift(Value& v)
 {
     if (elements.GetSize() >= GetMax())
     {
-        RaiseException("Max size of "SIZE_T_FMT" reached. Cannot add more elements to the array.", GetMax());
+        RaiseException("Max size of " SIZE_T_FMT " reached. Cannot add more elements to the array.", GetMax());
     }
     WriteBarrier(v);
     
@@ -312,7 +312,7 @@ Array* Array::Push(Value& v)
 {
     if (elements.GetSize() >= GetMax())
     {
-        RaiseException("Max size of "SIZE_T_FMT" reached. Cannot add more elements to the array.", GetMax());
+        RaiseException("Max size of " SIZE_T_FMT " reached. Cannot add more elements to the array.", GetMax());
     }
     WriteBarrier(v);
     elements.Push(v);
@@ -650,9 +650,9 @@ Value& Array::At(pint_t idx)
     if (idx < 0 || (size_t)idx >= elements.GetSize())
     {
         if (idx < 0) {
-            RaiseException(Exception::ERROR_index, "Attempt to access an element with an index of "PINT_FMT".", idx); // TODO: BoundsError
+            RaiseException(Exception::ERROR_index, "Attempt to access an element with an index of " PINT_FMT ".", idx); // TODO: BoundsError
         } else {
-            RaiseException(Exception::ERROR_index, "Attempt to access element "PINT_FMT" from an array of size "SIZE_T_FMT".", idx, elements.GetSize()); // TODO: BoundsError
+            RaiseException(Exception::ERROR_index, "Attempt to access element " PINT_FMT " from an array of size " SIZE_T_FMT ".", idx, elements.GetSize()); // TODO: BoundsError
         }        
     }
     return *elements.GetAt(idx);
@@ -794,7 +794,7 @@ Returns true or false depending on whether the array is empty.\
 PIKA_DOC(Array_append, "/(a)\
 \n\
 Appends the elements of array |a| onto the end of this array. \
-"RETURN_VAL_AFTER())
+" RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_zip, "/(a)\
 \n\
@@ -810,12 +810,12 @@ out of bounds an exception will be raised.")
 PIKA_DOC(Array_reverse, "/()\
 \n\
 Reverses the order of elements in this array. \
-"RETURN_VAL_AFTER())
+" RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_push, "/(val)\
 \n\
 Pushes |val| on to back of the array.\
-"RETURN_VAL_AFTER())
+" RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_pop, "/()\
 \n\
@@ -828,7 +828,7 @@ Pops and returns the first element of the array. If the array is empty an except
 PIKA_DOC(Array_unshift, "/(val)\
 \n\
 Pushes |val| on to the front of the array.\
-"RETURN_VAL_AFTER())
+" RETURN_VAL_AFTER())
 
 PIKA_DOC(Array_map, "/(fn)\
 \n\

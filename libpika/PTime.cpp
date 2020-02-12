@@ -12,7 +12,7 @@ void RangeCheck(pint_t x, pint_t const lo, pint_t const hi, const char* val)
 {
     if (x < lo || x > hi)
     {
-        RaiseException(Exception::ERROR_runtime, "Attempt to set CTime's %s field to "PINT_FMT" must be between ["PINT_FMT" - "PINT_FMT"].", val, x, lo, hi);
+        RaiseException(Exception::ERROR_runtime, "Attempt to set CTime's %s field to " PINT_FMT " must be between [" PINT_FMT " - " PINT_FMT "].", val, x, lo, hi);
     }
 }
 
@@ -83,7 +83,7 @@ void CTime::SetYear(pint_t x)
 {
     if (x < 1900)
     {
-        RaiseException(Exception::ERROR_runtime, "Attempt to set CTime's year field to "PINT_FMT" must be greater than 1900.", x);
+        RaiseException(Exception::ERROR_runtime, "Attempt to set CTime's year field to " PINT_FMT " must be greater than 1900.", x);
     }
     the_time.tm_year = x - 1900;
 }

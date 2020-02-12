@@ -62,7 +62,7 @@ class Table;
 #include "PConfig.h"
 #include "PUtil.h"
 
-#define PIKA_BANNER_STR        "Pika "PIKA_VER_STR
+#define PIKA_BANNER_STR        "Pika " PIKA_VER_STR
 #define PIKA_COPYRIGHT_STR      "Copyright (C) 2006 Russell Kyle"
 #define PIKA_UNDERLINE_STR      "-------------------------------"
 #define PIKA_AUTHOR_STR         "Russell Kyle"

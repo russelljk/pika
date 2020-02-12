@@ -633,7 +633,7 @@ int ByteArray_nextBytes(Context* ctx, Value& self)
     }
     else if (nbytes < 0)
     {
-        RaiseException("Cannot return negative number ("PINT_FMT") of values.", nbytes);
+        RaiseException("Cannot return negative number (" PINT_FMT ") of values.", nbytes);
     }
     else if (nbytes == 0)
     {
@@ -641,7 +641,7 @@ int ByteArray_nextBytes(Context* ctx, Value& self)
     }
     else if ((ba->GetPosition() + nbytes) >= ba->GetLength())
     {
-        RaiseException("Attempt to read ("PINT_FMT") bytes beyond the end of the byte-array.", ((ba->GetPosition() + nbytes) - ba->GetLength()) + 1);
+        RaiseException("Attempt to read (" PINT_FMT ") bytes beyond the end of the byte-array.", ((ba->GetPosition() + nbytes) - ba->GetLength()) + 1);
     }
     else
     {

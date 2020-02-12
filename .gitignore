@@ -5,3 +5,5 @@ modules/re/re_config.h
 modules/curses/curses_config.h
 modules/bignum/bignum_config.h
 modules/socket/socket_config.h
+cmake-*
+.idea

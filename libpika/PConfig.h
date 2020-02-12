@@ -204,8 +204,8 @@ Keep in mind the range specified [min .. max ] and the limits of the data type u
 
 
 #ifdef PIKA_64BIT_INT
-#   define          PINT_MAX       (LONG_LONG_MAX)
-#   define          PINT_MIN       (LONG_LONG_MIN)
+#   define          PINT_MAX       (LLONG_MAX)
+#   define          PINT_MIN       (LLONG_MIN)
 typedef             u8              puint_t;
 typedef             s8              pint_t;
 #   define          Pika_Abs        PIKA_ABS64

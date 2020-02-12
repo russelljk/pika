@@ -125,7 +125,7 @@ namespace pika {
     {
         if (radix < 2 or radix > 36)
         {
-            RaiseException(Exception::ERROR_type, "Attempt to call BigInteger.toString with an invalid radix "PINT_FMT". Radix must be >= 2 and <= 36.", radix);
+            RaiseException(Exception::ERROR_type, "Attempt to call BigInteger.toString with an invalid radix " PINT_FMT ". Radix must be >= 2 and <= 36.", radix);
         }
         
         String* res = 0;

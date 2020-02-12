@@ -81,7 +81,7 @@ namespace pika {
         trace0("toString\n");
         if (radix < 2 or radix > 36)
         {
-            RaiseException(Exception::ERROR_type, "Attempt to call BigReal.toString with an invalid radix "PINT_FMT". Radix must be >= 2 and <= 36.", radix);
+            RaiseException(Exception::ERROR_type, "Attempt to call BigReal.toString with an invalid radix " PINT_FMT ". Radix must be >= 2 and <= 36.", radix);
         }
         
         int sd = 0; // significant digits.

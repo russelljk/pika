@@ -639,7 +639,7 @@ int Function_getLocal(Context* ctx, Value& self)
             return 1;
         }
     }
-    RaiseException(Exception::ERROR_index, "Attempt to access local variable: "PINT_FMT".", idx);
+    RaiseException(Exception::ERROR_index, "Attempt to access local variable: " PINT_FMT ".", idx);
     return 0;
 }
 
@@ -658,7 +658,7 @@ int Function_setLocal(Context* ctx, Value& self)
             return 0;
         }
     }    
-    RaiseException(Exception::ERROR_index, "Attempt to access local variable: "PINT_FMT".", idx);
+    RaiseException(Exception::ERROR_index, "Attempt to access local variable: " PINT_FMT ".", idx);
     return 0;
 }
 

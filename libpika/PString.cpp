@@ -196,7 +196,7 @@ String* String::Multiply(String* vstr, pint_t rep)
     if (rep < 0)
     {
         if (rep == PINT_MIN)
-            RaiseException("String too large. cannot multiply string"PINT_FMT" times", PINT_MAX);
+            RaiseException("String too large. cannot multiply string" PINT_FMT " times", PINT_MAX);
             
         vstr = vstr->Reverse();
         rep = -rep; // TODO: pint_t overflow
@@ -216,7 +216,7 @@ String* String::Multiply(String* vstr, pint_t rep)
         
         if ((PIKA_STRING_MAX_LEN / urep) < len)
         {
-            RaiseException("String too large. Attempt to repeat string of length "SIZE_T_FMT" "PINT_FMT" times.", len, rep); // XXX: needs platform dep. format for size_t
+            RaiseException("String too large. Attempt to repeat string of length " SIZE_T_FMT " " PINT_FMT " times.", len, rep); // XXX: needs platform dep. format for size_t
         }
         size_t newlen = len * urep;
         eng->string_buff.Resize(newlen);
@@ -813,7 +813,7 @@ public:
         Engine* eng = ctx->GetEngine();
         
         if (at < 0 || (size_t)at >= len)
-            RaiseException(Exception::ERROR_index, "Cannot split string of length: "PINT_FMT" at position: "PINT_FMT, (pint_t)len, at);
+            RaiseException(Exception::ERROR_index, "Cannot split string of length: " PINT_FMT " at position: " PINT_FMT, (pint_t)len, at);
             
         String* stra = eng->AllocString(src->GetBuffer(), at);
         ctx->Push(stra);
@@ -1118,7 +1118,7 @@ public:
         }
         else
         {
-            RaiseException(Exception::ERROR_index, "Attempt to get character at index "PINT_FMT". Index must be between 0 and "SIZE_T_FMT".", idx, str->GetBuffer());
+            RaiseException(Exception::ERROR_index, "Attempt to get character at index " PINT_FMT ". Index must be between 0 and " SIZE_T_FMT ".", idx, str->GetBuffer());
         }
         return 1;
     }
@@ -1161,7 +1161,7 @@ public:
             }
             else
             {
-                RaiseException(Exception::ERROR_index, "String.byteAt: attempt to get byte at position \""SIZE_T_FMT"\" from string of length \""SIZE_T_FMT"\".\n",index,str->length);
+                RaiseException(Exception::ERROR_index, "String.byteAt: attempt to get byte at position \"" SIZE_T_FMT "\" from string of length \"" SIZE_T_FMT "\".\n",index,str->length);
                 return 0;
             }
             return 1;
@@ -1412,7 +1412,7 @@ public:
             
             if ((PIKA_STRING_MAX_LEN / urep) < len)
             {
-                RaiseException("String.times: string too large to repeat "PINT_FMT" times.", rep);
+                RaiseException("String.times: string too large to repeat " PINT_FMT " times.", rep);
             }
             size_t newlen = len * urep;
             eng->string_buff.Resize(newlen);
@@ -1523,7 +1523,7 @@ public:
             if (SizeAdditionOverflow(pos, elem_len) ||
                 SizeAdditionOverflow(pos + elem_len, src_len))
             {
-                RaiseException("Attempt to create a String too large in String.join. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
+                RaiseException("Attempt to create a String too large in String.join. The max string size is " SIZE_T_FMT ".", (size_t)PIKA_STRING_MAX_LEN);
             }
             
             if (pos)
@@ -1540,7 +1540,7 @@ public:
             Pika_memcpy(buff.GetAt(pos), elem_str->GetBuffer(), elem_len);
         } 
         if (buff.GetSize() >= PIKA_STRING_MAX_LEN)
-            RaiseException("Attempt to create a String too large in String.join. The max string size is "SIZE_T_FMT".", (size_t)PIKA_STRING_MAX_LEN);
+            RaiseException("Attempt to create a String too large in String.join. The max string size is " SIZE_T_FMT ".", (size_t)PIKA_STRING_MAX_LEN);
             
         String* strresult = eng->GetString(buff.GetAt(0), buff.GetSize());
         ctx->Top().Set(strresult); // Overwrite the iterator

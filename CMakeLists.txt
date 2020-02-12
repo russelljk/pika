@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.2)
 project(Pika)
 
 if (NOT CMAKE_INSTALL_PREFIX)
@@ -14,6 +14,16 @@ set (pika_LIB_VERSION_MAJOR "1")
 set (pika_LIB_VERSION_MINOR "0")
 set (pika_LIB_VERSION_PATCH "2")
 set (pika_ABI_VERSION "1")
+
+if (CMAKE_VERSION VERSION_LESS "3.1")
+    add_definitions(-std=c++11)
+else()
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    if(NOT CYGWIN AND NOT MSYS)
+        set(CMAKE_CXX_EXTENSIONS OFF)
+    endif()
+endif()
 
 if (APPLE AND PIKA_FAT_BINARY)
     # set arch to 32/64 bit ppc & x86
@@ -91,15 +101,14 @@ SET(CPACK_NSIS_HELP_LINK      "http://www.pika-lang.org")
 SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.pika-lang.org")
 SET(CPACK_NSIS_CONTACT        "russell.j.kyle@gmail.com")
 
-
 # -------------------------------------
 # Add the subdirectorys for each target
 # -------------------------------------
 
 if (PIKA_JUST_LIB)
     add_subdirectory(libpika)
+    add_subdirectory(test)
     add_subdirectory(samples)
-    add_subdirectory(tests) 
 else (PIKA_JUST_LIB)
     add_subdirectory(pikac)
     add_subdirectory(libpika)        
