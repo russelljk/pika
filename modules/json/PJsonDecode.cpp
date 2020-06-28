@@ -34,7 +34,7 @@ const char* JsonTokenToString(int x)
     return "unkown";
 }
 
-static size_t const JsonKeywordCount = sizeof(JsonKeywords);
+static size_t const JsonKeywordCount = countof(JsonKeywords);
 
 JsonStringStream::JsonStringStream(const char* cstr, size_t length): pos(0)
 {

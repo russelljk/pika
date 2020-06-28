@@ -2,7 +2,7 @@
 ADD_DEFINITIONS ( -D_FILE_OFFSET_BITS=64 )
 
 SET ( BZIP2_SRCS blocksort.c huffman.c crctable.c randtable.c compress.c decompress.c bzlib.c )
-ADD_LIBRARY ( bz2 ${BZIP2_SRCS} libbz2.def )
+ADD_LIBRARY ( bz2 SHARED ${BZIP2_SRCS} libbz2.def )
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin"       CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/pika"  CACHE PATH "Installation directory for libraries")

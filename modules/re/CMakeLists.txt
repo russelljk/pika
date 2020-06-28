@@ -53,6 +53,8 @@ set (CPACK_PACKAGE_VERSION_PATCH ${pika_LIB_VERSION_PATCH})
 set (pikare_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.${pika_LIB_VERSION_PATCH}")
 
 # --------------------- Source + Header Files ----------------------
+set(BUILD_SHARED_LIBS 1)
+set(PCRE_STATIC 0)
 
 if (NOT HAVE_POSIX_RE AND NOT HAVE_PCRE)
     add_subdirectory(pcre)

@@ -213,8 +213,8 @@ namespace pika {
     bool ZipReader::SetFilePos(pint_t zip_pos, pint_t file_num)
     {
         unz_file_pos pos = {
-            zip_pos,
-            file_num
+            (u4)zip_pos,
+            (u4)file_num
         };
         
         int res = unzGoToFilePos(this->file, &pos);

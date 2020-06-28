@@ -458,8 +458,8 @@ Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Pac
         ctx->Push(type);
         
         {   GCPAUSE_NORUN(eng);
-            std::auto_ptr<CompileState> cs    ( new CompileState(eng) );
-            std::auto_ptr<Parser>       parser( new Parser(cs.get(), 
+            std::unique_ptr<CompileState> cs    ( new CompileState(eng) );
+            std::unique_ptr<Parser>       parser( new Parser(cs.get(),
                                                            body->GetBuffer(),
                                                            body->GetLength()) );
             
@@ -470,7 +470,7 @@ Type* Type::CreateWith(Context* ctx, String* body, String* name, Type* base, Pac
             
             if (cs->HasErrors())
                 RaiseException(Exception::ERROR_syntax, "Attempt to compile script failed.\n");
-            
+
             tree->GenerateCode();
             
             if (cs->HasErrors())

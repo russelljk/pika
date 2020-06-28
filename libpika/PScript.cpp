@@ -89,8 +89,8 @@ Script* Script::CreateWithBuffer(Engine* eng, String* buff, String* name, Packag
     if (!name) name = eng->emptyString;
     
     {   GCPAUSE_NORUN(eng);
-        std::auto_ptr<CompileState> cs    ( new CompileState(eng) );
-        std::auto_ptr<Parser>       parser( new Parser(cs.get(), 
+        std::unique_ptr<CompileState> cs    ( new CompileState(eng) );
+        std::unique_ptr<Parser>       parser( new Parser(cs.get(),
                                                        buff->GetBuffer(),
                                                        buff->GetLength()) );
         

@@ -29,7 +29,7 @@ set (pikazlib_LIB_VERSION "${pika_LIB_VERSION_MAJOR}.${pika_LIB_VERSION_MINOR}.$
 #                ${CMAKE_CURRENT_SOURCE_DIR}/zlib_config.h)
 
 set (zlib_LIB_SRCS ${zlib_LIB_SRCS} PZlib.cpp PZError.cpp PZStream.cpp PZDecompressor.cpp PZCompressor.cpp)
-set (zlib_LIB_HEADERS ${zlib_LIB_HEADERS} PZlib.h PZError.h PZStream.h PZDecompressor.h PZCompressor.h)
+set (zlib_LIB_HEADERS ${zlib_LIB_HEADERS} PZLib.h PZError.h PZStream.h PZDecompressor.h PZCompressor.h)
 
 source_group (include FILES ${zlib_LIB_HEADERS})
 source_group (source  FILES ${zlib_LIB_SRCS})
@@ -41,8 +41,9 @@ add_library (pikazlib SHARED ${zlib_LIB_SRCS} ${zlib_LIB_HEADERS})
 target_link_libraries (pikazlib ${ADD_LIBS} pika)
 
 set_target_properties ( pikazlib 	PROPERTIES
-                           	VERSION           ${pikazlib_LIB_VERSION}
-                           	SOVERSION         ${pikazlib_LIB_VERSION})
+                        VERSION           ${pikazlib_LIB_VERSION}
+                        SOVERSION         ${pikazlib_LIB_VERSION}
+                        LINKER_LANGUAGE CXX )
 if (APPLE)
    set_target_properties( pikazlib 
                PROPERTIES 

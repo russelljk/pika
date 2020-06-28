@@ -129,7 +129,12 @@ endif (UNIX)
 source_group (include FILES ${pika_LIB_HEADERS})
 source_group (source  FILES ${pika_LIB_SRCS})
 
-add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
+if (PIKA_STATIC)
+    add_library (pika STATIC ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
+else(PIKA_STATIC)
+    add_library (pika SHARED ${pika_LIB_SRCS} ${pika_LIB_HEADERS})
+endif(PIKA_STATIC)
+
 if (WIN32)
     add_definitions(-DPIKA_DLL)
     add_definitions(-DPIKA_EXPORTS)

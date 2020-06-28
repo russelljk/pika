@@ -1,5 +1,5 @@
 /*
- *  PZlib.h
+ *  PZLib.h
  *  See Copyright Notice in Pika.h
  */
 #ifndef PIKA_ZLIB_HEADER

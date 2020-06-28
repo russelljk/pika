@@ -2,7 +2,7 @@
  *  PZlib.cpp
  *  See Copyright Notice in Pika.h
  */
-#include "PZlib.h"
+#include "PZLib.h"
 
 #if defined(PIKA_WIN)
 

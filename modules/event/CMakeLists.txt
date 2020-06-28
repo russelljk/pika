@@ -21,7 +21,7 @@ if(EVENT_FOUND)
     
     message(STATUS "Using event library ${EVENT_LIBRARIES}")
 else(EVENT_FOUND)
-    message(STATUS "Not builded event module.")
+    message(STATUS "Not building event module.")
     return ()
 endif(EVENT_FOUND)
 

@@ -23,9 +23,13 @@ char* Pika_GetError(int err)
 {
     size_t ERROR_SIZE = 1024;
     char* errorMessage = (char*)Pika_malloc(ERROR_SIZE);
-    
-    while (strerror_r(err, errorMessage, ERROR_SIZE) == -1 && errno == ERANGE)
-    {
+    while (
+#ifdef _GNU_SOURCE
+strerror_r(err, errorMessage, ERROR_SIZE) == nullptr && errno == ERANGE
+#else
+        strerror_r(err, errorMessage, ERROR_SIZE) == -1 && errno == ERANGE
+#endif
+            ) {
         ERROR_SIZE *= 2;
         errorMessage = (char*)Pika_realloc(errorMessage, ERROR_SIZE);
         if (!errorMessage)

@@ -41,7 +41,7 @@ endif (APPLE AND PIKA_FAT_BINARY)
 
 # CMake module path 
 
-set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Set build type to for single-configuration generators (ie Makefiles) to 'Release'.
 
@@ -52,12 +52,13 @@ endif (NOT CMAKE_BUILD_TYPE)
 # -------------------------------------------------------------
 # Redirect the libraries and executables to the same directory.
 # -------------------------------------------------------------
+if (NOT PIKA_NO_OUTPUT_DIRECTORY)
+    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
+         CACHE PATH                     "Directory for all Libraries")
 
-SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
-     CACHE PATH                     "Directory for all Libraries")
-
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
-     CACHE PATH                     "Directory for all Executables.")
+    set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
+         CACHE PATH                     "Directory for all Executables.")
+endif(NOT PIKA_NO_OUTPUT_DIRECTORY)
 
 # ------------------------------------------------
 # Initialize CPack variables
@@ -73,13 +74,13 @@ SET(CPACK_PACKAGE_VENDOR              "Pika")
 # no extension. This way we just 'copy' them into the build
 # directory with a txt extension.
 
-configure_file ("${CMAKE_SOURCE_DIR}/README" 
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/README"
                 "${CMAKE_CURRENT_BINARY_DIR}/README.txt")
 
-configure_file ("${CMAKE_SOURCE_DIR}/LICENSE" 
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
                 "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt")
 
-configure_file ("${CMAKE_SOURCE_DIR}/CPackWelcome" 
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/CPackWelcome"
                 "${CMAKE_CURRENT_BINARY_DIR}/CPackWelcome.txt")
 
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_BINARY_DIR}/README.txt")
@@ -105,7 +106,8 @@ else (PIKA_JUST_LIB)
     add_subdirectory(libpika)        
     add_subdirectory(samples)
     add_subdirectory(tests)
-    if (NOT PIKA_NO_MODULES)
-    	add_subdirectory(modules)
-    endif (NOT PIKA_NO_MODULES)
 endif (PIKA_JUST_LIB)
+
+if (NOT PIKA_NO_MODULES)
+    add_subdirectory(modules)
+endif (NOT PIKA_NO_MODULES)

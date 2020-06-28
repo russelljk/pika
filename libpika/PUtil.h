@@ -92,7 +92,7 @@ struct TAlignIt
     char c;
 };
 
-#define alignof(T) (( sizeof( TAlignIt<T> ) > sizeof( T )) ? sizeof( TAlignIt<T> ) - sizeof( T ) : sizeof( T ))
+#define alignof(T) (( sizeof( pika::TAlignIt<T> ) > sizeof( T )) ? sizeof( pika::TAlignIt<T> ) - sizeof( T ) : sizeof( T ))
 
 template <typename T, size_t N>
 INLINE size_t countof(const T (&arr) [N]) { return N; }

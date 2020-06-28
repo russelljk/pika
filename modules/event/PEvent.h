@@ -34,7 +34,7 @@ struct Event : Object {
     Value   callback;
     Value   file;
     pint_t  fd;
-    event*  event;
+    struct event*  event;
 };
 
 }// pika

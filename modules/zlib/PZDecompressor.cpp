@@ -2,7 +2,7 @@
  *  PZDecompressor.cpp
  *  See Copyright Notice in Pika.h
  */
-#include "PZlib.h"
+#include "PZLib.h"
 
 namespace pika {
 

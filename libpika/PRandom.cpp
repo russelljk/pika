@@ -290,7 +290,7 @@ If |amt| is negative or not an [Integer integer] an exception will be raised.")
 Array* Random::Generate(pint_t amt)
 {
     if (amt < 0)
-        RaiseException("Attempt to generate "PINT_FMT" random numbers. The amount should be > 0.", amt);
+        RaiseException("Attempt to generate " PINT_FMT " random numbers. The amount should be > 0.", amt);
         
     GCPAUSE_NORUN(engine);
     Array* v = Array::Create(engine, 0, amt, 0);

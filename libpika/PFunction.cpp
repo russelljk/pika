@@ -566,8 +566,8 @@ void Function::Init(Context* ctx)
 void Function::InitWithBody(String* body)
 {
     GCPAUSE_NORUN(engine);
-    std::auto_ptr<CompileState> cs    ( new CompileState(engine) );
-    std::auto_ptr<Parser>       parser( new Parser(cs.get(), body->GetBuffer(), body->GetLength()) );
+    std::unique_ptr<CompileState> cs    ( new CompileState(engine) );
+    std::unique_ptr<Parser>       parser( new Parser(cs.get(), body->GetBuffer(), body->GetLength()) );
     
     Program* tree = parser->DoFunctionParse();
     ASSERT(tree);
@@ -639,7 +639,7 @@ int Function_getLocal(Context* ctx, Value& self)
             return 1;
         }
     }
-    RaiseException(Exception::ERROR_index, "Attempt to access local variable: "PINT_FMT".", idx);
+    RaiseException(Exception::ERROR_index, "Attempt to access local variable: " PINT_FMT ".", idx);
     return 0;
 }
 
@@ -658,7 +658,7 @@ int Function_setLocal(Context* ctx, Value& self)
             return 0;
         }
     }    
-    RaiseException(Exception::ERROR_index, "Attempt to access local variable: "PINT_FMT".", idx);
+    RaiseException(Exception::ERROR_index, "Attempt to access local variable: " PINT_FMT ".", idx);
     return 0;
 }
 

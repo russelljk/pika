@@ -28,7 +28,7 @@ using namespace pika;
 
 void Pika_DisplayUsage(const char* name)
 {
-    std::cerr << '\n' << PIKA_BANNER_STR", "PIKA_COPYRIGHT_STR << '\n';
+    std::cerr << '\n' << PIKA_BANNER_STR ", " PIKA_COPYRIGHT_STR << '\n';
     std::cerr << "\nUsage: " << name <<  " file [options]\n";
     std::cerr << "\nOptions:\n";
     std::cerr << "\t--arg,  -a    : White space seperated arguments i.e. \"arg1 arg2 arg3\"\n";

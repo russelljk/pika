@@ -1,4 +1,4 @@
-#include "PZlib.h"
+#include "PZLib.h"
 
 namespace pika {
 

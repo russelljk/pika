@@ -362,10 +362,10 @@ void Engine::ReadExecutePrintLoop()
     while (!stream.IsEof())
     {
         try
-        {                
-            std::auto_ptr<CompileState> comp_state(new CompileState(this));   
+        {
+            std::unique_ptr<CompileState> comp_state(new CompileState(this));
             comp_state->repl_mode = true;
-            std::auto_ptr<Parser>       parser  (new Parser(comp_state.get(), &stream));
+            std::unique_ptr<Parser>       parser  (new Parser(comp_state.get(), &stream));
             // Try to compile the script.
             try
             {
@@ -505,8 +505,8 @@ Script* Engine::Compile(String* name, Context* parent)
         LiteralPool* literals  = 0;
         
         // Create the CompileStste and Parser.
-        std::auto_ptr<CompileState> comp_state(new CompileState(this));   
-        std::auto_ptr<Parser>       parser(new Parser(comp_state.get(), &yyin));
+        std::unique_ptr<CompileState> comp_state(new CompileState(this));
+        std::unique_ptr<Parser>       parser(new Parser(comp_state.get(), &yyin));
         
         // Try to compile the script.
         try
@@ -588,8 +588,8 @@ Function* Engine::CompileString(const char* buff, size_t buff_sz, Package* globa
     }
     
     // Create the CompileStste and Parser.
-    std::auto_ptr<CompileState> comp_state(new CompileState(this));   
-    std::auto_ptr<Parser>       parser(new Parser(comp_state.get(), buff, buff_sz));
+    std::unique_ptr<CompileState> comp_state(new CompileState(this));
+    std::unique_ptr<Parser>       parser(new Parser(comp_state.get(), buff, buff_sz));
     
     // Try to compile the script.
 

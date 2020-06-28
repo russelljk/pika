@@ -87,7 +87,7 @@ typedef signed   long long  s8;
 #if defined(PIKA_MAC)
 #   define Pika_isnan       std::isnan
 #else
-#   define Pika_isnan       isnan
+#   define Pika_isnan       std::isnan
 #endif
 #define Pika_vsnprintf      vsnprintf
 

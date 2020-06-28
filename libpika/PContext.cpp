@@ -774,7 +774,7 @@ INLINE void Context::OpBitBinary(const Opcode op, const OpOverride ovr, const Op
     return;
 }
 
-INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
+void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const OpOverride ovr_r, int& numcalls)
 {
     Value& b = Top();
     Value& a = Top1();
@@ -803,7 +803,7 @@ INLINE void Context::OpArithBinary(const Opcode op, const OpOverride ovr, const 
 #       ifndef NO_DIVIDEBYZERO_ERROR
                 if (ib == 0)
                 {
-                     RaiseException(Exception::ERROR_dividebyzero, "Divide by zero while attempting to find "PINT_FMT" divided by "PINT_FMT".", ia, ib);
+                     RaiseException(Exception::ERROR_dividebyzero, "Divide by zero while attempting to find " PINT_FMT " divided by " PINT_FMT ".", ia, ib);
                 }
 #       endif                
                 if (ia % ib == 0)

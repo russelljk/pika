@@ -51,7 +51,7 @@ enum DefFlags {
     ((const char*)0)
 #else
 #   define PIKA_DOC(X, DOC)\
-        static const char* X##_Doc_String = DOC;
+        static const char* X ## _Doc_String = DOC;
 
 #   define PIKA_GET_DOC(X)\
         X##_Doc_String
